@@ -1,20 +1,17 @@
-# Python-generated files
+# Secrets
+AOMBGITToken.env
+*.env
+
+# Logs and runtime outputs
+logs/
+*.log
+*.pid
+
+# Python
 __pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+*.pyc
+*.pyo
+.venv/
 
-# Virtual environments
-.venv
-worktrees/
-results/
-queue/
-
-# Agent prompt files (generated per-session by launchers)
-CLAUDE.md
-AGENTS.md
-
-# Experimental code/artifacts
-dev/
+# Generated outputs
+overnight_progress.png
