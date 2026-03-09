@@ -20,3 +20,9 @@ __pycache__/
 
 # Generated outputs
 overnight_progress.png
+
+# Machine-specific launchd plist (use .template to generate yours)
+com.aomb.morning-report.plist
+
+# macOS
+.DS_Store

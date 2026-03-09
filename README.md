@@ -256,10 +256,20 @@ Every 10 successful experiments, results push automatically to GitHub.
 ## Scheduled Morning Report
 
 ```bash
-# Install launchd job — fires at 8:00 AM daily
-cp com.aomb.morning-report.plist ~/Library/LaunchAgents/
+# 1. Generate your machine-specific plist from the template
+AOMB_DIR="$(pwd)"
+sed "s|AOMB_DIR|${AOMB_DIR}|g" com.aomb.morning-report.plist.template \
+  > ~/Library/LaunchAgents/com.aomb.morning-report.plist
+
+# 2. Load the launchd job — fires at 8:00 AM daily
 launchctl load ~/Library/LaunchAgents/com.aomb.morning-report.plist
+
+# 3. Verify it's loaded
+launchctl list com.aomb.morning-report
 ```
+
+> The `.plist.template` uses `AOMB_DIR` as a placeholder.
+> The generated `.plist` (with your actual paths) lives in `~/Library/LaunchAgents/` and is gitignored.
 
 ---
 

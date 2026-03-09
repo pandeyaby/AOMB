@@ -7,12 +7,13 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/abhipan/AOMB/.venv/bin/python</string>
-        <string>/Users/abhipan/AOMB/morning_report.py</string>
+        <!-- Replace AOMB_DIR with the absolute path to your AOMB checkout -->
+        <string>AOMB_DIR/.venv/bin/python</string>
+        <string>AOMB_DIR/morning_report.py</string>
         <string>--plot</string>
     </array>
 
-    <!-- Run every day at 8:00 AM local time (PST/PDT) -->
+    <!-- Run every day at 8:00 AM local time -->
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
@@ -22,15 +23,15 @@
     </dict>
 
     <key>WorkingDirectory</key>
-    <string>/Users/abhipan/AOMB</string>
+    <string>AOMB_DIR</string>
 
     <key>StandardOutPath</key>
-    <string>/Users/abhipan/AOMB/logs/morning_report.log</string>
+    <string>AOMB_DIR/logs/morning_report.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/abhipan/AOMB/logs/morning_report.err</string>
+    <string>AOMB_DIR/logs/morning_report.err</string>
 
-    <!-- Run even after a missed schedule (e.g. Mac was asleep at 8 AM) -->
+    <!-- Do not auto-run at login — only at scheduled time -->
     <key>RunAtLoad</key>
     <false/>
 </dict>
