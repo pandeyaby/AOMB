@@ -2,6 +2,11 @@
 AOMBGITToken.env
 *.env
 
+# Internal planning / strategy docs — never push to public repo
+Cisco-Splunk-AppD-Autoresearch.md
+for-user.md
+article.md
+
 # Logs and runtime outputs
 logs/
 *.log
