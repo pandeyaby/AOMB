@@ -1,104 +1,298 @@
 # Autonomous Observability Model Breeder (AOMB)
 
-A self-improving AI research swarm that autonomously evolves tiny language models
-specialized in Cisco / Splunk / AppDynamics observability telemetry.
+> *"Frontier AI research used to require meat computers. Now it runs overnight on your MacBook."*
 
-Built on top of [autoresearch-macos](https://github.com/miolini/autoresearch-macos) —
-runs entirely on Apple Silicon (MPS) with fixed 5-minute training experiments.
+AOMB is a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) —
+adapted for Apple Silicon by [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) —
+that autonomously breeds tiny language models specialized in **Cisco / Splunk / AppDynamics observability telemetry**.
 
-## What it does
+A Claude agent reads `program.md`, edits `train.py`, runs 5-minute experiments, commits improvements, and loops —
+all while you sleep. You wake up to a git log of experiments and a better model.
 
-The system trains a tiny GPT-variant (with RoPE, GQA, MuonAdamW, sliding window
-attention) on synthetic observability telemetry sequences:
+---
 
-```
-[ts=2026-03-08T18:00:00Z] [src=AppD] [svc=payment-gateway] latency_ms=420 error=timeout trace_id=a3f9 span_id=f1e2 http_status=500 gpu_util=0.92 drift_score=0.87
-[ts=2026-03-08T18:00:01Z] [src=ThousandEyes] path=internet→aws-us-east-1 latency_ms=180 jitter_ms=12 packet_loss=0.003 bgp_changes=0 dns_ms=14
-[ts=2026-03-08T18:00:02Z] [src=Splunk] host=web-03 level=ERROR svc=auth msg=token_expired latency_ms=9800 alert=true
-[ts=2026-03-08T18:00:02Z] [src=OTel] trace_id=a3f9 span_id=b2c3 op=db.query svc=inventory-db duration_ms=390 status=ok
-[ts=2026-03-08T18:00:03Z] [src=CiscoSDWAN] site=branch-07 link=mpls→inet latency_ms=55 loss=0.000 bw_util=0.71
-```
+## The Idea
 
-A Claude agent autonomously runs experiments overnight, editing `train.py` to find
-the architecture and hyperparameters that minimize `val_bpb` on this telemetry corpus.
+Monitoring tools today are rule-based and threshold-driven. Someone decided `latency_ms > 500` means alert.
+The on-call engineer gets paged 847 times a week. 803 are noise.
 
-**Why val_bpb?** Lower bits-per-byte means the model predicts normal telemetry better.
-This creates a free implicit anomaly detector: anomalous sequences have high perplexity.
+AOMB takes the language model approach: **train a model to predict what comes next in your telemetry stream.**
+A model that predicts well has learned what *normal* looks like. Anomalies are sequences the model finds surprising.
+No rules. No labels. No thresholds. Just next-token prediction — and the anomaly detection is a free consequence.
 
-## Quick Start
+The training objective (`val_bpb` — validation bits-per-byte) *is* the anomaly detection capability.
+Lower val_bpb = model understands your infrastructure's language = better anomaly detector.
+
+---
+
+## Quickstart
 
 ```bash
+# Requirements: macOS + Apple Silicon, Python 3.10+, uv
+
 # 1. Install dependencies
+curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync
 
-# 2. Generate observability corpus (~21 parquet shards, ~150MB)
+# 2. Generate observability corpus (one-time, ~2 min)
 uv run python generate_observability_corpus.py
 
-# 3. Train BPE tokenizer on telemetry vocab
+# 3. Train BPE tokenizer on telemetry vocabulary (~4 sec)
 uv run python prepare.py --num-shards 20
 
-# 4. Smoke-test the baseline model (60 seconds)
-timeout 60 uv run train.py
+# 4. Verify the training loop works (60-second smoke test)
+uv run python -c "
+import signal, sys
+signal.signal(signal.SIGALRM, lambda s,f: sys.exit(0))
+signal.alarm(60)
+exec(open('train.py').read())
+" 2>&1 | tail -5
 
-# 5. Start the agent loop (feed to Claude API or claude.ai)
-# The agent reads program.md + current train.py and proposes improvements
-# Run overnight for 50–100 experiments
+# 5. Run the autonomous agent loop overnight
+caffeinate -i uv run python agent_loop.py >> logs/agent_loop.log 2>&1 &
+echo "Agent running. Check logs/agent_loop.log. Sleep well."
+
+# 6. Morning report
+uv run python morning_report.py --plot
 ```
 
-## Files
+---
 
-| File | Purpose |
-|------|---------|
-| `train.py` | Model + training loop (agent edits this) |
-| `prepare.py` | Tokenizer training + data loading (do not modify) |
-| `program.md` | Agent research constitution (domain + experiment queue) |
-| `generate_observability_corpus.py` | One-time synthetic telemetry corpus generator |
-| `morning_report.py` | Next-morning progress summary from git log |
-| `analysis.ipynb` | Experiment analysis notebook (from autoresearch-macos) |
+## How It Works
 
-## Architecture
+```
+┌─────────────────────────────────────────────────────────┐
+│                    AGENT LOOP                           │
+│                                                         │
+│  program.md + train.py + git log                        │
+│         │                                               │
+│         ▼                                               │
+│   claude --print ──► proposed train.py                  │
+│         │                                               │
+│         ▼                                               │
+│   uv run train.py  (5 minutes, MPS)                     │
+│         │                                               │
+│         ▼                                               │
+│   val_bpb improved? ──Yes──► git commit ──► loop        │
+│         │ No                                            │
+│         ▼                                               │
+│   restore backup ──────────────────────────► loop       │
+└─────────────────────────────────────────────────────────┘
+```
 
-The model is a sophisticated nanoGPT variant already featuring:
-- **RoPE** (Rotary Positional Embeddings) — handles long sequences
-- **GQA** (Grouped Query Attention) — memory efficient
-- **Sliding window attention** — configurable per-layer pattern
-- **MuonAdamW** — Muon optimizer for matrices, AdamW for embeddings
-- **Value residual** (ResFormer-style) — alternating layers
-- **Logit softcapping** — training stability
+**Three files. That's the whole system.**
 
-The agent explores: model depth, width, attention window patterns, learning rates,
-schedule shape, and loss function modifications.
+| File | Who touches it | What it is |
+|------|---------------|------------|
+| `prepare.py` | Nobody | Data pipeline, tokenizer, `evaluate_bpb` — sacred, never modified |
+| `train.py` | The Claude agent | Model architecture + training loop — the only thing that changes |
+| `program.md` | You (rarely) | Research constitution — domain context, experiment queue, constraints |
 
-## Observability Sources Modeled
+The agent loop (`agent_loop.py`) drives the cycle automatically. You set it and forget it.
 
-| Source | Events modeled |
-|--------|----------------|
-| AppDynamics | Business transactions, service health, agent traces |
-| ThousandEyes | Network path latency, packet loss, BGP changes |
-| Splunk | Structured logs, SIEM alerts, security events |
-| OpenTelemetry | Distributed trace spans, service dependencies |
-| Cisco SD-WAN | Branch link quality, QoS violations, bandwidth |
-| AppD BizTxn | End-to-end transaction health snapshots |
+---
+
+## The Training Data
+
+21 parquet shards (~22 MB) in `~/.cache/autoresearch/data/`, generated by `generate_observability_corpus.py`.
+Each row is a coherent session of 8–60 correlated events across telemetry sources:
+
+```
+[ts=2026-03-08T18:00:00Z] [src=AppD] [svc=payment-gateway] latency_ms=420 error=timeout trace_id=a3f9 http_status=500 drift_score=0.87
+[ts=2026-03-08T18:00:01Z] [src=ThousandEyes] path=internet→aws-us-east-1 latency_ms=3200 packet_loss=0.123 bgp_changes=3
+[ts=2026-03-08T18:00:01Z] [src=Splunk] level=CRITICAL svc=auth msg=circuit_breaker_open latency_ms=28500 pagerduty=triggered
+[ts=2026-03-08T18:00:02Z] [src=OTel] trace_id=a3f9 op=db.query svc=inventory-db duration_ms=390 status=ok
+[ts=2026-03-08T18:00:02Z] [src=CiscoSDWAN] site=branch-07 link=mpls→inet bw_util=0.982 policy=VIOLATED
+[ts=2026-03-08T18:00:03Z] [src=AppD-BizTxn] svc=checkout health=STALL response_time_ms=28900 error_pct=0.812
+```
+
+**Statistical properties:** ~91% normal, ~6% anomalous, ~3% cascade failures across 20–60 correlated events.
+BPE vocab of 8,192 tokens trained on this corpus — field names like `latency_ms=`, `trace_id=` become single tokens.
+
+---
+
+## The Model Architecture
+
+Not vanilla nanoGPT. Built-in, state-of-the-art from day one:
+
+| Component | What it does |
+|-----------|-------------|
+| **RoPE** | Rotary position embeddings — relative position, not absolute |
+| **GQA** | Grouped Query Attention — fewer KV heads, memory efficient |
+| **Sliding window** | `WINDOW_PATTERN="L"` — per-layer full or half-context attention |
+| **MuonAdamW** | Muon (orthogonal updates) for matrices, AdamW for embeddings |
+| **Value Embeddings** | ResFormer-style residual on alternating layers |
+| **Logit softcapping** | `tanh(x/15)×15` — no gradient clipping needed |
+| **RMSNorm** | Everywhere, no bias |
+
+**What the agent explores:**
+
+```python
+DEPTH = 4               # layers: try 2, 3, 4, 6
+ASPECT_RATIO = 64       # model_dim = DEPTH × ASPECT_RATIO
+HEAD_DIM = 128          # attention head size
+WINDOW_PATTERN = "L"    # try "SSL", "SSSL", "SL"
+
+EMBEDDING_LR = 0.6      # 4-way learning rate split
+UNEMBEDDING_LR = 0.004
+MATRIX_LR = 0.04        # Muon optimizer
+SCALAR_LR = 0.5
+
+WARMUP_RATIO = 0.0      # LR schedule shape
+WARMDOWN_RATIO = 0.5
+TOTAL_BATCH_SIZE = 2**16
+```
+
+---
+
+## Empirical Results
+
+| Run | Hardware | Config | Best val_bpb | Experiments |
+|-----|----------|--------|-------------|-------------|
+| First night | MacBook Pro M-series | DEPTH=4, WINDOW=L | **0.4349** | 2 successful / 10 total |
+| Baseline (5 min) | MacBook Pro M-series | Default | 0.4372 | 1 |
+| Random model | — | — | ~8.0 | — |
+
+Training throughput: ~49,000 tokens/sec on Apple Silicon MPS.
+Each experiment cycle: ~15–20 minutes (Claude call ~3 min + training 5 min + eval 2–7 min).
+
+> The overnight loop stopped early due to Claude API rate limiting at experiment 10.
+> val_bpb improved from 0.4372 → 0.4349 in the first two successful experiments.
+
+---
+
+## val_bpb — The Only Metric That Matters
+
+```
+val_bpb = total_nats / (log(2) × total_bytes)
+```
+
+Bits-per-byte is vocabulary-independent and directly comparable across architectures.
+
+| val_bpb | What it means |
+|---------|---------------|
+| > 4.0 | Model barely beats random — hasn't learned field structure yet |
+| 1.5 – 4.0 | Early convergence — learning token distributions |
+| 0.8 – 1.5 | Good — model understands normal telemetry patterns |
+| 0.4 – 0.8 | Strong — implicit anomaly detector, approaching production use |
+| **0.4349** | **← AOMB current best (first night)** |
+| < 0.35 | Excellent — deploy as zero-shot anomaly scorer |
+
+The information-theoretic argument: minimizing val_bpb = minimizing KL(P_data ‖ P_model).
+A model close to the true data distribution assigns high surprise to anomalous sequences automatically.
+**The training objective IS the anomaly detection capability. No separate head. No labels.**
+
+---
+
+## Observability Sources in the Corpus
+
+| Source | Signal type |
+|--------|-------------|
+| **AppDynamics** | APM traces, latency, error rates, GPU/AI agent cost drift |
+| **ThousandEyes** | Network path quality, BGP stability, DNS, packet loss |
+| **Splunk** | Structured logs, SIEM alerts, security events |
+| **OpenTelemetry** | Distributed trace spans, service dependency chains |
+| **Cisco SD-WAN** | Branch WAN link health, QoS violations, bandwidth utilization |
+| **AppD BizTxn** | End-to-end business transaction health snapshots |
+
+---
 
 ## Morning Report
 
-After an overnight run:
 ```bash
 uv run python morning_report.py --plot
 ```
 
-Prints a table of all experiments with val_bpb, delta, and the winning change.
-Generates `overnight_progress.png` showing the convergence curve.
+```
+========================================================================
+  AUTONOMOUS OBSERVABILITY MODEL BREEDER — MORNING REPORT
+========================================================================
+  Experiments completed  : 2
+  Starting val_bpb       : 0.4372
+  Best val_bpb           : 0.4349  (0.5% improvement)
+  val_bpb trend          : ▄▁
 
-## Target val_bpb
+     #  SHA        val_bpb        Δ  Change
+  ----  --------  --------  -------  ------------------------------------
+     1  2861c704    0.4372           baseline — DEPTH=4, WINDOW=L
+     2  5962a578    0.4349  -0.0023  sliding window — slightly more efficient  ◀ BEST
 
-| val_bpb | Meaning |
-|---------|---------|
-| > 1.5 | Early training, model learning field structure |
-| 1.0–1.5 | Good — model understands normal telemetry patterns |
-| 0.8–1.0 | Very good — strong implicit anomaly detector |
-| < 0.8 | Excellent — production-ready zero-shot anomaly detector |
+  Restore best:    git checkout 5962a578 -- train.py
+========================================================================
+```
+
+Generates `overnight_progress.png` convergence plot alongside the terminal report.
+
+---
+
+## The Agent Loop
+
+`agent_loop.py` is the full autonomous orchestrator:
+
+```bash
+# Start
+caffeinate -i uv run python agent_loop.py >> logs/agent_loop.log 2>&1 &
+
+# Monitor
+tail -f logs/agent_loop.log
+
+# Stop cleanly
+kill $(cat logs/agent_loop.pid)
+```
+
+Config (top of `agent_loop.py`):
+```python
+MAX_EXPERIMENTS = 120     # overnight cap
+CLAUDE_TIMEOUT  = 300     # 5 min for Opus to respond
+TRAIN_TIMEOUT   = 660     # 11 min for larger model variants
+CLAUDE_MODEL    = "opus"  # best reasoning for architecture proposals
+```
+
+Every improvement is a git commit. The git log is the experiment log.
+Every 10 successful experiments, results push automatically to GitHub.
+
+---
+
+## Scheduled Morning Report
+
+```bash
+# Install launchd job — fires at 8:00 AM daily
+cp com.aomb.morning-report.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.aomb.morning-report.plist
+```
+
+---
+
+## Repository Lineage
+
+```
+karpathy/autoresearch          (original — H100, NVIDIA)
+       │
+       └── miolini/autoresearch-macos   (macOS/MPS port)
+       │          │
+       │          └── trevin-creator/autoresearch-mlx  (MLX native)
+       │
+       └── pandeyaby/AOMB  ← you are here
+                   Domain: Cisco/Splunk/AppDynamics observability telemetry
+                   Loop:   Fully autonomous (agent_loop.py drives everything)
+                   Goal:   Minimize val_bpb → maximize implicit anomaly detection
+```
+
+---
+
+## Requirements
+
+- macOS with Apple Silicon (M1/M2/M3/M4)
+- Python 3.10+
+- `uv` package manager
+- Claude Code installed and authenticated (`claude --print` must work)
+- ~500 MB disk space for corpus + tokenizer
+
+---
 
 ## License
 
-Apache 2.0 — derived from [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
+MIT — builds on [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) (MIT)
+which builds on [karpathy/autoresearch](https://github.com/karpathy/autoresearch) (MIT).
+
+*Authored by Abhinav Pandey*

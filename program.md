@@ -79,7 +79,9 @@ HEAD_DIM = 128          # attention head dimension; try 64, 128, 256
 ```
 These three determine model_dim = ((DEPTH × ASPECT_RATIO + HEAD_DIM - 1) // HEAD_DIM) × HEAD_DIM.
 **Memory guide**: DEPTH=4, ASPECT_RATIO=64, DEVICE_BATCH_SIZE=16 → ~2GB MPS
+                  DEPTH=6, ASPECT_RATIO=64, DEVICE_BATCH_SIZE=16 → ~3GB MPS (exceeds 420s eval budget — set DEVICE_BATCH_SIZE=8)
                   DEPTH=8, ASPECT_RATIO=96, DEVICE_BATCH_SIZE=8 → ~6GB MPS
+**⚠ IMPORTANT: DEPTH≥6 takes >7 min total (train+eval). Always pair with DEVICE_BATCH_SIZE≤8.**
 
 ### 4b. Attention Pattern
 ```python

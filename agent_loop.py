@@ -42,8 +42,8 @@ BACKUP_DIR     = LOGS_DIR / "train_backups"
 MAX_EXPERIMENTS   = 120      # safety cap for overnight
 MAX_RETRIES       = 3        # retries if claude call fails / bad output
 SLEEP_BETWEEN     = 10       # seconds between experiments (let MPS cool)
-CLAUDE_TIMEOUT    = 180      # seconds to wait for claude -p response
-TRAIN_TIMEOUT     = 420      # seconds (5 min budget + 2 min buffer for eval)
+CLAUDE_TIMEOUT    = 300      # seconds to wait for claude -p response (opus can take ~3 min)
+TRAIN_TIMEOUT     = 660      # seconds (5 min budget + 6 min buffer for larger models + eval)
 CLAUDE_MODEL      = "opus"   # maps to claude-opus-4-6 (best for research)
 MAX_GIT_LOG_LINES = 30       # recent experiment lines to feed agent
 
@@ -382,15 +382,19 @@ def main():
             else:
                 log.warning(f"Attempt {attempt}: Claude returned no valid code")
             if attempt < MAX_RETRIES:
-                time.sleep(15)
+                time.sleep(60)  # 60s between retries — give rate limits time to clear
 
         if not proposed_code:
             log.error(f"[Exp {experiment_num}] All {MAX_RETRIES} Claude attempts failed. Skipping.")
             consecutive_failures += 1
-            if consecutive_failures >= 5:
-                log.critical("5 consecutive failures. Stopping loop.")
+            if consecutive_failures >= 10:
+                log.critical("10 consecutive failures. Stopping loop.")
                 break
-            time.sleep(30)
+            # Exponential backoff: 2min, 4min, 8min … capped at 15min
+            # Handles Claude rate-limits which reset on a rolling window
+            backoff = min(120 * (2 ** (consecutive_failures - 1)), 900)
+            log.warning(f"Consecutive failures={consecutive_failures}. Cooling off {backoff}s before retry.")
+            time.sleep(backoff)
             continue
 
         consecutive_failures = 0
