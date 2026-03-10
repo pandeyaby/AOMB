@@ -111,6 +111,59 @@ BPE vocab of 8,192 tokens trained on this corpus — field names like `latency_m
 
 ---
 
+## Visualize the Corpus
+
+After running `generate_observability_corpus.py`, explore what was generated:
+
+```bash
+# Full report + save corpus_overview.png
+uv run python visualize_corpus.py
+
+# Terminal-only (no plot)
+uv run python visualize_corpus.py --no-plot
+
+# Print 3 sample sessions (normal / anomalous / cascade)
+uv run python visualize_corpus.py --samples
+```
+
+Sample terminal output:
+```
+  Session Distribution
+  ─────────────────────────────────────────────
+  normal       19,019  ( 90.6%)  ██████████████████████████████████████████████
+  anomalous     1,260  (  6.0%)  ███
+  cascade         721  (  3.4%)  █
+
+  Telemetry Source Mix  (events, not sessions)
+  ─────────────────────────────────────────────
+  AppD                  132,481  ( 24.9%)  ████████████
+  Splunk                132,202  ( 24.8%)  ████████████
+  OTel                  106,208  ( 19.9%)  ██████████
+  TE                     79,716  ( 15.0%)  ███████
+  Cisco                  53,234  ( 10.0%)  █████
+  AppD-BizTxn            27,183  (  5.1%)  ██
+```
+
+The 4-panel `corpus_overview.png` shows session-type pie, source event counts,
+session-length histogram, and normal vs anomalous latency distributions on one page.
+
+To explore raw parquet data directly:
+
+```python
+import pyarrow.parquet as pq, os
+
+data_dir = os.path.expanduser("~/.cache/autoresearch/data")
+df = pq.read_table(f"{data_dir}/shard_00000.parquet").to_pandas()
+
+# Print a session
+print(df["text"].iloc[0])
+
+# Find anomalous sessions
+df[df["text"].str.contains("pagerduty=triggered|policy=VIOLATED")]
+```
+
+---
+
 ## The Model Architecture
 
 Not vanilla nanoGPT. Built-in, state-of-the-art from day one:
