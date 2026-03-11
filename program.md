@@ -1,5 +1,5 @@
 # AUTONOMOUS OBSERVABILITY MODEL BREEDER
-## Research Constitution v1.0 — Cisco / Splunk / AppDynamics Telemetry Edition
+## Research Constitution v1.0 — Enterprise Observability Telemetry Edition
 
 ---
 
@@ -9,8 +9,8 @@ You are an AI research agent running inside the **autoresearch-macos loop**.
 
 **Mission**: minimize `val_bpb` (validation bits-per-byte) on structured observability
 telemetry sequences — logs, distributed traces, metric streams, and network telemetry
-representative of Cisco SD-WAN, Splunk, AppDynamics, ThousandEyes, OpenTelemetry, and
-AI agent cost/drift signals.
+representative of enterprise WAN controllers, log management platforms, APM tools,
+network intelligence platforms, OpenTelemetry, and AI agent cost/drift signals.
 
 Each experiment runs for exactly **5 minutes** on Apple Silicon (MPS backend).
 You may **only edit `train.py`**.
@@ -27,12 +27,12 @@ Each document is a coherent session of 8–60 correlated events from multiple so
 Representative events within a document:
 
 ```
-[ts=2026-03-08T18:00:00.012Z] [src=AppD] [svc=payment-gateway] latency_ms=420 error=timeout trace_id=a3f9c1d2e4b5 span_id=f1e2d3 http_status=500 http_method=POST gpu_util=0.92 prompt_tokens=120 response_tokens=0 cost_usd=0.000360 drift_score=0.870
-[ts=2026-03-08T18:00:00.891Z] [src=ThousandEyes] path=internet→aws-us-east-1 latency_ms=3200 jitter_ms=180 packet_loss=0.1230 bgp_changes=3 dns_ms=800 hop_count=22 mtu=576 reachable=true
-[ts=2026-03-08T18:00:01.234Z] [src=Splunk] host=web-03 level=CRITICAL svc=auth-service msg=circuit_breaker_open latency_ms=28500 session_id=8f3a alert=true escalated=true pagerduty=triggered user_id=usr_48291
+[ts=2026-03-08T18:00:00.012Z] [src=APMTracer] [svc=payment-gateway] latency_ms=420 error=timeout trace_id=a3f9c1d2e4b5 span_id=f1e2d3 http_status=500 http_method=POST gpu_util=0.92 prompt_tokens=120 response_tokens=0 cost_usd=0.000360 drift_score=0.870
+[ts=2026-03-08T18:00:00.891Z] [src=NetIntel] path=internet→aws-us-east-1 latency_ms=3200 jitter_ms=180 packet_loss=0.1230 bgp_changes=3 dns_ms=800 hop_count=22 mtu=576 reachable=true
+[ts=2026-03-08T18:00:01.234Z] [src=LogStream] host=web-03 level=CRITICAL svc=auth-service msg=circuit_breaker_open latency_ms=28500 session_id=8f3a alert=true escalated=true pagerduty=triggered user_id=usr_48291
 [ts=2026-03-08T18:00:01.501Z] [src=OTel] trace_id=a3f9c1d2e4b5 span_id=b2c3d4 parent=f1e2d3 op=db.query svc=inventory-db duration_ms=390 status=ok db=postgres rows=0 k8s_pod=inventory-db-3a8f k8s_ns=prod
-[ts=2026-03-08T18:00:02.100Z] [src=AppD-BizTxn] trace_id=a3f9c1d2e4b5 svc=checkout-flow txn=/checkout-flow/api/v2/checkout health=STALL response_time_ms=28900 baseline_ms=120 call_count=312 error_pct=0.812 slow_pct=0.900
-[ts=2026-03-08T18:00:02.400Z] [src=CiscoSDWAN] site=branch-07 link=mpls→inet qos=be latency_ms=1800 loss=0.180 jitter_ms=240 bw_util=0.982 policy=VIOLATED alert=link_degraded interface=ge0/1
+[ts=2026-03-08T18:00:02.100Z] [src=APMTracer-BizTxn] trace_id=a3f9c1d2e4b5 svc=checkout-flow txn=/checkout-flow/api/v2/checkout health=STALL response_time_ms=28900 baseline_ms=120 call_count=312 error_pct=0.812 slow_pct=0.900
+[ts=2026-03-08T18:00:02.400Z] [src=WANController] site=branch-07 link=mpls→inet qos=be latency_ms=1800 loss=0.180 jitter_ms=240 bw_util=0.982 policy=VIOLATED alert=link_degraded interface=ge0/1
 ```
 
 **Statistical properties to exploit:**

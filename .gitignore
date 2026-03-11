@@ -1,6 +1,7 @@
 # Secrets
 AOMBGITToken.env
 *.env
+*.env.rtf
 
 # Internal planning / strategy docs — never push to public repo
 Cisco-Splunk-AppD-Autoresearch.md

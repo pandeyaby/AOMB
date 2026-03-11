@@ -4,7 +4,7 @@
 
 AOMB is a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) —
 adapted for Apple Silicon by [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) —
-that autonomously breeds tiny language models specialized in **Cisco / Splunk / AppDynamics observability telemetry**.
+that autonomously breeds tiny language models specialized in **enterprise observability telemetry**.
 
 A Claude agent reads `program.md`, edits `train.py`, runs 5-minute experiments, commits improvements, and loops —
 all while you sleep. You wake up to a git log of experiments and a better model.
@@ -98,12 +98,12 @@ The agent loop (`agent_loop.py`) drives the cycle automatically. You set it and 
 Each row is a coherent session of 8–60 correlated events across telemetry sources:
 
 ```
-[ts=2026-03-08T18:00:00Z] [src=AppD] [svc=payment-gateway] latency_ms=420 error=timeout trace_id=a3f9 http_status=500 drift_score=0.87
-[ts=2026-03-08T18:00:01Z] [src=ThousandEyes] path=internet→aws-us-east-1 latency_ms=3200 packet_loss=0.123 bgp_changes=3
-[ts=2026-03-08T18:00:01Z] [src=Splunk] level=CRITICAL svc=auth msg=circuit_breaker_open latency_ms=28500 pagerduty=triggered
+[ts=2026-03-08T18:00:00Z] [src=APMTracer] [svc=payment-gateway] latency_ms=420 error=timeout trace_id=a3f9 http_status=500 drift_score=0.87
+[ts=2026-03-08T18:00:01Z] [src=NetIntel] path=internet→aws-us-east-1 latency_ms=3200 packet_loss=0.123 bgp_changes=3
+[ts=2026-03-08T18:00:01Z] [src=LogStream] level=CRITICAL svc=auth msg=circuit_breaker_open latency_ms=28500 pagerduty=triggered
 [ts=2026-03-08T18:00:02Z] [src=OTel] trace_id=a3f9 op=db.query svc=inventory-db duration_ms=390 status=ok
-[ts=2026-03-08T18:00:02Z] [src=CiscoSDWAN] site=branch-07 link=mpls→inet bw_util=0.982 policy=VIOLATED
-[ts=2026-03-08T18:00:03Z] [src=AppD-BizTxn] svc=checkout health=STALL response_time_ms=28900 error_pct=0.812
+[ts=2026-03-08T18:00:02Z] [src=WANController] site=branch-07 link=mpls→inet bw_util=0.982 policy=VIOLATED
+[ts=2026-03-08T18:00:03Z] [src=APMTracer-BizTxn] svc=checkout health=STALL response_time_ms=28900 error_pct=0.812
 ```
 
 **Statistical properties:** ~91% normal, ~6% anomalous, ~3% cascade failures across 20–60 correlated events.
@@ -136,12 +136,12 @@ Sample terminal output:
 
   Telemetry Source Mix  (events, not sessions)
   ─────────────────────────────────────────────
-  AppD                  132,481  ( 24.9%)  ████████████
-  Splunk                132,202  ( 24.8%)  ████████████
+  APMTracer             132,481  ( 24.9%)  ████████████
+  LogStream             132,202  ( 24.8%)  ████████████
   OTel                  106,208  ( 19.9%)  ██████████
-  TE                     79,716  ( 15.0%)  ███████
-  Cisco                  53,234  ( 10.0%)  █████
-  AppD-BizTxn            27,183  (  5.1%)  ██
+  NetIntel               79,716  ( 15.0%)  ███████
+  WANController          53,234  ( 10.0%)  █████
+  APMTracer-BizTxn       27,183  (  5.1%)  ██
 ```
 
 The 4-panel `corpus_overview.png` shows session-type pie, source event counts,
@@ -259,12 +259,12 @@ A model close to the true data distribution assigns high surprise to anomalous s
 
 | Source | Signal type |
 |--------|-------------|
-| **AppDynamics** | APM traces, latency, error rates, GPU/AI agent cost drift |
-| **ThousandEyes** | Network path quality, BGP stability, DNS, packet loss |
-| **Splunk** | Structured logs, SIEM alerts, security events |
+| **APMTracer** | APM traces, latency, error rates, GPU/AI agent cost drift |
+| **NetIntel** | Network path quality, BGP stability, DNS, packet loss |
+| **LogStream** | Structured logs, SIEM alerts, security events |
 | **OpenTelemetry** | Distributed trace spans, service dependency chains |
-| **Cisco SD-WAN** | Branch WAN link health, QoS violations, bandwidth utilization |
-| **AppD BizTxn** | End-to-end business transaction health snapshots |
+| **WANController** | Branch WAN link health, QoS violations, bandwidth utilization |
+| **APMTracer-BizTxn** | End-to-end business transaction health snapshots |
 
 ---
 
@@ -367,7 +367,7 @@ karpathy/autoresearch          (original — H100, NVIDIA)
        │          └── trevin-creator/autoresearch-mlx  (MLX native)
        │
        └── pandeyaby/AOMB  ← you are here
-                   Domain: Cisco/Splunk/AppDynamics observability telemetry
+                   Domain: enterprise observability telemetry
                    Loop:   Fully autonomous (agent_loop.py drives everything)
                    Goal:   Minimize val_bpb → maximize implicit anomaly detection
 ```
