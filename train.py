@@ -322,17 +322,29 @@ class GPT(nn.Module):
                 anomaly_weight = 4.0
                 anomaly_flat = anomaly_mask.view(-1)
                 
-                # Detect cascade sequences: 2+ consecutive anomalies
-                # Create a shifted version to check if previous token was also anomaly
-                anomaly_2d = anomaly_mask  # shape [B, T]
-                # Check if current AND next token are anomalies (cascade indicator)
-                cascade_mask = anomaly_2d[:, :-1] & anomaly_2d[:, 1:]
-                # Pad to match original shape
-                cascade_mask = F.pad(cascade_mask, (0, 1), value=False)
+                # Detect cascade sequences: 3+ anomalies in a 5-token window
+                anomaly_2d = anomaly_mask.float()  # shape [B, T]
+                # Count anomalies in 5-token sliding window centered on each position
+                kernel_size = 5
+                padding = kernel_size // 2
+                # Use unfold to create sliding windows, then count anomalies
+                if anomaly_2d.size(1) >= kernel_size:
+                    # Pad the sequence
+                    padded = F.pad(anomaly_2d, (padding, padding), value=0.0)
+                    # Count anomalies in each window using conv1d
+                    anomaly_density = F.conv1d(
+                        padded.unsqueeze(1),  # [B, 1, T+padding]
+                        torch.ones(1, 1, kernel_size, device=anomaly_2d.device),
+                        padding=0
+                    ).squeeze(1)  # [B, T]
+                    # Cascade = 3+ anomalies in the 5-token window
+                    cascade_mask = anomaly_density >= 3.0
+                else:
+                    cascade_mask = torch.zeros_like(anomaly_2d, dtype=torch.bool)
                 cascade_flat = cascade_mask.view(-1)
                 
                 # Apply weights: base anomaly weight, plus cascade bonus
-                cascade_bonus = 1.5
+                cascade_bonus = 2.0  # Stronger bonus for true cascade sequences
                 weights = torch.where(anomaly_flat, anomaly_weight, 1.0)
                 weights = torch.where(cascade_flat, weights * cascade_bonus, weights)
                 focal = focal * weights
