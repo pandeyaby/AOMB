@@ -312,8 +312,8 @@ class GPT(nn.Module):
             ce = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1),
                                ignore_index=-1, reduction='none')
             
-            # Focal loss: downweight easy examples (gamma=1.5)
-            gamma = 1.5
+            # Focal loss: downweight easy examples (gamma=2.0) - increased from 1.5 to better handle 91% normal vs 9% anomaly class imbalance
+            gamma = 2.0
             pt = torch.exp(-ce)
             focal = ((1 - pt) ** gamma) * ce
             
