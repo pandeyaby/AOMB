@@ -312,14 +312,14 @@ class GPT(nn.Module):
             ce = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1),
                                ignore_index=-1, reduction='none')
             
-            # Focal loss: downweight easy examples (gamma=2.5) - increased from 2.0 to more aggressively focus on hard cascade examples (3% of data)
-            gamma = 2.5
+            # Focal loss: downweight easy examples (gamma=3.0) - increased from 2.5 to even more aggressively focus on hardest cascade examples
+            gamma = 3.0
             pt = torch.exp(-ce)
             focal = ((1 - pt) ** gamma) * ce
             
-            # Upweight anomaly tokens (3x multiplier)
+            # Upweight anomaly tokens (4x multiplier) - increased from 3.0 to give more weight to critical cascade signals
             if anomaly_mask is not None:
-                anomaly_weight = 3.0
+                anomaly_weight = 4.0
                 focal = focal * torch.where(anomaly_mask.view(-1), anomaly_weight, 1.0)
             
             if reduction == 'mean':
