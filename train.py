@@ -312,8 +312,8 @@ class GPT(nn.Module):
             ce = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1),
                                ignore_index=-1, reduction='none')
             
-            # Focal loss: downweight easy examples (gamma=2.0) - increased from 1.5 to better handle 91% normal vs 9% anomaly class imbalance
-            gamma = 2.0
+            # Focal loss: downweight easy examples (gamma=2.5) - increased from 2.0 to more aggressively focus on hard cascade examples (3% of data)
+            gamma = 2.5
             pt = torch.exp(-ce)
             focal = ((1 - pt) ** gamma) * ce
             
@@ -513,7 +513,7 @@ WEIGHT_DECAY = 0.2      # cautious weight decay for Muon
 ADAM_BETAS = (0.8, 0.95) # Adam beta1, beta2
 WARMUP_RATIO = 0.0      # fraction of time budget for LR warmup
 WARMDOWN_RATIO = 0.65   # fraction of time budget for LR warmdown (increased from 0.5 to 0.65 for longer cooldown on structured data)
-FINAL_LR_FRAC = 0.0     # final LR as fraction of initial
+FINAL_LR_FRAC = 0.05    # final LR as fraction of initial (increased from 0.0 to allow continued fine-tuning during long warmdown)
 
 # Model size
 DEPTH = 4               # number of transformer layers
