@@ -535,12 +535,12 @@ WINDOW_PATTERN = "SSL"  # sliding window pattern: 2 local + 1 global (best from 
 
 # Optimization
 TOTAL_BATCH_SIZE = 2**15 # ~32K tokens per optimizer step (smaller batch for higher gradient noise)
-EMBEDDING_LR = 0.3      # learning rate for token embeddings (Adam) - lowered for stability on structured telemetry vocab
+EMBEDDING_LR = 0.45     # learning rate for token embeddings (Adam) - increased from 0.3 to 0.45 for faster learning of structured telemetry vocab
 UNEMBEDDING_LR = 0.004  # learning rate for lm_head (Adam)
 MATRIX_LR = 0.02        # learning rate for matrix parameters (Muon) - halved for stability on structured data
 SCALAR_LR = 0.5         # learning rate for per-layer scalars (Adam)
 WEIGHT_DECAY = 0.2      # cautious weight decay for Muon
-ADAM_BETAS = (0.9, 0.95) # Adam beta1, beta2 - slower beta1 (0.9) for smoother momentum on structured telemetry patterns
+ADAM_BETAS = (0.85, 0.95) # Adam beta1, beta2 - lower beta1 (0.85) for more responsive momentum on structured telemetry patterns
 WARMUP_RATIO = 0.0      # fraction of time budget for LR warmup
 WARMDOWN_RATIO = 0.65   # fraction of time budget for LR warmdown (increased from 0.5 to 0.65 for longer cooldown on structured data)
 FINAL_LR_FRAC = 0.0     # final LR as fraction of initial (decay fully to zero for sharp minimum on structured data)
