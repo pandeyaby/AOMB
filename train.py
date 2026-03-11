@@ -323,10 +323,10 @@ class GPT(nn.Module):
                 anomaly_flat = anomaly_mask.view(-1)
                 
                 # Detect cascade sequences using density-based approach:
-                # If >40% of tokens in a 7-token window are anomalies, it's a cascade
+                # If >35% of tokens in a 7-token window are anomalies, it's a cascade
                 anomaly_2d = anomaly_mask.float()  # shape [B, T]
                 kernel_size = 7
-                cascade_density_threshold = 0.40  # 40% anomalies = cascade
+                cascade_density_threshold = 0.35  # 35% anomalies = cascade (lowered from 0.40 to capture early-stage cascades)
                 padding = kernel_size // 2
                 
                 if anomaly_2d.size(1) >= kernel_size:
@@ -340,7 +340,7 @@ class GPT(nn.Module):
                     ).squeeze(1)  # [B, T]
                     # Compute density: count / kernel_size
                     anomaly_density = anomaly_count / kernel_size
-                    # Cascade = density > threshold (e.g., 3+ anomalies in 7 tokens = 0.43)
+                    # Cascade = density > threshold (e.g., 2.45+ anomalies in 7 tokens = 0.35)
                     cascade_mask = anomaly_density > cascade_density_threshold
                 else:
                     cascade_mask = torch.zeros_like(anomaly_2d, dtype=torch.bool)
