@@ -308,19 +308,34 @@ class GPT(nn.Module):
         logits = softcap * torch.tanh(logits / softcap)
 
         if targets is not None:
-            # Focal loss with anomaly token weighting
+            # Focal loss with anomaly token weighting and cascade sequence bonus
             ce = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1),
                                ignore_index=-1, reduction='none')
             
-            # Focal loss: downweight easy examples (gamma=3.0) - increased from 2.5 to even more aggressively focus on hardest cascade examples
+            # Focal loss: downweight easy examples (gamma=3.0)
             gamma = 3.0
             pt = torch.exp(-ce)
             focal = ((1 - pt) ** gamma) * ce
             
-            # Upweight anomaly tokens (4x multiplier) - increased from 3.0 to give more weight to critical cascade signals
+            # Upweight anomaly tokens with cascade sequence detection
             if anomaly_mask is not None:
                 anomaly_weight = 4.0
-                focal = focal * torch.where(anomaly_mask.view(-1), anomaly_weight, 1.0)
+                anomaly_flat = anomaly_mask.view(-1)
+                
+                # Detect cascade sequences: 2+ consecutive anomalies
+                # Create a shifted version to check if previous token was also anomaly
+                anomaly_2d = anomaly_mask  # shape [B, T]
+                # Check if current AND next token are anomalies (cascade indicator)
+                cascade_mask = anomaly_2d[:, :-1] & anomaly_2d[:, 1:]
+                # Pad to match original shape
+                cascade_mask = F.pad(cascade_mask, (0, 1), value=False)
+                cascade_flat = cascade_mask.view(-1)
+                
+                # Apply weights: base anomaly weight, plus cascade bonus
+                cascade_bonus = 1.5
+                weights = torch.where(anomaly_flat, anomaly_weight, 1.0)
+                weights = torch.where(cascade_flat, weights * cascade_bonus, weights)
+                focal = focal * weights
             
             if reduction == 'mean':
                 loss = focal.mean()
