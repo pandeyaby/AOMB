@@ -2,11 +2,11 @@
 
 > *"Frontier AI research used to require meat computers. Now it runs overnight on your MacBook."*
 
-AOMB is a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) —
-adapted for Apple Silicon by [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) —
-that autonomously breeds tiny language models specialized in **enterprise observability telemetry**.
+AOMB is the first open-source **Infrastructure Language Model (ILM)** — the same autoregressive architecture as GPT (RoPE, GQA, focal loss), trained on enterprise observability telemetry instead of the internet.
 
-A Claude agent reads `program.md`, edits `train.py`, runs 5-minute experiments, commits improvements, and loops —
+A domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) —
+adapted for Apple Silicon by [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) —
+with a Claude agent that reads `program.md`, edits `train.py`, runs 5-minute experiments, commits improvements, and loops —
 all while you sleep. You wake up to a git log of experiments and a better model.
 
 ---
@@ -22,6 +22,8 @@ No rules. No labels. No thresholds. Just next-token prediction — and the anoma
 
 The training objective (`val_bpb` — validation bits-per-byte) *is* the anomaly detection capability.
 Lower val_bpb = model understands your infrastructure's language = better anomaly detector.
+
+An ILM trained on your own telemetry has an anomaly detector no vendor can replicate — because the model learned the statistical fingerprint of that specific environment.
 
 ---
 
@@ -255,6 +257,8 @@ Bits-per-byte is vocabulary-independent and directly comparable across architect
 The information-theoretic argument: minimizing val_bpb = minimizing KL(P_data ‖ P_model).
 A model close to the true data distribution assigns high surprise to anomalous sequences automatically.
 **The training objective IS the anomaly detection capability. No separate head. No labels.**
+
+To our knowledge, val_bpb=0.3691 is the first published benchmark for autoregressive modeling of enterprise infrastructure telemetry.
 
 ---
 
