@@ -204,7 +204,7 @@ TOTAL_BATCH_SIZE = 2**16
 
 | Run | Hardware | Config | Best val_bpb | Experiments |
 |-----|----------|--------|-------------|-------------|
-| Night 3+ | MacBook Pro M-series | Focal loss + anomaly token weighting | **0.3691** | 9 successful / 70 total |
+| Night 3+ | MacBook Pro M-series | Focal loss + anomaly token weighting + Adam tuning | **0.3682** | 12 successful / 120 total |
 | Night 2 | MacBook Pro M-series | DEPTH=4, WINDOW=SSL, EMBEDDING_LR=0.3 | 0.4297 | 6 successful / 14 total |
 | Night 1 | MacBook Pro M-series | DEPTH=4, WINDOW=L | 0.4349 | 2 successful / 10 total |
 | Baseline (5 min) | MacBook Pro M-series | Default | 0.4372 | 1 |
@@ -231,7 +231,10 @@ Each experiment cycle: ~10–15 minutes (Claude SDK call ~2–3 min + training 5
 | 33 | c887b39 | 0.3697 | -0.0074 | Forward pass loss calc |
 | 37 | da353a6 | 0.3692 | -0.0005 | Loss calc tweak |
 | 66 | 96c3404 | 0.3692 | -0.0000 | Cascade detection refinement |
-| **70** | **fa2ee1e** | **0.3691** | **-0.0001** | **Domain-aware loss tuning ← current best** |
+| 70 | fa2ee1e | 0.3691 | -0.0001 | Domain-aware loss tuning |
+| 109 | 77e9eba | 0.3686 | -0.0005 | Adam betas tuning |
+| 113 | 64b56fb | 0.3685 | -0.0001 | Adam betas refinement |
+| **114** | **983ee44** | **0.3682** | **-0.0003** | **Adam optimizer tuning ← current best** |
 
 ---
 
@@ -251,14 +254,15 @@ Bits-per-byte is vocabulary-independent and directly comparable across architect
 | 0.4 – 0.8 | Strong — implicit anomaly detector, approaching production use |
 | 0.4297 | ← Night 2 best (exp 13) |
 | 0.3692 | ← exp 37–66 (focal loss + anomaly weighting) |
-| **0.3691** | **← AOMB current best (exp 70, domain-aware loss tuning)** |
+| 0.3691 | ← exp 70–113 (domain-aware loss tuning) |
+| **0.3682** | **← AOMB current best (exp 114, Adam optimizer tuning)** |
 | < 0.35 | Excellent — deploy as zero-shot anomaly scorer |
 
 The information-theoretic argument: minimizing val_bpb = minimizing KL(P_data ‖ P_model).
 A model close to the true data distribution assigns high surprise to anomalous sequences automatically.
 **The training objective IS the anomaly detection capability. No separate head. No labels.**
 
-To our knowledge, val_bpb=0.3691 is the first published benchmark for autoregressive modeling of enterprise infrastructure telemetry.
+To our knowledge, val_bpb=0.3682 is the first published benchmark for autoregressive modeling of enterprise infrastructure telemetry.
 
 ---
 
@@ -285,10 +289,10 @@ uv run python morning_report.py --plot
 ========================================================================
   AUTONOMOUS OBSERVABILITY MODEL BREEDER — MORNING REPORT
 ========================================================================
-  Experiments completed  : 70
+  Experiments completed  : 120
   Starting val_bpb       : 0.4372
-  Best val_bpb           : 0.3691  (15.6% improvement)
-  val_bpb trend          : ▇▆▅▅▄▄▃▃▃▂▂▂▁▁
+  Best val_bpb           : 0.3682  (15.8% improvement)
+  val_bpb trend          : ▇▆▅▅▄▄▃▃▃▂▂▂▁▁▁▁
 
      #  SHA        val_bpb        Δ  Change
   ----  --------  --------  -------  ------------------------------------
@@ -300,10 +304,10 @@ uv run python morning_report.py --plot
     18  e1b363af    0.3856  -0.0094  focal loss refinement
     27  92e58f1d    0.3771  -0.0084  loss + config refinements
     37  da353a6e    0.3692  -0.0005  loss calc tweak
-    66  96c3404c    0.3692  -0.0000  cascade detection refinement
-    70  fa2ee1ef    0.3691  -0.0001  domain-aware loss tuning  ◀ BEST
+    70  fa2ee1ef    0.3691  -0.0001  domain-aware loss tuning
+   114  983ee440    0.3682  -0.0003  Adam optimizer tuning  ◀ BEST
 
-  Restore best:    git checkout fa2ee1e -- train.py
+  Restore best:    git checkout 983ee44 -- train.py
 ========================================================================
 ```
 
