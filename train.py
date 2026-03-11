@@ -288,7 +288,7 @@ class GPT(nn.Module):
             group["initial_lr"] = group["lr"]
         return optimizer
 
-    def forward(self, idx, targets=None, reduction='mean'):
+    def forward(self, idx, targets=None, reduction='mean', anomaly_mask=None):
         B, T = idx.size()
         assert T <= self.cos.size(1)
         cos_sin = self.cos[:, :T], self.sin[:, :T]
@@ -308,8 +308,27 @@ class GPT(nn.Module):
         logits = softcap * torch.tanh(logits / softcap)
 
         if targets is not None:
-            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1),
-                                   ignore_index=-1, reduction=reduction)
+            # Focal loss with anomaly token weighting
+            ce = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1),
+                               ignore_index=-1, reduction='none')
+            
+            # Focal loss: downweight easy examples (gamma=1.5)
+            gamma = 1.5
+            pt = torch.exp(-ce)
+            focal = ((1 - pt) ** gamma) * ce
+            
+            # Upweight anomaly tokens (3x multiplier)
+            if anomaly_mask is not None:
+                anomaly_weight = 3.0
+                focal = focal * torch.where(anomaly_mask.view(-1), anomaly_weight, 1.0)
+            
+            if reduction == 'mean':
+                loss = focal.mean()
+            elif reduction == 'none':
+                loss = focal
+            else:
+                loss = focal.sum()
+            
             return loss
         return logits
 
@@ -529,6 +548,25 @@ tokenizer = Tokenizer.from_directory()
 vocab_size = tokenizer.get_vocab_size()
 print(f"Vocab size: {vocab_size:,}")
 
+# Identify anomaly tokens (observability domain)
+anomaly_keywords = [
+    "error", "ERROR", "timeout", "TIMEOUT", "fail", "FAIL", "CRITICAL", "critical",
+    "alert", "ALERT", "VIOLATED", "violated", "circuit_breaker", "escalate",
+    "pagerduty", "anomal", "ANOMAL", "drift_score", "STALL", "stall",
+    "degraded", "DEGRADED", "down", "DOWN", "outage", "OUTAGE"
+]
+
+anomaly_token_ids = set()
+for token_id in range(vocab_size):
+    token_str = tokenizer.decode([token_id])
+    if any(keyword in token_str for keyword in anomaly_keywords):
+        anomaly_token_ids.add(token_id)
+
+print(f"Identified {len(anomaly_token_ids)} anomaly tokens out of {vocab_size} total tokens")
+
+# Create anomaly token tensor for efficient masking on device
+anomaly_token_ids_tensor = torch.tensor(list(anomaly_token_ids), dtype=torch.long, device=device)
+
 def build_model_config(depth):
     base_dim = depth * ASPECT_RATIO
     model_dim = ((base_dim + HEAD_DIM - 1) // HEAD_DIM) * HEAD_DIM
@@ -615,8 +653,11 @@ while True:
     sync_device(device_type)
     t0 = time.time()
     for micro_step in range(grad_accum_steps):
+        # Create anomaly mask for this batch
+        anomaly_mask = torch.isin(y, anomaly_token_ids_tensor)
+        
         with autocast_ctx:
-            loss = model(x, y)
+            loss = model(x, y, anomaly_mask=anomaly_mask)
         train_loss = loss.detach()
         loss = loss / grad_accum_steps
         loss.backward()
