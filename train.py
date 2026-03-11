@@ -308,7 +308,7 @@ class GPT(nn.Module):
         logits = softcap * torch.tanh(logits / softcap)
 
         if targets is not None:
-            # Focal loss with anomaly token weighting and cascade sequence bonus
+            # Focal loss with anomaly token weighting and adaptive cascade sequence detection
             ce = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1),
                                ignore_index=-1, reduction='none')
             
@@ -317,34 +317,37 @@ class GPT(nn.Module):
             pt = torch.exp(-ce)
             focal = ((1 - pt) ** gamma) * ce
             
-            # Upweight anomaly tokens with cascade sequence detection
+            # Upweight anomaly tokens with adaptive density-based cascade sequence detection
             if anomaly_mask is not None:
                 anomaly_weight = 4.0
                 anomaly_flat = anomaly_mask.view(-1)
                 
-                # Detect cascade sequences: 3+ anomalies in a 5-token window
+                # Detect cascade sequences using density-based approach:
+                # If >40% of tokens in a 7-token window are anomalies, it's a cascade
                 anomaly_2d = anomaly_mask.float()  # shape [B, T]
-                # Count anomalies in 5-token sliding window centered on each position
-                kernel_size = 5
+                kernel_size = 7
+                cascade_density_threshold = 0.40  # 40% anomalies = cascade
                 padding = kernel_size // 2
-                # Use unfold to create sliding windows, then count anomalies
+                
                 if anomaly_2d.size(1) >= kernel_size:
                     # Pad the sequence
                     padded = F.pad(anomaly_2d, (padding, padding), value=0.0)
-                    # Count anomalies in each window using conv1d
-                    anomaly_density = F.conv1d(
+                    # Count anomalies in each 7-token window using conv1d
+                    anomaly_count = F.conv1d(
                         padded.unsqueeze(1),  # [B, 1, T+padding]
                         torch.ones(1, 1, kernel_size, device=anomaly_2d.device),
                         padding=0
                     ).squeeze(1)  # [B, T]
-                    # Cascade = 3+ anomalies in the 5-token window
-                    cascade_mask = anomaly_density >= 3.0
+                    # Compute density: count / kernel_size
+                    anomaly_density = anomaly_count / kernel_size
+                    # Cascade = density > threshold (e.g., 3+ anomalies in 7 tokens = 0.43)
+                    cascade_mask = anomaly_density > cascade_density_threshold
                 else:
                     cascade_mask = torch.zeros_like(anomaly_2d, dtype=torch.bool)
                 cascade_flat = cascade_mask.view(-1)
                 
                 # Apply weights: base anomaly weight, plus cascade bonus
-                cascade_bonus = 2.0  # Stronger bonus for true cascade sequences
+                cascade_bonus = 2.5  # Increased from 2.0 to 2.5 for stronger cascade signal
                 weights = torch.where(anomaly_flat, anomaly_weight, 1.0)
                 weights = torch.where(cascade_flat, weights * cascade_bonus, weights)
                 focal = focal * weights
