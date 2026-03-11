@@ -202,15 +202,32 @@ TOTAL_BATCH_SIZE = 2**16
 
 | Run | Hardware | Config | Best val_bpb | Experiments |
 |-----|----------|--------|-------------|-------------|
-| First night | MacBook Pro M-series | DEPTH=4, WINDOW=L | **0.4349** | 2 successful / 10 total |
+| Night 3+ | MacBook Pro M-series | Focal loss + anomaly token weighting | **0.3692** | 7 successful / 37 total |
+| Night 2 | MacBook Pro M-series | DEPTH=4, WINDOW=SSL, EMBEDDING_LR=0.3 | 0.4297 | 6 successful / 14 total |
+| Night 1 | MacBook Pro M-series | DEPTH=4, WINDOW=L | 0.4349 | 2 successful / 10 total |
 | Baseline (5 min) | MacBook Pro M-series | Default | 0.4372 | 1 |
 | Random model | — | — | ~8.0 | — |
 
-Training throughput: ~49,000 tokens/sec on Apple Silicon MPS.
-Each experiment cycle: ~15–20 minutes (Claude call ~3 min + training 5 min + eval 2–7 min).
+Training throughput: ~63,000 tokens/sec on Apple Silicon MPS.
+Each experiment cycle: ~10–15 minutes (Claude SDK call ~2–3 min + training 5 min + eval ~2 min).
 
-> The overnight loop stopped early due to Claude API rate limiting at experiment 10.
-> val_bpb improved from 0.4372 → 0.4349 in the first two successful experiments.
+**val_bpb progression across all successful experiments:**
+
+| Exp | SHA | val_bpb | Δ | Change |
+|-----|-----|---------|---|--------|
+| Baseline | 2861c70 | 0.4372 | — | DEPTH=4, WINDOW=L |
+| 5 | 5962a57 | 0.4349 | -0.0023 | Sliding window attention |
+| 6 | 26cf5e3 | 0.4339 | -0.0010 | WINDOW_PATTERN = "SSL" |
+| 1 | 7a4eb57 | 0.4323 | -0.0016 | Architecture sweep |
+| 3 | 7c99e0e | 0.4300 | -0.0023 | TOTAL_BATCH_SIZE tuning |
+| 13 | dc4df4a | 0.4297 | -0.0003 | EMBEDDING_LR 0.6 → 0.3 |
+| **17** | **c2026cc** | **0.3950** | **-0.0347** | **Focal loss + anomaly token weighting** ← big jump |
+| 18 | e1b363a | 0.3856 | -0.0094 | Focal loss refinement |
+| 23 | 53b5b00 | 0.3855 | -0.0001 | WARMDOWN_RATIO 0.5 → 0.65 |
+| 27 | 92e58f1 | 0.3771 | -0.0084 | Loss + config refinements |
+| 28 | 3168d49 | 0.3771 | -0.0000 | FINAL_LR_FRAC reduction |
+| 33 | c887b39 | 0.3697 | -0.0074 | Forward pass loss calc |
+| **37** | **da353a6** | **0.3692** | **-0.0005** | **Loss calc tweak ← current best** |
 
 ---
 
@@ -228,7 +245,8 @@ Bits-per-byte is vocabulary-independent and directly comparable across architect
 | 1.5 – 4.0 | Early convergence — learning token distributions |
 | 0.8 – 1.5 | Good — model understands normal telemetry patterns |
 | 0.4 – 0.8 | Strong — implicit anomaly detector, approaching production use |
-| **0.4349** | **← AOMB current best (first night)** |
+| 0.4297 | ← Night 2 best (exp 13) |
+| **0.3692** | **← AOMB current best (exp 37, focal loss + anomaly weighting)** |
 | < 0.35 | Excellent — deploy as zero-shot anomaly scorer |
 
 The information-theoretic argument: minimizing val_bpb = minimizing KL(P_data ‖ P_model).
@@ -260,17 +278,23 @@ uv run python morning_report.py --plot
 ========================================================================
   AUTONOMOUS OBSERVABILITY MODEL BREEDER — MORNING REPORT
 ========================================================================
-  Experiments completed  : 2
+  Experiments completed  : 37
   Starting val_bpb       : 0.4372
-  Best val_bpb           : 0.4349  (0.5% improvement)
-  val_bpb trend          : ▄▁
+  Best val_bpb           : 0.3692  (15.5% improvement)
+  val_bpb trend          : ▇▆▅▅▄▄▃▃▃▂▂▂▁
 
      #  SHA        val_bpb        Δ  Change
   ----  --------  --------  -------  ------------------------------------
      1  2861c704    0.4372           baseline — DEPTH=4, WINDOW=L
-     2  5962a578    0.4349  -0.0023  sliding window — slightly more efficient  ◀ BEST
+     5  5962a578    0.4349  -0.0023  sliding window attention
+     6  26cf5e3a    0.4339  -0.0010  WINDOW_PATTERN = SSL
+    13  dc4df4ab    0.4297  -0.0003  EMBEDDING_LR 0.6 → 0.3
+    17  c2026ccf    0.3950  -0.0347  focal loss + anomaly token weighting
+    18  e1b363af    0.3856  -0.0094  focal loss refinement
+    27  92e58f1d    0.3771  -0.0084  loss + config refinements
+    37  da353a6e    0.3692  -0.0005  loss calc tweak  ◀ BEST
 
-  Restore best:    git checkout 5962a578 -- train.py
+  Restore best:    git checkout da353a6 -- train.py
 ========================================================================
 ```
 
@@ -296,9 +320,16 @@ kill $(cat logs/agent_loop.pid)
 Config (top of `agent_loop.py`):
 ```python
 MAX_EXPERIMENTS = 120     # overnight cap
-CLAUDE_TIMEOUT  = 300     # 5 min for Opus to respond
+CLAUDE_TIMEOUT  = 300     # 5 min for Claude to respond
 TRAIN_TIMEOUT   = 660     # 11 min for larger model variants
-CLAUDE_MODEL    = "opus"  # best reasoning for architecture proposals
+CLAUDE_MODEL    = "sonnet"  # default; override via AOMB_CLAUDE_MODELS env var
+```
+
+**API key configuration** (environment variables, or a `.env` file sourced before launch):
+```bash
+AOMB_ANTHROPIC_API_KEYS=sk-ant-...   # one or more keys, comma-separated
+AOMB_OPENAI_API_KEYS=sk-proj-...     # optional OpenAI fallback
+AOMB_CLAUDE_MODELS=sonnet            # or: opus, haiku, gpt-4o-mini
 ```
 
 Every improvement is a git commit. The git log is the experiment log.
@@ -348,7 +379,7 @@ karpathy/autoresearch          (original — H100, NVIDIA)
 - macOS with Apple Silicon (M1/M2/M3/M4)
 - Python 3.10+
 - `uv` package manager
-- Claude Code installed and authenticated (`claude --print` must work)
+- An Anthropic API key (`AOMB_ANTHROPIC_API_KEYS`) — or Claude Code installed for CLI fallback
 - ~500 MB disk space for corpus + tokenizer
 
 ---
