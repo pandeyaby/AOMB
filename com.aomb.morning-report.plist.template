@@ -5,6 +5,17 @@
     <key>Label</key>
     <string>com.aomb.morning-report</string>
 
+    <!--
+        NOTE: agent_loop.py already calls morning_report.py and sends a macOS
+        notification automatically when the loop finishes. This launchd job is
+        a daily fallback — useful if you want to re-run the report mid-day.
+
+        To install:
+            sed "s|AOMB_DIR|$(pwd)|g" com.aomb.morning-report.plist.template \
+                > ~/Library/LaunchAgents/com.aomb.morning-report.plist
+            launchctl load ~/Library/LaunchAgents/com.aomb.morning-report.plist
+    -->
+
     <key>ProgramArguments</key>
     <array>
         <!-- Replace AOMB_DIR with the absolute path to your AOMB checkout -->
@@ -13,11 +24,11 @@
         <string>--plot</string>
     </array>
 
-    <!-- Run every day at 8:00 AM local time -->
+    <!-- Daily fallback at 9:00 AM local time -->
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
-        <integer>8</integer>
+        <integer>9</integer>
         <key>Minute</key>
         <integer>0</integer>
     </dict>

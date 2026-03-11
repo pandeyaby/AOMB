@@ -31,6 +31,18 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+try:
+    import anthropic as _anthropic_module
+    _ANTHROPIC_AVAILABLE = True
+except ImportError:
+    _ANTHROPIC_AVAILABLE = False
+
+try:
+    import openai as _openai_module
+    _OPENAI_AVAILABLE = True
+except ImportError:
+    _OPENAI_AVAILABLE = False
+
 # ── Config ───────────────────────────────────────────────────────────────────
 
 REPO_DIR       = Path(__file__).parent.resolve()
@@ -44,8 +56,78 @@ MAX_RETRIES       = 3        # retries if claude call fails / bad output
 SLEEP_BETWEEN     = 10       # seconds between experiments (let MPS cool)
 CLAUDE_TIMEOUT    = 300      # seconds to wait for claude -p response (opus can take ~3 min)
 TRAIN_TIMEOUT     = 660      # seconds (5 min budget + 6 min buffer for larger models + eval)
-CLAUDE_MODEL      = "opus"   # maps to claude-opus-4-6 (best for research)
+CLAUDE_MODEL      = "sonnet" # default; override with AOMB_CLAUDE_MODELS env var
+                             # Anthropic aliases: opus, sonnet, haiku
+                             # OpenAI models:     gpt-4o, gpt-4o-mini, gpt-4.1, gpt-4.1-mini
 MAX_GIT_LOG_LINES = 30       # recent experiment lines to feed agent
+
+
+def _parse_csv_env(name: str) -> list[str]:
+    raw = os.getenv(name, "")
+    return [v.strip() for v in raw.split(",") if v.strip()]
+
+
+def _discover_api_keys() -> list[str]:
+    """
+    Discover API keys from env in priority order:
+    1) AOMB_ANTHROPIC_API_KEYS=key1,key2,...
+    2) ANTHROPIC_API_KEY_1, ANTHROPIC_API_KEY_2, ...
+    3) ANTHROPIC_API_KEY
+    """
+    keys: list[str] = []
+    keys.extend(_parse_csv_env("AOMB_ANTHROPIC_API_KEYS"))
+
+    numbered: list[tuple[int, str]] = []
+    for env_name, env_val in os.environ.items():
+        m = re.fullmatch(r"ANTHROPIC_API_KEY_(\d+)", env_name)
+        if m and env_val.strip():
+            numbered.append((int(m.group(1)), env_val.strip()))
+    numbered.sort(key=lambda t: t[0])
+    keys.extend([v for _, v in numbered])
+
+    default_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if default_key:
+        keys.append(default_key)
+
+    # Stable de-dup preserving order
+    deduped: list[str] = []
+    seen = set()
+    for key in keys:
+        if key not in seen:
+            deduped.append(key)
+            seen.add(key)
+    return deduped
+
+
+def _discover_openai_keys() -> list[str]:
+    """Discover OpenAI keys: AOMB_OPENAI_API_KEYS, OPENAI_API_KEY_1..N, OPENAI_API_KEY."""
+    keys: list[str] = []
+    keys.extend(_parse_csv_env("AOMB_OPENAI_API_KEYS"))
+    numbered: list[tuple[int, str]] = []
+    for env_name, env_val in os.environ.items():
+        m = re.fullmatch(r"OPENAI_API_KEY_(\d+)", env_name)
+        if m and env_val.strip():
+            numbered.append((int(m.group(1)), env_val.strip()))
+    numbered.sort(key=lambda t: t[0])
+    keys.extend([v for _, v in numbered])
+    default_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if default_key:
+        keys.append(default_key)
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for key in keys:
+        if key not in seen:
+            deduped.append(key)
+            seen.add(key)
+    return deduped
+
+
+CLAUDE_MODELS    = _parse_csv_env("AOMB_CLAUDE_MODELS") or [CLAUDE_MODEL]
+API_KEY_RING     = _discover_api_keys()
+OPENAI_KEY_RING  = _discover_openai_keys()
+
+# Which models are OpenAI (routed to OpenAI SDK instead of Anthropic)
+_OPENAI_MODEL_PREFIXES = ("gpt-", "o1", "o3", "o4")
 
 # ── Logging setup ─────────────────────────────────────────────────────────────
 
@@ -144,17 +226,12 @@ def extract_code_block(text: str) -> str | None:
     return None
 
 
-def call_claude_agent(experiment_num: int) -> str | None:
-    """
-    Call `claude -p` with the research prompt.
-    Returns proposed train.py content, or None on failure.
-    """
+def _build_prompt(experiment_num: int) -> str:
     program_md  = read_file(PROGRAM_MD)
     train_py    = read_file(TRAIN_PY)
     recent_exps = get_recent_experiments()
     best_bpb    = get_best_val_bpb()
-
-    prompt = f"""You are the research agent for the Autonomous Observability Model Breeder.
+    return f"""You are the research agent for the Autonomous Observability Model Breeder.
 This is experiment #{experiment_num}.
 
 === RESEARCH CONSTITUTION (program.md) ===
@@ -182,39 +259,138 @@ CRITICAL OUTPUT FORMAT:
 - Your thinking and reasoning BEFORE the code block is encouraged and welcome.
 """
 
-    cmd = [
-        "claude",
-        "--print",
-        "--model", CLAUDE_MODEL,
-        "--no-session-persistence",
-        "--output-format", "text",
-        prompt,
-    ]
 
-    log.info(f"[Exp {experiment_num}] Calling claude -p (model={CLAUDE_MODEL})...")
+# Full API model names for the SDK (aliases not always accepted).
+# Override at runtime via AOMB_CLAUDE_MODELS env var with full model IDs.
+_SDK_MODEL_MAP = {
+    "opus":   "claude-opus-4-5",
+    "sonnet": "claude-sonnet-4-5",
+    "haiku":  "claude-haiku-4-5",
+}
+
+
+def _call_via_sdk(prompt: str, model: str, api_key: str,
+                  experiment_num: int, attempt_num: int) -> str | None:
+    """Use the Anthropic Python SDK directly — bypasses Claude Code rate limits."""
+    sdk_model = _SDK_MODEL_MAP.get(model, model)
+    try:
+        client = _anthropic_module.Anthropic(api_key=api_key)
+        log.info(f"[Exp {experiment_num}] SDK call (model={sdk_model}, key=...{api_key[-6:]})...")
+        t0 = time.time()
+        message = client.messages.create(
+            model=sdk_model,
+            max_tokens=16000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        elapsed = time.time() - t0
+        log.info(f"[Exp {experiment_num}] SDK responded in {elapsed:.1f}s")
+        return message.content[0].text
+    except _anthropic_module.RateLimitError as e:
+        log.warning(f"[Exp {experiment_num}] SDK rate limit (429): {e}. Sleeping 60s.")
+        time.sleep(60)
+        return None
+    except _anthropic_module.APIStatusError as e:
+        log.error(f"[Exp {experiment_num}] SDK API error ({e.status_code}): {e.message[:200]}")
+        return None
+    except Exception as e:
+        log.error(f"[Exp {experiment_num}] SDK unexpected error: {e}")
+        return None
+
+
+def _call_via_openai(prompt: str, model: str, api_key: str,
+                     experiment_num: int) -> str | None:
+    """Use the OpenAI Python SDK — GPT-4o, gpt-4.1, o1, etc."""
+    try:
+        client = _openai_module.OpenAI(api_key=api_key)
+        log.info(f"[Exp {experiment_num}] OpenAI call (model={model}, key=...{api_key[-6:]})...")
+        t0 = time.time()
+        response = client.chat.completions.create(
+            model=model,
+            max_tokens=16000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        elapsed = time.time() - t0
+        log.info(f"[Exp {experiment_num}] OpenAI responded in {elapsed:.1f}s")
+        return response.choices[0].message.content
+    except _openai_module.RateLimitError as e:
+        log.warning(f"[Exp {experiment_num}] OpenAI rate limit (429): {e}. Sleeping 60s.")
+        time.sleep(60)
+        return None
+    except _openai_module.APIStatusError as e:
+        log.error(f"[Exp {experiment_num}] OpenAI API error ({e.status_code}): {str(e)[:200]}")
+        return None
+    except Exception as e:
+        log.error(f"[Exp {experiment_num}] OpenAI unexpected error: {e}")
+        return None
+
+
+def _call_via_cli(prompt: str, model: str, experiment_num: int) -> str | None:
+    """Fallback: use `claude --print`. Detects rate-limit fast-failures."""
+    cmd = ["claude", "--print", "--model", model, "--output-format", "text", prompt]
+    log.info(f"[Exp {experiment_num}] CLI fallback (model={model})...")
     t0 = time.time()
     try:
         result = subprocess.run(
-            cmd,
-            cwd=REPO_DIR,
-            capture_output=True,
-            text=True,
-            timeout=CLAUDE_TIMEOUT,
+            cmd, cwd=REPO_DIR, capture_output=True,
+            text=True, timeout=CLAUDE_TIMEOUT,
         )
     except subprocess.TimeoutExpired:
-        log.error(f"Claude call timed out after {CLAUDE_TIMEOUT}s")
+        log.error(f"Claude CLI timed out after {CLAUDE_TIMEOUT}s")
         return None
-
     elapsed = time.time() - t0
-    log.info(f"[Exp {experiment_num}] Claude responded in {elapsed:.1f}s")
 
     if result.returncode != 0:
-        log.error(f"Claude CLI error (rc={result.returncode}): {result.stderr[:300]}")
+        detail = (result.stderr or "").strip() or (result.stdout or "").strip()
+        # Fast failure (<8s) with no output = Claude Code usage/rate limit
+        if elapsed < 8 and not detail:
+            log.warning(
+                f"[Exp {experiment_num}] CLI rate-limited (rc=1, {elapsed:.1f}s, no output). "
+                "Sleeping 3600s to let Claude Code quota reset."
+            )
+            time.sleep(3600)
+        else:
+            log.error(f"[Exp {experiment_num}] CLI error (rc={result.returncode}, {elapsed:.1f}s): {detail[:300]}")
         return None
 
-    response = result.stdout
-    if not response.strip():
-        log.error("Claude returned empty response")
+    log.info(f"[Exp {experiment_num}] CLI responded in {elapsed:.1f}s")
+    return result.stdout or None
+
+
+def call_claude_agent(experiment_num: int, attempt_num: int) -> str | None:
+    """
+    Call the Claude API to get a proposed train.py.
+    Priority:
+      1. Anthropic Python SDK (if anthropic installed + API key available) — no Code rate limits
+      2. `claude --print` CLI fallback with rate-limit detection
+    Returns proposed train.py content, or None on failure.
+    """
+    prompt = _build_prompt(experiment_num)
+    model  = CLAUDE_MODELS[(attempt_num - 1) % len(CLAUDE_MODELS)]
+
+    is_openai = model.startswith(_OPENAI_MODEL_PREFIXES)
+
+    # ── Path 1a: OpenAI SDK ───────────────────────────────────────────────────
+    if is_openai and _OPENAI_AVAILABLE and OPENAI_KEY_RING:
+        key_idx = (attempt_num - 1) % len(OPENAI_KEY_RING)
+        response = _call_via_openai(prompt, model, OPENAI_KEY_RING[key_idx],
+                                    experiment_num)
+    # ── Path 1b: Anthropic SDK ────────────────────────────────────────────────
+    elif not is_openai and _ANTHROPIC_AVAILABLE and API_KEY_RING:
+        key_idx = (attempt_num - 1) % len(API_KEY_RING)
+        response = _call_via_sdk(prompt, model, API_KEY_RING[key_idx],
+                                 experiment_num, attempt_num)
+    # ── Path 2: Claude CLI fallback (no API key) ──────────────────────────────
+    else:
+        if is_openai:
+            log.warning(f"OpenAI model '{model}' requested but no OPENAI_API_KEY found — falling back to CLI")
+        elif not _ANTHROPIC_AVAILABLE:
+            log.warning("anthropic SDK not installed — using CLI fallback")
+        else:
+            log.warning("No Anthropic API key found — using CLI (subject to Code rate limits)")
+        response = _call_via_cli(prompt, model, experiment_num)
+
+    if not response or not response.strip():
+        log.error(f"[Exp {experiment_num}] Empty response from Claude")
         return None
 
     # Save full response for debugging
@@ -223,7 +399,7 @@ CRITICAL OUTPUT FORMAT:
 
     proposed = extract_code_block(response)
     if not proposed:
-        log.error("Could not extract code block from Claude response")
+        log.error(f"[Exp {experiment_num}] No code block found in response")
         log.debug(f"Response preview: {response[:500]}")
         return None
 
@@ -334,7 +510,9 @@ def main():
     log.info("=" * 60)
     log.info("  AUTONOMOUS OBSERVABILITY MODEL BREEDER — AGENT LOOP")
     log.info(f"  Max experiments: {MAX_EXPERIMENTS}")
-    log.info(f"  Model: {CLAUDE_MODEL}")
+    log.info(f"  Models: {', '.join(CLAUDE_MODELS)}")
+    log.info(f"  Anthropic key slots: {len(API_KEY_RING)}")
+    log.info(f"  OpenAI key slots:    {len(OPENAI_KEY_RING)}")
     log.info(f"  Repo: {REPO_DIR}")
     log.info("=" * 60)
 
@@ -371,7 +549,7 @@ def main():
         # ── Step 2: Get proposed change from Claude ──────────────────────────
         proposed_code = None
         for attempt in range(1, MAX_RETRIES + 1):
-            proposed_code = call_claude_agent(experiment_num)
+            proposed_code = call_claude_agent(experiment_num, attempt)
             if proposed_code:
                 ok, err = validate_python(proposed_code)
                 if ok:
@@ -436,6 +614,28 @@ def main():
     try:
         git("push", "origin", "main", check=False)
         log.info("Final push to GitHub complete.")
+    except Exception:
+        pass
+
+    # ── Morning report + macOS notification ──────────────────────────────────
+    try:
+        report_log = LOGS_DIR / "morning_report.log"
+        with open(report_log, "w") as f:
+            subprocess.run(
+                [sys.executable, str(REPO_DIR / "morning_report.py"), "--plot"],
+                cwd=REPO_DIR, stdout=f, stderr=subprocess.STDOUT,
+            )
+        log.info(f"Morning report written to {report_log}")
+    except Exception as e:
+        log.warning(f"Morning report failed: {e}")
+
+    try:
+        improvement_pct = (1 - best_val_bpb / 0.4372) * 100
+        subprocess.run([
+            "osascript", "-e",
+            f'display notification "Best val_bpb: {best_val_bpb:.4f} ({improvement_pct:.1f}% improvement) after {experiment_num} experiments." '
+            f'with title "AOMB Complete 🧬" subtitle "Check morning_report.log for details" sound name "Glass"',
+        ], check=False)
     except Exception:
         pass
 
