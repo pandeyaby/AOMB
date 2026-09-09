@@ -29,6 +29,7 @@ import random
 import re
 import sys
 import time
+import types
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -84,20 +85,25 @@ def _load_train_symbols(prepare_mod):
     if idx < 0:
         raise RuntimeError("demo_anomaly: could not find train.py Setup marker — train.py layout changed?")
     source = source[:idx]
-    ns = {
-        "__name__": "train_demo_symbols",
-        "__file__": str(REPO_ROOT / "train.py"),
+    # Register a real module so @dataclass (GPTConfig) can resolve __module__
+    mod_name = "_aomb_train_demo"
+    module = types.ModuleType(mod_name)
+    module.__file__ = str(REPO_ROOT / "train.py")
+    module.__dict__.update({
         "os": os,
         "sys": sys,
         "gc": gc,
         "time": time,
         "math": math,
         "torch": torch,
-    }
+    })
+    sys.modules[mod_name] = module
     # ensure `from prepare import ...` resolves to our shim
     sys.modules["prepare"] = prepare_mod
-    exec(compile(source, str(REPO_ROOT / "train.py"), "exec"), ns)
-    return ns
+    exec(compile(source, str(REPO_ROOT / "train.py"), "exec"), module.__dict__)
+    # MuonAdamW.__init__ reads module-level device_type (normally set in Setup)
+    module.device_type = DEVICE.type
+    return module.__dict__
 
 
 def _autocast_ctx(device_type: str):
@@ -118,7 +124,10 @@ def _sync(device_type: str):
 
 @torch.no_grad()
 def session_bpb(model, tokenizer, token_bytes, text: str, max_seq_len: int) -> float:
-    """Bits-per-byte for one session (chunked to max_seq_len). Same contract spirit as evaluate_bpb."""
+    """
+    Bits-per-byte surprise for one session (chunked to max_seq_len).
+    Uses raw next-token CE (not focal train loss) so the number is true surprise.
+    """
     device = next(model.parameters()).device
     bos = tokenizer.get_bos_token_id()
     ids = tokenizer.encode(text, prepend=bos)
@@ -127,7 +136,6 @@ def session_bpb(model, tokenizer, token_bytes, text: str, max_seq_len: int) -> f
 
     total_nats = 0.0
     total_bytes = 0
-    # Teacher-force in non-overlapping windows of max_seq_len (+1 for targets)
     pos = 0
     while pos + 1 < len(ids):
         chunk = ids[pos : pos + max_seq_len + 1]
@@ -135,7 +143,12 @@ def session_bpb(model, tokenizer, token_bytes, text: str, max_seq_len: int) -> f
             break
         x = torch.tensor(chunk[:-1], dtype=torch.long, device=device).unsqueeze(0)
         y = torch.tensor(chunk[1:], dtype=torch.long, device=device).unsqueeze(0)
-        loss_flat = model(x, y, reduction="none").view(-1)
+        logits = model(x)  # no targets → logits
+        loss_flat = F.cross_entropy(
+            logits.view(-1, logits.size(-1)).float(),
+            y.view(-1),
+            reduction="none",
+        )
         y_flat = y.view(-1)
         nbytes = token_bytes[y_flat]
         mask = nbytes > 0
@@ -313,6 +326,9 @@ def main():
         model = GPT(config)
     model.to_empty(device=DEVICE)
     model.init_weights()
+    if DEVICE.type == "cpu":
+        # train.py keeps embeddings/RoPE in bf16 for MPS; CPU matmul needs float32
+        model.float()
 
     optimizer = model.setup_optimizer(
         unembedding_lr=UNEMBEDDING_LR,
@@ -322,6 +338,10 @@ def main():
         matrix_lr=MATRIX_LR,
         weight_decay=WEIGHT_DECAY,
     )
+    if DEVICE.type == "cpu":
+        # MuonAdamW torch.compiles on cpu/cuda; skip inductor here (no C++ toolchain required)
+        optimizer.adamw_step_fused = train_ns["adamw_step_fused"]
+        optimizer.muon_step_fused = train_ns["muon_step_fused"]
 
     train_loader = make_dataloader(tokenizer, device_batch_size, MAX_SEQ_LEN, "train")
     x, y, epoch = next(train_loader)
@@ -442,10 +462,9 @@ def main():
     print("  " + "─" * 60)
     print()
     print("  What to look for:")
-    print("    • anomalous mean_bpb  >  normal")
-    print("    • cascade mean_bpb    ≥  anomalous  (denser failure → more surprise)")
-    print("  That gap is the anomaly detector — same objective as val_bpb.")
-    print("  No labels at train time. No thresholds. Just next-token prediction.")
+    print("    • anomalous / cascade mean_bpb  >  normal  (the gap is the detector)")
+    print("    • after longer train, cascade often ≥ anomalous (denser failures)")
+    print("  Same objective as val_bpb — no labels at train time, no thresholds.")
     print("=" * 72)
 
     # Non-zero exit if the story failed directionally (helps CI / newcomers)
