@@ -50,11 +50,16 @@ signal.alarm(60)
 exec(open('train.py').read())
 " 2>&1 | tail -5
 
-# 5. Run the autonomous agent loop overnight
+# 5. Anomaly story — surprise/BPB on normal vs anomalous vs cascade (~1 min)
+#    Look for: anomalous and cascade mean_bpb >> normal.
+#    That gap is the detector: next-token surprise *is* anomaly detection.
+uv run python demo_anomaly.py
+
+# 6. Run the autonomous agent loop overnight
 caffeinate -i uv run python agent_loop.py >> logs/agent_loop.log 2>&1 &
 echo "Agent running. Check logs/agent_loop.log. Sleep well."
 
-# 6. Morning report
+# 7. Morning report
 uv run python morning_report.py --plot
 ```
 
