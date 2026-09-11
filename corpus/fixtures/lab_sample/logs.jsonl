@@ -1,0 +1,2 @@
+{"timestamp": "2026-09-11T17:01:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "aaaabbbbccccddddeeeeffff00001111"}
+{"timestamp": "2026-09-11T17:06:30.050Z", "severity": "ERROR", "body": "checkout_failed error=induced_fault_error", "service_name": "api", "trace_id": "ffffeeeeddddccccbbbbaaaa00002222"}

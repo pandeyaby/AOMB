@@ -1,0 +1,23 @@
+{
+  "corpus_version": "v1",
+  "source_id": "lab-aomb-stack",
+  "source_kind": "lab_capture",
+  "license": "Apache-2.0",
+  "capture_id": "fixture-demo",
+  "windows": [
+    {
+      "label": "normal",
+      "start": "2026-09-11T17:00:00Z",
+      "end": "2026-09-11T17:05:00Z",
+      "fault": "",
+      "notes": "fixture normal window"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-11T17:05:00Z",
+      "end": "2026-09-11T17:10:00Z",
+      "fault": "api_latency",
+      "notes": "fixture incident window"
+    }
+  ]
+}
