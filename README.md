@@ -31,14 +31,13 @@ An ILM trained on your own telemetry has an anomaly detector no vendor can repli
 
 ```bash
 # Requirements: macOS + Apple Silicon, Python 3.10+, uv
-# Optional for real corpus: Docker (lab stack), network (Hugging Face public fetch)
+# Optional for real corpus: Docker (lab), ~2.3GB disk+net for Uber CRISP fetch
 
 # 1. Install dependencies
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync
 
-# 2a. FLAGSHIP — build real reference corpus v1 (see section below)
-#     Public-real OTel Demo traces/logs, and/or lab capture with faults.
+# 2a. FLAGSHIP — real reference corpus v1 (Uber CRISP + lab). See section below.
 #     Details: docs/corpus-v1.md
 
 # 2b. SMOKE / CI ONLY — synthetic generator (not the product corpus)
@@ -72,29 +71,29 @@ uv run python morning_report.py --plot
 
 ## Reference corpus v1 (real)
 
-**Flagship training data is real telemetry only** — not synthetic.
-Dual sources for v1:
+**Flagship training data is real production telemetry** — not synthetic demos/testbeds.
 
-| Source | Description |
-|--------|-------------|
-| **(A) Public-real** | Licensed real OTel from [`smithclay/otel-demo-telemetry`](https://huggingface.co/datasets/smithclay/otel-demo-telemetry) (Apache-2.0) — traces/logs from the OpenTelemetry Demo |
-| **(B) Lab-captured** | Org-level local stack (`lab/`) with OTel export + induced faults; windows tagged `normal` vs `incident` |
+| Role | Source |
+|------|--------|
+| **(A) Public-real bootstrap** | **Uber CRISP** — ~100k production Jaeger traces, [Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), `CRISP-main.zip` ~2.33 GB, **CC BY 4.0** (cite Zhang et al., ATC'22). Session = `traceID`. |
+| **(B) Lab-captured** | Org-level stack (`lab/`) with OTel export + induced faults; windows `normal` / `incident` |
+| **Flagship scale (later)** | Uber Tale of Errors — DOIs [13947828](https://doi.org/10.5281/zenodo.13947828) + [13952897](https://doi.org/10.5281/zenodo.13952897), ~1.4M traces, CC BY 4.0, **300–500GB decompressed** — document only; not CI |
+| **Eval-only** | AIOps Challenge 2020 — labeled faults, **non-commercial**; cite+fetch, do not redistribute |
+| **Rejected as flagship** | OTel Demo / `otel-demo-telemetry`, tracegen, Sock Shop+Chaos Mesh testbeds, DeathStarBench |
 
-Provenance schema, licenses, and reproduction steps: **[`docs/corpus-v1.md`](docs/corpus-v1.md)**.
-Ingest layout: [`corpus/README.md`](corpus/README.md). Lab stack: [`lab/README.md`](lab/README.md).
+Full provenance: **[`docs/corpus-v1.md`](docs/corpus-v1.md)**. Ingest: [`corpus/README.md`](corpus/README.md). Lab: [`lab/README.md`](lab/README.md).
 
 `prepare.py` stays sacred — ingest writes the same parquet shape (`text` column, pinned val shard `6542`).
 
-### Build from public-real OTel
+### Build from Uber CRISP (public-real)
 
 ```bash
-uv run python -m corpus.ingest.fetch_otel_demo --signals traces,logs
-# If HF download isn't available, place otlp_traces/**/*.parquet under
-# ~/.cache/autoresearch/corpus-v1/public/ (see docs/corpus-v1.md)
+uv run python -m corpus.ingest.fetch_crisp                 # instructions / use local zip
+# uv run python -m corpus.ingest.fetch_crisp --download    # ~2.33 GB — not for CI
 
 uv run python -m corpus.ingest.build_shards \
-  --adapter otel_demo_hf \
-  --input ~/.cache/autoresearch/corpus-v1/public \
+  --adapter crisp_zenodo \
+  --input ~/.cache/autoresearch/corpus-v1/crisp/extracted \
   --num-train-shards 8 \
   --write-val-shard
 
@@ -120,12 +119,12 @@ Fault modes: `latency`, `errors`, `both`, `kill_redis`, `kill_postgres` (`lab/sc
 
 ### Synthetic = smoke / CI only
 
-`generate_observability_corpus.py` remains for fast loops without Docker or Hugging Face.
+`generate_observability_corpus.py` remains for fast loops without Docker or Zenodo.
 It is **not** the reference corpus product story.
 
 ### Bring your own (BYO) telemetry
 
-Point a new adapter at your OTLP/JSON/parquet dump (see `corpus/ingest/adapters/base.py`),
+Point a new adapter at your Jaeger/OTLP dump (see `corpus/ingest/adapters/base.py`),
 or convert to the session line format and write `shard_*.parquet` yourself.
 Same downstream path: `prepare.py` → `train.py` / `evaluate_bpb`.
 

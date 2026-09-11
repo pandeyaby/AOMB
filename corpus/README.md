@@ -1,33 +1,46 @@
 # AOMB corpus tree
 
-Flagship reference corpus = **real telemetry** (see [`docs/corpus-v1.md`](../docs/corpus-v1.md)).
+Flagship reference corpus = **real production telemetry** (see [`docs/corpus-v1.md`](../docs/corpus-v1.md)).
 
 ```
 corpus/
-  README.md                 # this file
-  fixtures/                 # tiny sample OTLP for unit tests (not product data)
+  README.md
+  fixtures/
+    crisp_sample/     # tiny Jaeger JSON for unit tests (not product data)
+    lab_sample/       # tiny lab capture for unit tests
   ingest/
-    session_format.py       # event / session text helpers (prepare.py contract)
-    otlp_to_sessions.py     # OTLP spans+logs → session documents
-    build_shards.py         # write shard_NNNNN.parquet + provenance
-    fetch_otel_demo.py      # download public-real HF dataset
+    jaeger.py                 # Jaeger API JSON → SpanRecord
+    session_format.py         # prepare.py text contract
+    otlp_to_sessions.py       # spans/logs → session docs
+    build_shards.py           # shard_NNNNN.parquet + provenance
+    fetch_crisp.py            # Zenodo CRISP-main.zip (~2.33 GB, opt-in)
+    fetch_aiops_challenge.py  # eval-only cite+fetch (no redistribute)
+    rejected_sources.py       # explicit denylist (demo/testbed/synthetic)
     adapters/
-      base.py               # SourceAdapter interface
-      otel_demo_hf.py       # public-real adapter
-      lab_capture.py        # lab JSONL adapter
+      base.py
+      crisp_zenodo.py         # v1 bootstrap public-real
+      tale_of_errors.py       # flagship-scale optional later path
+      lab_capture.py          # lab JSONL + provenance windows
 ```
 
 ## Quick commands
 
 ```bash
-# Public-real
-uv run python -m corpus.ingest.fetch_otel_demo --signals traces,logs
-uv run python -m corpus.ingest.build_shards --adapter otel_demo_hf \
-  --input ~/.cache/autoresearch/corpus-v1/public --num-train-shards 8 --write-val-shard
+# v1 bootstrap — Uber CRISP (CC BY 4.0)
+uv run python -m corpus.ingest.fetch_crisp              # instructions / local zip
+uv run python -m corpus.ingest.fetch_crisp --download   # ~2.33 GB, not CI
+uv run python -m corpus.ingest.build_shards \
+  --adapter crisp_zenodo \
+  --input ~/.cache/autoresearch/corpus-v1/crisp/extracted \
+  --num-train-shards 8 --write-val-shard
 
-# Lab (after docker capture)
-uv run python -m corpus.ingest.build_shards --adapter lab_capture \
-  --input lab/captures/<id> --num-train-shards 4 --write-val-shard
+# Lab
+uv run python -m corpus.ingest.build_shards \
+  --adapter lab_capture --input lab/captures/<id> \
+  --num-train-shards 4 --write-val-shard
+
+# Eval-only (non-commercial; do not redistribute)
+uv run python -m corpus.ingest.fetch_aiops_challenge
 ```
 
-Synthetic generator (`generate_observability_corpus.py`) is **smoke/CI only**.
+Synthetic `generate_observability_corpus.py` = **smoke/CI only**.

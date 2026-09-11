@@ -1,14 +1,30 @@
 # AOMB Reference Corpus v1 — Provenance & Schema
 
-**Product decision (locked):** the flagship corpus is **real telemetry only**.
-Synthetic data from `generate_observability_corpus.py` is retained for **smoke / CI only** — not the product story.
+**Product decision (locked):** the flagship corpus is **real production telemetry only**.
+Synthetic / demo / testbed sources are not the product story.
 
-v1 is dual-source:
+---
 
-| Source | What it is | Role |
-|--------|------------|------|
-| **(A) Public-real** | Licensed real OTel traces/logs from a public dataset | Reproducible baseline anyone can fetch |
-| **(B) Lab-captured** | OTel from an org-level local multi-service stack with induced faults | Controlled normal vs incident windows |
+## Locked source map
+
+| Role | Source | License | Action in v1 |
+|------|--------|---------|--------------|
+| **Bootstrap (implement)** | **Uber CRISP** — ~100k prod Jaeger traces, Zenodo `13956078`, `CRISP-main.zip` ~2.33 GB | **CC BY 4.0** | Fetch + ingest wired |
+| **Flagship scale (later)** | **Uber Tale of Errors** — ~1.4M sanitized prod Jaeger; DOIs `10.5281/zenodo.13947828` + `13952897`; 300–500 GB decompressed | **CC BY 4.0** | Document + optional adapter; **no CI download** |
+| **Eval-only** | **AIOps Challenge 2020** — labeled faults | **Non-commercial** | Cite + fetch locally; **do not redistribute** |
+| **Lab (required)** | Org-level local stack with induced faults + OTel export | Apache-2.0 (our code) | `lab/` docker-compose |
+| **Smoke / CI only** | `generate_observability_corpus.py` | — | Demoted; not flagship |
+
+### Rejected as flagship (synthetic / testbed)
+
+Do **not** present these as the AOMB reference corpus:
+
+- OpenTelemetry Demo / `smithclay/otel-demo-telemetry`
+- `opentelemetry-tracegen`
+- Sock Shop + Chaos Mesh Zenodo testbeds
+- DeathStarBench packs
+
+See `corpus/ingest/rejected_sources.py`.
 
 ---
 
@@ -16,161 +32,149 @@ v1 is dual-source:
 
 `prepare.py` / `evaluate_bpb` / the BPE tokenizer must keep working unchanged.
 
-Ingest writes the **same parquet shape** that the synthetic generator already produces:
+Ingest writes:
 
 - Path: `~/.cache/autoresearch/data/shard_NNNNN.parquet`
 - Schema: single column `text` (`string`)
-- Each row = one **session document** (multi-line string of correlated events)
-- Pinned validation shard index: `6542` (matches `prepare.py`)
+- Each row = one **session** (multi-line correlated events)
+- Pinned validation shard index: `6542`
 
-Event line shape (compatible with existing demos / visualization heuristics):
+**Session key for Jaeger public dumps = `traceID`** (multi-service spans share one document).
+
+Event line shape:
 
 ```text
 [ts=YYYY-MM-DDTHH:MM:SS.sssZ] [src=OTel] trace_id=... span_id=... parent=... op=... svc=... duration_ms=... status=ok|error ...
-[ts=...] [src=OTelLog] level=INFO svc=... msg=... trace_id=... ...
 ```
 
-Optional provenance prefix on the first line of a session (ignored by training as ordinary text; useful for audit):
+Optional meta line:
 
 ```text
-# aomb_meta source=lab window=incident capture_id=2026-09-11T18:00:00Z fault=api_latency
+# aomb_meta source=uber-crisp-zenodo-13956078 window=normal capture_id=...
 ```
 
 ---
 
-## Provenance record schema
+## Source A — Uber CRISP (v1 bootstrap)
 
-Every ingested batch SHOULD write a JSON provenance sidecar next to the raw capture
-(or under `~/.cache/autoresearch/corpus-v1/provenance/`).
+| Field | Value |
+|-------|--------|
+| **Name** | CRISP: Critical Path Analysis of Large-Scale Microservice Architectures (Artifact) |
+| **DOI** | [10.5281/zenodo.13956078](https://doi.org/10.5281/zenodo.13956078) |
+| **File** | `CRISP-main.zip` (~2.33 GB) |
+| **md5** | `efc646e625270685734e8988fc5ef8ec` |
+| **Contents** | ~100k sanitized **production** Jaeger traces (multi-service) |
+| **License** | **CC BY 4.0** |
+| **Format** | Jaeger HTTP API JSON (directory of `.json` traces) |
+| **Session** | One AOMB document per `traceID` |
+| **Repo** | https://github.com/uber-research/CRISP |
+
+**Attribution / citation** (required under CC BY):
+
+```bibtex
+@inproceedings{zhang2022crisp,
+  title={{CRISP}: Critical path analysis of {Large-Scale} microservice architectures},
+  author={Zhang, Zhizhou and Ramanathan, Murali Krishna and Raj, Prithvi
+          and Parwal, Abhishek and Sherwood, Timothy and Chabbi, Milind},
+  booktitle={2022 USENIX Annual Technical Conference (USENIX ATC 22)},
+  pages={655--672},
+  year={2022}
+}
+```
+
+**Notes from Zenodo:** unrelated tags removed; start times randomly shifted (relative timings preserved); sanitization mapping is **inconsistent** with Tale of Errors — do not mix.
+
+### Reproduce
+
+```bash
+# Prints manual steps; use --download only when you intend to pull ~2.33 GB
+uv run python -m corpus.ingest.fetch_crisp
+uv run python -m corpus.ingest.fetch_crisp --download   # optional, not CI
+
+uv run python -m corpus.ingest.build_shards \
+  --adapter crisp_zenodo \
+  --input ~/.cache/autoresearch/corpus-v1/crisp/extracted \
+  --num-train-shards 8 \
+  --write-val-shard
+
+uv run python prepare.py --num-shards 8
+```
+
+---
+
+## Source B — Uber Tale of Errors (flagship scale, optional later)
+
+| Field | Value |
+|-------|--------|
+| **Part 1** | [10.5281/zenodo.13947828](https://doi.org/10.5281/zenodo.13947828) |
+| **Part 2** | [10.5281/zenodo.13952897](https://doi.org/10.5281/zenodo.13952897) |
+| **Scale** | ~1.4M sanitized production Jaeger traces |
+| **Disk** | Split `.tar.zst` pieces; **300–500 GB decompressed per archive** |
+| **License** | **CC BY 4.0** |
+| **CI** | Full download **not required** and must not be part of CI |
+
+Adapter `tale_of_errors` accepts a *local* assembled Jaeger JSON tree (same parser as CRISP) for experiments. Document reassembly from Zenodo part1+part2 before use. Cite the SIGMETRICS 2025 paper / Zenodo records.
+
+---
+
+## Eval-only — AIOps Challenge 2020
+
+| Field | Value |
+|-------|--------|
+| **Repo** | https://github.com/NetManAIOps/AIOps-Challenge-2020-Data |
+| **Signals** | Labeled faults + metrics + call-chain traces |
+| **License** | **Non-commercial** (research / classroom); do not redistribute via AOMB |
+| **Fetch help** | `uv run python -m corpus.ingest.fetch_aiops_challenge` |
+
+Use for **evaluation** (labeled fault windows), not as the training flagship story.
+
+---
+
+## Lab-captured OTel (required dual source)
+
+| Field | Value |
+|-------|--------|
+| **Stack** | `lab/docker-compose.yml` — frontend, API, Postgres, Redis, OTel Collector |
+| **Faults** | `lab/scripts/inject_faults.sh` |
+| **Capture** | `lab/scripts/run_capture_session.sh` → `normal` then `incident` windows |
+
+```bash
+cd lab && docker compose up -d --build && ./scripts/run_capture_session.sh
+uv run python -m corpus.ingest.build_shards \
+  --adapter lab_capture --input lab/captures/<id> \
+  --num-train-shards 4 --write-val-shard
+```
+
+Window labels come from **capture metadata** (`provenance.json`), not invented per-event flags.
+
+---
+
+## Provenance sidecar schema
+
+Written under `~/.cache/autoresearch/corpus-v1/provenance/`:
 
 ```json
 {
   "corpus_version": "v1",
-  "source_id": "otel-demo-hf | lab-aomb-stack",
+  "source_id": "uber-crisp-zenodo-13956078 | lab-aomb-stack | uber-tale-of-errors",
   "source_kind": "public_real | lab_capture",
-  "license": "Apache-2.0",
-  "license_url": "https://www.apache.org/licenses/LICENSE-2.0",
-  "citation": "see Sources below",
-  "captured_at": "ISO-8601 UTC",
-  "capture_tool": "corpus/ingest/fetch_otel_demo.py | lab/scripts/capture.sh",
-  "window_label": "normal | incident | mixed",
-  "windows": [
-    {
-      "label": "normal",
-      "start": "ISO-8601",
-      "end": "ISO-8601",
-      "notes": "steady load, no faults"
-    },
-    {
-      "label": "incident",
-      "start": "ISO-8601",
-      "end": "ISO-8601",
-      "fault": "api_latency | api_errors | kill_redis | kill_postgres",
-      "notes": "fault injection active"
-    }
-  ],
-  "signals": ["traces", "logs"],
-  "raw_path": "path to OTLP JSON / parquet dump",
+  "license": "CC-BY-4.0 | Apache-2.0",
+  "citation": "...",
+  "captured_at": "ISO-8601",
+  "windows": [{"label": "normal|incident", "start": "...", "end": "...", "fault": "..."}],
   "session_count": 0,
-  "shard_indices": [0],
-  "converter": "corpus/ingest/otlp_to_sessions.py",
-  "notes": ""
+  "shard_indices": [0, 6542]
 }
 ```
 
-**Labels** attach via **capture window metadata**, not by inventing per-event anomaly flags.
-A session whose spans fall primarily inside an `incident` window inherits `window=incident`.
-
 ---
 
-## Source A — Public real: OpenTelemetry Demo telemetry
+## Building combined v1
 
-| Field | Value |
-|-------|--------|
-| **Dataset** | [`smithclay/otel-demo-telemetry`](https://huggingface.co/datasets/smithclay/otel-demo-telemetry) |
-| **Contents** | Real OTLP traces, logs, and metrics from the [OpenTelemetry Demo](https://github.com/open-telemetry/opentelemetry-demo) (Astronomy Shop), captured to Parquet via duckdb-otlp |
-| **License** | **Apache-2.0** (dataset card) |
-| **Upstream demo license** | Apache-2.0 |
-| **Why this dataset** | Real multi-service OTel (not synthetic generators); parquet on Hugging Face; commercially permissive license |
-| **Citation** | Smithclay / OpenTelemetry Demo community capture — Hugging Face dataset `smithclay/otel-demo-telemetry`; upstream https://github.com/open-telemetry/opentelemetry-demo |
+1. Ingest **CRISP** into train shards `0..N-1` (+ pinned val `6542`).
+2. Ingest **lab** captures into subsequent shards (normal + incident).
+3. Optionally hold out AIOps-labeled periods for eval only.
+4. Scale later with Tale of Errors (local disks only).
+5. `prepare.py --num-shards <N>` then smoke `train.py` / `demo_anomaly.py`.
 
-### How to reproduce (public-real)
-
-```bash
-# Download traces (+ optional logs) into ~/.cache/autoresearch/corpus-v1/public/
-uv run python -m corpus.ingest.fetch_otel_demo --signals traces,logs
-
-# Convert OTLP parquet → AOMB session shards (text column)
-uv run python -m corpus.ingest.build_shards \
-  --adapter otel_demo_hf \
-  --input ~/.cache/autoresearch/corpus-v1/public \
-  --num-train-shards 8 \
-  --write-val-shard
-```
-
-If Hugging Face download is blocked or must be manual:
-
-1. Download `otlp_traces/**/*.parquet` (and optionally `otlp_logs/**`) from the dataset page.
-2. Place them under `~/.cache/autoresearch/corpus-v1/public/`.
-3. Run `build_shards` as above.
-
-The adapter interface (`corpus/ingest/adapters/base.py`) is the extension point for additional public sources.
-
----
-
-## Source B — Lab-captured OTel
-
-| Field | Value |
-|-------|--------|
-| **Stack** | `lab/docker-compose.yml` — frontend, API, Postgres, Redis, OpenTelemetry Collector |
-| **Export** | OTLP/HTTP → collector → JSONL files under `lab/captures/` |
-| **Faults** | `lab/scripts/inject_faults.sh` — latency, HTTP errors, kill Redis/Postgres |
-| **Capture** | `lab/scripts/run_capture_session.sh` tags **normal** then **incident** windows |
-
-### How to reproduce (lab)
-
-```bash
-cd lab
-docker compose up -d --build
-./scripts/run_capture_session.sh   # normal window → faults → incident window → export
-docker compose down
-
-# Convert capture JSONL → session shards
-uv run python -m corpus.ingest.build_shards \
-  --adapter lab_capture \
-  --input lab/captures/<capture_id> \
-  --num-train-shards 4 \
-  --write-val-shard
-```
-
-See [`lab/README.md`](../lab/README.md) for ports, fault modes, and file layout.
-
----
-
-## Building the combined v1 corpus
-
-Recommended order:
-
-1. Ingest public-real into train shards `0 .. N-1`.
-2. Ingest lab captures into subsequent train shards.
-3. Hold out a fixed val shard at index `6542` (mix of public + lab normal/incident, or lab-only pinned set).
-4. Run `uv run python prepare.py --num-shards <N>` to train the tokenizer on the real shards.
-5. Smoke-test with `uv run train.py` / `demo_anomaly.py`.
-
-**Do not** mix synthetic shards into the flagship v1 story. Use synthetic only when you need a fast CI path without Docker/HF.
-
----
-
-## Honesty constraints
-
-- Do **not** invent fake “real” telemetry.
-- If a public fetch is not wired yet, leave a clear TODO on the adapter and document the exact source (as above).
-- Window labels come from capture metadata or dataset time bounds you document — not from heuristic “looks anomalous” guessing for the product corpus.
-
----
-
-## Hypothesis (verified by design)
-
-> Existing parquet session format can be filled from OTLP spans/logs with a converter; labels attach via capture window metadata.
-
-Implemented by `corpus/ingest/otlp_to_sessions.py` + provenance sidecars. Spans group by `trace_id` into sessions; logs correlate by `trace_id` when present, else by time proximity within a window.
+**Do not** mix synthetic shards or rejected demo/testbed dumps into the flagship story.

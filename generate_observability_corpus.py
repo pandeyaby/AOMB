@@ -8,8 +8,8 @@ with prepare.py. The product reference corpus is **real telemetry** only
 (public licensed OTel + lab-captured OTel). See docs/corpus-v1.md.
 
 Prefer:
-  uv run python -m corpus.ingest.fetch_otel_demo
-  uv run python -m corpus.ingest.build_shards --adapter otel_demo_hf ...
+  uv run python -m corpus.ingest.fetch_crisp
+  uv run python -m corpus.ingest.build_shards --adapter crisp_zenodo ...
   lab/scripts/run_capture_session.sh
 
 This script remains for fast local smoke tests without Docker/HF.

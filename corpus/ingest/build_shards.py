@@ -22,8 +22,9 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from corpus.ingest.adapters.base import SourceAdapter, SourceBundle
+from corpus.ingest.adapters.crisp_zenodo import CrispZenodoAdapter
 from corpus.ingest.adapters.lab_capture import LabCaptureAdapter
-from corpus.ingest.adapters.otel_demo_hf import OtelDemoHfAdapter
+from corpus.ingest.adapters.tale_of_errors import TaleOfErrorsAdapter
 from corpus.ingest.otlp_to_sessions import bundle_to_sessions
 
 CACHE_DIR = os.path.join(os.path.expanduser("~"), ".cache", "autoresearch")
@@ -32,7 +33,8 @@ PROV_DIR = os.path.join(CACHE_DIR, "corpus-v1", "provenance")
 VAL_SHARD = 6542
 
 ADAPTERS: dict[str, Callable[[], SourceAdapter]] = {
-    "otel_demo_hf": OtelDemoHfAdapter,
+    "crisp_zenodo": CrispZenodoAdapter,
+    "tale_of_errors": TaleOfErrorsAdapter,
     "lab_capture": LabCaptureAdapter,
 }
 
