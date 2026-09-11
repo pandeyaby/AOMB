@@ -19,7 +19,8 @@ into a collector, with scripted fault injection and capture windows.
 cd lab
 docker compose up -d --build
 ./scripts/run_capture_session.sh
-# → lab/captures/<id>/{provenance.json,traces.jsonl,logs.jsonl}
+# → lab/captures/<id>/{provenance.json,traces.jsonl,logs.jsonl,
+#                      normal_*.jsonl,incident_*.jsonl}
 
 # Convert to AOMB session parquet (prepare.py shape)
 cd ..
@@ -29,6 +30,24 @@ uv run python -m corpus.ingest.build_shards \
   --num-train-shards 4 \
   --write-val-shard
 ```
+
+## Capture notes (do not rotate `_active` while collector is running)
+
+The collector file exporter keeps long-lived FDs on `captures/_active/*.jsonl`.
+On Linux/macOS, `mv`-ing those files into `_active_prev_*` **does not stop
+writes** — spans keep landing in the moved inode while a fresh
+`_active/traces.jsonl` stays empty. That produced empty final `traces.jsonl`
+with the real data left under `_active_prev_*` (observed 20260911T183259Z).
+
+`run_capture_session.sh` therefore:
+
+1. **Stops** `otel-collector` before any archive/clear of `_active`
+2. Snapshots each window to `normal_*.jsonl` / `incident_*.jsonl`, then clears `_active`
+3. Merges via `scripts/merge_capture_exports.py` (window files + `_active`, with
+   optional recovery from `_active_prev_*` touched during the session)
+
+Pre-session leftovers are moved to `_active_archive_*` (not merged). Do not
+hand-rotate `_active` while the collector is up.
 
 ## Faults
 
@@ -54,5 +73,6 @@ lab/
   services/api/
   services/frontend/
   scripts/{inject_faults,loadgen,capture,run_capture_session}.sh
+  scripts/merge_capture_exports.py
   captures/          # gitignored runtime output
 ```
