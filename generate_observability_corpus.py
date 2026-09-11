@@ -1,15 +1,18 @@
 """
 generate_observability_corpus.py
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Generates synthetic Cisco/Splunk/AppDynamics observability telemetry
-as parquet shards compatible with autoresearch-macos prepare.py.
+SMOKE / CI ONLY — NOT the AOMB flagship corpus.
 
-Each shard is a parquet file with a single "text" column, where every
-row is one coherent observability "document" (a session of correlated
-events: a business transaction trace, a cascade failure, a network
-event burst, etc.).
+Generates *synthetic* observability telemetry as parquet shards compatible
+with prepare.py. The product reference corpus is **real telemetry** only
+(public licensed OTel + lab-captured OTel). See docs/corpus-v1.md.
 
-Run once before `python prepare.py` and `uv run train.py`.
+Prefer:
+  uv run python -m corpus.ingest.fetch_crisp
+  uv run python -m corpus.ingest.build_shards --adapter crisp_zenodo ...
+  lab/scripts/run_capture_session.sh
+
+This script remains for fast local smoke tests without Docker/HF.
 
 Output: ~/.cache/autoresearch/data/shard_NNNNN.parquet
   shard_00000 – shard_00019  : training shards (20 × 1000 docs each)
@@ -312,8 +315,8 @@ def write_parquet_shard(shard_index: int, docs: list[str]) -> None:
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("Autonomous Observability Model Breeder")
-    print("Generating synthetic telemetry corpus...")
+    print("AOMB — SYNTHETIC corpus (SMOKE / CI ONLY)")
+    print("Flagship corpus is REAL telemetry — see docs/corpus-v1.md")
     print(f"Output: {DATA_DIR}")
     print("=" * 60)
 

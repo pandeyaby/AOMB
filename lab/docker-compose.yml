@@ -1,0 +1,85 @@
+# AOMB lab stack — org-level multi-service app with OpenTelemetry.
+# Captures REAL telemetry (not synthetic generators). Fault windows are induced.
+#
+# Usage:
+#   docker compose up -d --build
+#   ./scripts/run_capture_session.sh
+#   docker compose down
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: aomb
+      POSTGRES_PASSWORD: aomb
+      POSTGRES_DB: aomb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aomb -d aomb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "6379:6379"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.114.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel/otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
+      - ./captures:/captures
+    ports:
+      - "4318:4318"   # OTLP HTTP
+      - "4317:4317"   # OTLP gRPC
+      - "8888:8888"   # collector metrics
+
+  api:
+    build: ./services/api
+    environment:
+      SERVICE_NAME: api
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      DATABASE_URL: postgresql://aomb:aomb@postgres:5432/aomb
+      REDIS_URL: redis://redis:6379/0
+      FAULT_MODE: none
+      FAULT_LATENCY_MS: "0"
+      FAULT_ERROR_RATE: "0"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    ports:
+      - "8081:8080"
+
+  frontend:
+    build: ./services/frontend
+    environment:
+      SERVICE_NAME: frontend
+      API_URL: http://api:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+    depends_on:
+      - api
+      - otel-collector
+    ports:
+      - "8080:8080"
+
+  # Optional loadgen sidecar (also used by scripts/loadgen.sh from host)
+  loadgen:
+    image: curlimages/curl:8.11.1
+    profiles: ["loadgen"]
+    entrypoint: ["/bin/sh", "-c", "sleep infinity"]
+    depends_on:
+      - frontend

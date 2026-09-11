@@ -1,0 +1,52 @@
+# OpenTelemetry Collector — receive OTLP, export JSONL for AOMB capture.
+# Files land under /captures (bind-mounted to lab/captures).
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 2s
+    send_batch_size: 256
+  resource:
+    attributes:
+      - key: aomb.lab
+        value: "true"
+        action: upsert
+
+exporters:
+  # Durable capture for corpus ingest (lab_capture adapter)
+  file/traces:
+    path: /captures/_active/traces.jsonl
+    rotation:
+      max_megabytes: 64
+    format: json
+  file/logs:
+    path: /captures/_active/logs.jsonl
+    rotation:
+      max_megabytes: 32
+    format: json
+  # Debug to collector stdout (optional)
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [file/traces, debug]
+    logs:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [file/logs, debug]
+    # Metrics optional — keep pipeline so apps can export without failing
+    metrics:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [debug]

@@ -22,6 +22,10 @@ __pycache__/
 # Generated outputs
 overnight_progress.png
 
+# Lab capture runtime (keep directory via .gitkeep)
+lab/captures/**
+!lab/captures/.gitkeep
+
 # Machine-specific launchd plist (use .template to generate yours)
 com.aomb.morning-report.plist
 
