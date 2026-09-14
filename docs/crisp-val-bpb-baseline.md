@@ -3,15 +3,30 @@
 Recorded `val_bpb` on a **CRISP subset** for README / internal factual documentation.
 
 > **Not a public accuracy claim, marketing number, or product benchmark.**
-> Honest single-run baseline on a capped CRISP extract — nothing more.
-> For the frozen public accuracy ranking protocol (claim not published until checklist passes), see [`docs/public-accuracy-eval.md`](public-accuracy-eval.md).
+> Factual documentation only. Claim language stays gated until the checklist in [`docs/public-accuracy-eval.md`](public-accuracy-eval.md) passes ([PR #6](https://github.com/pandeyaby/AOMB/pull/6)).
 
-> **Do not 1:1 compare** this number to the synthetic / smoke-era best of **0.3682**.
+> **Do not 1:1 compare** CRISP numbers to the synthetic / smoke-era best of **0.3682**.
 > Different data, tokenizer, and scale. See README: *Empirical Results — Synthetic / smoke-era (legacy)*.
 
 ---
 
-## Result (exact)
+## Overnight CRISP breeding (current CRISP best)
+
+| Field | Value |
+|-------|--------|
+| **val_bpb** | **0.4309** |
+| Commit / experiment | `73b1645` / exp 20 |
+| Hardware | Mac Apple Silicon (MPS) |
+| Experiments | 20 (overnight `agent_loop`) |
+| Improve chain | 0.4554 → 0.4525 → 0.4396 → 0.4309 |
+
+This is the current CRISP-lane overnight best. Synthetic **0.3682** remains separate / non-CRISP.
+
+---
+
+## Pre-overnight floor (TIME_BUDGET single run)
+
+Prior factual baseline before overnight breeding:
 
 | Field | Value |
 |-------|--------|
@@ -59,7 +74,7 @@ Recorded `val_bpb` on a **CRISP subset** for README / internal factual documenta
 
 ---
 
-## Reproduce
+## Reproduce the pre-overnight floor
 
 ```bash
 # 1. Fetch CRISP (~2.33 GB) — not for CI
