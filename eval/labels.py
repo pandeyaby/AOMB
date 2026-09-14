@@ -90,7 +90,14 @@ def load_lab_sessions(capture_dir: str | Path) -> tuple[list[LabeledSession], di
         raise RuntimeError(f"No SourceBundle loaded from {capture_dir}")
 
     sessions: list[LabeledSession] = []
+    n_missing_event_ts = 0
     for bi, bundle in enumerate(bundles):
+        for sp in bundle.spans:
+            if sp.start_time is None:
+                n_missing_event_ts += 1
+        for lg in bundle.logs:
+            if lg.timestamp is None:
+                n_missing_event_ts += 1
         for si, (text, window) in enumerate(bundle_to_sessions(bundle)):
             label = window.label or "unknown"
             n_events = max(0, text.count("\n"))  # meta + events; approx
@@ -108,6 +115,7 @@ def load_lab_sessions(capture_dir: str | Path) -> tuple[list[LabeledSession], di
                 )
             )
 
+    label_counts = _label_counts(sessions)
     meta = {
         "capture_dir": str(capture_dir.resolve()),
         "capture_id": str(prov.get("capture_id") or capture_dir.name),
@@ -120,7 +128,8 @@ def load_lab_sessions(capture_dir: str | Path) -> tuple[list[LabeledSession], di
         "session_count": len(sessions),
         "n_scorable": sum(1 for s in sessions if s.binary is not None),
         "n_excluded": sum(1 for s in sessions if s.binary is None),
-        "label_counts": _label_counts(sessions),
+        "label_counts": label_counts,
+        "n_events_missing_timestamp": n_missing_event_ts,
     }
     return sessions, meta
 

@@ -46,11 +46,9 @@ def _span_line(span: SpanRecord) -> str:
         or attrs.get("http_status")
     )
     http_method = attrs.get("http.method") or attrs.get("http.request.method")
-    ts = (
-        format_ts(span.start_time)
-        if span.start_time
-        else format_ts(datetime.now(timezone.utc))
-    )
+    # Never invent wall-clock "now" — missing OTel timestamps must stay missing
+    # so provenance window labeling does not silently drift off-window.
+    ts = format_ts(span.start_time) if span.start_time else "n/a"
     return span_event_line(
         ts=ts,
         trace_id=span.trace_id,
@@ -67,11 +65,7 @@ def _span_line(span: SpanRecord) -> str:
 
 
 def _log_line(log: LogRecord) -> str:
-    ts = (
-        format_ts(log.timestamp)
-        if log.timestamp
-        else format_ts(datetime.now(timezone.utc))
-    )
+    ts = format_ts(log.timestamp) if log.timestamp else "n/a"
     return log_event_line(
         ts=ts,
         level=(log.severity or "INFO").upper(),

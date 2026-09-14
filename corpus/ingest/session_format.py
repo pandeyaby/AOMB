@@ -20,18 +20,17 @@ def format_ts(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{dt.microsecond // 1000:03d}Z"
 
 
-def format_ts_from_unix_nano(nano: int | float | None) -> str:
-    if nano is None:
-        return format_ts(datetime.now(timezone.utc))
-    # Accept ns, µs, or ms heuristically
-    n = int(nano)
-    if n > 1_000_000_000_000_000:  # ns
-        seconds = n / 1_000_000_000
-    elif n > 1_000_000_000_000:  # µs
-        seconds = n / 1_000_000
-    else:  # ms
-        seconds = n / 1_000
-    return format_ts(datetime.fromtimestamp(seconds, tz=timezone.utc))
+def format_ts_from_unix_nano(nano: int | float | str | None) -> str:
+    """Format an OTel unix time (ns/µs/ms/s or ProtoJSON string) as ISO-Z.
+
+    Does not invent ``datetime.now()`` when nano is missing — returns ``n/a``.
+    """
+    if nano is None or nano == "":
+        return "n/a"
+    from corpus.ingest.timestamps import parse_telemetry_timestamp
+
+    dt = parse_telemetry_timestamp(nano)
+    return format_ts(dt) if dt is not None else "n/a"
 
 
 def _kv(key: str, value: Any) -> str:

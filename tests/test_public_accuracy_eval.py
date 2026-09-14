@@ -47,6 +47,247 @@ class TestLabSampleLabels(unittest.TestCase):
         self.assertEqual(set(s.label for s in kept), {"normal", "incident"})
 
 
+class TestOTelProtoJsonTimestampLabels(unittest.TestCase):
+    """Regression: real lab captures use OTel ProtoJSON string nanos, not RFC3339."""
+
+    def test_parse_telemetry_timestamp_units_and_strings(self):
+        from datetime import datetime, timezone
+
+        from corpus.ingest.timestamps import parse_telemetry_timestamp
+
+        # 2026-era ProtoJSON fixed64 string — fromisoformat raises; must not be None.
+        dt = parse_telemetry_timestamp("1789151585100000000")
+        self.assertIsNotNone(dt)
+        assert dt is not None
+        self.assertEqual(dt.year, 2026)
+        self.assertEqual(
+            dt, datetime(2026, 9, 11, 18, 33, 5, 100000, tzinfo=timezone.utc)
+        )
+
+        self.assertEqual(
+            parse_telemetry_timestamp(1789151585100000000),
+            parse_telemetry_timestamp("1789151585100000000"),
+        )
+        # ms / s magnitudes (previously misclassified as µs / ms)
+        self.assertEqual(parse_telemetry_timestamp(1726060860100).year, 2024)
+        self.assertEqual(parse_telemetry_timestamp(1726060860).year, 2024)
+        self.assertEqual(parse_telemetry_timestamp("1726060860").year, 2024)
+        self.assertEqual(
+            parse_telemetry_timestamp("2026-09-11T17:01:00.100Z").year, 2026
+        )
+
+    def test_synthetic_otel_jsonl_labels_normal_and_incident(self):
+        from eval.labels import filter_scorable, load_lab_sessions
+        from eval.run_eval import main
+
+        # Real Mac lab capture era (2026-09-11). These ProtoJSON digit strings
+        # make datetime.fromisoformat raise (month must be in 1..12) — the old
+        # parser returned None and otlp_to_sessions filled datetime.now().
+        normal_ns = "1789151585100000000"  # 2026-09-11T18:33:05.100Z
+        incident_ns = "1789151600000000000"  # 2026-09-11T18:33:20.000Z
+        normal_end_ns = "1789151585500000000"
+        incident_end_ns = "1789151600900000000"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            cap = Path(tmp) / "otel_protojson_capture"
+            cap.mkdir()
+            (cap / "provenance.json").write_text(
+                json.dumps(
+                    {
+                        "corpus_version": "v1",
+                        "source_id": "lab-aomb-stack",
+                        "source_kind": "lab_capture",
+                        "license": "Apache-2.0",
+                        "capture_id": "synthetic-otel-nanos",
+                        "windows": [
+                            {
+                                "label": "normal",
+                                "start": "2026-09-11T18:33:01Z",
+                                "end": "2026-09-11T18:33:13Z",
+                                "fault": "",
+                            },
+                            {
+                                "label": "incident",
+                                "start": "2026-09-11T18:33:14Z",
+                                "end": "2026-09-11T18:34:02Z",
+                                "fault": "api_latency",
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            # Mimic otel-collector file exporter ProtoJSON (resourceSpans / string nanos)
+            traces = [
+                {
+                    "resourceSpans": [
+                        {
+                            "resource": {
+                                "attributes": [
+                                    {
+                                        "key": "service.name",
+                                        "value": {"stringValue": "api"},
+                                    }
+                                ]
+                            },
+                            "scopeSpans": [
+                                {
+                                    "spans": [
+                                        {
+                                            "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                            "spanId": "1111111111111111",
+                                            "name": "GET /health",
+                                            "startTimeUnixNano": normal_ns,
+                                            "endTimeUnixNano": normal_end_ns,
+                                            "status": {"code": 1},
+                                        }
+                                    ]
+                                }
+                            ],
+                        }
+                    ]
+                },
+                {
+                    "resourceSpans": [
+                        {
+                            "resource": {
+                                "attributes": [
+                                    {
+                                        "key": "service.name",
+                                        "value": {"stringValue": "api"},
+                                    }
+                                ]
+                            },
+                            "scopeSpans": [
+                                {
+                                    "spans": [
+                                        {
+                                            "traceId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                                            "spanId": "2222222222222222",
+                                            "name": "GET /checkout",
+                                            "startTimeUnixNano": incident_ns,
+                                            "endTimeUnixNano": incident_end_ns,
+                                            "status": {"code": 2, "message": "error"},
+                                        }
+                                    ]
+                                }
+                            ],
+                        }
+                    ]
+                },
+            ]
+            logs = [
+                {
+                    "resourceLogs": [
+                        {
+                            "resource": {
+                                "attributes": [
+                                    {
+                                        "key": "service.name",
+                                        "value": {"stringValue": "api"},
+                                    }
+                                ]
+                            },
+                            "scopeLogs": [
+                                {
+                                    "logRecords": [
+                                        {
+                                            "timeUnixNano": normal_ns,
+                                            "severityText": "INFO",
+                                            "body": {"stringValue": "ok"},
+                                            "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                        },
+                                        {
+                                            "timeUnixNano": incident_ns,
+                                            "severityText": "ERROR",
+                                            "body": {"stringValue": "checkout_failed"},
+                                            "traceId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                                        },
+                                    ]
+                                }
+                            ],
+                        }
+                    ]
+                },
+            ]
+            (cap / "traces.jsonl").write_text(
+                "\n".join(json.dumps(t) for t in traces) + "\n", encoding="utf-8"
+            )
+            (cap / "logs.jsonl").write_text(
+                "\n".join(json.dumps(t) for t in logs) + "\n", encoding="utf-8"
+            )
+
+            sessions, meta = load_lab_sessions(cap)
+            self.assertEqual(meta["capture_id"], "synthetic-otel-nanos")
+            self.assertEqual(meta.get("n_events_missing_timestamp"), 0)
+            labels = {s.label for s in sessions}
+            self.assertIn("normal", labels)
+            self.assertIn("incident", labels)
+            self.assertNotIn("unknown", labels)
+            # Event lines must use OTel nanos, not ingest-time wall clock.
+            joined = "\n".join(s.text for s in sessions)
+            self.assertIn("ts=2026-09-11T18:33:", joined)
+            self.assertNotIn("ts=n/a", joined)
+
+            y_true, kept = filter_scorable(sessions)
+            self.assertIn(0, y_true)
+            self.assertIn(1, y_true)
+
+            out = Path(tmp) / "out"
+            rc = main(
+                [
+                    "--capture",
+                    str(cap),
+                    "--scores-from",
+                    "length",
+                    "--seed",
+                    "0",
+                    "--out-dir",
+                    str(out),
+                    "--random-draws",
+                    "8",
+                ]
+            )
+            self.assertEqual(rc, 0)
+            report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["claim_status"], "not_published")
+
+    def test_missing_timestamp_does_not_invent_now_in_session_text(self):
+        from datetime import datetime, timezone
+
+        from corpus.ingest.adapters.base import SpanRecord, SourceBundle, TimeWindow
+        from corpus.ingest.otlp_to_sessions import bundle_to_sessions
+
+        bundle = SourceBundle(
+            source_id="t",
+            source_kind="lab_capture",
+            license="Apache-2.0",
+            spans=[
+                SpanRecord(
+                    trace_id="c" * 32,
+                    span_id="d" * 16,
+                    name="x",
+                    service_name="api",
+                    start_time=None,
+                )
+            ],
+            windows=[
+                TimeWindow(
+                    label="normal",
+                    start=datetime(2024, 1, 1, tzinfo=timezone.utc),
+                    end=datetime(2024, 1, 2, tzinfo=timezone.utc),
+                )
+            ],
+            capture_id="x",
+        )
+        sessions = bundle_to_sessions(bundle)
+        self.assertEqual(len(sessions), 1)
+        text, window = sessions[0]
+        self.assertEqual(window.label, "unknown")
+        self.assertIn("ts=n/a", text)
+        self.assertNotRegex(text, r"ts=20\d{2}-")
+
+
 class TestMetrics(unittest.TestCase):
     def test_perfect_separation_auroc(self):
         from eval.metrics import auroc, pr_auc, precision_at_k
