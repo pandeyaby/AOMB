@@ -23,6 +23,8 @@ corpus/
       lab_capture.py          # lab JSONL + provenance windows
 ```
 
+Public accuracy ranking protocol (claim not published): [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md), harness [`eval/`](../eval/).
+
 ## Quick commands
 
 ```bash
@@ -41,6 +43,13 @@ uv run python -m corpus.ingest.build_shards \
 
 # Eval-only (non-commercial; do not redistribute)
 uv run python -m corpus.ingest.fetch_aiops_challenge
+
+# Public accuracy ranking eval (protocol scaffolding — claim not published)
+uv run python -m eval.run_eval \
+  --capture corpus/fixtures/lab_sample \
+  --scores-from length \
+  --out-dir /tmp/aomb-eval-smoke
+# See docs/public-accuracy-eval.md
 ```
 
 Synthetic `generate_observability_corpus.py` = **smoke/CI only**.

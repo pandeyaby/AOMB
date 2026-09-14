@@ -4,6 +4,7 @@ Recorded `val_bpb` on a **CRISP subset** for README / internal factual documenta
 
 > **Not a public accuracy claim, marketing number, or product benchmark.**
 > Honest single-run baseline on a capped CRISP extract — nothing more.
+> For the frozen public accuracy ranking protocol (claim not published until checklist passes), see [`docs/public-accuracy-eval.md`](public-accuracy-eval.md).
 
 > **Do not 1:1 compare** this number to the synthetic / smoke-era best of **0.3682**.
 > Different data, tokenizer, and scale. See README: *Empirical Results — Synthetic / smoke-era (legacy)*.

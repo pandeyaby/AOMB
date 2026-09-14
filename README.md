@@ -83,6 +83,21 @@ uv run python morning_report.py --plot
 
 Full provenance: **[`docs/corpus-v1.md`](docs/corpus-v1.md)**. Ingest: [`corpus/README.md`](corpus/README.md). Lab: [`lab/README.md`](lab/README.md).
 
+### Public accuracy eval (protocol)
+
+AOMB’s **public accuracy claim** (when published) is a **ranking** claim: session-level next-token surprise / BPB ranks incident/cascade windows above normal — measured with AUROC, PR-AUC, and precision@k over multi-seed runs.
+
+That claim is **not published** until the pass/fail checklist in **[`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md)** passes. Until labeled ranking metrics exist, ship **protocol/checklist + harness only** — no inflated accuracy language. Harness: [`eval/`](eval/).
+
+Keep factual `val_bpb` lanes separate (neither is public accuracy):
+
+| Lane | val_bpb | Role |
+|------|---------|------|
+| Synthetic / smoke-era | **0.3682** | Legacy generator overnight best — separate README table |
+| CRISP factual baseline | **0.458756** | README subset run only — [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) |
+
+Do **not** 1:1 compare or blend those two numbers. CRISP alone is insufficient for the ranking claim (no incident labels); prefer lab captures with provenance windows.
+
 `prepare.py` stays sacred — ingest writes the same parquet shape (`text` column, pinned val shard `6542`).
 
 ### Build from Uber CRISP (public-real)
