@@ -45,3 +45,14 @@ python -m eval.run_eval \
 ```
 
 Full claim runs: 3–5 seeds via `run_multiseed` with the same budget. See protocol checklist before any public language.
+
+## Session scorer (shippable, claim not published)
+
+Per-session surprise/BPB without ranking metrics — for BYO dumps and diagnostics:
+
+```bash
+uv run python -m eval.score_cli --input corpus/fixtures/lab_sample --dry-run
+uv run python -m score_session --input path/to/dump --train-seconds 30 --out /tmp/score.json
+```
+
+See [`docs/byo-and-scorer.md`](../docs/byo-and-scorer.md). Scorer output is **not** a public accuracy claim.
