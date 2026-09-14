@@ -22,6 +22,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from corpus.ingest.adapters.base import SourceAdapter, SourceBundle
+from corpus.ingest.adapters.byo import ByoAdapter
 from corpus.ingest.adapters.crisp_zenodo import CrispZenodoAdapter
 from corpus.ingest.adapters.lab_capture import LabCaptureAdapter
 from corpus.ingest.adapters.tale_of_errors import TaleOfErrorsAdapter
@@ -36,6 +37,7 @@ ADAPTERS: dict[str, Callable[[], SourceAdapter]] = {
     "crisp_zenodo": CrispZenodoAdapter,
     "tale_of_errors": TaleOfErrorsAdapter,
     "lab_capture": LabCaptureAdapter,
+    "byo": ByoAdapter,
 }
 
 
@@ -75,13 +77,30 @@ def build(
     window_counts: dict[str, int] = {}
     bundles: list[SourceBundle] = []
 
-    for bundle in adapter.load(
-        input_path, max_spans=max_spans, max_logs=max_logs
-    ):
-        bundles.append(bundle)
-        for text, window in bundle_to_sessions(bundle, include_meta=include_meta):
+    # BYO adapter may yield ready session texts (parquet) via iter_sessions
+    if hasattr(adapter, "iter_sessions"):
+        seen_bundle_ids: set[int] = set()
+        for text, window, bundle in adapter.iter_sessions(
+            input_path,
+            max_spans=max_spans,
+            max_logs=max_logs,
+            include_meta=include_meta,
+        ):
+            if id(bundle) not in seen_bundle_ids:
+                bundles.append(bundle)
+                seen_bundle_ids.add(id(bundle))
             sessions.append(text)
             window_counts[window.label] = window_counts.get(window.label, 0) + 1
+    else:
+        for bundle in adapter.load(
+            input_path, max_spans=max_spans, max_logs=max_logs
+        ):
+            bundles.append(bundle)
+            for text, window in bundle_to_sessions(
+                bundle, include_meta=include_meta
+            ):
+                sessions.append(text)
+                window_counts[window.label] = window_counts.get(window.label, 0) + 1
 
     if not sessions:
         raise SystemExit("No sessions produced — check input path / adapter.")

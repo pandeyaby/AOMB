@@ -219,3 +219,9 @@ Written under `~/.cache/autoresearch/corpus-v1/provenance/`:
 5. `prepare.py --num-shards <N>` then smoke `train.py` / `demo_anomaly.py`.
 
 **Do not** mix synthetic shards or rejected demo/testbed dumps into the flagship story.
+
+## Bring your own (BYO)
+
+User OTLP JSONL / Jaeger JSON / parquet (`text` column) dumps: adapter `byo`.
+See [`docs/byo-and-scorer.md`](byo-and-scorer.md). Session scoring is diagnostic only —
+not a public accuracy claim until the labeled checklist passes.

@@ -23,9 +23,11 @@ corpus/
       crisp_zenodo.py         # v1 bootstrap public-real
       tale_of_errors.py       # flagship-scale path (do not mix sanitization with CRISP)
       lab_capture.py          # lab JSONL + provenance windows
+      byo.py                  # user OTLP JSONL / Jaeger / parquet sessions
 ```
 
 Public accuracy ranking protocol (claim not published): [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md), harness [`eval/`](../eval/).
+BYO ingest + session scorer: [`docs/byo-and-scorer.md`](../docs/byo-and-scorer.md).
 
 ## Quick commands
 
@@ -66,6 +68,14 @@ uv run python -m eval.run_eval \
   --scores-from length \
   --out-dir /tmp/aomb-eval-smoke
 # See docs/public-accuracy-eval.md
+
+# BYO dump → shards (OTLP JSONL / Jaeger / parquet); see docs/byo-and-scorer.md
+uv run python -m corpus.ingest.build_shards \
+  --adapter byo --input corpus/fixtures/lab_sample \
+  --num-train-shards 2 --write-val-shard --data-dir /tmp/aomb-byo
+
+# Session scorer dry-run (not a public accuracy claim)
+uv run python -m score_session --input corpus/fixtures/lab_sample --dry-run
 ```
 
 Synthetic `generate_observability_corpus.py` = **smoke/CI only**.

@@ -146,9 +146,29 @@ It is **not** the reference corpus product story.
 
 ### Bring your own (BYO) telemetry
 
-Point a new adapter at your Jaeger/OTLP dump (see `corpus/ingest/adapters/base.py`),
-or convert to the session line format and write `shard_*.parquet` yourself.
-Same downstream path: `prepare.py` → `train.py` / `evaluate_bpb`.
+Ingest your own OTLP JSONL / Jaeger JSON / parquet session dumps, then score
+sessions with the shippable CLI. Full guide: **[`docs/byo-and-scorer.md`](docs/byo-and-scorer.md)**.
+
+```bash
+# Build shards from a user dump (auto-detects format; writes provenance)
+uv run python -m corpus.ingest.build_shards \
+  --adapter byo --input /path/to/your/dump \
+  --num-train-shards 8 --write-val-shard
+uv run python prepare.py --num-shards 8
+
+# Score sessions (dry-run needs no model; claim still not_published)
+uv run python -m score_session --input /path/to/your/dump --dry-run
+# uv run python -m score_session --input ... --train-seconds 30 --out report.json
+```
+
+**Scoring ≠ public accuracy claim** until the labeled checklist in
+[`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) passes.
+Do not invent accuracy metrics from scorer BPB. Adapter + scorer reuse
+`session_format` / `build_shards` / `eval.score` — they do **not** invent fake
+telemetry or touch sacred `prepare.evaluate_bpb`.
+
+Or convert to the session line format and write `shard_*.parquet` yourself
+(column `text`), then the same downstream path: `prepare.py` → `train.py`.
 
 ---
 
