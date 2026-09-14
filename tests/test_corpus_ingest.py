@@ -101,6 +101,77 @@ class TestCrispJaegerIngest(unittest.TestCase):
             self.assertEqual(table.column_names, ["text"])
 
 
+class TestTaleOfErrorsJaegerIngest(unittest.TestCase):
+    def test_tale_fixture_provenance_and_shards(self):
+        from corpus.ingest.adapters.tale_of_errors import TaleOfErrorsAdapter
+        from corpus.ingest.build_shards import build
+        from corpus.ingest.otlp_to_sessions import bundle_to_sessions
+
+        fixture = ROOT / "corpus" / "fixtures" / "tale_of_errors_sample"
+        bundles = list(TaleOfErrorsAdapter().load(str(fixture), max_spans=100))
+        self.assertEqual(len(bundles), 1)
+        self.assertEqual(bundles[0].source_id, "uber-tale-of-errors")
+        self.assertEqual(bundles[0].license, "CC-BY-4.0")
+        self.assertIn("sanitization", bundles[0].extra_provenance.get("note", "").lower())
+        # Distinct from CRISP source_id — do not mix mapping
+        self.assertNotEqual(bundles[0].source_id, "uber-crisp-zenodo-13956078")
+        sessions = bundle_to_sessions(bundles[0])
+        self.assertEqual(len(sessions), 2)
+        joined = "\n".join(t for t, _ in sessions)
+        self.assertIn("source=uber-tale-of-errors", joined)
+        self.assertIn("trace_id=c0ffeeeeeeeeeeeeeeeeeeeeeeeeeeee", joined)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            prov = build(
+                "tale_of_errors",
+                str(fixture),
+                num_train_shards=1,
+                write_val_shard=True,
+                data_dir=tmp,
+                max_spans=100,
+            )
+            self.assertEqual(prov["sources"][0]["source_id"], "uber-tale-of-errors")
+            self.assertEqual(prov["sources"][0]["license"], "CC-BY-4.0")
+            table = pq.read_table(os.path.join(tmp, "shard_00000.parquet"))
+            self.assertEqual(table.column_names, ["text"])
+            self.assertGreater(table.num_rows, 0)
+
+
+class TestFetchTaleOfErrorsGuards(unittest.TestCase):
+    def test_ci_detection_helpers(self):
+        from corpus.ingest.fetch_tale_of_errors import in_ci, refuse_full_download_in_ci
+
+        self.assertTrue(in_ci({"CI": "true"}))
+        self.assertTrue(in_ci({"GITHUB_ACTIONS": "true"}))
+        self.assertFalse(in_ci({}))
+
+        with self.assertRaises(SystemExit) as ctx:
+            refuse_full_download_in_ci(environ={"CI": "true"})
+        self.assertEqual(ctx.exception.code, 3)
+
+    def test_download_all_refused_when_ci_env(self):
+        from corpus.ingest import fetch_tale_of_errors as mod
+
+        old = os.environ.get("CI")
+        os.environ["CI"] = "true"
+        try:
+            with self.assertRaises(SystemExit) as ctx:
+                mod.main(["--download-all"])
+            self.assertEqual(ctx.exception.code, 3)
+        finally:
+            if old is None:
+                os.environ.pop("CI", None)
+            else:
+                os.environ["CI"] = old
+
+    def test_manual_mode_no_network(self):
+        from corpus.ingest.fetch_tale_of_errors import main
+
+        with tempfile.TemporaryDirectory() as tmp:
+            code = main(["--out", tmp])
+        self.assertEqual(code, 2)
+
+
 class TestRejectedSourcesListed(unittest.TestCase):
     def test_denylist_mentions_otel_demo(self):
         from corpus.ingest.rejected_sources import REJECTED_PUBLIC_SOURCES

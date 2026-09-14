@@ -1,13 +1,15 @@
 """
-Flagship-scale path (optional / later): Uber Tale of Errors.
+Flagship-scale path: Uber Tale of Errors.
 
 ~1.4M sanitized production Jaeger traces, CC BY 4.0.
 DOIs: 10.5281/zenodo.13947828 + 10.5281/zenodo.13952897
 Decompressed size: ~300–500 GB per archive — do NOT require in CI.
 
-This adapter documents the path and can load a *local sample* of Jaeger JSON
-the same way as CRISP. Full multi-part download is out of scope for v1 bootstrap.
-Do not mix sanitization mappings with CRISP (Zenodo note).
+Fetch helper: ``python -m corpus.ingest.fetch_tale_of_errors`` (list / selective
+download with resume; CI refuses full pull). This adapter loads a *local*
+assembled Jaeger JSON tree the same way as CRISP once pieces are cat'd + zstd'd.
+
+Do **not** mix sanitization mappings with CRISP (Zenodo note / Zenodo 13956078).
 """
 
 from __future__ import annotations

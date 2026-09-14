@@ -10,7 +10,7 @@ Synthetic / demo / testbed sources are not the product story.
 | Role | Source | License | Action in v1 |
 |------|--------|---------|--------------|
 | **Bootstrap (implement)** | **Uber CRISP** — ~100k prod Jaeger traces, Zenodo `13956078`, `CRISP-main.zip` ~2.33 GB | **CC BY 4.0** | Fetch + ingest wired |
-| **Flagship scale (later)** | **Uber Tale of Errors** — ~1.4M sanitized prod Jaeger; DOIs `10.5281/zenodo.13947828` + `13952897`; 300–500 GB decompressed | **CC BY 4.0** | Document + optional adapter; **no CI download** |
+| **Flagship scale** | **Uber Tale of Errors** — ~1.4M sanitized prod Jaeger; DOIs `10.5281/zenodo.13947828` + `13952897`; 300–500 GB decompressed | **CC BY 4.0** | Fetch helper + adapter; **no CI / full download** |
 | **Eval-only** | **AIOps Challenge 2020** — labeled faults | **Non-commercial** | Cite + fetch locally; **do not redistribute** |
 | **Lab (required)** | Org-level local stack with induced faults + OTel export | Apache-2.0 (our code) | `lab/` docker-compose |
 | **Smoke / CI only** | `generate_observability_corpus.py` | — | Demoted; not flagship |
@@ -106,18 +106,55 @@ uv run python prepare.py --num-shards 8
 
 ---
 
-## Source B — Uber Tale of Errors (flagship scale, optional later)
+## Source B — Uber Tale of Errors (flagship scale)
 
 | Field | Value |
 |-------|--------|
 | **Part 1** | [10.5281/zenodo.13947828](https://doi.org/10.5281/zenodo.13947828) |
 | **Part 2** | [10.5281/zenodo.13952897](https://doi.org/10.5281/zenodo.13952897) |
 | **Scale** | ~1.4M sanitized production Jaeger traces |
-| **Disk** | Split `.tar.zst` pieces; **300–500 GB decompressed per archive** |
+| **Disk** | Split pieces (~35 GB + ~37 GB compressed); **300–500 GB decompressed per archive** |
 | **License** | **CC BY 4.0** |
-| **CI** | Full download **not required** and must not be part of CI |
+| **CI** | Full download **not required** and must not be part of CI (`fetch_tale_of_errors` refuses CI pulls) |
+| **Sanitization** | **Do not mix** mapping with CRISP (Zenodo 13956078) — mappings are inconsistent |
 
-Adapter `tale_of_errors` accepts a *local* assembled Jaeger JSON tree (same parser as CRISP) for experiments. Document reassembly from Zenodo part1+part2 before use. Cite the SIGMETRICS 2025 paper / Zenodo records.
+**Attribution / citation** (required under CC BY): Lee, Zhang, Parwal, Chabbi — *The Tale of Errors in Microservices*, SIGMETRICS 2025 — https://doi.org/10.1145/3700436; artifacts https://doi.org/10.5281/zenodo.13947828 and https://doi.org/10.5281/zenodo.13952897.
+
+### Reproduce (one part → assemble → ingest sample)
+
+```bash
+# List Zenodo files (API only — no download)
+uv run python -m corpus.ingest.fetch_tale_of_errors --list-only
+
+# Download a single split piece with resume (not for CI)
+uv run python -m corpus.ingest.fetch_tale_of_errors --download trace1_aa
+
+# After downloading all trace1_* / trace2_* pieces:
+cd ~/.cache/autoresearch/corpus-v1/tale_of_errors
+cat trace1_* > trace1-sanitized.tar.zst
+cat trace2_* > trace2-sanitized.tar.zst
+zstd -d trace1-sanitized.tar.zst   # needs 300–500 GB free per archive
+zstd -d trace2-sanitized.tar.zst
+tar -xf trace1-sanitized.tar
+tar -xf trace2-sanitized.tar
+# Point --input at the assembled Jaeger JSON tree, then:
+
+uv run python -m corpus.ingest.build_shards \
+  --adapter tale_of_errors \
+  --input /path/to/assembled/jaeger/tree \
+  --max-spans N \
+  --num-train-shards 8 \
+  --write-val-shard
+
+# Smoke / CI fixture only (no Zenodo):
+uv run python -m corpus.ingest.build_shards \
+  --adapter tale_of_errors \
+  --input corpus/fixtures/tale_of_errors_sample \
+  --max-spans 100 \
+  --num-train-shards 1 --write-val-shard
+```
+
+Adapter `tale_of_errors` accepts a *local* assembled Jaeger JSON tree (same parser as CRISP; different `source_id` / provenance). `prepare.py` is unchanged.
 
 ---
 

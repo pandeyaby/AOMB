@@ -1,0 +1,88 @@
+{
+  "data": [
+    {
+      "traceID": "c0ffeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "spans": [
+        {
+          "traceID": "c0ffeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "spanID": "a111111111111111",
+          "operationName": "HTTP GET /gateway",
+          "references": [],
+          "startTime": 1694430060100000,
+          "duration": 45000,
+          "tags": [
+            {"key": "http.method", "type": "string", "value": "GET"},
+            {"key": "http.status_code", "type": "int64", "value": 200}
+          ],
+          "logs": [],
+          "processID": "p1"
+        },
+        {
+          "traceID": "c0ffeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "spanID": "a222222222222222",
+          "operationName": "rpc:/payments.Pay",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "c0ffeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+              "spanID": "a111111111111111"
+            }
+          ],
+          "startTime": 1694430060120000,
+          "duration": 12000,
+          "tags": [],
+          "logs": [],
+          "processID": "p2"
+        }
+      ],
+      "processes": {
+        "p1": {"serviceName": "service-1", "tags": []},
+        "p2": {"serviceName": "service-2", "tags": []}
+      }
+    },
+    {
+      "traceID": "deadbeefdeadbeefdeadbeefdeadbeef",
+      "spans": [
+        {
+          "traceID": "deadbeefdeadbeefdeadbeefdeadbeef",
+          "spanID": "b333333333333333",
+          "operationName": "HTTP POST /checkout",
+          "references": [],
+          "startTime": 1694430120000000,
+          "duration": 880000,
+          "tags": [
+            {"key": "error", "type": "bool", "value": true},
+            {"key": "http.status_code", "type": "int64", "value": 500}
+          ],
+          "logs": [],
+          "processID": "p1"
+        },
+        {
+          "traceID": "deadbeefdeadbeefdeadbeefdeadbeef",
+          "spanID": "b444444444444444",
+          "operationName": "db.query",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "deadbeefdeadbeefdeadbeefdeadbeef",
+              "spanID": "b333333333333333"
+            }
+          ],
+          "startTime": 1694430120100000,
+          "duration": 800000,
+          "tags": [{"key": "error", "type": "bool", "value": true}],
+          "logs": [],
+          "processID": "p3"
+        }
+      ],
+      "processes": {
+        "p1": {"serviceName": "service-1", "tags": []},
+        "p3": {"serviceName": "service-3", "tags": []}
+      }
+    }
+  ],
+  "total": 2,
+  "limit": 0,
+  "offset": 0,
+  "errors": null
+}
