@@ -11,6 +11,10 @@ adapted for Apple Silicon by [miolini/autoresearch-macos](https://github.com/mio
 with a Claude agent that reads `program.md`, edits `train.py`, runs 5-minute experiments, commits improvements, and loops —
 all while you sleep. You wake up to a git log of experiments and a better model.
 
+## Write-up
+
+[I Let an AI Improve Itself Overnight. Here's What I Woke Up To](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212) — Abhinav's overnight autonomous research-loop story for AOMB.
+
 ---
 
 ## The Idea
