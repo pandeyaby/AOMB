@@ -299,7 +299,7 @@ Corpus: Uber CRISP ([Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), 
 | Windows | normal only (CRISP dump has no incident labels) |
 | Provenance id | `crisp_zenodo_20260914T050751Z.json` |
 
-**Do not 1:1 compare** this CRISP `val_bpb` to the synthetic smoke-era **0.3682** below — different data, tokenizer, and scale.
+**Do not 1:1 compare** this CRISP subset `val_bpb` to the synthetic smoke-era **0.3682** below — different data, tokenizer, and scale. Keep the two tables separate; neither is a public accuracy claim.
 
 ### Reproduce this baseline
 
