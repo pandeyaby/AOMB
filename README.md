@@ -100,9 +100,10 @@ Keep factual `val_bpb` lanes separate (neither is public accuracy):
 | Lane | val_bpb | Role |
 |------|---------|------|
 | Synthetic / smoke-era | **0.3682** | Legacy generator overnight best — separate README table |
-| CRISP factual baseline | **0.458756** | README subset run only — [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) |
+| CRISP overnight best | **0.4309** | 20-exp Mac MPS overnight breeding (`73b1645`, exp 20) — [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) |
+| CRISP prior floor | **0.458756** | Pre-overnight `TIME_BUDGET` single-run baseline (same doc) |
 
-Do **not** 1:1 compare or blend those two numbers. CRISP alone is insufficient for the ranking claim (no incident labels); prefer lab captures with provenance windows.
+Do **not** 1:1 compare or blend synthetic **0.3682** with CRISP numbers. CRISP alone is insufficient for the ranking claim (no incident labels); prefer lab captures with provenance windows.
 
 `prepare.py` stays sacred — ingest writes the same parquet shape (`text` column, pinned val shard `6542`).
 
@@ -296,11 +297,28 @@ TOTAL_BATCH_SIZE = 2**16
 
 ## Empirical Results — Reference corpus v1 (Uber CRISP)
 
-Honest recorded run on a **CRISP subset** (not a public accuracy claim, marketing number, or product benchmark).
-README / factual documentation only — see [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md).
+Factual `val_bpb` documentation on a **CRISP subset** only — **not** a public accuracy claim, marketing number, or product benchmark.
+Claim language stays gated until the checklist in [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) passes (protocol from [PR #6](https://github.com/pandeyaby/AOMB/pull/6)). Details: [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md).
 
 Corpus: Uber CRISP ([Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), CC BY 4.0; cite Zhang et al., USENIX ATC'22),
 `CRISP-main/data/bottom-up-trace` with `--max-spans 200000`.
+
+### Overnight CRISP breeding (Mac MPS)
+
+Overnight **20-exp** CRISP `agent_loop` breeding completed on Mac MPS.
+
+| Field | Value |
+|-------|--------|
+| **CRISP overnight best `val_bpb`** | **0.4309** |
+| Commit / experiment | `73b1645` / exp 20 |
+| Hardware | Mac Apple Silicon (MPS) |
+| Experiments | 20 |
+
+Committed improve chain (CRISP lane only): **0.4554 → 0.4525 → 0.4396 → 0.4309**.
+
+### Pre-overnight CRISP floor (TIME_BUDGET single run)
+
+Prior factual baseline before overnight breeding — keep for provenance; superseded as the CRISP best by **0.4309** above.
 
 | Date | Corpus | Hardware | Config | val_bpb | Notes |
 |------|--------|----------|--------|---------|-------|
@@ -308,7 +326,7 @@ Corpus: Uber CRISP ([Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), 
 
 | Metric | Value |
 |--------|-------|
-| `val_bpb` | **0.458756** |
+| `val_bpb` (pre-overnight floor) | **0.458756** |
 | `training_seconds` | 300.1 |
 | `total_seconds` (includes eval) | 401.4 |
 | `num_steps` | 603 |
@@ -320,9 +338,9 @@ Corpus: Uber CRISP ([Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), 
 | Windows | normal only (CRISP dump has no incident labels) |
 | Provenance id | `crisp_zenodo_20260914T050751Z.json` |
 
-**Do not 1:1 compare** this CRISP subset `val_bpb` to the synthetic smoke-era **0.3682** below — different data, tokenizer, and scale. Keep the two tables separate; neither is a public accuracy claim.
+**Do not 1:1 compare** CRISP `val_bpb` (overnight **0.4309** or floor **0.458756**) to the synthetic smoke-era **0.3682** below — different data, tokenizer, and scale. Keep the tables separate; synthetic best remains non-CRISP. Neither lane is a public accuracy claim.
 
-### Reproduce this baseline
+### Reproduce the pre-overnight floor
 
 ```bash
 uv run python -m corpus.ingest.fetch_crisp --download   # ~2.33 GB CRISP-main.zip
@@ -389,7 +407,7 @@ val_bpb = total_nats / (log(2) × total_bytes)
 ```
 
 Bits-per-byte is vocabulary-independent within a fixed tokenizer/corpus.
-**Do not treat scores from different corpora as interchangeable** (e.g. CRISP **0.458756** vs synthetic **0.3682**).
+**Do not treat scores from different corpora as interchangeable** (e.g. CRISP **0.4309** vs synthetic **0.3682**).
 
 | val_bpb | What it means |
 |---------|---------------|
@@ -397,7 +415,8 @@ Bits-per-byte is vocabulary-independent within a fixed tokenizer/corpus.
 | 1.5 – 4.0 | Early convergence — learning token distributions |
 | 0.8 – 1.5 | Good — model understands normal telemetry patterns |
 | 0.4 – 0.8 | Strong — implicit anomaly detector, approaching production use |
-| **0.458756** | **← CRISP subset run (2026-09-14); README fact only — not a marketing claim** |
+| **0.4309** | **← CRISP overnight best (`73b1645`, exp 20); README fact only — not a public accuracy claim** |
+| 0.458756 | ← CRISP pre-overnight floor (`TIME_BUDGET` single run, 2026-09-14) |
 | 0.4297 | ← synthetic Night 2 best (exp 13) |
 | 0.3692 | ← synthetic exp 37–66 (focal loss + anomaly weighting) |
 | 0.3691 | ← synthetic exp 70–113 (domain-aware loss tuning) |
@@ -408,7 +427,7 @@ The information-theoretic argument: minimizing val_bpb = minimizing KL(P_data �
 A model close to the true data distribution assigns high surprise to anomalous sequences automatically.
 **The training objective IS the anomaly detection capability. No separate head. No labels.**
 
-CRISP `val_bpb=0.458756` and synthetic `0.3682` are logged in separate tables above and must not be mixed or marketed as a single accuracy story.
+CRISP overnight **0.4309** (and floor **0.458756**) and synthetic **0.3682** are logged in separate tables above and must not be mixed or marketed as a single accuracy story. See [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md).
 
 ---
 

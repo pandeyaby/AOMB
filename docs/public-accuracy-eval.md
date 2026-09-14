@@ -9,20 +9,21 @@ Frozen protocol for any **public accuracy claim** about AOMB’s anomaly-ranking
 
 ---
 
-## Two `val_bpb` numbers — keep separate (never mix)
+## `val_bpb` lanes — keep separate (never mix)
 
-These are **not** interchangeable and **neither** is a public accuracy claim:
+These are **not** interchangeable and **none** is a public accuracy claim:
 
 | Lane | Value | What it is | What it is not |
 |------|-------|------------|----------------|
-| **Synthetic / smoke-era (legacy)** | **`0.3682`** | Historical overnight `agent_loop` best on `generate_observability_corpus.py` | Not reference-corpus product truth; not ranking accuracy |
-| **CRISP factual baseline (README)** | **`0.458756`** | Single recorded 5‑min run on a capped Uber CRISP subset ([`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)) | Not a marketing number; CRISP has **no incident labels** |
+| **Synthetic / smoke-era (legacy)** | **`0.3682`** | Historical overnight `agent_loop` best on `generate_observability_corpus.py` | Not reference-corpus product truth; not ranking accuracy; **not CRISP** |
+| **CRISP overnight best** | **`0.4309`** | 20-exp Mac MPS overnight breeding (`73b1645`, exp 20) — [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) | Not a marketing / accuracy number; CRISP has **no incident labels** |
+| **CRISP prior floor** | **`0.458756`** | Pre-overnight `TIME_BUDGET` single run on the same capped CRISP subset | Superseded as CRISP best by `0.4309`; still not accuracy |
 
 **Rules:**
 
-- Always cite them in **separate tables / paragraphs** (README already does).
-- **Never** 1:1 compare, average, or blend `0.3682` with `0.458756`.
-- **Never** reuse either as AUROC, “accuracy %”, or public claim language.
+- Always cite synthetic vs CRISP in **separate tables / paragraphs** (README already does).
+- **Never** 1:1 compare, average, or blend `0.3682` with CRISP `0.4309` / `0.458756`.
+- **Never** reuse any of these as AUROC, “accuracy %”, or public claim language.
 - Public accuracy (this protocol) starts only after **labeled** session ranking metrics exist and the checklist passes.
 
 ---
@@ -39,7 +40,8 @@ This is a **ranking** claim about surprise scores vs labels — not a latency SL
 
 | Number / artifact | Role | Allowed as public accuracy? |
 |-------------------|------|-----------------------------|
-| CRISP subset `val_bpb=0.458756` | README / factual training baseline ([`docs/crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)) | **No** |
+| CRISP overnight `val_bpb=0.4309` | README / factual overnight breeding best ([`docs/crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)) | **No** |
+| CRISP floor `val_bpb=0.458756` | Pre-overnight `TIME_BUDGET` single-run provenance | **No** |
 | Synthetic smoke-era best `0.3682` | Historical overnight breeding on generator data | **No** — keep in separate table |
 | `demo_anomaly.py` class-mean BPB gaps | Qualitative story / smoke | **No** — not multi-seed ranking metrics |
 | Invented or placeholder AUROC | — | **Never** |
@@ -146,8 +148,8 @@ Mark each item before any blog post, README “accuracy”, press, or social cla
 - [ ] **≥ 3** seeds completed; metrics reported as **mean ± std** (not a single cherry-picked run)
 - [ ] AUROC, PR-AUC, and precision@k present in the harness JSON + markdown reports
 - [ ] **Random ranking baseline** included in the same report; model mean AUROC **>** random mean (with disclosed std)
-- [ ] No citation of CRISP `val_bpb=0.458756` or synthetic `0.3682` as the public accuracy number
-- [ ] Synthetic `0.3682` and CRISP `0.458756` remain in **separate** factual lanes (no blend / no 1:1 compare in claim copy)
+- [ ] No citation of CRISP `val_bpb=0.4309` / `0.458756` or synthetic `0.3682` as the public accuracy number
+- [ ] Synthetic `0.3682` and CRISP `0.4309` / `0.458756` remain in **separate** factual lanes (no blend / no 1:1 compare in claim copy)
 - [ ] AIOps data (if used) cited; not redistributed from this repo
 - [ ] Claim wording matches the **Claim statement** section above (ranking / surprise), without hype extras
 - [ ] **Merge HOLD:** Abhinav explicit yes recorded before merge (GRAX)
