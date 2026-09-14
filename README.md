@@ -273,7 +273,57 @@ TOTAL_BATCH_SIZE = 2**16
 
 ---
 
-## Empirical Results
+## Empirical Results — Reference corpus v1 (Uber CRISP)
+
+Honest recorded run on a **CRISP subset** (not a public accuracy claim, marketing number, or product benchmark).
+README / factual documentation only — see [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md).
+
+Corpus: Uber CRISP ([Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), CC BY 4.0; cite Zhang et al., USENIX ATC'22),
+`CRISP-main/data/bottom-up-trace` with `--max-spans 200000`.
+
+| Date | Corpus | Hardware | Config | val_bpb | Notes |
+|------|--------|----------|--------|---------|-------|
+| 2026-09-14 | CRISP bottom-up-trace, `--max-spans 200000`, 20 train shards + val `shard_06542` | MacBook Pro Apple Silicon (MPS) | DEPTH=4, WINDOW=SSL, ~8.5M params, vocab 5206 | **0.458756** | Single 5-min run (`TIME_BUDGET=300`); no overnight `agent_loop` / no API keys |
+
+| Metric | Value |
+|--------|-------|
+| `val_bpb` | **0.458756** |
+| `training_seconds` | 300.1 |
+| `total_seconds` (includes eval) | 401.4 |
+| `num_steps` | 603 |
+| `total_tokens_M` | 19.8 |
+| `num_params_M` | 8.5 |
+| depth / `window_pattern` | 4 / SSL |
+| `vocab_size` | 5206 |
+| Sessions | 2185 (1967 train / 218 val); 200000 spans; 2185 Jaeger JSON files |
+| Windows | normal only (CRISP dump has no incident labels) |
+| Provenance id | `crisp_zenodo_20260914T050751Z.json` |
+
+**Do not 1:1 compare** this CRISP subset `val_bpb` to the synthetic smoke-era **0.3682** below — different data, tokenizer, and scale. Keep the two tables separate; neither is a public accuracy claim.
+
+### Reproduce this baseline
+
+```bash
+uv run python -m corpus.ingest.fetch_crisp --download   # ~2.33 GB CRISP-main.zip
+
+uv run python -m corpus.ingest.build_shards \
+  --adapter crisp_zenodo \
+  --input ~/.cache/autoresearch/corpus-v1/crisp/extracted \
+  --max-spans 200000 \
+  --num-train-shards 20 \
+  --write-val-shard
+# Subset path inside extract: CRISP-main/data/bottom-up-trace
+
+uv run python prepare.py --num-shards 20
+uv run python train.py
+```
+
+---
+
+## Empirical Results — Synthetic / smoke-era (legacy)
+
+> **Synthetic generator only** (`generate_observability_corpus.py`). Not the reference corpus product story.
+> Numbers below are retained for historical overnight agent_loop runs on smoke data.
 
 | Run | Hardware | Config | Best val_bpb | Experiments |
 |-----|----------|--------|-------------|-------------|
@@ -286,7 +336,7 @@ TOTAL_BATCH_SIZE = 2**16
 Training throughput: ~63,000 tokens/sec on Apple Silicon MPS.
 Each experiment cycle: ~10–15 minutes (Claude SDK call ~2–3 min + training 5 min + eval ~2 min).
 
-**val_bpb progression across all successful experiments:**
+**val_bpb progression across all successful experiments (synthetic corpus):**
 
 | Exp | SHA | val_bpb | Δ | Change |
 |-----|-----|---------|---|--------|
@@ -307,7 +357,7 @@ Each experiment cycle: ~10–15 minutes (Claude SDK call ~2–3 min + training 5
 | 70 | fa2ee1e | 0.3691 | -0.0001 | Domain-aware loss tuning |
 | 109 | 77e9eba | 0.3686 | -0.0005 | Adam betas tuning |
 | 113 | 64b56fb | 0.3685 | -0.0001 | Adam betas refinement |
-| **114** | **983ee44** | **0.3682** | **-0.0003** | **Adam optimizer tuning ← current best** |
+| **114** | **983ee44** | **0.3682** | **-0.0003** | **Adam optimizer tuning ← synthetic best** |
 
 ---
 
@@ -317,7 +367,8 @@ Each experiment cycle: ~10–15 minutes (Claude SDK call ~2–3 min + training 5
 val_bpb = total_nats / (log(2) × total_bytes)
 ```
 
-Bits-per-byte is vocabulary-independent and directly comparable across architectures.
+Bits-per-byte is vocabulary-independent within a fixed tokenizer/corpus.
+**Do not treat scores from different corpora as interchangeable** (e.g. CRISP **0.458756** vs synthetic **0.3682**).
 
 | val_bpb | What it means |
 |---------|---------------|
@@ -325,17 +376,18 @@ Bits-per-byte is vocabulary-independent and directly comparable across architect
 | 1.5 – 4.0 | Early convergence — learning token distributions |
 | 0.8 – 1.5 | Good — model understands normal telemetry patterns |
 | 0.4 – 0.8 | Strong — implicit anomaly detector, approaching production use |
-| 0.4297 | ← Night 2 best (exp 13) |
-| 0.3692 | ← exp 37–66 (focal loss + anomaly weighting) |
-| 0.3691 | ← exp 70–113 (domain-aware loss tuning) |
-| **0.3682** | **← AOMB current best (exp 114, Adam optimizer tuning)** |
+| **0.458756** | **← CRISP subset run (2026-09-14); README fact only — not a marketing claim** |
+| 0.4297 | ← synthetic Night 2 best (exp 13) |
+| 0.3692 | ← synthetic exp 37–66 (focal loss + anomaly weighting) |
+| 0.3691 | ← synthetic exp 70–113 (domain-aware loss tuning) |
+| **0.3682** | **← synthetic smoke-era best (exp 114); separate table above — not comparable to CRISP** |
 | < 0.35 | Excellent — deploy as zero-shot anomaly scorer |
 
 The information-theoretic argument: minimizing val_bpb = minimizing KL(P_data ‖ P_model).
 A model close to the true data distribution assigns high surprise to anomalous sequences automatically.
 **The training objective IS the anomaly detection capability. No separate head. No labels.**
 
-To our knowledge, val_bpb=0.3682 is the first published benchmark for autoregressive modeling of enterprise infrastructure telemetry.
+CRISP `val_bpb=0.458756` and synthetic `0.3682` are logged in separate tables above and must not be mixed or marketed as a single accuracy story.
 
 ---
 

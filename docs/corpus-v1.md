@@ -100,6 +100,10 @@ uv run python -m corpus.ingest.build_shards \
 uv run python prepare.py --num-shards 8
 ```
 
+**Recorded subset run (README fact only — not a marketing/accuracy claim):**
+[`docs/crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) (`val_bpb=0.458756`, 2026-09-14;
+`--max-spans 200000`, 20 train shards). Do not 1:1 compare to synthetic smoke-era 0.3682.
+
 ---
 
 ## Source B — Uber Tale of Errors (flagship scale, optional later)
