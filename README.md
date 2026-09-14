@@ -275,9 +275,11 @@ TOTAL_BATCH_SIZE = 2**16
 
 ## Empirical Results — Reference corpus v1 (Uber CRISP)
 
-First published **real-corpus** `val_bpb` baseline on Uber CRISP production Jaeger traces
-([Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), CC BY 4.0; cite Zhang et al., USENIX ATC'22).
-Full write-up: [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md).
+Honest recorded run on a **CRISP subset** (not a public accuracy claim, marketing number, or product benchmark).
+README / factual documentation only — see [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md).
+
+Corpus: Uber CRISP ([Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), CC BY 4.0; cite Zhang et al., USENIX ATC'22),
+`CRISP-main/data/bottom-up-trace` with `--max-spans 200000`.
 
 | Date | Corpus | Hardware | Config | val_bpb | Notes |
 |------|--------|----------|--------|---------|-------|
@@ -374,19 +376,18 @@ Bits-per-byte is vocabulary-independent within a fixed tokenizer/corpus.
 | 1.5 – 4.0 | Early convergence — learning token distributions |
 | 0.8 – 1.5 | Good — model understands normal telemetry patterns |
 | 0.4 – 0.8 | Strong — implicit anomaly detector, approaching production use |
-| **0.458756** | **← first published real-corpus baseline (Uber CRISP, 2026-09-14)** |
+| **0.458756** | **← CRISP subset run (2026-09-14); README fact only — not a marketing claim** |
 | 0.4297 | ← synthetic Night 2 best (exp 13) |
 | 0.3692 | ← synthetic exp 37–66 (focal loss + anomaly weighting) |
 | 0.3691 | ← synthetic exp 70–113 (domain-aware loss tuning) |
-| **0.3682** | **← synthetic smoke-era best (exp 114, Adam optimizer tuning)** |
+| **0.3682** | **← synthetic smoke-era best (exp 114); separate table above — not comparable to CRISP** |
 | < 0.35 | Excellent — deploy as zero-shot anomaly scorer |
 
 The information-theoretic argument: minimizing val_bpb = minimizing KL(P_data ‖ P_model).
 A model close to the true data distribution assigns high surprise to anomalous sequences automatically.
 **The training objective IS the anomaly detection capability. No separate head. No labels.**
 
-To our knowledge, CRISP `val_bpb=0.458756` is the first published **real-corpus** baseline for autoregressive modeling of enterprise infrastructure telemetry on AOMB.
-The synthetic `0.3682` figure remains the best overnight agent_loop result on smoke data only.
+CRISP `val_bpb=0.458756` and synthetic `0.3682` are logged in separate tables above and must not be mixed or marketed as a single accuracy story.
 
 ---
 

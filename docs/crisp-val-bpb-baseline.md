@@ -1,6 +1,9 @@
 # CRISP val_bpb baseline — Reference corpus v1
 
-First published **real-corpus** `val_bpb` baseline for AOMB on Uber CRISP production Jaeger traces.
+Recorded `val_bpb` on a **CRISP subset** for README / internal factual documentation.
+
+> **Not a public accuracy claim, marketing number, or product benchmark.**
+> Honest single-run baseline on a capped CRISP extract — nothing more.
 
 > **Do not 1:1 compare** this number to the synthetic / smoke-era best of **0.3682**.
 > Different data, tokenizer, and scale. See README: *Empirical Results — Synthetic / smoke-era (legacy)*.
