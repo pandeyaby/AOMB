@@ -83,6 +83,16 @@ uv run python morning_report.py --plot
 
 Full provenance: **[`docs/corpus-v1.md`](docs/corpus-v1.md)**. Ingest: [`corpus/README.md`](corpus/README.md). Lab: [`lab/README.md`](lab/README.md).
 
+### Public accuracy eval (protocol)
+
+AOMB’s **public accuracy claim** (when published) is a **ranking** claim: session-level next-token surprise / BPB ranks incident/cascade windows above normal — measured with AUROC, PR-AUC, and precision@k over multi-seed runs.
+
+That claim is **not published** until the pass/fail checklist in **[`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md)** passes. Harness scaffolding lives under [`eval/`](eval/).
+
+- Do **not** cite CRISP subset `val_bpb=0.458756` as public accuracy (README factual baseline only).
+- Do **not** cite synthetic smoke-era `0.3682` as public accuracy (separate table).
+- CRISP alone is insufficient for the claim (no incident labels); prefer lab captures with provenance windows.
+
 `prepare.py` stays sacred — ingest writes the same parquet shape (`text` column, pinned val shard `6542`).
 
 ### Build from Uber CRISP (public-real)
