@@ -1,5 +1,7 @@
 # Autonomous Observability Model Breeder (AOMB)
 
+![Traces → small next-token ILM → anomaly via surprise; Apple Silicon research loop](docs/assets/aomb-readme-hero.png)
+
 > *"Frontier AI research used to require meat computers. Now it runs overnight on your MacBook."*
 
 AOMB is the first open-source **Infrastructure Language Model (ILM)** — the same autoregressive architecture as GPT (RoPE, GQA, focal loss), trained on enterprise observability telemetry instead of the internet.
