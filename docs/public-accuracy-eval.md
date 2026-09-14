@@ -4,7 +4,26 @@ Frozen protocol for any **public accuracy claim** about AOMB’s anomaly-ranking
 
 > **Status:** Protocol + harness scaffolding only.  
 > **No claim is published** until the pass/fail checklist below is complete.  
-> Do **not** invent AUROC / PR-AUC / precision@k numbers, and do **not** market incomplete runs.
+> Do **not** invent AUROC / PR-AUC / precision@k numbers, and do **not** market incomplete runs.  
+> **GRAX:** HOLD merge until Abhinav explicit yes. Protocol/checklist only until labeled ranking metrics exist.
+
+---
+
+## Two `val_bpb` numbers — keep separate (never mix)
+
+These are **not** interchangeable and **neither** is a public accuracy claim:
+
+| Lane | Value | What it is | What it is not |
+|------|-------|------------|----------------|
+| **Synthetic / smoke-era (legacy)** | **`0.3682`** | Historical overnight `agent_loop` best on `generate_observability_corpus.py` | Not reference-corpus product truth; not ranking accuracy |
+| **CRISP factual baseline (README)** | **`0.458756`** | Single recorded 5‑min run on a capped Uber CRISP subset ([`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)) | Not a marketing number; CRISP has **no incident labels** |
+
+**Rules:**
+
+- Always cite them in **separate tables / paragraphs** (README already does).
+- **Never** 1:1 compare, average, or blend `0.3682` with `0.458756`.
+- **Never** reuse either as AUROC, “accuracy %”, or public claim language.
+- Public accuracy (this protocol) starts only after **labeled** session ranking metrics exist and the checklist passes.
 
 ---
 
@@ -128,7 +147,9 @@ Mark each item before any blog post, README “accuracy”, press, or social cla
 - [ ] AUROC, PR-AUC, and precision@k present in the harness JSON + markdown reports
 - [ ] **Random ranking baseline** included in the same report; model mean AUROC **>** random mean (with disclosed std)
 - [ ] No citation of CRISP `val_bpb=0.458756` or synthetic `0.3682` as the public accuracy number
+- [ ] Synthetic `0.3682` and CRISP `0.458756` remain in **separate** factual lanes (no blend / no 1:1 compare in claim copy)
 - [ ] AIOps data (if used) cited; not redistributed from this repo
 - [ ] Claim wording matches the **Claim statement** section above (ranking / surprise), without hype extras
+- [ ] **Merge HOLD:** Abhinav explicit yes recorded before merge (GRAX)
 
-**Fail any box → do not publish an accuracy claim.** Protocol scaffolding and empty/fixture reports are fine to land in-tree.
+**Fail any box → do not publish an accuracy claim.** Protocol scaffolding and empty/fixture reports are fine to land in-tree. **Do not merge this work until Abhinav yes.**
