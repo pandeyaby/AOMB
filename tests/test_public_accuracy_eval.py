@@ -55,16 +55,18 @@ class TestOTelProtoJsonTimestampLabels(unittest.TestCase):
 
         from corpus.ingest.timestamps import parse_telemetry_timestamp
 
-        # ProtoJSON fixed64 string — must NOT become year 1726 via fromisoformat.
-        dt = parse_telemetry_timestamp("1726060860100000000")
+        # 2026-era ProtoJSON fixed64 string — fromisoformat raises; must not be None.
+        dt = parse_telemetry_timestamp("1789151585100000000")
         self.assertIsNotNone(dt)
         assert dt is not None
-        self.assertEqual(dt.year, 2024)
-        self.assertEqual(dt, datetime(2024, 9, 11, 13, 21, 0, 100000, tzinfo=timezone.utc))
+        self.assertEqual(dt.year, 2026)
+        self.assertEqual(
+            dt, datetime(2026, 9, 11, 18, 33, 5, 100000, tzinfo=timezone.utc)
+        )
 
         self.assertEqual(
-            parse_telemetry_timestamp(1726060860100000000),
-            parse_telemetry_timestamp("1726060860100000000"),
+            parse_telemetry_timestamp(1789151585100000000),
+            parse_telemetry_timestamp("1789151585100000000"),
         )
         # ms / s magnitudes (previously misclassified as µs / ms)
         self.assertEqual(parse_telemetry_timestamp(1726060860100).year, 2024)
@@ -78,11 +80,13 @@ class TestOTelProtoJsonTimestampLabels(unittest.TestCase):
         from eval.labels import filter_scorable, load_lab_sessions
         from eval.run_eval import main
 
-        # Windows: 2024-09-11 13:20–13:22 normal, 13:25–13:27 incident (UTC)
-        normal_ns = "1726060860100000000"  # 13:21:00.100Z
-        incident_ns = "1726061160000000000"  # 13:26:00.000Z
-        normal_end_ns = "1726060860500000000"
-        incident_end_ns = "1726061160900000000"
+        # Real Mac lab capture era (2026-09-11). These ProtoJSON digit strings
+        # make datetime.fromisoformat raise (month must be in 1..12) — the old
+        # parser returned None and otlp_to_sessions filled datetime.now().
+        normal_ns = "1789151585100000000"  # 2026-09-11T18:33:05.100Z
+        incident_ns = "1789151600000000000"  # 2026-09-11T18:33:20.000Z
+        normal_end_ns = "1789151585500000000"
+        incident_end_ns = "1789151600900000000"
 
         with tempfile.TemporaryDirectory() as tmp:
             cap = Path(tmp) / "otel_protojson_capture"
@@ -98,14 +102,14 @@ class TestOTelProtoJsonTimestampLabels(unittest.TestCase):
                         "windows": [
                             {
                                 "label": "normal",
-                                "start": "2024-09-11T13:20:00Z",
-                                "end": "2024-09-11T13:22:00Z",
+                                "start": "2026-09-11T18:33:01Z",
+                                "end": "2026-09-11T18:33:13Z",
                                 "fault": "",
                             },
                             {
                                 "label": "incident",
-                                "start": "2024-09-11T13:25:00Z",
-                                "end": "2024-09-11T13:27:00Z",
+                                "start": "2026-09-11T18:33:14Z",
+                                "end": "2026-09-11T18:34:02Z",
                                 "fault": "api_latency",
                             },
                         ],
@@ -220,6 +224,10 @@ class TestOTelProtoJsonTimestampLabels(unittest.TestCase):
             self.assertIn("normal", labels)
             self.assertIn("incident", labels)
             self.assertNotIn("unknown", labels)
+            # Event lines must use OTel nanos, not ingest-time wall clock.
+            joined = "\n".join(s.text for s in sessions)
+            self.assertIn("ts=2026-09-11T18:33:", joined)
+            self.assertNotIn("ts=n/a", joined)
 
             y_true, kept = filter_scorable(sessions)
             self.assertIn(0, y_true)
