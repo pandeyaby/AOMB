@@ -13,6 +13,29 @@ Scaffolding for the protocol in [`docs/public-accuracy-eval.md`](../docs/public-
 
 `prepare.evaluate_bpb` is **not** called or modified. Session BPB scoring (model path) uses the same CE→bits/byte idea as `demo_anomaly.session_bpb`.
 
+## Window ↔ event timestamp alignment
+
+Session labels come from **capture metadata**, not invented per-event flags:
+
+1. `provenance.json` declares windows with `label` + `start` / `end` (RFC3339 / ISO-8601 UTC, as written by `lab/scripts/run_capture_session.sh`).
+2. Each session’s midpoint event time is matched with `TimeWindow.contains` (`corpus/ingest/adapters/base.py`).
+3. Event times are parsed from OTel JSONL via `corpus/ingest/timestamps.py`:
+   - ProtoJSON **string** `startTimeUnixNano` / `timeUnixNano` (fixed64 → decimal string)
+   - int/float unix **ns / µs / ms / s** (magnitude heuristic)
+   - RFC3339 strings (`…Z` or offset)
+
+**Requirement:** every scorable span/log timestamp must fall inside a normal or incident/cascade window. If timestamps are missing, mis-parsed, or outside all windows, sessions stay `label=unknown` and ranking fails with:
+
+`need both normal and incident/cascade labeled sessions… Got label_counts={'unknown': N}`.
+
+Practical checks:
+
+- Prefer collector exports under `lab/captures/<id>/{traces,logs}.jsonl` (OTLP `resourceSpans` / `resourceLogs`).
+- Window `start`/`end` must cover the same clock as OTel (UTC). Second-precision shell times are fine if load + flush complete before `end`.
+- Do **not** invent wall-clock `now()` for missing event times — that drifts sessions out of windows.
+
+Fixture `corpus/fixtures/lab_sample` uses RFC3339 `start_time` fields and is the smoke corpus. Real captures use ProtoJSON nanos; both paths must label correctly.
+
 ## Quick smoke (no torch / no train)
 
 ```bash

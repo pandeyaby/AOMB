@@ -8,7 +8,8 @@ Expected layout:
     traces.jsonl             # one OTLP-ish span object per line
     logs.jsonl               # one log record per line (optional)
 
-Span JSON (flexible keys):
+Span JSON (flexible keys — flat or OTLP resourceSpans):
+  Flat:
   {
     "trace_id": "...", "span_id": "...", "parent_span_id": "...",
     "name": "GET /checkout", "service_name": "api",
@@ -16,14 +17,14 @@ Span JSON (flexible keys):
     "status_code": "ok"|"error"|0|1|2,
     "attributes": {...}
   }
+  OTel file exporter (ProtoJSON): resourceSpans with string startTimeUnixNano.
 """
 
 from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator
 
 from corpus.ingest.adapters.base import (
     LogRecord,
@@ -32,27 +33,12 @@ from corpus.ingest.adapters.base import (
     SpanRecord,
     TimeWindow,
 )
+from corpus.ingest.timestamps import parse_telemetry_timestamp
 
 
-def _parse_dt(value: Any) -> Optional[datetime]:
-    if value is None:
-        return None
-    if isinstance(value, datetime):
-        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
-    if isinstance(value, str):
-        s = value.replace("Z", "+00:00")
-        try:
-            return datetime.fromisoformat(s)
-        except ValueError:
-            return None
-    if isinstance(value, (int, float)):
-        n = int(value)
-        if n > 1_000_000_000_000_000:
-            return datetime.fromtimestamp(n / 1e9, tz=timezone.utc)
-        if n > 1_000_000_000_000:
-            return datetime.fromtimestamp(n / 1e6, tz=timezone.utc)
-        return datetime.fromtimestamp(n / 1e3, tz=timezone.utc)
-    return None
+def _parse_dt(value: Any):
+    """Parse provenance / OTel timestamps (RFC3339, unix ms/ns, ProtoJSON strings)."""
+    return parse_telemetry_timestamp(value)
 
 
 def _load_jsonl(path: str) -> list[dict[str, Any]]:
@@ -109,22 +95,30 @@ class LabCaptureAdapter(SourceAdapter):
                 spans.extend(_flatten_otlp_traces(row))
                 continue
             attrs = row.get("attributes") or {}
-            start = _parse_dt(
-                row.get("start_time_unix_nano")
+            start_raw = (
+                row.get("startTimeUnixNano")
+                or row.get("start_time_unix_nano")
                 or row.get("start_time")
                 or row.get("timestamp")
             )
+            end_raw = (
+                row.get("endTimeUnixNano")
+                or row.get("end_time_unix_nano")
+                or row.get("end_time")
+            )
+            start = _parse_dt(start_raw)
             dur = row.get("duration_ms")
-            if dur is None and row.get("end_time_unix_nano") and row.get(
-                "start_time_unix_nano"
-            ):
+            if dur is None and start_raw is not None and end_raw is not None:
                 try:
-                    dur = (
-                        int(row["end_time_unix_nano"])
-                        - int(row["start_time_unix_nano"])
-                    ) / 1e6
-                except (TypeError, ValueError, KeyError):
-                    dur = 0
+                    dur = (int(end_raw) - int(start_raw)) / 1e6
+                except (TypeError, ValueError):
+                    # String/float nanos already handled by int(); else leave 0
+                    start_dt = start
+                    end_dt = _parse_dt(end_raw)
+                    if start_dt is not None and end_dt is not None:
+                        dur = (end_dt - start_dt).total_seconds() * 1000.0
+                    else:
+                        dur = 0
             spans.append(
                 SpanRecord(
                     trace_id=str(row.get("trace_id") or row.get("traceId") or ""),
@@ -166,7 +160,9 @@ class LabCaptureAdapter(SourceAdapter):
             logs.append(
                 LogRecord(
                     timestamp=_parse_dt(
-                        row.get("timestamp")
+                        row.get("timeUnixNano")
+                        or row.get("observedTimeUnixNano")
+                        or row.get("timestamp")
                         or row.get("time_unix_nano")
                         or row.get("observed_time_unix_nano")
                     ),

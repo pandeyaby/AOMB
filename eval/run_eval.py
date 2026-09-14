@@ -219,9 +219,19 @@ def main(argv: list[str] | None = None) -> int:
     if len(kept) < 2 or len(set(y_true)) < 2:
         print(
             "ERROR: need both normal and incident/cascade labeled sessions for ranking. "
-            f"Got label_counts={corpus_meta.get('label_counts')} scorable={len(kept)}",
+            f"Got label_counts={corpus_meta.get('label_counts')} scorable={len(kept)}. "
+            "Sessions are labeled by matching event timestamps "
+            "(OTel startTimeUnixNano / timeUnixNano) to provenance.json window "
+            "start/end. If everything is 'unknown', check timestamp parsing / "
+            "window alignment (see eval/README.md).",
             file=sys.stderr,
         )
+        if corpus_meta.get("n_events_missing_timestamp"):
+            print(
+                f"  hint: {corpus_meta['n_events_missing_timestamp']} span/log "
+                "events had no parseable timestamp.",
+                file=sys.stderr,
+            )
         return 2
 
     train_meta: dict = {}
