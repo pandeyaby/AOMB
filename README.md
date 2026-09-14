@@ -83,7 +83,7 @@ uv run python morning_report.py --plot
 |------|--------|
 | **(A) Public-real bootstrap** | **Uber CRISP** — ~100k production Jaeger traces, [Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), `CRISP-main.zip` ~2.33 GB, **CC BY 4.0** (cite Zhang et al., ATC'22). Session = `traceID`. |
 | **(B) Lab-captured** | Org-level stack (`lab/`) with OTel export + induced faults; windows `normal` / `incident` |
-| **Flagship scale (later)** | Uber Tale of Errors — DOIs [13947828](https://doi.org/10.5281/zenodo.13947828) + [13952897](https://doi.org/10.5281/zenodo.13952897), ~1.4M traces, CC BY 4.0, **300–500GB decompressed** — document only; not CI |
+| **Flagship scale (opt-in)** | Uber Tale of Errors — DOIs [13947828](https://doi.org/10.5281/zenodo.13947828) + [13952897](https://doi.org/10.5281/zenodo.13952897), ~1.4M traces, CC BY 4.0, **300–500GB decompressed** — `python -m corpus.ingest.fetch_tale_of_errors --list-only` + sample fixture; **full dump local-only, not CI** |
 | **Eval-only** | AIOps Challenge 2020 — labeled faults, **non-commercial**; cite+fetch, do not redistribute |
 | **Rejected as flagship** | OTel Demo / `otel-demo-telemetry`, tracegen, Sock Shop+Chaos Mesh testbeds, DeathStarBench |
 
