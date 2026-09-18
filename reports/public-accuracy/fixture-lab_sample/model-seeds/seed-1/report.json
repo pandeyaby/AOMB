@@ -1,0 +1,114 @@
+{
+  "protocol": "docs/public-accuracy-eval.md",
+  "claim_status": "not_published",
+  "disclaimer": "Scaffolding / measurement report only. Do not cite as a public accuracy claim until the protocol checklist passes. Do not cite CRISP val_bpb=0.458756 or synthetic 0.3682 as public accuracy.",
+  "generated_at": "2026-09-14T15:02:14Z",
+  "seed": 1,
+  "score_method": "session_bpb_train_then_score",
+  "git": {
+    "head": "e8400eb9f41c5cbec8dddaf5907c898820ef5ed7",
+    "train_py": "3895c14507d056cef8e4b43aeae3778bcb9f6231",
+    "prepare_py": "b71a0d440d5bb05af85fba6b575b7a245af38a7a"
+  },
+  "corpus": {
+    "capture_dir": "/Users/abhinavpandey/Documents/GitHub/AOMB/corpus/fixtures/lab_sample",
+    "capture_id": "fixture-demo",
+    "source_id": "lab-aomb-stack",
+    "source_kind": "lab_capture",
+    "corpus_version": "v1",
+    "license": "Apache-2.0",
+    "windows": [
+      {
+        "label": "normal",
+        "binary": 0,
+        "start": "2026-09-11T17:00:00Z",
+        "end": "2026-09-11T17:05:00Z",
+        "fault": "",
+        "notes": "fixture normal window"
+      },
+      {
+        "label": "incident",
+        "binary": 1,
+        "start": "2026-09-11T17:05:00Z",
+        "end": "2026-09-11T17:10:00Z",
+        "fault": "api_latency",
+        "notes": "fixture incident window"
+      }
+    ],
+    "content_sha256": "d9cd31e6b3fc88b89ece8268242d424c0c3bf002da1aa7a9a3d4c90e0ca136b9",
+    "session_count": 2,
+    "n_scorable": 2,
+    "n_excluded": 0,
+    "label_counts": {
+      "normal": 1,
+      "incident": 1
+    }
+  },
+  "hardware": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.10.19",
+    "machine": "arm64",
+    "device": "mps"
+  },
+  "train": {
+    "mode": "train_then_score",
+    "train_seconds": 120.0,
+    "num_steps": 52,
+    "device": "mps",
+    "note": "Session BPB via model forward; prepare.evaluate_bpb untouched."
+  },
+  "metrics": {
+    "n": 2,
+    "n_positive": 1,
+    "n_negative": 1,
+    "auroc": 1.0,
+    "pr_auc": 1.0,
+    "precision_at_k": {
+      "1": 1.0
+    },
+    "score_mean_by_label": {
+      "0": 5.819613360356064,
+      "1": 6.76759191225459
+    },
+    "random_baseline": {
+      "n_draws": 64,
+      "seed": 1,
+      "auroc": {
+        "mean": 0.421875,
+        "std": 0.4977628523130841,
+        "n": 64
+      },
+      "pr_auc": {
+        "mean": 0.7109375,
+        "std": 0.24888142615654205,
+        "n": 64
+      },
+      "precision_at_k": {
+        "1": {
+          "mean": 0.421875,
+          "std": 0.4977628523130841,
+          "n": 64
+        }
+      }
+    }
+  },
+  "notes": "",
+  "sessions": [
+    {
+      "session_id": "fixture-demo:0:0",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 584,
+      "score": 5.819613360356064
+    },
+    {
+      "session_id": "fixture-demo:0:1",
+      "label": "incident",
+      "binary": 1,
+      "fault": "api_latency",
+      "n_chars": 633,
+      "score": 6.76759191225459
+    }
+  ]
+}

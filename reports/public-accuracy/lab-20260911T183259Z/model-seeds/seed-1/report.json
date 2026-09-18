@@ -1,0 +1,2698 @@
+{
+  "protocol": "docs/public-accuracy-eval.md",
+  "claim_status": "not_published",
+  "disclaimer": "Scaffolding / measurement report only. Do not cite as a public accuracy claim until the protocol checklist passes. Do not cite CRISP val_bpb=0.458756 or synthetic 0.3682 as public accuracy.",
+  "generated_at": "2026-09-14T15:21:43Z",
+  "seed": 1,
+  "score_method": "session_bpb_train_then_score",
+  "git": {
+    "head": "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "train_py": "3895c14507d056cef8e4b43aeae3778bcb9f6231",
+    "prepare_py": "b71a0d440d5bb05af85fba6b575b7a245af38a7a"
+  },
+  "corpus": {
+    "capture_dir": "/Users/abhinavpandey/Documents/GitHub/AOMB/lab/captures/20260911T183259Z",
+    "capture_id": "20260911T183259Z",
+    "source_id": "lab-aomb-stack",
+    "source_kind": "lab_capture",
+    "corpus_version": "v1",
+    "license": "Apache-2.0",
+    "windows": [
+      {
+        "label": "normal",
+        "binary": 0,
+        "start": "2026-09-11T18:33:01Z",
+        "end": "2026-09-11T18:33:13Z",
+        "fault": "",
+        "notes": "Steady load, FAULT_MODE=none"
+      },
+      {
+        "label": "incident",
+        "binary": 1,
+        "start": "2026-09-11T18:33:14Z",
+        "end": "2026-09-11T18:34:02Z",
+        "fault": "latency",
+        "notes": "Fault injection active via inject_faults.sh"
+      }
+    ],
+    "content_sha256": "9e96ce893f75cb63c83b011b3ac613db73b404ebb759bd3335cb384053507a59",
+    "session_count": 327,
+    "n_scorable": 324,
+    "n_excluded": 3,
+    "label_counts": {
+      "normal": 163,
+      "incident": 161,
+      "unknown": 3
+    },
+    "n_events_missing_timestamp": 0
+  },
+  "hardware": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.10.19",
+    "machine": "arm64",
+    "device": "mps"
+  },
+  "train": {
+    "mode": "train_then_score",
+    "train_seconds": 300.0,
+    "num_steps": 177,
+    "device": "mps",
+    "note": "Session BPB via model forward; prepare.evaluate_bpb untouched."
+  },
+  "metrics": {
+    "n": 324,
+    "n_positive": 161,
+    "n_negative": 163,
+    "auroc": 0.6413519795755058,
+    "pr_auc": 0.7331489841630916,
+    "precision_at_k": {
+      "10": 0.9,
+      "32": 0.96875
+    },
+    "score_mean_by_label": {
+      "0": 5.748986925767722,
+      "1": 6.158585180018179
+    },
+    "random_baseline": {
+      "n_draws": 64,
+      "seed": 1,
+      "auroc": {
+        "mean": 0.49730463837975836,
+        "std": 0.033571826546598404,
+        "n": 64
+      },
+      "pr_auc": {
+        "mean": 0.5019841226855039,
+        "std": 0.02967868770979361,
+        "n": 64
+      },
+      "precision_at_k": {
+        "10": {
+          "mean": 0.5062499999999998,
+          "std": 0.16414763002993502,
+          "n": 64
+        },
+        "32": {
+          "mean": 0.490234375,
+          "std": 0.07969649614641708,
+          "n": 64
+        }
+      }
+    }
+  },
+  "notes": "",
+  "sessions": [
+    {
+      "session_id": "20260911T183259Z:0:0",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.060291728504457
+    },
+    {
+      "session_id": "20260911T183259Z:0:1",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.065007717686658
+    },
+    {
+      "session_id": "20260911T183259Z:0:2",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1588,
+      "score": 6.2127902359531335
+    },
+    {
+      "session_id": "20260911T183259Z:0:3",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.653454620578278
+    },
+    {
+      "session_id": "20260911T183259Z:0:4",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.725552055278159
+    },
+    {
+      "session_id": "20260911T183259Z:0:5",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.168654164881009
+    },
+    {
+      "session_id": "20260911T183259Z:0:6",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.04969053828447
+    },
+    {
+      "session_id": "20260911T183259Z:0:7",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.196643508436974
+    },
+    {
+      "session_id": "20260911T183259Z:0:8",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.178914469710269
+    },
+    {
+      "session_id": "20260911T183259Z:0:9",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.5193885104686355
+    },
+    {
+      "session_id": "20260911T183259Z:0:10",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.048026497857294
+    },
+    {
+      "session_id": "20260911T183259Z:0:11",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.727862795649695
+    },
+    {
+      "session_id": "20260911T183259Z:0:12",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.257946455667201
+    },
+    {
+      "session_id": "20260911T183259Z:0:13",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.558359910605856
+    },
+    {
+      "session_id": "20260911T183259Z:0:14",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.650133355966967
+    },
+    {
+      "session_id": "20260911T183259Z:0:15",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.056741288659197
+    },
+    {
+      "session_id": "20260911T183259Z:0:16",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.1119684524042235
+    },
+    {
+      "session_id": "20260911T183259Z:0:17",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.584595287798325
+    },
+    {
+      "session_id": "20260911T183259Z:0:19",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.773538926345643
+    },
+    {
+      "session_id": "20260911T183259Z:0:20",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.693367521841049
+    },
+    {
+      "session_id": "20260911T183259Z:0:21",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.088904949610101
+    },
+    {
+      "session_id": "20260911T183259Z:0:22",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.117160566088797
+    },
+    {
+      "session_id": "20260911T183259Z:0:23",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.563164242671416
+    },
+    {
+      "session_id": "20260911T183259Z:0:24",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.012229219768498
+    },
+    {
+      "session_id": "20260911T183259Z:0:25",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 5.968546788027
+    },
+    {
+      "session_id": "20260911T183259Z:0:26",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.733715203554623
+    },
+    {
+      "session_id": "20260911T183259Z:0:27",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.575167781647264
+    },
+    {
+      "session_id": "20260911T183259Z:0:28",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.013869013176529
+    },
+    {
+      "session_id": "20260911T183259Z:0:29",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.074560718739926
+    },
+    {
+      "session_id": "20260911T183259Z:0:30",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1588,
+      "score": 6.206007552111187
+    },
+    {
+      "session_id": "20260911T183259Z:0:31",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.17914028435664
+    },
+    {
+      "session_id": "20260911T183259Z:0:32",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.769796243482351
+    },
+    {
+      "session_id": "20260911T183259Z:0:33",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.754874151645754
+    },
+    {
+      "session_id": "20260911T183259Z:0:34",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.501603620228278
+    },
+    {
+      "session_id": "20260911T183259Z:0:35",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.690924601889431
+    },
+    {
+      "session_id": "20260911T183259Z:0:36",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 5.956124427248045
+    },
+    {
+      "session_id": "20260911T183259Z:0:37",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 273,
+      "score": 5.912041214569522
+    },
+    {
+      "session_id": "20260911T183259Z:0:38",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.739475397778062
+    },
+    {
+      "session_id": "20260911T183259Z:0:39",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 5.904323456941878
+    },
+    {
+      "session_id": "20260911T183259Z:0:40",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 5.979504759268202
+    },
+    {
+      "session_id": "20260911T183259Z:0:41",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.692332644787208
+    },
+    {
+      "session_id": "20260911T183259Z:0:42",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.156348969901762
+    },
+    {
+      "session_id": "20260911T183259Z:0:43",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.708682324808761
+    },
+    {
+      "session_id": "20260911T183259Z:0:44",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.533656524195207
+    },
+    {
+      "session_id": "20260911T183259Z:0:45",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.174375716880571
+    },
+    {
+      "session_id": "20260911T183259Z:0:46",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.04421606107254
+    },
+    {
+      "session_id": "20260911T183259Z:0:47",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.70548541025039
+    },
+    {
+      "session_id": "20260911T183259Z:0:48",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.090492907787559
+    },
+    {
+      "session_id": "20260911T183259Z:0:49",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.760004621685763
+    },
+    {
+      "session_id": "20260911T183259Z:0:50",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.730384469626988
+    },
+    {
+      "session_id": "20260911T183259Z:0:51",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1347,
+      "score": 5.991566701265674
+    },
+    {
+      "session_id": "20260911T183259Z:0:52",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.190462253558326
+    },
+    {
+      "session_id": "20260911T183259Z:0:53",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.513728305097911
+    },
+    {
+      "session_id": "20260911T183259Z:0:54",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.115280562005086
+    },
+    {
+      "session_id": "20260911T183259Z:0:55",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.133807598295563
+    },
+    {
+      "session_id": "20260911T183259Z:0:56",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 570,
+      "score": 8.058062813188922
+    },
+    {
+      "session_id": "20260911T183259Z:0:57",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.067326907787651
+    },
+    {
+      "session_id": "20260911T183259Z:0:58",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.117272159226364
+    },
+    {
+      "session_id": "20260911T183259Z:0:59",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.112368046298154
+    },
+    {
+      "session_id": "20260911T183259Z:0:60",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1588,
+      "score": 6.157691687100503
+    },
+    {
+      "session_id": "20260911T183259Z:0:61",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.631576860872794
+    },
+    {
+      "session_id": "20260911T183259Z:0:62",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.061992256231495
+    },
+    {
+      "session_id": "20260911T183259Z:0:63",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.09296512472132
+    },
+    {
+      "session_id": "20260911T183259Z:0:64",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.108545133718091
+    },
+    {
+      "session_id": "20260911T183259Z:0:65",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.16972337921867
+    },
+    {
+      "session_id": "20260911T183259Z:0:66",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.5322383881191195
+    },
+    {
+      "session_id": "20260911T183259Z:0:67",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.719920071240169
+    },
+    {
+      "session_id": "20260911T183259Z:0:68",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.139303724776607
+    },
+    {
+      "session_id": "20260911T183259Z:0:69",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.799914513202187
+    },
+    {
+      "session_id": "20260911T183259Z:0:70",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.691226885981602
+    },
+    {
+      "session_id": "20260911T183259Z:0:71",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 647,
+      "score": 5.068932700605034
+    },
+    {
+      "session_id": "20260911T183259Z:0:72",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.0389229093665415
+    },
+    {
+      "session_id": "20260911T183259Z:0:73",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.645298578083053
+    },
+    {
+      "session_id": "20260911T183259Z:0:74",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1350,
+      "score": 5.9966474096221125
+    },
+    {
+      "session_id": "20260911T183259Z:0:75",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.1712506081641125
+    },
+    {
+      "session_id": "20260911T183259Z:0:76",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.713455372813777
+    },
+    {
+      "session_id": "20260911T183259Z:0:77",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 6.012635431807626
+    },
+    {
+      "session_id": "20260911T183259Z:0:78",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.732903461916689
+    },
+    {
+      "session_id": "20260911T183259Z:0:79",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.043153930403698
+    },
+    {
+      "session_id": "20260911T183259Z:0:80",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.013088278401341
+    },
+    {
+      "session_id": "20260911T183259Z:0:81",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.751452335675529
+    },
+    {
+      "session_id": "20260911T183259Z:0:82",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.058533671080409
+    },
+    {
+      "session_id": "20260911T183259Z:0:83",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.688607175463833
+    },
+    {
+      "session_id": "20260911T183259Z:0:84",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.0533826510821935
+    },
+    {
+      "session_id": "20260911T183259Z:0:85",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.243864278400706
+    },
+    {
+      "session_id": "20260911T183259Z:0:86",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.123202587026581
+    },
+    {
+      "session_id": "20260911T183259Z:0:87",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.201448327287222
+    },
+    {
+      "session_id": "20260911T183259Z:0:88",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.600140381155212
+    },
+    {
+      "session_id": "20260911T183259Z:0:89",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.767221791966939
+    },
+    {
+      "session_id": "20260911T183259Z:0:90",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 479,
+      "score": 6.127393461503281
+    },
+    {
+      "session_id": "20260911T183259Z:0:91",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.60154954346139
+    },
+    {
+      "session_id": "20260911T183259Z:0:92",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.710484288867571
+    },
+    {
+      "session_id": "20260911T183259Z:0:93",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.776762381646366
+    },
+    {
+      "session_id": "20260911T183259Z:0:94",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.0823666254309074
+    },
+    {
+      "session_id": "20260911T183259Z:0:95",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.631332364071401
+    },
+    {
+      "session_id": "20260911T183259Z:0:96",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.494812439418585
+    },
+    {
+      "session_id": "20260911T183259Z:0:97",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.708455092031359
+    },
+    {
+      "session_id": "20260911T183259Z:0:98",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.0734412926792265
+    },
+    {
+      "session_id": "20260911T183259Z:0:99",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.039263367472276
+    },
+    {
+      "session_id": "20260911T183259Z:0:100",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.033515223413818
+    },
+    {
+      "session_id": "20260911T183259Z:0:101",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.096951085973161
+    },
+    {
+      "session_id": "20260911T183259Z:0:102",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.184771380286631
+    },
+    {
+      "session_id": "20260911T183259Z:0:103",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.661295781800852
+    },
+    {
+      "session_id": "20260911T183259Z:0:104",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.6942168464070555
+    },
+    {
+      "session_id": "20260911T183259Z:0:105",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.105659866289717
+    },
+    {
+      "session_id": "20260911T183259Z:0:106",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 5.881538061961535
+    },
+    {
+      "session_id": "20260911T183259Z:0:107",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 6.016537031245767
+    },
+    {
+      "session_id": "20260911T183259Z:0:108",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.705202641704881
+    },
+    {
+      "session_id": "20260911T183259Z:0:109",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.001136013771857
+    },
+    {
+      "session_id": "20260911T183259Z:0:110",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.177593692937611
+    },
+    {
+      "session_id": "20260911T183259Z:0:111",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.595003178312053
+    },
+    {
+      "session_id": "20260911T183259Z:0:112",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.060013606156685
+    },
+    {
+      "session_id": "20260911T183259Z:0:113",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.187501033575357
+    },
+    {
+      "session_id": "20260911T183259Z:0:114",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.1218208793310405
+    },
+    {
+      "session_id": "20260911T183259Z:0:115",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.688369986622203
+    },
+    {
+      "session_id": "20260911T183259Z:0:116",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.199879210942243
+    },
+    {
+      "session_id": "20260911T183259Z:0:117",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.589644435524242
+    },
+    {
+      "session_id": "20260911T183259Z:0:118",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.733524650743776
+    },
+    {
+      "session_id": "20260911T183259Z:0:119",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.727751081278729
+    },
+    {
+      "session_id": "20260911T183259Z:0:120",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.0512975267937055
+    },
+    {
+      "session_id": "20260911T183259Z:0:121",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.7181906081049085
+    },
+    {
+      "session_id": "20260911T183259Z:0:122",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.030602080761182
+    },
+    {
+      "session_id": "20260911T183259Z:0:123",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.242867611806559
+    },
+    {
+      "session_id": "20260911T183259Z:0:124",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.105825109127292
+    },
+    {
+      "session_id": "20260911T183259Z:0:125",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.032587805247939
+    },
+    {
+      "session_id": "20260911T183259Z:0:126",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.128044326261417
+    },
+    {
+      "session_id": "20260911T183259Z:0:127",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.727521960084775
+    },
+    {
+      "session_id": "20260911T183259Z:0:128",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.629137888645996
+    },
+    {
+      "session_id": "20260911T183259Z:0:129",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.153082512448169
+    },
+    {
+      "session_id": "20260911T183259Z:0:130",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.166976133401496
+    },
+    {
+      "session_id": "20260911T183259Z:0:131",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.623106782227659
+    },
+    {
+      "session_id": "20260911T183259Z:0:132",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.116971902923554
+    },
+    {
+      "session_id": "20260911T183259Z:0:133",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.633494548492235
+    },
+    {
+      "session_id": "20260911T183259Z:0:134",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.1616147108624
+    },
+    {
+      "session_id": "20260911T183259Z:0:135",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.206280516882419
+    },
+    {
+      "session_id": "20260911T183259Z:0:136",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.029201775462731
+    },
+    {
+      "session_id": "20260911T183259Z:0:137",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.161889668638929
+    },
+    {
+      "session_id": "20260911T183259Z:0:138",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.099230181313762
+    },
+    {
+      "session_id": "20260911T183259Z:0:139",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.1036040366760655
+    },
+    {
+      "session_id": "20260911T183259Z:0:140",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 278,
+      "score": 6.237285405371802
+    },
+    {
+      "session_id": "20260911T183259Z:0:141",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.055479785853686
+    },
+    {
+      "session_id": "20260911T183259Z:0:142",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.09450045535333
+    },
+    {
+      "session_id": "20260911T183259Z:0:143",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.053730955865233
+    },
+    {
+      "session_id": "20260911T183259Z:0:144",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.136855670756596
+    },
+    {
+      "session_id": "20260911T183259Z:0:145",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.818941125954374
+    },
+    {
+      "session_id": "20260911T183259Z:0:146",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 5.984325501756351
+    },
+    {
+      "session_id": "20260911T183259Z:0:147",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1588,
+      "score": 6.097340883395771
+    },
+    {
+      "session_id": "20260911T183259Z:0:148",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.238215467912861
+    },
+    {
+      "session_id": "20260911T183259Z:0:149",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.602952255870445
+    },
+    {
+      "session_id": "20260911T183259Z:0:150",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.009085406728151
+    },
+    {
+      "session_id": "20260911T183259Z:0:151",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 6.0024445544109994
+    },
+    {
+      "session_id": "20260911T183259Z:0:152",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.675397136144828
+    },
+    {
+      "session_id": "20260911T183259Z:0:153",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.7730417263016625
+    },
+    {
+      "session_id": "20260911T183259Z:0:154",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.00466564027614
+    },
+    {
+      "session_id": "20260911T183259Z:0:155",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.004530350889854
+    },
+    {
+      "session_id": "20260911T183259Z:0:156",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.048441392663331
+    },
+    {
+      "session_id": "20260911T183259Z:0:157",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.7241306817916495
+    },
+    {
+      "session_id": "20260911T183259Z:0:158",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 5.986233372087107
+    },
+    {
+      "session_id": "20260911T183259Z:0:159",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.759418010028371
+    },
+    {
+      "session_id": "20260911T183259Z:0:160",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.059331941688241
+    },
+    {
+      "session_id": "20260911T183259Z:0:161",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.074261847060781
+    },
+    {
+      "session_id": "20260911T183259Z:0:162",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.038495156091539
+    },
+    {
+      "session_id": "20260911T183259Z:0:163",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 5.97143199237598
+    },
+    {
+      "session_id": "20260911T183259Z:0:164",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.510272562391636
+    },
+    {
+      "session_id": "20260911T183259Z:0:165",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.724584585279009
+    },
+    {
+      "session_id": "20260911T183259Z:0:166",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.662674969743681
+    },
+    {
+      "session_id": "20260911T183259Z:0:167",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.138107924574465
+    },
+    {
+      "session_id": "20260911T183259Z:0:168",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.59050647829622
+    },
+    {
+      "session_id": "20260911T183259Z:0:169",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.001945649827565
+    },
+    {
+      "session_id": "20260911T183259Z:0:170",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.120265918650149
+    },
+    {
+      "session_id": "20260911T183259Z:0:171",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.112672625076775
+    },
+    {
+      "session_id": "20260911T183259Z:0:172",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.793084651636772
+    },
+    {
+      "session_id": "20260911T183259Z:0:173",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.737100209285841
+    },
+    {
+      "session_id": "20260911T183259Z:0:174",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.200342137335234
+    },
+    {
+      "session_id": "20260911T183259Z:0:175",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.2542250062119304
+    },
+    {
+      "session_id": "20260911T183259Z:0:176",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 648,
+      "score": 5.1291431791192075
+    },
+    {
+      "session_id": "20260911T183259Z:0:177",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.15669923320171
+    },
+    {
+      "session_id": "20260911T183259Z:0:178",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.094509206172435
+    },
+    {
+      "session_id": "20260911T183259Z:0:179",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1588,
+      "score": 6.142726753195462
+    },
+    {
+      "session_id": "20260911T183259Z:0:180",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.514961076739295
+    },
+    {
+      "session_id": "20260911T183259Z:0:181",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.190300657079993
+    },
+    {
+      "session_id": "20260911T183259Z:0:182",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.574482409970388
+    },
+    {
+      "session_id": "20260911T183259Z:0:183",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.195732056225385
+    },
+    {
+      "session_id": "20260911T183259Z:0:184",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.230962958445004
+    },
+    {
+      "session_id": "20260911T183259Z:0:185",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.702345899832837
+    },
+    {
+      "session_id": "20260911T183259Z:0:186",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.71304524013888
+    },
+    {
+      "session_id": "20260911T183259Z:0:187",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.722531520142179
+    },
+    {
+      "session_id": "20260911T183259Z:0:188",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.6085204800995925
+    },
+    {
+      "session_id": "20260911T183259Z:0:189",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 6.084678104851136
+    },
+    {
+      "session_id": "20260911T183259Z:0:190",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.479235377006394
+    },
+    {
+      "session_id": "20260911T183259Z:0:191",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 478,
+      "score": 6.091129469690257
+    },
+    {
+      "session_id": "20260911T183259Z:0:192",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.208039259516733
+    },
+    {
+      "session_id": "20260911T183259Z:0:193",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.167606665113224
+    },
+    {
+      "session_id": "20260911T183259Z:0:194",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1589,
+      "score": 6.2100666951815535
+    },
+    {
+      "session_id": "20260911T183259Z:0:195",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.046880802217689
+    },
+    {
+      "session_id": "20260911T183259Z:0:196",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.583367563902515
+    },
+    {
+      "session_id": "20260911T183259Z:0:198",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.109585979986777
+    },
+    {
+      "session_id": "20260911T183259Z:0:199",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.69049398278355
+    },
+    {
+      "session_id": "20260911T183259Z:0:200",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.006009007511161
+    },
+    {
+      "session_id": "20260911T183259Z:0:201",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.124432703218537
+    },
+    {
+      "session_id": "20260911T183259Z:0:202",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.17753923806148
+    },
+    {
+      "session_id": "20260911T183259Z:0:203",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.081518365215485
+    },
+    {
+      "session_id": "20260911T183259Z:0:204",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.084345733708114
+    },
+    {
+      "session_id": "20260911T183259Z:0:205",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.034486529618001
+    },
+    {
+      "session_id": "20260911T183259Z:0:206",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.159281333274146
+    },
+    {
+      "session_id": "20260911T183259Z:0:207",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.6905135598934535
+    },
+    {
+      "session_id": "20260911T183259Z:0:208",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.692419620151787
+    },
+    {
+      "session_id": "20260911T183259Z:0:209",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.738966634878443
+    },
+    {
+      "session_id": "20260911T183259Z:0:210",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 5.992907258182162
+    },
+    {
+      "session_id": "20260911T183259Z:0:211",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.754028151376676
+    },
+    {
+      "session_id": "20260911T183259Z:0:212",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.157370224163272
+    },
+    {
+      "session_id": "20260911T183259Z:0:213",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.04690321702698
+    },
+    {
+      "session_id": "20260911T183259Z:0:214",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.128617699834065
+    },
+    {
+      "session_id": "20260911T183259Z:0:215",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.092786789936506
+    },
+    {
+      "session_id": "20260911T183259Z:0:216",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.730371609650433
+    },
+    {
+      "session_id": "20260911T183259Z:0:217",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1347,
+      "score": 6.005821824566495
+    },
+    {
+      "session_id": "20260911T183259Z:0:218",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.02079910072249
+    },
+    {
+      "session_id": "20260911T183259Z:0:219",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 5.963292462671505
+    },
+    {
+      "session_id": "20260911T183259Z:0:220",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.7177601164206155
+    },
+    {
+      "session_id": "20260911T183259Z:0:221",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.084545201721066
+    },
+    {
+      "session_id": "20260911T183259Z:0:222",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.082283575551909
+    },
+    {
+      "session_id": "20260911T183259Z:0:223",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.042371825946209
+    },
+    {
+      "session_id": "20260911T183259Z:0:224",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.7953675382949585
+    },
+    {
+      "session_id": "20260911T183259Z:0:225",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 682,
+      "score": 7.626607090641922
+    },
+    {
+      "session_id": "20260911T183259Z:0:226",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.7280020073128055
+    },
+    {
+      "session_id": "20260911T183259Z:0:227",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.161598434545847
+    },
+    {
+      "session_id": "20260911T183259Z:0:228",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.7393273940254455
+    },
+    {
+      "session_id": "20260911T183259Z:0:230",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 648,
+      "score": 5.148417465893237
+    },
+    {
+      "session_id": "20260911T183259Z:0:231",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.303639479145427
+    },
+    {
+      "session_id": "20260911T183259Z:0:232",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.144899111490388
+    },
+    {
+      "session_id": "20260911T183259Z:0:233",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1588,
+      "score": 6.223246836575918
+    },
+    {
+      "session_id": "20260911T183259Z:0:234",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.0686848395327875
+    },
+    {
+      "session_id": "20260911T183259Z:0:235",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.607931856879559
+    },
+    {
+      "session_id": "20260911T183259Z:0:236",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.118843397218306
+    },
+    {
+      "session_id": "20260911T183259Z:0:237",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.110072100212496
+    },
+    {
+      "session_id": "20260911T183259Z:0:238",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.1637005568808725
+    },
+    {
+      "session_id": "20260911T183259Z:0:239",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.030930306606662
+    },
+    {
+      "session_id": "20260911T183259Z:0:240",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.517062060619471
+    },
+    {
+      "session_id": "20260911T183259Z:0:241",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.551527506540639
+    },
+    {
+      "session_id": "20260911T183259Z:0:242",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.156843905641633
+    },
+    {
+      "session_id": "20260911T183259Z:0:243",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.046558409522166
+    },
+    {
+      "session_id": "20260911T183259Z:0:244",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.7750861592589455
+    },
+    {
+      "session_id": "20260911T183259Z:0:245",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.032215675806935
+    },
+    {
+      "session_id": "20260911T183259Z:0:246",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.1290858801601615
+    },
+    {
+      "session_id": "20260911T183259Z:0:247",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1588,
+      "score": 6.145987675950345
+    },
+    {
+      "session_id": "20260911T183259Z:0:248",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 6.031232045470327
+    },
+    {
+      "session_id": "20260911T183259Z:0:249",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.1306730576440644
+    },
+    {
+      "session_id": "20260911T183259Z:0:250",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.857130553986607
+    },
+    {
+      "session_id": "20260911T183259Z:0:251",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.136200376860843
+    },
+    {
+      "session_id": "20260911T183259Z:0:252",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.101885200787507
+    },
+    {
+      "session_id": "20260911T183259Z:0:253",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.109204223210139
+    },
+    {
+      "session_id": "20260911T183259Z:0:254",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.191540372879257
+    },
+    {
+      "session_id": "20260911T183259Z:0:255",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.059087108314212
+    },
+    {
+      "session_id": "20260911T183259Z:0:256",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.095420657527602
+    },
+    {
+      "session_id": "20260911T183259Z:0:257",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.198916972979507
+    },
+    {
+      "session_id": "20260911T183259Z:0:258",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.549702746515504
+    },
+    {
+      "session_id": "20260911T183259Z:0:259",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.501777206589974
+    },
+    {
+      "session_id": "20260911T183259Z:0:260",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.511944207467681
+    },
+    {
+      "session_id": "20260911T183259Z:0:261",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.702693832059054
+    },
+    {
+      "session_id": "20260911T183259Z:0:262",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.767475504095491
+    },
+    {
+      "session_id": "20260911T183259Z:0:263",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.5232839679004995
+    },
+    {
+      "session_id": "20260911T183259Z:0:264",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.8556163385611235
+    },
+    {
+      "session_id": "20260911T183259Z:0:265",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.7756294393617
+    },
+    {
+      "session_id": "20260911T183259Z:0:266",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.609647809944534
+    },
+    {
+      "session_id": "20260911T183259Z:0:267",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.136656005966508
+    },
+    {
+      "session_id": "20260911T183259Z:0:268",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.078470956671614
+    },
+    {
+      "session_id": "20260911T183259Z:0:269",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 493,
+      "score": 6.7792495227618135
+    },
+    {
+      "session_id": "20260911T183259Z:0:270",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.026150755550216
+    },
+    {
+      "session_id": "20260911T183259Z:0:271",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.1098887707490706
+    },
+    {
+      "session_id": "20260911T183259Z:0:272",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.045501748115265
+    },
+    {
+      "session_id": "20260911T183259Z:0:273",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.07327256652166
+    },
+    {
+      "session_id": "20260911T183259Z:0:274",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 5.963606039979768
+    },
+    {
+      "session_id": "20260911T183259Z:0:275",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.071962720748993
+    },
+    {
+      "session_id": "20260911T183259Z:0:276",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.541096059880897
+    },
+    {
+      "session_id": "20260911T183259Z:0:277",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.731120301320262
+    },
+    {
+      "session_id": "20260911T183259Z:0:278",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 5.978146442455505
+    },
+    {
+      "session_id": "20260911T183259Z:0:279",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.198056960667818
+    },
+    {
+      "session_id": "20260911T183259Z:0:280",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.703028836048886
+    },
+    {
+      "session_id": "20260911T183259Z:0:281",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.755392039984219
+    },
+    {
+      "session_id": "20260911T183259Z:0:282",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.172401750647718
+    },
+    {
+      "session_id": "20260911T183259Z:0:283",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 5.996297660875735
+    },
+    {
+      "session_id": "20260911T183259Z:0:284",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.189050715085583
+    },
+    {
+      "session_id": "20260911T183259Z:0:285",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.538015813359293
+    },
+    {
+      "session_id": "20260911T183259Z:0:286",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.738245457329806
+    },
+    {
+      "session_id": "20260911T183259Z:0:287",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1588,
+      "score": 6.244454589951706
+    },
+    {
+      "session_id": "20260911T183259Z:0:288",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.731759498110518
+    },
+    {
+      "session_id": "20260911T183259Z:0:289",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.713694994119185
+    },
+    {
+      "session_id": "20260911T183259Z:0:290",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.113829920903382
+    },
+    {
+      "session_id": "20260911T183259Z:0:291",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.140032517852558
+    },
+    {
+      "session_id": "20260911T183259Z:0:292",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.740293580378729
+    },
+    {
+      "session_id": "20260911T183259Z:0:293",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1350,
+      "score": 6.074406731199887
+    },
+    {
+      "session_id": "20260911T183259Z:0:294",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.095595738654945
+    },
+    {
+      "session_id": "20260911T183259Z:0:295",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 5.9956818168903725
+    },
+    {
+      "session_id": "20260911T183259Z:0:296",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.412774234901474
+    },
+    {
+      "session_id": "20260911T183259Z:0:297",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.0972750339208455
+    },
+    {
+      "session_id": "20260911T183259Z:0:298",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 6.0360251703091485
+    },
+    {
+      "session_id": "20260911T183259Z:0:299",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1349,
+      "score": 6.022661924337449
+    },
+    {
+      "session_id": "20260911T183259Z:0:300",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 631,
+      "score": 4.559604493207479
+    },
+    {
+      "session_id": "20260911T183259Z:0:301",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.164643134299397
+    },
+    {
+      "session_id": "20260911T183259Z:0:302",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.167348531907182
+    },
+    {
+      "session_id": "20260911T183259Z:0:303",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.117413381326785
+    },
+    {
+      "session_id": "20260911T183259Z:0:304",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.2409792141948115
+    },
+    {
+      "session_id": "20260911T183259Z:0:305",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.150943456394271
+    },
+    {
+      "session_id": "20260911T183259Z:0:306",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.076453399894533
+    },
+    {
+      "session_id": "20260911T183259Z:0:307",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.139529112420951
+    },
+    {
+      "session_id": "20260911T183259Z:0:308",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1348,
+      "score": 6.097221647754126
+    },
+    {
+      "session_id": "20260911T183259Z:0:309",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.066753795676878
+    },
+    {
+      "session_id": "20260911T183259Z:0:310",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.079743231827804
+    },
+    {
+      "session_id": "20260911T183259Z:0:311",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 475,
+      "score": 6.065334355826827
+    },
+    {
+      "session_id": "20260911T183259Z:0:312",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.759641640917336
+    },
+    {
+      "session_id": "20260911T183259Z:0:313",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1591,
+      "score": 6.213338209246133
+    },
+    {
+      "session_id": "20260911T183259Z:0:314",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.774539479131107
+    },
+    {
+      "session_id": "20260911T183259Z:0:315",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.430734954946005
+    },
+    {
+      "session_id": "20260911T183259Z:0:316",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 1346,
+      "score": 6.019275629603056
+    },
+    {
+      "session_id": "20260911T183259Z:0:317",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.178390043853081
+    },
+    {
+      "session_id": "20260911T183259Z:0:318",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.736258281887183
+    },
+    {
+      "session_id": "20260911T183259Z:0:319",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 644,
+      "score": 5.127947179824154
+    },
+    {
+      "session_id": "20260911T183259Z:0:320",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 491,
+      "score": 6.751884182360494
+    },
+    {
+      "session_id": "20260911T183259Z:0:321",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.78931281524564
+    },
+    {
+      "session_id": "20260911T183259Z:0:322",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 628,
+      "score": 4.545797754453111
+    },
+    {
+      "session_id": "20260911T183259Z:0:323",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 477,
+      "score": 6.041529158260814
+    },
+    {
+      "session_id": "20260911T183259Z:0:324",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 497,
+      "score": 6.789671063185186
+    },
+    {
+      "session_id": "20260911T183259Z:0:325",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 495,
+      "score": 6.730649962471803
+    },
+    {
+      "session_id": "20260911T183259Z:0:326",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 646,
+      "score": 5.182143427302569
+    }
+  ]
+}

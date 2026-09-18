@@ -1,0 +1,97 @@
+{
+  "protocol": "docs/public-accuracy-eval.md",
+  "claim_status": "not_published",
+  "disclaimer": "Multi-seed aggregate only. Public claim language forbidden until docs/public-accuracy-eval.md checklist passes.",
+  "n_seeds": 5,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "score_method": "event_count_baseline",
+  "git_heads": [
+    "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "b9c93c4c7acd73c8115d873a273b30720304c052"
+  ],
+  "metrics_mean_std": {
+    "auroc": {
+      "mean": 0.47486948900659226,
+      "std": 0.0,
+      "n": 5
+    },
+    "pr_auc": {
+      "mean": 0.5,
+      "std": 0.0,
+      "n": 5
+    },
+    "precision_at_k": {
+      "10": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 5
+      },
+      "32": {
+        "mean": 0.0,
+        "std": 0.0,
+        "n": 5
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "auroc": 0.47486948900659226,
+      "pr_auc": 0.5,
+      "precision_at_k": {
+        "10": 0.0,
+        "32": 0.0
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/baselines-events/seed-0/report.json"
+    },
+    {
+      "seed": 1,
+      "auroc": 0.47486948900659226,
+      "pr_auc": 0.5,
+      "precision_at_k": {
+        "10": 0.0,
+        "32": 0.0
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/baselines-events/seed-1/report.json"
+    },
+    {
+      "seed": 2,
+      "auroc": 0.47486948900659226,
+      "pr_auc": 0.5,
+      "precision_at_k": {
+        "10": 0.0,
+        "32": 0.0
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/baselines-events/seed-2/report.json"
+    },
+    {
+      "seed": 3,
+      "auroc": 0.47486948900659226,
+      "pr_auc": 0.5,
+      "precision_at_k": {
+        "10": 0.0,
+        "32": 0.0
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/baselines-events/seed-3/report.json"
+    },
+    {
+      "seed": 4,
+      "auroc": 0.47486948900659226,
+      "pr_auc": 0.5,
+      "precision_at_k": {
+        "10": 0.0,
+        "32": 0.0
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/baselines-events/seed-4/report.json"
+    }
+  ]
+}

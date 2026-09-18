@@ -318,6 +318,24 @@ TOTAL_BATCH_SIZE = 2**16
 
 ---
 
+## How AOMB validates ranking (lab evidence — no hero metrics)
+
+**Product seat:** Infrastructure Language Model on enterprise observability telemetry.
+Training minimizes validation bits-per-byte (`val_bpb`). The same surprise signal is the
+anomaly detector — higher session-level next-token surprise / BPB should rank
+incident / cascade windows above normal.
+
+**Method check (lab):** fault-injected OpenTelemetry captures; multi-seed train-then-score;
+compare session BPB ranking to **length** and **event-count** baselines (and random ranking
+in harness JSON). Protocol: [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md).
+
+> **No AUROC / PR-AUC / precision table on this README.** Lab numbers live only under
+> [`docs/lab/ranking-validation.md`](docs/lab/ranking-validation.md) with
+> `claim_status=not_published`, limitations, and **captures not public**.
+> Do not treat CRISP / synthetic `val_bpb` rows below as ranking accuracy.
+
+---
+
 ## Empirical Results — Reference corpus v1 (Uber CRISP)
 
 Factual `val_bpb` documentation on **CRISP subsets** only — **not** a public accuracy claim, marketing number, or product benchmark.

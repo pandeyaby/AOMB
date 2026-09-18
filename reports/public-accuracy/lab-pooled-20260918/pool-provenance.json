@@ -1,0 +1,125 @@
+{
+  "corpus_version": "v1",
+  "source_id": "lab-aomb-stack-pooled",
+  "source_kind": "lab_capture",
+  "license": "Apache-2.0",
+  "license_url": "https://www.apache.org/licenses/LICENSE-2.0",
+  "citation": "AOMB lab stack pooled captures for labeled ranking eval (not a public accuracy claim)",
+  "capture_id": "pooled-20260918",
+  "captured_at": "2026-09-18T05:28:00Z",
+  "capture_tool": "lab/scripts/run_capture_session.sh (pooled)",
+  "signals": [
+    "traces",
+    "logs"
+  ],
+  "windows": [
+    {
+      "label": "normal",
+      "start": "2026-09-11T18:33:01Z",
+      "end": "2026-09-11T18:33:13Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260911T183259Z]",
+      "capture_id": "20260911T183259Z"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-11T18:33:14Z",
+      "end": "2026-09-11T18:34:02Z",
+      "fault": "latency",
+      "notes": "Fault injection active via inject_faults.sh [from 20260911T183259Z]",
+      "capture_id": "20260911T183259Z"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-18T05:23:24Z",
+      "end": "2026-09-18T05:23:38Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260918T052312Z-latency]",
+      "capture_id": "20260918T052312Z-latency"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-18T05:23:42Z",
+      "end": "2026-09-18T05:25:04Z",
+      "fault": "latency",
+      "notes": "Fault injection active via inject_faults.sh [from 20260918T052312Z-latency]",
+      "capture_id": "20260918T052312Z-latency"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-18T05:25:13Z",
+      "end": "2026-09-18T05:25:29Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260918T052510Z-errors]",
+      "capture_id": "20260918T052510Z-errors"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-18T05:25:32Z",
+      "end": "2026-09-18T05:25:46Z",
+      "fault": "errors",
+      "notes": "Fault injection active via inject_faults.sh [from 20260918T052510Z-errors]",
+      "capture_id": "20260918T052510Z-errors"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-18T05:25:55Z",
+      "end": "2026-09-18T05:26:11Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260918T052553Z-both]",
+      "capture_id": "20260918T052553Z-both"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-18T05:26:14Z",
+      "end": "2026-09-18T05:27:43Z",
+      "fault": "both",
+      "notes": "Fault injection active via inject_faults.sh [from 20260918T052553Z-both]",
+      "capture_id": "20260918T052553Z-both"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-18T05:27:52Z",
+      "end": "2026-09-18T05:28:08Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260918T052749Z-kill_redis]",
+      "capture_id": "20260918T052749Z-kill_redis"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-18T05:28:12Z",
+      "end": "2026-09-18T05:28:25Z",
+      "fault": "kill_redis",
+      "notes": "Fault injection active via inject_faults.sh [from 20260918T052749Z-kill_redis]",
+      "capture_id": "20260918T052749Z-kill_redis"
+    }
+  ],
+  "pooled_from": [
+    {
+      "capture_id": "20260911T183259Z",
+      "fault": "latency",
+      "path": "lab/captures/20260911T183259Z"
+    },
+    {
+      "capture_id": "20260918T052312Z-latency",
+      "fault": "latency",
+      "path": "lab/captures/20260918T052312Z-latency"
+    },
+    {
+      "capture_id": "20260918T052510Z-errors",
+      "fault": "errors",
+      "path": "lab/captures/20260918T052510Z-errors"
+    },
+    {
+      "capture_id": "20260918T052553Z-both",
+      "fault": "both",
+      "path": "lab/captures/20260918T052553Z-both"
+    },
+    {
+      "capture_id": "20260918T052749Z-kill_redis",
+      "fault": "kill_redis",
+      "path": "lab/captures/20260918T052749Z-kill_redis"
+    }
+  ],
+  "claim_status": "not_published"
+}
