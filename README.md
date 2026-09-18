@@ -318,20 +318,21 @@ TOTAL_BATCH_SIZE = 2**16
 
 ---
 
-## Empirical Results — Lab labeled ranking (validation pack)
+## How AOMB validates ranking (lab evidence — no hero metrics)
 
-> **claim_status=`not_published`.** Not a public accuracy claim. See checklist in [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md).
-> Full table: [`reports/public-accuracy/LAB_POOLED_VALIDATION.md`](reports/public-accuracy/LAB_POOLED_VALIDATION.md).
+**Product seat:** Infrastructure Language Model on enterprise observability telemetry.
+Training minimizes validation bits-per-byte (`val_bpb`). The same surprise signal is the
+anomaly detector — higher session-level next-token surprise / BPB should rank
+incident / cascade windows above normal.
 
-Frozen multi-seed ranking eval on **pooled lab captures** (fault-injected OTel), 5 seeds × 300s train-then-score:
+**Method check (lab):** fault-injected OpenTelemetry captures; multi-seed train-then-score;
+compare session BPB ranking to **length** and **event-count** baselines (and random ranking
+in harness JSON). Protocol: [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md).
 
-| Method | AUROC mean±std | PR-AUC mean±std | precision@10 | precision@290 |
-|--------|----------------|-----------------|--------------|---------------|
-| length baseline | 0.6428 ± 0.0000 | 0.6159 ± 0.0000 | 0.00 | 0.86 |
-| event-count baseline | 0.4762 ± 0.0000 | 0.4849 ± 0.0000 | 0.00 | 0.47 |
-| **session BPB (model)** | **0.7660 ± 0.0115** | **0.8142 ± 0.0124** | **0.90** | **0.968 ± 0.011** |
-
-Corpus: 2900 scorable sessions (1456 normal / 1444 incident) from 5 captures (`pooled-20260918`). Hardware: Mac MPS. Do **not** cite CRISP/synthetic `val_bpb` as these ranking numbers.
+> **No AUROC / PR-AUC / precision table on this README.** Lab numbers live only under
+> [`docs/lab/ranking-validation.md`](docs/lab/ranking-validation.md) with
+> `claim_status=not_published`, limitations, and **captures not public**.
+> Do not treat CRISP / synthetic `val_bpb` rows below as ranking accuracy.
 
 ---
 
