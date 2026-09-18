@@ -2,7 +2,9 @@
 
 Scaffolding for the protocol in [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md).
 
-**Claim status:** not published. Reports always say so. Do not invent AUROC numbers in docs.
+**Public ranking card v1 (fixture):** frozen card protocol [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — `python -m eval.run_public_ranking_card` / `./scripts/run_public_ranking_card_v1.sh`. Fixture baselines only in CI. Distinct from private lab pool (`docs/lab/`).
+
+**Claim status:** not published. Reports always say so. Do not invent AUROC numbers in docs. Do not cite lab-pool AUROC as the public card.
 
 ## What this does
 

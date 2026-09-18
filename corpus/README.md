@@ -9,6 +9,7 @@ corpus/
     crisp_sample/             # tiny Jaeger JSON for unit tests (not product data)
     tale_of_errors_sample/    # tiny Jaeger JSON, tale_of_errors provenance (smoke only)
     lab_sample/               # tiny lab capture for unit tests
+    public_ranking_card_v1/   # synthetic labeled pack for public ranking card v1
   ingest/
     jaeger.py                 # Jaeger API JSON → SpanRecord
     session_format.py         # prepare.py text contract
@@ -27,6 +28,7 @@ corpus/
 ```
 
 Public accuracy ranking protocol (claim not published): [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md), harness [`eval/`](../eval/).
+**Public ranking card v1 (fixture):** [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — synthetic pack above; distinct from private lab pool (`docs/lab/`). Reproduce: `./scripts/run_public_ranking_card_v1.sh`.
 BYO ingest + session scorer: [`docs/byo-and-scorer.md`](../docs/byo-and-scorer.md).
 
 ## Quick commands
@@ -68,6 +70,10 @@ uv run python -m eval.run_eval \
   --scores-from length \
   --out-dir /tmp/aomb-eval-smoke
 # See docs/public-accuracy-eval.md
+
+# Public ranking card v1 — fixture baselines (claim not published; not lab pool)
+./scripts/run_public_ranking_card_v1.sh
+# See docs/public-ranking-card-v1.md
 
 # BYO dump → shards (OTLP JSONL / Jaeger / parquet); see docs/byo-and-scorer.md
 uv run python -m corpus.ingest.build_shards \

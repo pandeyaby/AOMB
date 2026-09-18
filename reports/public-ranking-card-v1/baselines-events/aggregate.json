@@ -1,0 +1,101 @@
+{
+  "protocol": "docs/public-ranking-card-v1.md",
+  "claim_status": "not_published",
+  "disclaimer": "Multi-seed aggregate only. Public claim language forbidden until docs/public-accuracy-eval.md checklist passes.",
+  "n_seeds": 5,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "score_method": "event_count_baseline",
+  "git_heads": [
+    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
+    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
+    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
+    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
+    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71"
+  ],
+  "metrics_mean_std": {
+    "auroc": {
+      "mean": 0.5234375,
+      "std": 0.0,
+      "n": 5
+    },
+    "pr_auc": {
+      "mean": 0.5591269841269841,
+      "std": 0.0,
+      "n": 5
+    },
+    "precision_at_k": {
+      "1": {
+        "mean": 1.0,
+        "std": 0.0,
+        "n": 5
+      },
+      "8": {
+        "mean": 0.625,
+        "std": 0.0,
+        "n": 5
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "auroc": 0.5234375,
+      "pr_auc": 0.5591269841269841,
+      "precision_at_k": {
+        "1": 1.0,
+        "8": 0.625
+      },
+      "path": "/workspace/reports/public-ranking-card-v1/baselines-events/seed-0/report.json"
+    },
+    {
+      "seed": 1,
+      "auroc": 0.5234375,
+      "pr_auc": 0.5591269841269841,
+      "precision_at_k": {
+        "1": 1.0,
+        "8": 0.625
+      },
+      "path": "/workspace/reports/public-ranking-card-v1/baselines-events/seed-1/report.json"
+    },
+    {
+      "seed": 2,
+      "auroc": 0.5234375,
+      "pr_auc": 0.5591269841269841,
+      "precision_at_k": {
+        "1": 1.0,
+        "8": 0.625
+      },
+      "path": "/workspace/reports/public-ranking-card-v1/baselines-events/seed-2/report.json"
+    },
+    {
+      "seed": 3,
+      "auroc": 0.5234375,
+      "pr_auc": 0.5591269841269841,
+      "precision_at_k": {
+        "1": 1.0,
+        "8": 0.625
+      },
+      "path": "/workspace/reports/public-ranking-card-v1/baselines-events/seed-3/report.json"
+    },
+    {
+      "seed": 4,
+      "auroc": 0.5234375,
+      "pr_auc": 0.5591269841269841,
+      "precision_at_k": {
+        "1": 1.0,
+        "8": 0.625
+      },
+      "path": "/workspace/reports/public-ranking-card-v1/baselines-events/seed-4/report.json"
+    }
+  ],
+  "card_id": "public_ranking_card_v1",
+  "fixture_content_sha256": "7dae2e232f78276026eb067fc3d2bc10a695764d019ce8fd2daf6f69aa0eb8ce",
+  "epsilon": 1e-06,
+  "baseline": "events"
+}

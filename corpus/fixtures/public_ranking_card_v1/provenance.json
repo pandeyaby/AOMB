@@ -1,0 +1,33 @@
+{
+  "corpus_version": "public_ranking_card_v1",
+  "source_id": "aomb-public-ranking-card-v1",
+  "source_kind": "synthetic_lab_fixture",
+  "license": "Apache-2.0",
+  "capture_id": "public_ranking_card_v1",
+  "card_id": "public_ranking_card_v1",
+  "claim_status": "not_published",
+  "notes": "Synthetic stylized sessions for the public ranking card fixture only. No customer telemetry. Distinct from private lab pool and from CRISP val_bpb. Lengths intentionally overlap across classes so length/event baselines are non-trivial.",
+  "windows": [
+    {
+      "label": "normal",
+      "start": "2026-09-11T17:00:00Z",
+      "end": "2026-09-11T17:20:00Z",
+      "fault": "",
+      "notes": "steady-state healthy traffic"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-11T17:20:00Z",
+      "end": "2026-09-11T17:40:00Z",
+      "fault": "api_latency",
+      "notes": "induced latency + error burst (synthetic)"
+    },
+    {
+      "label": "cascade",
+      "start": "2026-09-11T17:40:00Z",
+      "end": "2026-09-11T17:50:00Z",
+      "fault": "kill_redis",
+      "notes": "dependency failure cascade (synthetic)"
+    }
+  ]
+}

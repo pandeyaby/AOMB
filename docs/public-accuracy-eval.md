@@ -135,6 +135,8 @@ uv run python -m eval.run_eval \
 
 See [`eval/README.md`](../eval/README.md).
 
+**Public ranking card v1 (fixture path):** see frozen card protocol [`public-ranking-card-v1.md`](public-ranking-card-v1.md) and `./scripts/run_public_ranking_card_v1.sh`. That card stays `claim_status=not_published` and must not reuse private lab-pool AUROC.
+
 ---
 
 ## Pass / fail checklist (gate for public claim language)

@@ -1,0 +1,21 @@
+{"timestamp": "2026-09-11T17:01:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "n00aaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp": "2026-09-11T17:03:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "n01aaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp": "2026-09-11T17:05:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "n02aaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp": "2026-09-11T17:07:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "n03aaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp": "2026-09-11T17:09:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "n04aaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp": "2026-09-11T17:11:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "n05aaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp": "2026-09-11T17:13:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "n06aaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp": "2026-09-11T17:15:00.101Z", "severity": "INFO", "body": "catalog_ok", "service_name": "api", "trace_id": "n07aaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp": "2026-09-11T17:21:10.200Z", "severity": "ERROR", "body": "checkout_failed error=induced_fault_latency", "service_name": "api", "trace_id": "i00bbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp": "2026-09-11T17:24:10.200Z", "severity": "ERROR", "body": "checkout_failed error=induced_fault_latency", "service_name": "api", "trace_id": "i01bbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp": "2026-09-11T17:24:10.250Z", "severity": "WARN", "body": "payment_upstream_slow", "service_name": "payments", "trace_id": "i01bbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp": "2026-09-11T17:27:10.200Z", "severity": "ERROR", "body": "checkout_failed error=induced_fault_latency", "service_name": "api", "trace_id": "i02bbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp": "2026-09-11T17:27:10.250Z", "severity": "WARN", "body": "payment_upstream_slow", "service_name": "payments", "trace_id": "i02bbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp": "2026-09-11T17:30:10.200Z", "severity": "ERROR", "body": "checkout_failed error=induced_fault_latency", "service_name": "api", "trace_id": "i03bbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp": "2026-09-11T17:30:10.250Z", "severity": "WARN", "body": "payment_upstream_slow", "service_name": "payments", "trace_id": "i03bbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp": "2026-09-11T17:33:10.200Z", "severity": "ERROR", "body": "checkout_failed error=induced_fault_latency", "service_name": "api", "trace_id": "i04bbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp": "2026-09-11T17:41:00.050Z", "severity": "ERROR", "body": "redis_unavailable cascade=true", "service_name": "api", "trace_id": "c00cccccccccccccccccccccccccccc"}
+{"timestamp": "2026-09-11T17:41:01.100Z", "severity": "ERROR", "body": "fallback_db_failed retries_exhausted", "service_name": "api", "trace_id": "c00cccccccccccccccccccccccccccc"}
+{"timestamp": "2026-09-11T17:43:00.050Z", "severity": "ERROR", "body": "redis_unavailable cascade=true", "service_name": "api", "trace_id": "c01cccccccccccccccccccccccccccc"}
+{"timestamp": "2026-09-11T17:45:00.050Z", "severity": "ERROR", "body": "redis_unavailable cascade=true", "service_name": "api", "trace_id": "c02cccccccccccccccccccccccccccc"}
+{"timestamp": "2026-09-11T17:45:01.100Z", "severity": "ERROR", "body": "fallback_db_failed retries_exhausted", "service_name": "api", "trace_id": "c02cccccccccccccccccccccccccccc"}
