@@ -135,7 +135,7 @@ uv run python -m eval.run_eval \
 
 See [`eval/README.md`](../eval/README.md).
 
-**Public ranking card v1 (fixture path):** see frozen card protocol [`public-ranking-card-v1.md`](public-ranking-card-v1.md) and `./scripts/run_public_ranking_card_v1.sh`. That card stays `claim_status=not_published` and must not reuse private lab-pool AUROC.
+**Public ranking card v1 (fixture path):** see frozen card protocol [`public-ranking-card-v1.md`](public-ranking-card-v1.md) and `./scripts/run_public_ranking_card_v1.sh`. That card’s `claim_status` is fixture-scoped only (model must beat length/events on the frozen eval split) and must not reuse private lab-pool AUROC.
 
 ---
 

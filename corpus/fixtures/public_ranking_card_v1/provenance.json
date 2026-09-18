@@ -5,8 +5,8 @@
   "license": "Apache-2.0",
   "capture_id": "public_ranking_card_v1",
   "card_id": "public_ranking_card_v1",
-  "claim_status": "not_published",
-  "notes": "Synthetic stylized sessions for the public ranking card fixture only. No customer telemetry. Distinct from private lab pool and from CRISP val_bpb. Lengths intentionally overlap across classes so length/event baselines are non-trivial.",
+  "claim_status": "published",
+  "notes": "Synthetic stylized sessions for the public ranking card fixture only. No customer telemetry. Distinct from private lab pool and from CRISP val_bpb. Lengths intentionally overlap across classes so length/event baselines are non-trivial. claim_status=published is fixture-scoped only (see docs/public-ranking-card-v1.md); not lab pool, not production support.",
   "windows": [
     {
       "label": "normal",

@@ -2,9 +2,9 @@
 
 Scaffolding for the protocol in [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md).
 
-**Public ranking card v1 (fixture):** frozen card protocol [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — `python -m eval.run_public_ranking_card` / `./scripts/run_public_ranking_card_v1.sh`. Fixture baselines only in CI. Distinct from private lab pool (`docs/lab/`).
+**Public ranking card v1 (fixture):** frozen card protocol [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — `python -m eval.run_public_ranking_card` / `./scripts/run_public_ranking_card_v1.sh`. Fixture **eval-split** baselines + optional fixture-only model (`--train-corpus fixture-train`). Distinct from private lab pool (`docs/lab/`).
 
-**Claim status:** not published. Reports always say so. Do not invent AUROC numbers in docs. Do not cite lab-pool AUROC as the public card.
+**Claim status:** fixture card may be `published` when model mean AUROC beats length+events on the frozen eval split (see `reports/public-ranking-card-v1/CARD.md`). Still never cite lab-pool AUROC or CRISP `val_bpb` as this card.
 
 ## What this does
 
@@ -56,9 +56,22 @@ python -m eval.run_multiseed \
 
 Length / event baselines verify the harness wiring on fixtures. They are **not** a public accuracy claim.
 
-## Model path (optional)
+## Model path
 
-Requires prepared tokenizer + train shards and torch (same prerequisites as `demo_anomaly.py`):
+**Public ranking card (fixture-only):** trains on frozen train-split **normal** session texts via an in-memory dataloader — no CRISP / prepare shards:
+
+```bash
+python -m eval.run_eval \
+  --capture corpus/fixtures/public_ranking_card_v1 \
+  --scores-from model \
+  --train-corpus fixture-train \
+  --session-split eval \
+  --train-seconds 45 \
+  --seed 0 \
+  --out-dir /tmp/aomb-fixture-model
+```
+
+**Lab / local prepare path** (not for the public card claim) still uses prepared tokenizer + train shards:
 
 ```bash
 python -m eval.run_eval \
@@ -69,7 +82,7 @@ python -m eval.run_eval \
   --out-dir reports/public-accuracy/seed-0
 ```
 
-Full claim runs: 3–5 seeds via `run_multiseed` with the same budget. See protocol checklist before any public language.
+Full card runs: 3–5 seeds via `run_multiseed` / `run_public_ranking_card`. See protocol checklist before any public language beyond the fixture card.
 
 ## Session scorer (shippable, claim not published)
 

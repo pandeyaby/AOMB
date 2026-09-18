@@ -8,7 +8,7 @@ Captures themselves are **not published** in this repository (JSONL stays on the
 
 | Lane | Location | Public accuracy? |
 |------|----------|------------------|
-| **Public ranking card v1 (fixture)** | [`docs/public-ranking-card-v1.md`](../public-ranking-card-v1.md) + [`corpus/fixtures/public_ranking_card_v1/`](../../corpus/fixtures/public_ranking_card_v1/) | Future claim path only — still `claim_status=not_published` |
+| **Public ranking card v1 (fixture)** | [`docs/public-ranking-card-v1.md`](../public-ranking-card-v1.md) + [`corpus/fixtures/public_ranking_card_v1/`](../../corpus/fixtures/public_ranking_card_v1/) | Fixture-scoped claim only — see `reports/public-ranking-card-v1/CARD.md`; **never** lab-pool AUROC |
 | **Private lab pool** | [`ranking-validation.md`](ranking-validation.md) / local `lab/captures/` | Lab evidence only — **never** the public card |
 | **CRISP `val_bpb`** | [`docs/crisp-val-bpb-baseline.md`](../crisp-val-bpb-baseline.md) | Training fact — not ranking accuracy |
 

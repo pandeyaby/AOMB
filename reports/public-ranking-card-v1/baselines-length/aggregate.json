@@ -1,6 +1,6 @@
 {
   "protocol": "docs/public-ranking-card-v1.md",
-  "claim_status": "not_published",
+  "claim_status": "published",
   "disclaimer": "Multi-seed aggregate only. Public claim language forbidden until docs/public-accuracy-eval.md checklist passes.",
   "n_seeds": 5,
   "seeds": [
@@ -12,20 +12,20 @@
   ],
   "score_method": "length_baseline",
   "git_heads": [
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71"
+    "f8e5aa5428eabe8394b3a00a6dceedcb82107f6c",
+    "f8e5aa5428eabe8394b3a00a6dceedcb82107f6c",
+    "f8e5aa5428eabe8394b3a00a6dceedcb82107f6c",
+    "f8e5aa5428eabe8394b3a00a6dceedcb82107f6c",
+    "f8e5aa5428eabe8394b3a00a6dceedcb82107f6c"
   ],
   "metrics_mean_std": {
     "auroc": {
-      "mean": 0.609375,
+      "mean": 0.5555555555555556,
       "std": 0.0,
       "n": 5
     },
     "pr_auc": {
-      "mean": 0.7181547619047619,
+      "mean": 0.7222222222222223,
       "std": 0.0,
       "n": 5
     },
@@ -35,8 +35,8 @@
         "std": 0.0,
         "n": 5
       },
-      "8": {
-        "mean": 0.625,
+      "3": {
+        "mean": 0.6666666666666666,
         "std": 0.0,
         "n": 5
       }
@@ -45,57 +45,59 @@
   "per_seed": [
     {
       "seed": 0,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.5555555555555556,
+      "pr_auc": 0.7222222222222223,
       "precision_at_k": {
         "1": 1.0,
-        "8": 0.625
+        "3": 0.6666666666666666
       },
       "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-0/report.json"
     },
     {
       "seed": 1,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.5555555555555556,
+      "pr_auc": 0.7222222222222223,
       "precision_at_k": {
         "1": 1.0,
-        "8": 0.625
+        "3": 0.6666666666666666
       },
       "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-1/report.json"
     },
     {
       "seed": 2,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.5555555555555556,
+      "pr_auc": 0.7222222222222223,
       "precision_at_k": {
         "1": 1.0,
-        "8": 0.625
+        "3": 0.6666666666666666
       },
       "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-2/report.json"
     },
     {
       "seed": 3,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.5555555555555556,
+      "pr_auc": 0.7222222222222223,
       "precision_at_k": {
         "1": 1.0,
-        "8": 0.625
+        "3": 0.6666666666666666
       },
       "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-3/report.json"
     },
     {
       "seed": 4,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.5555555555555556,
+      "pr_auc": 0.7222222222222223,
       "precision_at_k": {
         "1": 1.0,
-        "8": 0.625
+        "3": 0.6666666666666666
       },
       "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-4/report.json"
     }
   ],
   "card_id": "public_ranking_card_v1",
-  "fixture_content_sha256": "7dae2e232f78276026eb067fc3d2bc10a695764d019ce8fd2daf6f69aa0eb8ce",
+  "claim_reason": "Fixture-only model mean AUROC 1.000000 beats length 0.555556 and events 0.444444 on the frozen eval split. Scope: this synthetic public fixture card only \u2014 not lab pool, not CRISP val_bpb, not production support.",
+  "fixture_content_sha256": "f8a8288b1e37225b5cda9f8eef8e1e0879e3468797ce969b595ddfb17fdb4e1c",
   "epsilon": 1e-06,
-  "baseline": "length"
+  "baseline": "length",
+  "session_split": "eval"
 }

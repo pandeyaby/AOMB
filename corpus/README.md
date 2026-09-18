@@ -28,7 +28,7 @@ corpus/
 ```
 
 Public accuracy ranking protocol (claim not published): [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md), harness [`eval/`](../eval/).
-**Public ranking card v1 (fixture):** [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — synthetic pack above; distinct from private lab pool (`docs/lab/`). Reproduce: `./scripts/run_public_ranking_card_v1.sh`.
+**Public ranking card v1 (fixture):** [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — synthetic pack above with frozen `split.json`; distinct from private lab pool (`docs/lab/`). Reproduce: `./scripts/run_public_ranking_card_v1.sh` (fixture-only model + eval-split metrics).
 BYO ingest + session scorer: [`docs/byo-and-scorer.md`](../docs/byo-and-scorer.md).
 
 ## Quick commands

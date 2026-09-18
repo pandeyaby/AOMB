@@ -135,9 +135,15 @@ def load_lab_sessions(capture_dir: str | Path) -> tuple[list[LabeledSession], di
 
 
 def content_hash_capture(capture_dir: str | Path) -> str:
-    """SHA-256 over provenance.json + traces/logs jsonl bytes (sorted paths)."""
+    """SHA-256 over provenance + traces/logs + optional split.json (sorted paths)."""
     root = Path(capture_dir)
-    names = ["provenance.json", "traces.jsonl", "spans.jsonl", "logs.jsonl"]
+    names = [
+        "provenance.json",
+        "traces.jsonl",
+        "spans.jsonl",
+        "logs.jsonl",
+        "split.json",
+    ]
     h = hashlib.sha256()
     for name in names:
         path = root / name
@@ -148,6 +154,39 @@ def content_hash_capture(capture_dir: str | Path) -> str:
         h.update(path.read_bytes())
         h.update(b"\0")
     return h.hexdigest()
+
+
+def apply_session_split(
+    sessions: list[LabeledSession],
+    capture_dir: str | Path,
+    split_role: str,
+) -> tuple[list[LabeledSession], dict[str, Any] | None]:
+    """
+    Filter sessions by frozen split.json role.
+
+    split_role: all | train | eval
+    Returns (filtered_sessions, split_meta_or_None).
+    """
+    role = (split_role or "all").strip().lower()
+    if role in {"", "all"}:
+        return sessions, None
+    if role not in {"train", "eval"}:
+        raise ValueError(f"unknown session split role: {split_role!r}")
+
+    from eval.fixture_train import load_split, partition_by_split
+
+    split = load_split(capture_dir)
+    train_s, eval_s = partition_by_split(sessions, split)
+    chosen = train_s if role == "train" else eval_s
+    meta = {
+        "split_id": split.get("split_id"),
+        "split_role": role,
+        "n_train": len(train_s),
+        "n_eval": len(eval_s),
+        "train_session_ids": list(split.get("train_session_ids") or []),
+        "eval_session_ids": list(split.get("eval_session_ids") or []),
+    }
+    return chosen, meta
 
 
 def _label_counts(sessions: Iterable[LabeledSession]) -> dict[str, int]:

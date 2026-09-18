@@ -1,8 +1,8 @@
-# Public ranking card v1 — CI baselines only
+# Public ranking card v1 — CI (baselines + fixture-only model)
 #
-# Runs length + events baselines on the synthetic public fixture.
-# No model train, no MPS overnight, no API spend.
-# claim_status=not_published.
+# Runs length/events on the frozen eval split and a short fixture-only
+# train-then-score (5 × ~45s CPU). No CRISP download, no overnight, no API.
+# prepare.py untouched.
 
 name: public-ranking-card-v1
 
@@ -27,9 +27,9 @@ on:
       - "tests/test_public_ranking_card_v1.py"
 
 jobs:
-  fixture-baselines:
+  fixture-card:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -37,17 +37,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install minimal deps for fixture ranking
+      - name: Install deps for fixture ranking + short CPU train
         run: |
           python -m pip install --upgrade pip
-          # Fixture path needs pyarrow transitively via corpus.ingest.adapters
-          pip install pyarrow
+          pip install pyarrow torch --index-url https://download.pytorch.org/whl/cpu
+          pip install rustbpe tiktoken numpy
 
       - name: Unit tests (public ranking card + harness metrics)
         run: |
           python -m unittest tests.test_public_ranking_card_v1 tests.test_public_accuracy_eval -v
 
-      - name: Reproduce fixture baselines + ε check
+      - name: Reproduce fixture card (baselines + model) + ε check
         run: |
           chmod +x scripts/run_public_ranking_card_v1.sh
-          ./scripts/run_public_ranking_card_v1.sh --check-eps
+          ./scripts/run_public_ranking_card_v1.sh --with-model --train-seconds 45 --seeds 0..4 --check-eps
