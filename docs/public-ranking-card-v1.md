@@ -1,159 +1,87 @@
 # Public ranking card v1 (frozen protocol)
 
 **Card id:** `public_ranking_card_v1`  
-**Status:** Fixture + harness path only.  
-**claim_status=`not_published`** until the checklist below passes **and** Abhinav explicit greenlight.
+**Status:** Synthetic fixture + harness-smoke path.  
+**claim_status:** `published_fixture_card` only when model mean AUROC beats length+events on the frozen eval split — see [`reports/public-ranking-card-v1/CARD.md`](../reports/public-ranking-card-v1/CARD.md).
 
 > **HOLD merge** for GRAX skim + Abhinav yes.  
-> Do **not** promote private lab-pool AUROC as this public card  
-> (including any private lab figure such as 0.766 — that lane stays in `docs/lab/`).  
-> Do **not** cite CRISP / synthetic `val_bpb` as ranking accuracy.
+> Do **not** promote private lab-pool AUROC (incl. 0.766 — stays in `docs/lab/`).  
+> Do **not** cite CRISP / synthetic `val_bpb` as ranking accuracy.  
+> Do **not** market fixture AUROC as production / general public accuracy.
 
-This card unlocks a **future** honest public accuracy claim path. Until published, all reports and README pointers must keep `claim_status=not_published`.
+Parent protocol: [`public-accuracy-eval.md`](public-accuracy-eval.md).
 
-Parent protocol (broader claim language): [`public-accuracy-eval.md`](public-accuracy-eval.md).  
-This document freezes the **v1 public fixture card** specifically.
+---
+
+## Limitations (loud)
+
+- **Synthetic** stylized sessions only.
+- Eval size **n=36** held-out labeled sessions (72 total; balanced 36/36 split).
+- **High / perfect AUROC here = toy separation / harness smoke**, not field performance.
+- Not a production support / SLO metric.
 
 ---
 
 ## Task definition
 
-**Unit:** one session (trace-grouped session text from the public fixture pack).
+**Unit:** one session (trace-grouped session text).
 
-**Task:** rank sessions by a scalar anomaly score (higher = more anomalous). Binary labels from `provenance.json` windows:
+**Labels:** `normal`→0; `incident`/`cascade`/`anomalous`→1; unknown excluded.
 
-| Window label | Binary |
-|--------------|--------|
-| `normal` | 0 (negative) |
-| `incident`, `cascade`, `anomalous` | 1 (positive) |
-| `unknown` / other | **exclude** |
+**Eval:** held-out **eval split** of [`corpus/fixtures/public_ranking_card_v1/`](../corpus/fixtures/public_ranking_card_v1/).
 
-**Eval corpus (this card):** [`corpus/fixtures/public_ranking_card_v1/`](../corpus/fixtures/public_ranking_card_v1/) — synthetic, no customer data. See fixture README for provenance + content hash after each run.
-
-**Train corpus (optional model path):** whatever shards `train.py` / demo loaders use locally. Model path is **optional** for this card; CI runs **baselines only**.
+**Train (model):** fixture train-split **NORMAL** texts only (ephemeral dataloader). No CRISP. No `prepare.make_dataloader`.
 
 ---
 
-## Explicit non-goals / lane separation
+## Splits (`split.json`)
 
-| Lane | Role on this card |
-|------|-------------------|
-| **Public ranking card v1 fixture** | Only allowed public-card numbers (fixture baselines; optional short model) |
-| **Private lab pool** (`docs/lab/`, private captures) | Lab evidence only — **never** copy lab-pool AUROC onto this card |
-| **CRISP `val_bpb`** (0.407753 / 0.4309 / 0.458756) | Factual training metric — **not** ranking accuracy |
-| **Synthetic smoke `val_bpb` 0.3682** | Legacy breeding — **not** ranking accuracy |
-| **`prepare.evaluate_bpb`** | Sacred shard metric — **do not modify**; session BPB uses a separate path |
+| Role | Count | Composition (balanced) |
+|------|------:|------------------------|
+| **train** | 36 | 18 normal + 12 incident + 6 cascade (LM uses **normals only**) |
+| **eval** | 36 | 18 normal + 12 incident + 6 cascade (**both classes**) |
 
 ---
 
-## Splits
-
-v1 uses a **single frozen fixture pack** (no train/val split inside the card). All 16 scorable sessions are scored and ranked together.
-
-Future cards may introduce held-out labeled packs; do not silently change this fixture without bumping the card id.
-
----
-
-## Seeds
-
-Protocol: **3–5** seeds. This card freezes:
+## Seeds / budget
 
 | Setting | Value |
 |---------|-------|
-| Seeds | `0,1,2,3,4` (five seeds) |
-| Default CLI | `--seeds 0..4` |
-
-Baselines (`length`, `events`) are deterministic given the fixture; seed only affects the **random ranking baseline** draws and optional model init.
+| Seeds | `0..4` |
+| Model budget | `--train-seconds 45` |
 
 ---
 
-## Metrics
+## Metrics (eval split)
 
-Reported per seed and as **mean ± std** across seeds:
-
-1. **AUROC**
-2. **PR-AUC**
-3. **precision@k** with protocol defaults `k ∈ {min(10, n_pos), max(1, n // 10)}`
-
-Also report:
-
-- Per-class mean score
-- Counts: `n_normal`, `n_positive`, excluded
-- **Random ranking baseline** (Uniform scores, fixed draws)
-- **Length baseline** and **event-count baseline**
-
-Higher score = more anomalous (same convention as `eval/`).
-
----
-
-## Baselines (required on every card run)
-
-| Baseline | Score | Notes |
-|----------|-------|-------|
-| `length` | session character count | Deterministic on fixture |
-| `events` | session event-line count | Deterministic on fixture |
-| `random` | Uniform(0,1) draws | Mean±std over draws; seed-dependent |
-
-Optional: `--scores-from model --train-seconds N` (short train-then-score). **Not** required for CI. No overnight / API spend on this card path.
+AUROC, PR-AUC, precision@k + length / events / random baselines. Mean±std over seeds.
 
 ---
 
 ## Reproducibility ε
 
-| Path | ε / rule |
-|------|----------|
-| Deterministic baselines (`length`, `events`) | AUROC / PR-AUC / precision@k must match within **`1e-6`** absolute vs committed reference aggregates under `reports/public-ranking-card-v1/` (same fixture SHA) |
-| Random baseline | Same `random_draws` + seed → identical mean±std (stdlib `random`) |
-| Model path | Optional; not ε-gated in CI |
-
-Fixture content SHA-256 is recorded in each report (`corpus.content_sha256`). Changing the fixture without bumping card id / updating reports fails reproducibility checks.
+| Path | ε |
+|------|---|
+| length / events | `1e-6` vs `REFERENCE_baselines-*.json` |
+| model golden | `1e-2` vs `REFERENCE_model-fixture.json` |
 
 ---
 
 ## One-command reproduce
 
 ```bash
-# Baselines only (CI / default) — writes reports/public-ranking-card-v1/
-./scripts/run_public_ranking_card_v1.sh
-
-# Equivalent module entry
-python -m eval.run_public_ranking_card --baselines-only
-
-# Optional short model path (local only; not CI)
-python -m eval.run_public_ranking_card --with-model --train-seconds 30 --seeds 0..2
+./scripts/run_public_ranking_card_v1.sh --with-model --check-eps
 ```
 
-Harness reuses `eval.run_eval` + `eval.run_multiseed`. `prepare.py` is untouched.
+`prepare.py` untouched.
 
 ---
 
 ## claim_status rules
 
-| State | When |
-|-------|------|
-| **`not_published`** | Default for all v1 reports, README pointers, and this protocol until checklist **and** Abhinav greenlight |
-| **`published`** | Only after checklist complete + Abhinav yes + public wording matches the claim statement in `public-accuracy-eval.md` |
+| State | Meaning |
+|-------|---------|
+| **`published_fixture_card`** | Model mean AUROC beats length+events on this synthetic eval split. **Harness smoke only** — not production AUROC. |
+| **`not_published`** | Model missing or does not beat both baselines. |
 
-**Rules:**
-
-1. Every JSON/markdown report for this card must include `claim_status=not_published` until publication.
-2. Never place private lab-pool metrics on README as the public card.
-3. Fixture baseline numbers (only) may appear with explicit “fixture baseline / not a claim” labeling.
-4. Fail any checklist box → remain `not_published`.
-
----
-
-## Pass / fail checklist (gate for publication)
-
-- [ ] Eval corpus is this versioned public fixture (or a successor card id) with labels + content hash
-- [ ] Private lab-pool AUROC **not** cited as the public card
-- [ ] CRISP / synthetic `val_bpb` **not** cited as ranking accuracy
-- [ ] `prepare.evaluate_bpb` unchanged
-- [ ] Seeds `0..4` (or documented 3–5) completed; mean±std reported
-- [ ] AUROC, PR-AUC, precision@k + length/events/random baselines present
-- [ ] Deterministic baselines within ε=`1e-6` of committed references (same fixture SHA)
-- [ ] Claim wording is ranking / surprise only (see parent protocol)
-- [ ] **Abhinav explicit yes** recorded
-- [ ] **GRAX skim** complete; merge HOLD lifted
-
-**Fail any box → do not publish. claim_status stays `not_published`.**
+Merge remains **HOLD** until GRAX + Abhinav yes.

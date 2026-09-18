@@ -154,9 +154,31 @@ def render_markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _repo_relpath(path: str | Path, repo_root: str | Path | None = None) -> str:
+    """Prefer repo-relative paths in committed reports (no machine-absolute paths)."""
+    p = Path(path)
+    root = Path(repo_root) if repo_root else Path.cwd()
+    try:
+        return str(p.resolve().relative_to(root.resolve()))
+    except ValueError:
+        # Outside repo — keep as-is but strip common absolute prefixes for hygiene
+        s = str(p)
+        for prefix in ("/workspace/", str(Path.home()) + "/"):
+            if s.startswith(prefix):
+                return s[len(prefix) :]
+        return s
+
+
 def write_report(report: dict[str, Any], out_dir: str | Path) -> tuple[Path, Path]:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
+    # Hygiene: never commit machine-absolute capture_dir
+    corpus = report.get("corpus")
+    if isinstance(corpus, dict) and "capture_dir" in corpus:
+        corpus = dict(corpus)
+        corpus["capture_dir"] = _repo_relpath(corpus["capture_dir"])
+        report = dict(report)
+        report["corpus"] = corpus
     json_path = out / "report.json"
     md_path = out / "report.md"
     json_path.write_text(json.dumps(report, indent=2, sort_keys=False) + "\n", encoding="utf-8")
@@ -164,7 +186,11 @@ def write_report(report: dict[str, Any], out_dir: str | Path) -> tuple[Path, Pat
     return json_path, md_path
 
 
-def aggregate_seed_reports(paths: list[Path]) -> dict[str, Any]:
+def aggregate_seed_reports(
+    paths: list[Path],
+    *,
+    repo_root: str | Path | None = None,
+) -> dict[str, Any]:
     """Aggregate per-seed report.json files → mean±std (no invented extras)."""
     from eval.metrics import mean_std
 
@@ -172,6 +198,7 @@ def aggregate_seed_reports(paths: list[Path]) -> dict[str, Any]:
     if not reports:
         raise ValueError("no seed reports to aggregate")
 
+    root = Path(repo_root) if repo_root else Path.cwd()
     aurocs = [r["metrics"]["auroc"] for r in reports]
     pras = [r["metrics"]["pr_auc"] for r in reports]
     # union of k keys
@@ -204,7 +231,7 @@ def aggregate_seed_reports(paths: list[Path]) -> dict[str, Any]:
                 "auroc": r["metrics"]["auroc"],
                 "pr_auc": r["metrics"]["pr_auc"],
                 "precision_at_k": r["metrics"].get("precision_at_k"),
-                "path": str(paths[i]),
+                "path": _repo_relpath(paths[i], root),
             }
             for i, r in enumerate(reports)
         ],

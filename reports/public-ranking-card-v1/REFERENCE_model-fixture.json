@@ -10,7 +10,7 @@
     3,
     4
   ],
-  "score_method": "event_count_baseline",
+  "score_method": "session_bpb_fixture_train_then_score",
   "git_heads": [
     "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
     "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
@@ -20,12 +20,12 @@
   ],
   "metrics_mean_std": {
     "auroc": {
-      "mean": 0.6018518518518519,
+      "mean": 1.0,
       "std": 0.0,
       "n": 5
     },
     "pr_auc": {
-      "mean": 0.5747474747474748,
+      "mean": 1.0,
       "std": 0.0,
       "n": 5
     },
@@ -36,7 +36,7 @@
         "n": 5
       },
       "10": {
-        "mean": 0.7,
+        "mean": 1.0,
         "std": 0.0,
         "n": 5
       }
@@ -45,60 +45,60 @@
   "per_seed": [
     {
       "seed": 0,
-      "auroc": 0.6018518518518519,
-      "pr_auc": 0.5747474747474748,
+      "auroc": 1.0,
+      "pr_auc": 1.0,
       "precision_at_k": {
         "3": 1.0,
-        "10": 0.7
+        "10": 1.0
       },
-      "path": "reports/public-ranking-card-v1/baselines-events/seed-0/report.json"
+      "path": "reports/public-ranking-card-v1/model-fixture/seed-0/report.json"
     },
     {
       "seed": 1,
-      "auroc": 0.6018518518518519,
-      "pr_auc": 0.5747474747474748,
+      "auroc": 1.0,
+      "pr_auc": 1.0,
       "precision_at_k": {
         "3": 1.0,
-        "10": 0.7
+        "10": 1.0
       },
-      "path": "reports/public-ranking-card-v1/baselines-events/seed-1/report.json"
+      "path": "reports/public-ranking-card-v1/model-fixture/seed-1/report.json"
     },
     {
       "seed": 2,
-      "auroc": 0.6018518518518519,
-      "pr_auc": 0.5747474747474748,
+      "auroc": 1.0,
+      "pr_auc": 1.0,
       "precision_at_k": {
         "3": 1.0,
-        "10": 0.7
+        "10": 1.0
       },
-      "path": "reports/public-ranking-card-v1/baselines-events/seed-2/report.json"
+      "path": "reports/public-ranking-card-v1/model-fixture/seed-2/report.json"
     },
     {
       "seed": 3,
-      "auroc": 0.6018518518518519,
-      "pr_auc": 0.5747474747474748,
+      "auroc": 1.0,
+      "pr_auc": 1.0,
       "precision_at_k": {
         "3": 1.0,
-        "10": 0.7
+        "10": 1.0
       },
-      "path": "reports/public-ranking-card-v1/baselines-events/seed-3/report.json"
+      "path": "reports/public-ranking-card-v1/model-fixture/seed-3/report.json"
     },
     {
       "seed": 4,
-      "auroc": 0.6018518518518519,
-      "pr_auc": 0.5747474747474748,
+      "auroc": 1.0,
+      "pr_auc": 1.0,
       "precision_at_k": {
         "3": 1.0,
-        "10": 0.7
+        "10": 1.0
       },
-      "path": "reports/public-ranking-card-v1/baselines-events/seed-4/report.json"
+      "path": "reports/public-ranking-card-v1/model-fixture/seed-4/report.json"
     }
   ],
   "card_id": "public_ranking_card_v1",
   "claim_reason": "Fixture-only model mean AUROC 1.000000 beats length 0.700617 and events 0.601852 on the frozen synthetic eval split. Status = published fixture card / harness smoke only \u2014 NOT production AUROC, NOT general public accuracy, NOT lab pool.",
   "fixture_content_sha256": "49403cb3dd005e7e5af1de510ba3f5ed6e83df566e9ba3d46b4baed66367cfc5",
-  "epsilon": 1e-06,
-  "baseline": "events",
   "session_split": "eval",
-  "n_eval": 36
+  "n_eval": 36,
+  "train_corpus": "fixture_train_split_only",
+  "epsilon_model": 0.01
 }

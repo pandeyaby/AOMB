@@ -57,6 +57,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     p.add_argument("--precomputed-scores", type=str, default=None)
     p.add_argument("--train-seconds", type=float, default=0.0)
+    p.add_argument(
+        "--session-split",
+        type=str,
+        default="all",
+        choices=["all", "train", "eval"],
+    )
+    p.add_argument(
+        "--train-corpus",
+        type=str,
+        default="prepare",
+        choices=["prepare", "fixture-train"],
+    )
     p.add_argument("--out-dir", type=str, required=True)
     p.add_argument("--random-draws", type=int, default=64)
     p.add_argument(
@@ -95,6 +107,10 @@ def main(argv: list[str] | None = None) -> int:
                 str(seed_out),
                 "--random-draws",
                 str(args.random_draws),
+                "--session-split",
+                args.session_split,
+                "--train-corpus",
+                args.train_corpus,
             ]
             if args.precomputed_scores:
                 cmd += ["--precomputed-scores", args.precomputed_scores]
@@ -109,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: no seed-*/report.json under {out_dir}", file=sys.stderr)
             return 2
 
-    agg = aggregate_seed_reports(seed_paths)
+    agg = aggregate_seed_reports(seed_paths, repo_root=ROOT)
     agg_path = out_dir / "aggregate.json"
     md_path = out_dir / "aggregate.md"
     agg_path.write_text(json.dumps(agg, indent=2) + "\n", encoding="utf-8")

@@ -45,7 +45,13 @@ def _hardware() -> dict:
 
 
 def _train_then_score(sessions, seed: int, train_seconds: float):
-    """Optional short train then session BPB — mirrors demo_anomaly loading pattern."""
+    """
+    Optional short train then session BPB — mirrors demo_anomaly loading pattern.
+
+    WARNING: This path uses prepare.make_dataloader("train") (local CRISP/cache
+    shards). It is NOT acceptable for the public ranking card claim — use
+    --train-corpus fixture-train instead (eval.fixture_train).
+    """
     # Lazy imports keep CI metrics path torch-free
     from eval.score import session_bpb_texts
 
@@ -167,10 +173,14 @@ def _train_then_score(sessions, seed: int, train_seconds: float):
     )
     train_meta = {
         "mode": "train_then_score",
+        "train_corpus": "prepare_dataloader_train",
         "train_seconds": train_seconds,
         "num_steps": step,
         "device": demo.DEVICE.type,
-        "note": "Session BPB via model forward; prepare.evaluate_bpb untouched.",
+        "note": (
+            "Session BPB via model forward; prepare.evaluate_bpb untouched. "
+            "Uses prepare.make_dataloader train shards — NOT for public ranking card."
+        ),
     }
     return scores, train_meta
 
@@ -205,6 +215,24 @@ def main(argv: list[str] | None = None) -> int:
         default=0.0,
         help="If >0 with --scores-from model, short train-then-score budget",
     )
+    p.add_argument(
+        "--session-split",
+        type=str,
+        default="all",
+        choices=["all", "train", "eval"],
+        help="Score only sessions in frozen split.json role (default: all)",
+    )
+    p.add_argument(
+        "--train-corpus",
+        type=str,
+        default="prepare",
+        choices=["prepare", "fixture-train"],
+        help=(
+            "Model train data source. 'prepare' uses prepare.make_dataloader "
+            "(private/CRISP cache — not for public card). 'fixture-train' trains "
+            "on capture split.json train sessions only."
+        ),
+    )
     p.add_argument("--out-dir", type=str, required=True)
     p.add_argument(
         "--random-draws",
@@ -234,6 +262,40 @@ def main(argv: list[str] | None = None) -> int:
             )
         return 2
 
+    # Optional frozen split: score held-out role only (public ranking card)
+    train_kept: list = []
+    if args.session_split != "all" or args.train_corpus == "fixture-train":
+        from eval.fixture_train import load_split, partition_by_split
+
+        split = load_split(args.capture)
+        train_kept, eval_kept = partition_by_split(kept, split)
+        # fixture-train must never score the train split (leakage); default to eval
+        score_role = args.session_split
+        if args.train_corpus == "fixture-train" and score_role == "all":
+            score_role = "eval"
+        if score_role == "train":
+            kept = train_kept
+        elif score_role == "eval":
+            kept = eval_kept
+        y_true = [int(s.binary) for s in kept]  # type: ignore[arg-type]
+        corpus_meta = dict(corpus_meta)
+        corpus_meta["split"] = {
+            "split_id": split.get("split_id"),
+            "split_role": score_role,
+            "n_train": len(train_kept),
+            "n_eval": len(eval_kept),
+            "train_session_ids": list(split.get("train_session_ids") or []),
+            "eval_session_ids": list(split.get("eval_session_ids") or []),
+        }
+        if len(kept) < 2 or len(set(y_true)) < 2:
+            print(
+                "ERROR: after session-split="
+                f"{score_role}, need both classes. "
+                f"n={len(kept)} labels={sorted(set(s.label for s in kept))}",
+                file=sys.stderr,
+            )
+            return 2
+
     train_meta: dict = {}
     if args.scores_from == "model":
         if args.train_seconds <= 0:
@@ -243,8 +305,26 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
-        scores, train_meta = _train_then_score(kept, args.seed, args.train_seconds)
-        method = "session_bpb_train_then_score"
+        if args.train_corpus == "fixture-train":
+            from eval.fixture_train import train_then_score_fixture
+
+            if not train_kept:
+                print(
+                    "ERROR: --train-corpus fixture-train requires split.json "
+                    "with train sessions",
+                    file=sys.stderr,
+                )
+                return 2
+            scores, train_meta = train_then_score_fixture(
+                train_kept,
+                kept,
+                seed=args.seed,
+                train_seconds=args.train_seconds,
+            )
+            method = "session_bpb_fixture_train_then_score"
+        else:
+            scores, train_meta = _train_then_score(kept, args.seed, args.train_seconds)
+            method = "session_bpb_train_then_score"
     else:
         scores, method = resolve_scores(
             kept,

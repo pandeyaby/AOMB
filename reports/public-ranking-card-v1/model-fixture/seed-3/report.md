@@ -8,9 +8,9 @@ Scaffolding / measurement report only. Do not cite as a public accuracy claim un
 
 | Field | Value |
 |-------|-------|
-| Generated (UTC) | 2026-09-18T15:28:36Z |
+| Generated (UTC) | 2026-09-18T15:37:12Z |
 | Seed | 3 |
-| Score method | event_count_baseline |
+| Score method | session_bpb_fixture_train_then_score |
 | Git HEAD | `dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7` |
 | train.py SHA | `fd4cbb674fd2eb29b977355de6467c5d0ae6f9ae` |
 | prepare.py SHA | `b71a0d440d5bb05af85fba6b575b7a245af38a7a` |
@@ -22,12 +22,12 @@ Scaffolding / measurement report only. Do not cite as a public accuracy claim un
 
 | Metric | Value |
 |--------|-------|
-| AUROC | 0.601852 |
-| PR-AUC | 0.574747 |
+| AUROC | 1.000000 |
+| PR-AUC | 1.000000 |
 | precision@3 | 1.000000 |
-| precision@10 | 0.700000 |
-| mean score (label 0) | 3.444444 |
-| mean score (label 1) | 3.944444 |
+| precision@10 | 1.000000 |
+| mean score (label 0) | 0.486022 |
+| mean score (label 1) | 5.417725 |
 
 ## Random ranking baseline
 
@@ -39,10 +39,6 @@ Draws: 64 (seed=3)
 | pr_auc | 0.557174 | 0.088527 |
 | precision@3 | 0.510417 | 0.302656 |
 | precision@10 | 0.518750 | 0.159239 |
-
-## Notes
-
-Fixture/length baselines are for harness verification only. They are not a public accuracy claim.
 
 ## Checklist reminder
 

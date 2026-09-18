@@ -2,9 +2,9 @@
   "protocol": "docs/public-accuracy-eval.md",
   "claim_status": "not_published",
   "disclaimer": "Scaffolding / measurement report only. Do not cite as a public accuracy claim until the protocol checklist passes. Do not cite CRISP val_bpb=0.458756 or synthetic 0.3682 as public accuracy.",
-  "generated_at": "2026-09-18T15:28:37Z",
+  "generated_at": "2026-09-18T15:38:00Z",
   "seed": 4,
-  "score_method": "event_count_baseline",
+  "score_method": "session_bpb_fixture_train_then_score",
   "git": {
     "head": "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
     "train_py": "fd4cbb674fd2eb29b977355de6467c5d0ae6f9ae",
@@ -142,20 +142,35 @@
     "machine": "x86_64",
     "device": "cpu"
   },
-  "train": {},
+  "train": {
+    "mode": "fixture_train_then_score",
+    "train_corpus": "fixture_train_split_normals_only",
+    "train_seconds": 45.0,
+    "num_steps": 306,
+    "device": "cpu",
+    "n_train_sessions_listed": 36,
+    "n_train_normal_texts": 18,
+    "n_train_positive_excluded_from_lm": 18,
+    "n_eval_sessions": 36,
+    "vocab_size": 462,
+    "max_seq_len": 256,
+    "grad_accum_steps": 4,
+    "device_batch_size": 2,
+    "note": "LM trained on public fixture train-split NORMAL session texts only (positives in the train split are excluded from the LM objective so held-out incident/cascade remain surprising). No CRISP / prepare data download. prepare.evaluate_bpb untouched. Scores are session BPB on held-out eval-split sessions."
+  },
   "metrics": {
     "n": 36,
     "n_positive": 18,
     "n_negative": 18,
-    "auroc": 0.6018518518518519,
-    "pr_auc": 0.5747474747474748,
+    "auroc": 1.0,
+    "pr_auc": 1.0,
     "precision_at_k": {
       "3": 1.0,
-      "10": 0.7
+      "10": 1.0
     },
     "score_mean_by_label": {
-      "0": 3.4444444444444446,
-      "1": 3.9444444444444446
+      "0": 0.5023373130134801,
+      "1": 5.5413983581139235
     },
     "random_baseline": {
       "n_draws": 64,
@@ -184,7 +199,7 @@
       }
     }
   },
-  "notes": "Fixture/length baselines are for harness verification only. They are not a public accuracy claim.",
+  "notes": "",
   "sessions": [
     {
       "session_id": "public_ranking_card_v1:0:6",
@@ -192,7 +207,7 @@
       "binary": 1,
       "fault": "kill_redis",
       "n_chars": 649,
-      "score": 3.0
+      "score": 5.206073470570481
     },
     {
       "session_id": "public_ranking_card_v1:0:7",
@@ -200,7 +215,7 @@
       "binary": 1,
       "fault": "kill_redis",
       "n_chars": 995,
-      "score": 5.0
+      "score": 5.446284003123198
     },
     {
       "session_id": "public_ranking_card_v1:0:8",
@@ -208,7 +223,7 @@
       "binary": 1,
       "fault": "kill_redis",
       "n_chars": 651,
-      "score": 3.0
+      "score": 5.155411507965941
     },
     {
       "session_id": "public_ranking_card_v1:0:9",
@@ -216,7 +231,7 @@
       "binary": 1,
       "fault": "kill_redis",
       "n_chars": 1183,
-      "score": 6.0
+      "score": 5.4858029885921775
     },
     {
       "session_id": "public_ranking_card_v1:0:10",
@@ -224,7 +239,7 @@
       "binary": 1,
       "fault": "kill_redis",
       "n_chars": 649,
-      "score": 3.0
+      "score": 5.184817318031502
     },
     {
       "session_id": "public_ranking_card_v1:0:11",
@@ -232,7 +247,7 @@
       "binary": 1,
       "fault": "kill_redis",
       "n_chars": 1181,
-      "score": 6.0
+      "score": 5.407171729824184
     },
     {
       "session_id": "public_ranking_card_v1:0:24",
@@ -240,7 +255,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 477,
-      "score": 2.0
+      "score": 5.388691472661186
     },
     {
       "session_id": "public_ranking_card_v1:0:25",
@@ -248,7 +263,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 794,
-      "score": 4.0
+      "score": 5.931998214961672
     },
     {
       "session_id": "public_ranking_card_v1:0:26",
@@ -256,7 +271,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 1005,
-      "score": 5.0
+      "score": 5.676377455190898
     },
     {
       "session_id": "public_ranking_card_v1:0:27",
@@ -264,7 +279,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 477,
-      "score": 2.0
+      "score": 5.4363907635293165
     },
     {
       "session_id": "public_ranking_card_v1:0:28",
@@ -272,7 +287,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 794,
-      "score": 4.0
+      "score": 5.8621274775362
     },
     {
       "session_id": "public_ranking_card_v1:0:29",
@@ -280,7 +295,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 1182,
-      "score": 6.0
+      "score": 5.600686283783374
     },
     {
       "session_id": "public_ranking_card_v1:0:30",
@@ -288,7 +303,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 793,
-      "score": 4.0
+      "score": 5.919293724422902
     },
     {
       "session_id": "public_ranking_card_v1:0:31",
@@ -296,7 +311,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 477,
-      "score": 2.0
+      "score": 5.455767319768654
     },
     {
       "session_id": "public_ranking_card_v1:0:32",
@@ -304,7 +319,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 1005,
-      "score": 5.0
+      "score": 5.5561580378550435
     },
     {
       "session_id": "public_ranking_card_v1:0:33",
@@ -312,7 +327,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 794,
-      "score": 4.0
+      "score": 5.90477698466231
     },
     {
       "session_id": "public_ranking_card_v1:0:34",
@@ -320,7 +335,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 477,
-      "score": 2.0
+      "score": 5.456972401121598
     },
     {
       "session_id": "public_ranking_card_v1:0:35",
@@ -328,7 +343,7 @@
       "binary": 1,
       "fault": "api_latency",
       "n_chars": 1005,
-      "score": 5.0
+      "score": 5.670369292449983
     },
     {
       "session_id": "public_ranking_card_v1:0:54",
@@ -336,7 +351,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 973,
-      "score": 5.0
+      "score": 0.49970972470761754
     },
     {
       "session_id": "public_ranking_card_v1:0:55",
@@ -344,7 +359,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 609,
-      "score": 3.0
+      "score": 0.4840895135723215
     },
     {
       "session_id": "public_ranking_card_v1:0:56",
@@ -352,7 +367,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 791,
-      "score": 4.0
+      "score": 0.5241949516323343
     },
     {
       "session_id": "public_ranking_card_v1:0:57",
@@ -360,7 +375,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 419,
-      "score": 2.0
+      "score": 0.2893625126638731
     },
     {
       "session_id": "public_ranking_card_v1:0:58",
@@ -368,7 +383,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 609,
-      "score": 3.0
+      "score": 0.37414756676222294
     },
     {
       "session_id": "public_ranking_card_v1:0:59",
@@ -376,7 +391,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 1154,
-      "score": 6.0
+      "score": 0.6604769789147632
     },
     {
       "session_id": "public_ranking_card_v1:0:60",
@@ -384,7 +399,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 418,
-      "score": 2.0
+      "score": 0.33971142852886577
     },
     {
       "session_id": "public_ranking_card_v1:0:61",
@@ -392,7 +407,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 608,
-      "score": 3.0
+      "score": 0.4476792763975016
     },
     {
       "session_id": "public_ranking_card_v1:0:62",
@@ -400,7 +415,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 418,
-      "score": 2.0
+      "score": 0.3438983387581694
     },
     {
       "session_id": "public_ranking_card_v1:0:63",
@@ -408,7 +423,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 790,
-      "score": 4.0
+      "score": 0.49115622938781295
     },
     {
       "session_id": "public_ranking_card_v1:0:64",
@@ -416,7 +431,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 608,
-      "score": 3.0
+      "score": 0.5933398558216989
     },
     {
       "session_id": "public_ranking_card_v1:0:65",
@@ -424,7 +439,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 418,
-      "score": 2.0
+      "score": 0.42957135968681703
     },
     {
       "session_id": "public_ranking_card_v1:0:66",
@@ -432,7 +447,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 972,
-      "score": 5.0
+      "score": 0.6984227511556645
     },
     {
       "session_id": "public_ranking_card_v1:0:67",
@@ -440,7 +455,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 608,
-      "score": 3.0
+      "score": 0.4794780719908099
     },
     {
       "session_id": "public_ranking_card_v1:0:68",
@@ -448,7 +463,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 790,
-      "score": 4.0
+      "score": 0.43166956391003636
     },
     {
       "session_id": "public_ranking_card_v1:0:69",
@@ -456,7 +471,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 418,
-      "score": 2.0
+      "score": 0.5392684972242959
     },
     {
       "session_id": "public_ranking_card_v1:0:70",
@@ -464,7 +479,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 609,
-      "score": 3.0
+      "score": 0.6199013019616945
     },
     {
       "session_id": "public_ranking_card_v1:0:71",
@@ -472,7 +487,7 @@
       "binary": 0,
       "fault": "",
       "n_chars": 1155,
-      "score": 6.0
+      "score": 0.7959937111661404
     }
   ]
 }

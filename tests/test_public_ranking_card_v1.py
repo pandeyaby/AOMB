@@ -19,14 +19,34 @@ class TestPublicRankingCardFixture(unittest.TestCase):
         self.assertEqual(meta["capture_id"], "public_ranking_card_v1")
         self.assertTrue(meta["content_sha256"])
         y_true, kept = filter_scorable(sessions)
-        self.assertGreaterEqual(len(kept), 8)
+        self.assertGreaterEqual(len(kept), 60)
         self.assertIn(0, y_true)
         self.assertIn(1, y_true)
         labels = {s.label for s in kept}
         self.assertIn("normal", labels)
         self.assertTrue(labels & {"incident", "cascade"})
 
-    def test_length_baseline_smoke(self):
+    def test_frozen_split_both_classes_in_eval(self):
+        from eval.fixture_train import load_split, partition_by_split
+        from eval.labels import filter_scorable, load_lab_sessions
+
+        split = load_split(FIXTURE)
+        self.assertGreaterEqual(split["n_eval"], 30)
+        self.assertGreaterEqual(split["n_train"], 30)
+        sessions, _ = load_lab_sessions(FIXTURE)
+        _, kept = filter_scorable(sessions)
+        train_s, eval_s = partition_by_split(kept, split)
+        self.assertEqual(len(train_s), split["n_train"])
+        self.assertEqual(len(eval_s), split["n_eval"])
+        eval_bins = {int(s.binary) for s in eval_s}  # type: ignore[arg-type]
+        self.assertEqual(eval_bins, {0, 1})
+        # Balanced labels on eval (equal pos/neg for this card)
+        n_pos = sum(1 for s in eval_s if s.binary == 1)
+        n_neg = sum(1 for s in eval_s if s.binary == 0)
+        self.assertEqual(n_pos, n_neg)
+        self.assertFalse({s.session_id for s in train_s} & {s.session_id for s in eval_s})
+
+    def test_length_baseline_eval_split_smoke(self):
         from eval.run_eval import main
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -36,6 +56,8 @@ class TestPublicRankingCardFixture(unittest.TestCase):
                     str(FIXTURE),
                     "--scores-from",
                     "length",
+                    "--session-split",
+                    "eval",
                     "--seed",
                     "0",
                     "--out-dir",
@@ -46,12 +68,14 @@ class TestPublicRankingCardFixture(unittest.TestCase):
             )
             self.assertEqual(rc, 0)
             report = json.loads(Path(tmp, "report.json").read_text(encoding="utf-8"))
-            self.assertEqual(report["claim_status"], "not_published")
             self.assertIn("auroc", report["metrics"])
-            # Must not be a single-class toy that collapses ranking
-            self.assertGreaterEqual(report["metrics"]["n"], 8)
-            self.assertGreaterEqual(report["metrics"]["n_positive"], 2)
-            self.assertGreaterEqual(report["metrics"]["n_negative"], 2)
+            self.assertGreaterEqual(report["metrics"]["n"], 30)
+            self.assertGreaterEqual(report["metrics"]["n_positive"], 10)
+            self.assertGreaterEqual(report["metrics"]["n_negative"], 10)
+            self.assertEqual(report["corpus"]["split"]["split_role"], "eval")
+            # Hygiene: no machine-absolute capture_dir in committed-style reports
+            self.assertFalse(str(report["corpus"]["capture_dir"]).startswith("/workspace"))
+            self.assertFalse(str(report["corpus"]["capture_dir"]).startswith("/Users/"))
 
 
 class TestPublicRankingCardReproduce(unittest.TestCase):
@@ -61,6 +85,7 @@ class TestPublicRankingCardReproduce(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             rc = main(
                 [
+                    "--baselines-only",
                     "--out-dir",
                     tmp,
                     "--seeds",
@@ -73,17 +98,21 @@ class TestPublicRankingCardReproduce(unittest.TestCase):
             card = Path(tmp) / "CARD.md"
             self.assertTrue(card.is_file())
             text = card.read_text(encoding="utf-8")
-            self.assertIn("not_published", text)
             self.assertIn("public_ranking_card_v1", text)
-            self.assertIn("Fixture baselines", text)
-            self.assertIn("out of scope", text)
+            self.assertIn("Limitations", text)
+            self.assertIn("synthetic", text.lower())
+            self.assertIn("lab-pool", text.lower())
+            self.assertIn("production", text.lower())
             for name in ("baselines-length", "baselines-events"):
                 agg = json.loads(
                     (Path(tmp) / name / "aggregate.json").read_text(encoding="utf-8")
                 )
-                self.assertEqual(agg["claim_status"], "not_published")
                 self.assertEqual(agg["card_id"], "public_ranking_card_v1")
+                self.assertEqual(agg["session_split"], "eval")
                 self.assertEqual(agg["n_seeds"], 3)
+                self.assertEqual(agg["claim_status"], "not_published")
+                for row in agg.get("per_seed") or []:
+                    self.assertFalse(str(row.get("path", "")).startswith("/workspace"))
 
 
 if __name__ == "__main__":

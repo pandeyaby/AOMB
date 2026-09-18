@@ -1,6 +1,6 @@
 {
   "protocol": "docs/public-ranking-card-v1.md",
-  "claim_status": "not_published",
+  "claim_status": "published_fixture_card",
   "disclaimer": "Multi-seed aggregate only. Public claim language forbidden until docs/public-accuracy-eval.md checklist passes.",
   "n_seeds": 5,
   "seeds": [
@@ -12,31 +12,31 @@
   ],
   "score_method": "length_baseline",
   "git_heads": [
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
-    "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71"
+    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
+    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
+    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
+    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
+    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7"
   ],
   "metrics_mean_std": {
     "auroc": {
-      "mean": 0.609375,
+      "mean": 0.7006172839506173,
       "std": 0.0,
       "n": 5
     },
     "pr_auc": {
-      "mean": 0.7181547619047619,
+      "mean": 0.7328589544350721,
       "std": 0.0,
       "n": 5
     },
     "precision_at_k": {
-      "1": {
+      "3": {
         "mean": 1.0,
         "std": 0.0,
         "n": 5
       },
-      "8": {
-        "mean": 0.625,
+      "10": {
+        "mean": 0.7,
         "std": 0.0,
         "n": 5
       }
@@ -45,57 +45,60 @@
   "per_seed": [
     {
       "seed": 0,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.7006172839506173,
+      "pr_auc": 0.7328589544350721,
       "precision_at_k": {
-        "1": 1.0,
-        "8": 0.625
+        "3": 1.0,
+        "10": 0.7
       },
-      "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-0/report.json"
+      "path": "reports/public-ranking-card-v1/baselines-length/seed-0/report.json"
     },
     {
       "seed": 1,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.7006172839506173,
+      "pr_auc": 0.7328589544350721,
       "precision_at_k": {
-        "1": 1.0,
-        "8": 0.625
+        "3": 1.0,
+        "10": 0.7
       },
-      "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-1/report.json"
+      "path": "reports/public-ranking-card-v1/baselines-length/seed-1/report.json"
     },
     {
       "seed": 2,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.7006172839506173,
+      "pr_auc": 0.7328589544350721,
       "precision_at_k": {
-        "1": 1.0,
-        "8": 0.625
+        "3": 1.0,
+        "10": 0.7
       },
-      "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-2/report.json"
+      "path": "reports/public-ranking-card-v1/baselines-length/seed-2/report.json"
     },
     {
       "seed": 3,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.7006172839506173,
+      "pr_auc": 0.7328589544350721,
       "precision_at_k": {
-        "1": 1.0,
-        "8": 0.625
+        "3": 1.0,
+        "10": 0.7
       },
-      "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-3/report.json"
+      "path": "reports/public-ranking-card-v1/baselines-length/seed-3/report.json"
     },
     {
       "seed": 4,
-      "auroc": 0.609375,
-      "pr_auc": 0.7181547619047619,
+      "auroc": 0.7006172839506173,
+      "pr_auc": 0.7328589544350721,
       "precision_at_k": {
-        "1": 1.0,
-        "8": 0.625
+        "3": 1.0,
+        "10": 0.7
       },
-      "path": "/workspace/reports/public-ranking-card-v1/baselines-length/seed-4/report.json"
+      "path": "reports/public-ranking-card-v1/baselines-length/seed-4/report.json"
     }
   ],
   "card_id": "public_ranking_card_v1",
-  "fixture_content_sha256": "7dae2e232f78276026eb067fc3d2bc10a695764d019ce8fd2daf6f69aa0eb8ce",
+  "claim_reason": "Fixture-only model mean AUROC 1.000000 beats length 0.700617 and events 0.601852 on the frozen synthetic eval split. Status = published fixture card / harness smoke only \u2014 NOT production AUROC, NOT general public accuracy, NOT lab pool.",
+  "fixture_content_sha256": "49403cb3dd005e7e5af1de510ba3f5ed6e83df566e9ba3d46b4baed66367cfc5",
   "epsilon": 1e-06,
-  "baseline": "length"
+  "baseline": "length",
+  "session_split": "eval",
+  "n_eval": 36
 }
