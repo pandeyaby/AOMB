@@ -318,6 +318,23 @@ TOTAL_BATCH_SIZE = 2**16
 
 ---
 
+## Empirical Results — Lab labeled ranking (validation pack)
+
+> **claim_status=`not_published`.** Not a public accuracy claim. See checklist in [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md).
+> Full table: [`reports/public-accuracy/LAB_POOLED_VALIDATION.md`](reports/public-accuracy/LAB_POOLED_VALIDATION.md).
+
+Frozen multi-seed ranking eval on **pooled lab captures** (fault-injected OTel), 5 seeds × 300s train-then-score:
+
+| Method | AUROC mean±std | PR-AUC mean±std | precision@10 | precision@290 |
+|--------|----------------|-----------------|--------------|---------------|
+| length baseline | 0.6428 ± 0.0000 | 0.6159 ± 0.0000 | 0.00 | 0.86 |
+| event-count baseline | 0.4762 ± 0.0000 | 0.4849 ± 0.0000 | 0.00 | 0.47 |
+| **session BPB (model)** | **0.7660 ± 0.0115** | **0.8142 ± 0.0124** | **0.90** | **0.968 ± 0.011** |
+
+Corpus: 2900 scorable sessions (1456 normal / 1444 incident) from 5 captures (`pooled-20260918`). Hardware: Mac MPS. Do **not** cite CRISP/synthetic `val_bpb` as these ranking numbers.
+
+---
+
 ## Empirical Results — Reference corpus v1 (Uber CRISP)
 
 Factual `val_bpb` documentation on **CRISP subsets** only — **not** a public accuracy claim, marketing number, or product benchmark.

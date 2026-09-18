@@ -1,0 +1,97 @@
+{
+  "protocol": "docs/public-accuracy-eval.md",
+  "claim_status": "not_published",
+  "disclaimer": "Multi-seed aggregate only. Public claim language forbidden until docs/public-accuracy-eval.md checklist passes.",
+  "n_seeds": 5,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "score_method": "session_bpb_train_then_score",
+  "git_heads": [
+    "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "b9c93c4c7acd73c8115d873a273b30720304c052",
+    "b9c93c4c7acd73c8115d873a273b30720304c052"
+  ],
+  "metrics_mean_std": {
+    "auroc": {
+      "mean": 0.6650306748466257,
+      "std": 0.045039152469376856,
+      "n": 5
+    },
+    "pr_auc": {
+      "mean": 0.6760263020661608,
+      "std": 0.10829492086079387,
+      "n": 5
+    },
+    "precision_at_k": {
+      "10": {
+        "mean": 0.6,
+        "std": 0.4123105625617661,
+        "n": 5
+      },
+      "32": {
+        "mean": 0.6875,
+        "std": 0.385275875185561,
+        "n": 5
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "auroc": 0.6408566093815493,
+      "pr_auc": 0.5566751703541857,
+      "precision_at_k": {
+        "10": 0.1,
+        "32": 0.28125
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/model-seeds/seed-0/report.json"
+    },
+    {
+      "seed": 1,
+      "auroc": 0.6413519795755058,
+      "pr_auc": 0.7331489841630916,
+      "precision_at_k": {
+        "10": 0.9,
+        "32": 0.96875
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/model-seeds/seed-1/report.json"
+    },
+    {
+      "seed": 2,
+      "auroc": 0.6432572495522616,
+      "pr_auc": 0.5630721528586915,
+      "precision_at_k": {
+        "10": 0.2,
+        "32": 0.25
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/model-seeds/seed-2/report.json"
+    },
+    {
+      "seed": 3,
+      "auroc": 0.6547269748123309,
+      "pr_auc": 0.7381190250679575,
+      "precision_at_k": {
+        "10": 0.9,
+        "32": 0.96875
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/model-seeds/seed-3/report.json"
+    },
+    {
+      "seed": 4,
+      "auroc": 0.7449605609114811,
+      "pr_auc": 0.7891161778868774,
+      "precision_at_k": {
+        "10": 0.9,
+        "32": 0.96875
+      },
+      "path": "reports/public-accuracy/lab-20260911T183259Z/model-seeds/seed-4/report.json"
+    }
+  ]
+}
