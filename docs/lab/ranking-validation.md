@@ -8,6 +8,9 @@
 > explicitly greenlights claim language.
 >
 > GRAX: HOLD merge / public hero tables until re-skim + Abhinav yes.
+>
+> **Not** the public ranking card v1 fixture path ([`docs/public-ranking-card-v1.md`](../public-ranking-card-v1.md)).
+> Do not copy lab-pool AUROC onto that card.
 
 ## What this is
 
