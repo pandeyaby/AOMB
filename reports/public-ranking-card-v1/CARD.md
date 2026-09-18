@@ -6,35 +6,35 @@
 
 > ## Limitations (read first)
 >
-> - **n_eval = 24** labeled sessions on a **synthetic** fixture — harness smoke, not a field study.
+> - **n_eval = 36** labeled sessions on a **synthetic** fixture — harness smoke, not a field study.
 > - **High / perfect AUROC on this toy pack ≠ general public accuracy** and ≠ production AUROC.
 > - Text patterns are stylized (catalog_ok vs checkout_failed / redis_unavailable); separation can be easy.
 > - **Not** private lab-pool AUROC (incl. 0.766). **Not** CRISP `val_bpb`. **Not** a support/SLO metric.
 > - Train corpus = fixture train-split **normal** texts only (no CRISP / prepare shards).
 
-**Claim gate:** Fixture-only model mean AUROC 1.000000 beats length 0.812500 and events 0.715278 on the frozen synthetic eval split. Status = published fixture card / harness smoke only — NOT production AUROC, NOT general public accuracy, NOT lab pool.
+**Claim gate:** Fixture-only model mean AUROC 1.000000 beats length 0.700617 and events 0.601852 on the frozen synthetic eval split. Status = published fixture card / harness smoke only — NOT production AUROC, NOT general public accuracy, NOT lab pool.
 
 ## Identity
 
 | Field | Value |
 |-------|-------|
 | Fixture | `corpus/fixtures/public_ranking_card_v1` |
-| Fixture content SHA-256 | `8c9ad74ae718bcc9541671ccd3d212e75f5a3ae0013890504508788a1b6d309e` |
-| Split | `split.json` (eval n=24) |
+| Fixture content SHA-256 | `49403cb3dd005e7e5af1de510ba3f5ed6e83df566e9ba3d46b4baed66367cfc5` |
+| Split | `split.json` (eval n=36) |
 | Seeds | `[0, 1, 2, 3, 4]` |
 | ε (deterministic baselines) | `1e-06` |
 | ε (model golden, if checked) | `0.01` |
 
-## Fixture eval-split baselines (n=24; mean ± std over seeds)
+## Fixture eval-split baselines (n=36; mean ± std over seeds)
 
 | Method | AUROC mean | AUROC std | PR-AUC mean | PR-AUC std |
 |--------|------------|-----------|-------------|------------|
-| length | 0.812500 | 0.000000 | 0.860101 | 0.000000 |
-| events | 0.715278 | 0.000000 | 0.707011 | 0.000000 |
+| length | 0.700617 | 0.000000 | 0.732859 | 0.000000 |
+| events | 0.601852 | 0.000000 | 0.574747 | 0.000000 |
 
 Random ranking baseline is included inside each per-seed `report.json`.
 
-## Fixture-only model (train 45s × seeds, eval n=24)
+## Fixture-only model (train 45s × seeds, eval n=36)
 
 | Method | AUROC mean | AUROC std | PR-AUC mean | PR-AUC std |
 |--------|------------|-----------|-------------|------------|

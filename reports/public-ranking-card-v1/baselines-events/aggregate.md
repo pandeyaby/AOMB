@@ -11,15 +11,15 @@ Score method: event_count_baseline
 
 | Metric | mean | std | n |
 |--------|------|-----|---|
-| auroc | 0.715278 | 0.000000 | 5 |
-| pr_auc | 0.707011 | 0.000000 | 5 |
-| precision@2 | 1.000000 | 0.000000 | 5 |
-| precision@10 | 0.800000 | 0.000000 | 5 |
+| auroc | 0.601852 | 0.000000 | 5 |
+| pr_auc | 0.574747 | 0.000000 | 5 |
+| precision@3 | 1.000000 | 0.000000 | 5 |
+| precision@10 | 0.700000 | 0.000000 | 5 |
 
 ## Per-seed
 
-- seed=0: AUROC=0.715278 PR-AUC=0.707011
-- seed=1: AUROC=0.715278 PR-AUC=0.707011
-- seed=2: AUROC=0.715278 PR-AUC=0.707011
-- seed=3: AUROC=0.715278 PR-AUC=0.707011
-- seed=4: AUROC=0.715278 PR-AUC=0.707011
+- seed=0: AUROC=0.601852 PR-AUC=0.574747
+- seed=1: AUROC=0.601852 PR-AUC=0.574747
+- seed=2: AUROC=0.601852 PR-AUC=0.574747
+- seed=3: AUROC=0.601852 PR-AUC=0.574747
+- seed=4: AUROC=0.601852 PR-AUC=0.574747

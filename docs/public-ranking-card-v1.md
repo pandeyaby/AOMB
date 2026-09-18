@@ -16,7 +16,7 @@ Parent protocol: [`public-accuracy-eval.md`](public-accuracy-eval.md).
 ## Limitations (loud)
 
 - **Synthetic** stylized sessions only.
-- Eval size **n=24** held-out labeled sessions (48 total; frozen 24/24 split).
+- Eval size **n=36** held-out labeled sessions (72 total; balanced 36/36 split).
 - **High / perfect AUROC here = toy separation / harness smoke**, not field performance.
 - Not a production support / SLO metric.
 
@@ -36,10 +36,10 @@ Parent protocol: [`public-accuracy-eval.md`](public-accuracy-eval.md).
 
 ## Splits (`split.json`)
 
-| Role | Count | Composition |
-|------|------:|-------------|
-| **train** | 24 | 12 normal + 8 incident + 4 cascade (LM uses **normals only**) |
-| **eval** | 24 | 12 normal + 8 incident + 4 cascade (**both classes**) |
+| Role | Count | Composition (balanced) |
+|------|------:|------------------------|
+| **train** | 36 | 18 normal + 12 incident + 6 cascade (LM uses **normals only**) |
+| **eval** | 36 | 18 normal + 12 incident + 6 cascade (**both classes**) |
 
 ---
 

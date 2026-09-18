@@ -13,7 +13,7 @@ Score method: session_bpb_fixture_train_then_score
 |--------|------|-----|---|
 | auroc | 1.000000 | 0.000000 | 5 |
 | pr_auc | 1.000000 | 0.000000 | 5 |
-| precision@2 | 1.000000 | 0.000000 | 5 |
+| precision@3 | 1.000000 | 0.000000 | 5 |
 | precision@10 | 1.000000 | 0.000000 | 5 |
 
 ## Per-seed

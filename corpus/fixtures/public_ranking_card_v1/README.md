@@ -7,7 +7,7 @@
 ## Limitations (loud)
 
 - **Synthetic** stylized sessions — not customer / production telemetry.
-- Eval set size is **n=24** held-out labeled sessions (48 total with frozen train/eval split).
+- Eval set size is **n=36** held-out labeled sessions (72 total; balanced frozen train/eval).
 - **High / perfect AUROC on this pack is toy separation / harness smoke**, not general public accuracy and not production AUROC.
 - **Not** private lab-pool AUROC (incl. 0.766). **Not** CRISP `val_bpb`. **Not** a support/SLO metric.
 
@@ -18,12 +18,12 @@ A **synthetic** labeled session pack for the frozen public ranking card protocol
 
 | Class | Count | Window labels |
 |-------|------:|---------------|
-| Normal | 24 | `normal` |
-| Incident / anomaly | 16 | `incident` |
-| Cascade | 8 | `cascade` |
-| **Scorable total** | **48** | binary: normal=0, incident∪cascade=1 |
+| Normal | 36 | `normal` |
+| Incident / anomaly | 24 | `incident` |
+| Cascade | 12 | `cascade` |
+| **Scorable total** | **72** | binary: normal=0, incident∪cascade=1 |
 
-Frozen split (`split.json`): **24 train / 24 eval**. Eval always contains both classes.
+Frozen split (`split.json`): **36 train / 36 eval**, balanced (18 normal + 12 incident + 6 cascade each side).
 LM training uses **train-split normals only** (fixture texts; no CRISP).
 
 Lengths intentionally **overlap** across classes so length / event-count baselines are

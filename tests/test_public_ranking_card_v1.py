@@ -19,7 +19,7 @@ class TestPublicRankingCardFixture(unittest.TestCase):
         self.assertEqual(meta["capture_id"], "public_ranking_card_v1")
         self.assertTrue(meta["content_sha256"])
         y_true, kept = filter_scorable(sessions)
-        self.assertGreaterEqual(len(kept), 30)
+        self.assertGreaterEqual(len(kept), 60)
         self.assertIn(0, y_true)
         self.assertIn(1, y_true)
         labels = {s.label for s in kept}
@@ -31,8 +31,8 @@ class TestPublicRankingCardFixture(unittest.TestCase):
         from eval.labels import filter_scorable, load_lab_sessions
 
         split = load_split(FIXTURE)
-        self.assertGreaterEqual(split["n_eval"], 24)
-        self.assertGreaterEqual(split["n_train"], 20)
+        self.assertGreaterEqual(split["n_eval"], 30)
+        self.assertGreaterEqual(split["n_train"], 30)
         sessions, _ = load_lab_sessions(FIXTURE)
         _, kept = filter_scorable(sessions)
         train_s, eval_s = partition_by_split(kept, split)
@@ -40,6 +40,10 @@ class TestPublicRankingCardFixture(unittest.TestCase):
         self.assertEqual(len(eval_s), split["n_eval"])
         eval_bins = {int(s.binary) for s in eval_s}  # type: ignore[arg-type]
         self.assertEqual(eval_bins, {0, 1})
+        # Balanced labels on eval (equal pos/neg for this card)
+        n_pos = sum(1 for s in eval_s if s.binary == 1)
+        n_neg = sum(1 for s in eval_s if s.binary == 0)
+        self.assertEqual(n_pos, n_neg)
         self.assertFalse({s.session_id for s in train_s} & {s.session_id for s in eval_s})
 
     def test_length_baseline_eval_split_smoke(self):
@@ -65,9 +69,9 @@ class TestPublicRankingCardFixture(unittest.TestCase):
             self.assertEqual(rc, 0)
             report = json.loads(Path(tmp, "report.json").read_text(encoding="utf-8"))
             self.assertIn("auroc", report["metrics"])
-            self.assertGreaterEqual(report["metrics"]["n"], 24)
-            self.assertGreaterEqual(report["metrics"]["n_positive"], 2)
-            self.assertGreaterEqual(report["metrics"]["n_negative"], 2)
+            self.assertGreaterEqual(report["metrics"]["n"], 30)
+            self.assertGreaterEqual(report["metrics"]["n_positive"], 10)
+            self.assertGreaterEqual(report["metrics"]["n_negative"], 10)
             self.assertEqual(report["corpus"]["split"]["split_role"], "eval")
             # Hygiene: no machine-absolute capture_dir in committed-style reports
             self.assertFalse(str(report["corpus"]["capture_dir"]).startswith("/workspace"))

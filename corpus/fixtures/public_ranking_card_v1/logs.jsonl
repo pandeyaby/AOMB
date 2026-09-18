@@ -1,64 +1,95 @@
-{"timestamp":"2026-09-11T17:00:30.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n00aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:01:25.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n01aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:02:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n02aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:03:15.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n03aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:04:10.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n04aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:05:05.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n05aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:06:00.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n06aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:06:55.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n07aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:07:50.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n08aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:08:45.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n09aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:09:40.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n10aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:10:35.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n11aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:11:30.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n12aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:12:25.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n13aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:13:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n14aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:14:15.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n15aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:15:10.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n16aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:16:05.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n17aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:17:00.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n18aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:17:55.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n19aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:18:50.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n20aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:19:45.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n21aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:20:40.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n22aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:21:35.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n23aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
-{"timestamp":"2026-09-11T17:25:20.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i00bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:26:30.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i01bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:26:30.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i01bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:27:40.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i02bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:27:40.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i02bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:28:50.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i03bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:30:00.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i04bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:30:00.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i04bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:31:10.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i05bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:31:10.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i05bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:32:20.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i06bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:32:20.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i06bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:33:30.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i07bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:34:40.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i08bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:34:40.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i08bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:35:50.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i09bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:35:50.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i09bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:37:00.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i10bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:38:10.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i11bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:38:10.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i11bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:39:20.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i12bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:39:20.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i12bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:40:30.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i13bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:40:30.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i13bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:41:40.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i14bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:42:50.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i15bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:42:50.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i15bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
-{"timestamp":"2026-09-11T17:46:15.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c00ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:47:50.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c01ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:47:51.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c01ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:49:25.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c02ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:51:00.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c03ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:51:01.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c03ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:52:35.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c04ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:52:36.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c04ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:54:10.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c05ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:54:11.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c05ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:55:45.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c06ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:57:20.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c07ccccccccccccccccccccccccccccc"}
-{"timestamp":"2026-09-11T17:57:21.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c07ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T17:00:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n00aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:01:08.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n01aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:01:56.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n02aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:02:44.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n03aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:03:32.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n04aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:04:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n05aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:05:08.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n06aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:05:56.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n07aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:06:44.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n08aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:07:32.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n09aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:08:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n10aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:09:08.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n11aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:09:56.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n12aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:10:44.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n13aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:11:32.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n14aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:12:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n15aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:13:08.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n16aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:13:56.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n17aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:14:44.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n18aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:15:32.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n19aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:16:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n20aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:17:08.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n21aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:17:56.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n22aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:18:44.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n23aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:19:32.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n24aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:20:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n25aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:21:08.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n26aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:21:56.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n27aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:22:44.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n28aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:23:32.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n29aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:24:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n30aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:25:08.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n31aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:25:56.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n32aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:26:44.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n33aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:27:32.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n34aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:28:20.001Z","severity":"INFO","body":"catalog_ok","service_name":"api","trace_id":"n35aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"timestamp":"2026-09-11T17:30:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i00bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:31:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i01bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:31:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i01bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:32:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i02bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:32:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i02bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:33:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i03bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:34:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i04bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:34:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i04bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:35:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i05bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:35:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i05bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:36:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i06bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:36:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i06bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:37:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i07bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:38:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i08bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:38:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i08bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:39:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i09bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:39:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i09bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:40:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i10bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:41:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i11bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:41:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i11bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:42:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i12bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:43:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i13bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:43:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i13bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:44:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i14bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:44:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i14bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:45:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i15bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:46:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i16bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:46:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i16bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:47:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i17bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:47:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i17bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:48:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i18bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:48:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i18bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:49:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i19bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:50:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i20bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:50:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i20bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:51:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i21bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:51:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i21bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:52:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i22bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:53:15.200Z","severity":"ERROR","body":"checkout_failed error=induced_fault_latency","service_name":"api","trace_id":"i23bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:53:15.250Z","severity":"WARN","body":"payment_upstream_slow","service_name":"payments","trace_id":"i23bbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+{"timestamp":"2026-09-11T17:55:10.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c00ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T17:57:00.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c01ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T17:57:01.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c01ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T17:58:50.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c02ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:00:40.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c03ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:00:41.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c03ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:02:30.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c04ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:02:31.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c04ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:04:20.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c05ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:04:21.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c05ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:06:10.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c06ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:08:00.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c07ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:08:01.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c07ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:09:50.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c08ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:11:40.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c09ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:11:41.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c09ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:13:30.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c10ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:15:20.050Z","severity":"ERROR","body":"redis_unavailable cascade=true","service_name":"api","trace_id":"c11ccccccccccccccccccccccccccccc"}
+{"timestamp":"2026-09-11T18:15:21.100Z","severity":"ERROR","body":"fallback_db_failed retries_exhausted","service_name":"api","trace_id":"c11ccccccccccccccccccccccccccccc"}

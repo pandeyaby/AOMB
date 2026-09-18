@@ -28,7 +28,7 @@ corpus/
 ```
 
 Public accuracy ranking protocol (claim not published): [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md), harness [`eval/`](../eval/).
-**Public ranking card v1 (fixture / harness smoke):** [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — synthetic pack (48 sessions, n_eval=24); distinct from private lab pool (`docs/lab/`). Reproduce: `./scripts/run_public_ranking_card_v1.sh`. Not production AUROC.
+**Public ranking card v1 (fixture / harness smoke):** [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — synthetic pack (72 sessions, n_eval=36 balanced); distinct from private lab pool (`docs/lab/`). Reproduce: `./scripts/run_public_ranking_card_v1.sh`. Not production AUROC.
 BYO ingest + session scorer: [`docs/byo-and-scorer.md`](../docs/byo-and-scorer.md).
 
 ## Quick commands

@@ -6,26 +6,26 @@
   "capture_id": "public_ranking_card_v1",
   "card_id": "public_ranking_card_v1",
   "claim_status": "published_fixture_card",
-  "notes": "Synthetic stylized sessions for the public ranking card fixture / harness smoke only. No customer telemetry. Distinct from private lab pool and from CRISP val_bpb. Lengths intentionally overlap across classes. claim_status=published_fixture_card means fixture harness smoke \u2014 NOT production AUROC / general public accuracy.",
+  "notes": "Synthetic stylized sessions for the public ranking card fixture / harness smoke only. No customer telemetry. Distinct from private lab pool and from CRISP val_bpb. Lengths intentionally overlap across classes. Balanced labels. claim_status=published_fixture_card = fixture harness smoke \u2014 NOT production AUROC / general public accuracy.",
   "windows": [
     {
       "label": "normal",
       "start": "2026-09-11T17:00:00Z",
-      "end": "2026-09-11T17:25:00Z",
+      "end": "2026-09-11T17:30:00Z",
       "fault": "",
       "notes": "steady-state healthy traffic"
     },
     {
       "label": "incident",
-      "start": "2026-09-11T17:25:00Z",
-      "end": "2026-09-11T17:46:00Z",
+      "start": "2026-09-11T17:30:00Z",
+      "end": "2026-09-11T17:55:00Z",
       "fault": "api_latency",
       "notes": "induced latency + error burst (synthetic)"
     },
     {
       "label": "cascade",
-      "start": "2026-09-11T17:46:00Z",
-      "end": "2026-09-11T18:00:00Z",
+      "start": "2026-09-11T17:55:00Z",
+      "end": "2026-09-11T18:20:00Z",
       "fault": "kill_redis",
       "notes": "dependency failure cascade (synthetic)"
     }
