@@ -125,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: no seed-*/report.json under {out_dir}", file=sys.stderr)
             return 2
 
-    agg = aggregate_seed_reports(seed_paths)
+    agg = aggregate_seed_reports(seed_paths, repo_root=ROOT)
     agg_path = out_dir / "aggregate.json"
     md_path = out_dir / "aggregate.md"
     agg_path.write_text(json.dumps(agg, indent=2) + "\n", encoding="utf-8")

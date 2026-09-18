@@ -8,15 +8,15 @@ Scaffolding / measurement report only. Do not cite as a public accuracy claim un
 
 | Field | Value |
 |-------|-------|
-| Generated (UTC) | 2026-09-18T15:13:08Z |
+| Generated (UTC) | 2026-09-18T15:25:52Z |
 | Seed | 4 |
 | Score method | session_bpb_fixture_train_then_score |
-| Git HEAD | `f8e5aa5428eabe8394b3a00a6dceedcb82107f6c` |
+| Git HEAD | `d180bf8d50bd39302844b54ed8cefcb179f5e908` |
 | train.py SHA | `fd4cbb674fd2eb29b977355de6467c5d0ae6f9ae` |
 | prepare.py SHA | `b71a0d440d5bb05af85fba6b575b7a245af38a7a` |
 | Corpus capture_id | public_ranking_card_v1 |
-| Corpus content SHA-256 | `f5a0183bbe4ea67d5efd13af7f5fe2a432226e33ba718d81380dd39994e282bb` |
-| Sessions (scorable) | 6 (pos=3, neg=3) |
+| Corpus content SHA-256 | `8c9ad74ae718bcc9541671ccd3d212e75f5a3ae0013890504508788a1b6d309e` |
+| Sessions (scorable) | 24 (pos=12, neg=12) |
 
 ## Metrics (this seed)
 
@@ -24,10 +24,10 @@ Scaffolding / measurement report only. Do not cite as a public accuracy claim un
 |--------|-------|
 | AUROC | 1.000000 |
 | PR-AUC | 1.000000 |
-| precision@1 | 1.000000 |
-| precision@3 | 1.000000 |
-| mean score (label 0) | 0.694032 |
-| mean score (label 1) | 6.483714 |
+| precision@2 | 1.000000 |
+| precision@10 | 1.000000 |
+| mean score (label 0) | 0.468460 |
+| mean score (label 1) | 5.436206 |
 
 ## Random ranking baseline
 
@@ -35,10 +35,10 @@ Draws: 64 (seed=4)
 
 | Metric | mean | std |
 |--------|------|-----|
-| auroc | 0.505208 | 0.258070 |
-| pr_auc | 0.649479 | 0.182345 |
-| precision@1 | 0.484375 | 0.503706 |
-| precision@3 | 0.520833 | 0.243975 |
+| auroc | 0.494683 | 0.132565 |
+| pr_auc | 0.553336 | 0.107873 |
+| precision@2 | 0.437500 | 0.372678 |
+| precision@10 | 0.493750 | 0.140153 |
 
 ## Checklist reminder
 

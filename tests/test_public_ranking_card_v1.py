@@ -19,7 +19,7 @@ class TestPublicRankingCardFixture(unittest.TestCase):
         self.assertEqual(meta["capture_id"], "public_ranking_card_v1")
         self.assertTrue(meta["content_sha256"])
         y_true, kept = filter_scorable(sessions)
-        self.assertGreaterEqual(len(kept), 8)
+        self.assertGreaterEqual(len(kept), 30)
         self.assertIn(0, y_true)
         self.assertIn(1, y_true)
         labels = {s.label for s in kept}
@@ -31,18 +31,16 @@ class TestPublicRankingCardFixture(unittest.TestCase):
         from eval.labels import filter_scorable, load_lab_sessions
 
         split = load_split(FIXTURE)
-        self.assertEqual(split["n_train"], 10)
-        self.assertEqual(split["n_eval"], 6)
+        self.assertGreaterEqual(split["n_eval"], 24)
+        self.assertGreaterEqual(split["n_train"], 20)
         sessions, _ = load_lab_sessions(FIXTURE)
         _, kept = filter_scorable(sessions)
         train_s, eval_s = partition_by_split(kept, split)
-        self.assertEqual(len(train_s), 10)
-        self.assertEqual(len(eval_s), 6)
+        self.assertEqual(len(train_s), split["n_train"])
+        self.assertEqual(len(eval_s), split["n_eval"])
         eval_bins = {int(s.binary) for s in eval_s}  # type: ignore[arg-type]
         self.assertEqual(eval_bins, {0, 1})
-        train_ids = {s.session_id for s in train_s}
-        eval_ids = {s.session_id for s in eval_s}
-        self.assertFalse(train_ids & eval_ids)
+        self.assertFalse({s.session_id for s in train_s} & {s.session_id for s in eval_s})
 
     def test_length_baseline_eval_split_smoke(self):
         from eval.run_eval import main
@@ -67,10 +65,13 @@ class TestPublicRankingCardFixture(unittest.TestCase):
             self.assertEqual(rc, 0)
             report = json.loads(Path(tmp, "report.json").read_text(encoding="utf-8"))
             self.assertIn("auroc", report["metrics"])
-            self.assertEqual(report["metrics"]["n"], 6)
-            self.assertGreaterEqual(report["metrics"]["n_positive"], 1)
-            self.assertGreaterEqual(report["metrics"]["n_negative"], 1)
+            self.assertGreaterEqual(report["metrics"]["n"], 24)
+            self.assertGreaterEqual(report["metrics"]["n_positive"], 2)
+            self.assertGreaterEqual(report["metrics"]["n_negative"], 2)
             self.assertEqual(report["corpus"]["split"]["split_role"], "eval")
+            # Hygiene: no machine-absolute capture_dir in committed-style reports
+            self.assertFalse(str(report["corpus"]["capture_dir"]).startswith("/workspace"))
+            self.assertFalse(str(report["corpus"]["capture_dir"]).startswith("/Users/"))
 
 
 class TestPublicRankingCardReproduce(unittest.TestCase):
@@ -94,8 +95,10 @@ class TestPublicRankingCardReproduce(unittest.TestCase):
             self.assertTrue(card.is_file())
             text = card.read_text(encoding="utf-8")
             self.assertIn("public_ranking_card_v1", text)
+            self.assertIn("Limitations", text)
+            self.assertIn("synthetic", text.lower())
             self.assertIn("lab-pool", text.lower())
-            self.assertIn("Scope", text)
+            self.assertIn("production", text.lower())
             for name in ("baselines-length", "baselines-events"):
                 agg = json.loads(
                     (Path(tmp) / name / "aggregate.json").read_text(encoding="utf-8")
@@ -103,8 +106,9 @@ class TestPublicRankingCardReproduce(unittest.TestCase):
                 self.assertEqual(agg["card_id"], "public_ranking_card_v1")
                 self.assertEqual(agg["session_split"], "eval")
                 self.assertEqual(agg["n_seeds"], 3)
-                # Without model → not_published
                 self.assertEqual(agg["claim_status"], "not_published")
+                for row in agg.get("per_seed") or []:
+                    self.assertFalse(str(row.get("path", "")).startswith("/workspace"))
 
 
 if __name__ == "__main__":

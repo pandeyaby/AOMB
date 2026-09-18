@@ -4,7 +4,7 @@ Scaffolding for the protocol in [`docs/public-accuracy-eval.md`](../docs/public-
 
 **Public ranking card v1 (fixture):** frozen card protocol [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — `python -m eval.run_public_ranking_card` / `./scripts/run_public_ranking_card_v1.sh`. Fixture **eval-split** baselines + optional fixture-only model (`--train-corpus fixture-train`). Distinct from private lab pool (`docs/lab/`).
 
-**Claim status:** fixture card may be `published` when model mean AUROC beats length+events on the frozen eval split (see `reports/public-ranking-card-v1/CARD.md`). Still never cite lab-pool AUROC or CRISP `val_bpb` as this card.
+**Claim status:** fixture card may be `published_fixture_card` (harness smoke) when model mean AUROC beats length+events on the frozen synthetic eval split — **not** production AUROC. Still never cite lab-pool AUROC or CRISP `val_bpb` as this card.
 
 ## What this does
 

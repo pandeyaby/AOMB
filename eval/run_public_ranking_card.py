@@ -9,8 +9,8 @@ Model path (--with-model) trains ONLY on frozen train-split session texts
 (ephemeral in-memory dataloader). No CRISP. No prepare data download.
 prepare.py is untouched.
 
-claim_status becomes `published` for this fixture card only when model mean
-AUROC beats length and events on the eval split; otherwise stays not_published.
+claim_status becomes `published_fixture_card` (harness smoke) when model mean
+AUROC beats length and events on the synthetic eval split — NOT production AUROC.
 Does not promote private lab-pool AUROC as the public card.
 """
 
@@ -118,25 +118,27 @@ def _decide_claim_status(
     model_agg: dict | None,
 ) -> tuple[str, str]:
     """
-    Publishable for this fixture card only if model mean AUROC beats length
-    and events on the same eval split. Otherwise honest not_published.
+    Fixture-card / harness-smoke status only.
+
+    `published_fixture_card` when model mean AUROC beats length and events on
+    the same eval split. This is NOT production AUROC / general public accuracy.
     """
     if model_agg is None:
         return (
             "not_published",
-            "No fixture-only model aggregate; baselines only.",
+            "No fixture-only model aggregate; baselines only (harness incomplete).",
         )
     m = float(model_agg["metrics_mean_std"]["auroc"]["mean"])
     l = float(length_agg["metrics_mean_std"]["auroc"]["mean"])
     e = float(events_agg["metrics_mean_std"]["auroc"]["mean"])
     if m > l and m > e:
         return (
-            "published",
+            "published_fixture_card",
             (
                 f"Fixture-only model mean AUROC {m:.6f} beats length {l:.6f} "
-                f"and events {e:.6f} on the frozen eval split. "
-                "Scope: this synthetic public fixture card only — not lab pool, "
-                "not CRISP val_bpb, not production support."
+                f"and events {e:.6f} on the frozen synthetic eval split. "
+                "Status = published fixture card / harness smoke only — "
+                "NOT production AUROC, NOT general public accuracy, NOT lab pool."
             ),
         )
     return (
@@ -159,6 +161,7 @@ def _write_card_summary(
     claim_status: str,
     claim_reason: str,
     train_seconds: float,
+    n_eval: int,
     out_path: Path,
 ) -> None:
     length_auroc = length_agg["metrics_mean_std"]["auroc"]
@@ -170,11 +173,13 @@ def _write_card_summary(
         f"**claim_status:** `{claim_status}`  ",
         f"**Protocol:** [`{PROTOCOL}`](../../{PROTOCOL})",
         "",
-        "> **Scope:** synthetic Public ranking card v1 fixture eval split only.  ",
-        "> **Not** private lab-pool AUROC. **Not** CRISP `val_bpb`.  ",
-        "> **Not** a production support / SLO metric.  ",
-        "> Train corpus for the model path = fixture train-split **normal** sessions only "
-        "(no CRISP / prepare shards; positives in the train split are excluded from the LM).",
+        "> ## Limitations (read first)",
+        ">",
+        f"> - **n_eval = {n_eval}** labeled sessions on a **synthetic** fixture — harness smoke, not a field study.",
+        "> - **High / perfect AUROC on this toy pack ≠ general public accuracy** and ≠ production AUROC.",
+        "> - Text patterns are stylized (catalog_ok vs checkout_failed / redis_unavailable); separation can be easy.",
+        "> - **Not** private lab-pool AUROC (incl. 0.766). **Not** CRISP `val_bpb`. **Not** a support/SLO metric.",
+        "> - Train corpus = fixture train-split **normal** texts only (no CRISP / prepare shards).",
         "",
         f"**Claim gate:** {claim_reason}",
         "",
@@ -184,13 +189,12 @@ def _write_card_summary(
         f"|-------|-------|",
         f"| Fixture | `corpus/fixtures/public_ranking_card_v1` |",
         f"| Fixture content SHA-256 | `{fixture_sha}` |",
-        f"| Split | `split.json` (train={length_agg.get('n_train', 'see split')} "
-        f"/ eval scored) |",
+        f"| Split | `split.json` (eval n={n_eval}) |",
         f"| Seeds | `{seeds}` |",
         f"| ε (deterministic baselines) | `{EPS}` |",
         f"| ε (model golden, if checked) | `{MODEL_EPS}` |",
         "",
-        "## Fixture eval-split baselines (mean ± std over seeds)",
+        f"## Fixture eval-split baselines (n={n_eval}; mean ± std over seeds)",
         "",
         "| Method | AUROC mean | AUROC std | PR-AUC mean | PR-AUC std |",
         "|--------|------------|-----------|-------------|------------|",
@@ -212,7 +216,7 @@ def _write_card_summary(
         ma = model_agg["metrics_mean_std"]["auroc"]
         mp = model_agg["metrics_mean_std"]["pr_auc"]
         lines += [
-            f"## Fixture-only model (train {train_seconds:g}s × seeds, eval split)",
+            f"## Fixture-only model (train {train_seconds:g}s × seeds, eval n={n_eval})",
             "",
             "| Method | AUROC mean | AUROC std | PR-AUC mean | PR-AUC std |",
             "|--------|------------|-----------|-------------|------------|",
@@ -222,14 +226,15 @@ def _write_card_summary(
             ),
             "",
             (
-                f"Model mean AUROC **{'beats' if claim_status == 'published' else 'does not beat'}** "
-                "length and events on this fixture eval set."
+                "If AUROC is ~1.0 on this synthetic pack, treat it as **toy separation / harness smoke**, "
+                "not a marketable production accuracy number."
             ),
             "",
         ]
     lines += [
         "## Explicit non-claims",
         "",
+        "- Not general public accuracy or production AUROC.",
         "- Not the private lab pool (including any lab-pool AUROC such as 0.766).",
         "- Not CRISP / synthetic `val_bpb`.",
         "- Not a production support or incident-response SLO metric.",
@@ -238,7 +243,7 @@ def _write_card_summary(
         "## Lane reminders",
         "",
         "- Private lab pool metrics stay in `docs/lab/` (`not_published` lane).",
-        "- This card’s `published` status (if set) is **fixture-scoped only**.",
+        "- `published_fixture_card` = fixture harness smoke that beat baselines — still not production.",
         "",
     ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -352,6 +357,9 @@ def main(argv: list[str] | None = None) -> int:
     length_agg = _load_agg(length_agg_path)
     events_agg = _load_agg(events_agg_path)
 
+    split = json.loads((FIXTURE / "split.json").read_text(encoding="utf-8"))
+    n_eval = int(split.get("n_eval") or len(split.get("eval_session_ids") or []))
+
     model_agg = None
     model_agg_path = model_dir / "aggregate.json"
     if model_agg_path.is_file():
@@ -369,6 +377,7 @@ def main(argv: list[str] | None = None) -> int:
         agg["epsilon"] = EPS
         agg["baseline"] = method
         agg["session_split"] = "eval"
+        agg["n_eval"] = n_eval
         (out_root / f"baselines-{method}" / "aggregate.json").write_text(
             json.dumps(agg, indent=2) + "\n", encoding="utf-8"
         )
@@ -380,6 +389,7 @@ def main(argv: list[str] | None = None) -> int:
         model_agg["claim_reason"] = claim_reason
         model_agg["fixture_content_sha256"] = fixture_sha
         model_agg["session_split"] = "eval"
+        model_agg["n_eval"] = n_eval
         model_agg["train_corpus"] = "fixture_train_split_only"
         model_agg["epsilon_model"] = MODEL_EPS
         model_agg_path.write_text(json.dumps(model_agg, indent=2) + "\n", encoding="utf-8")
@@ -394,6 +404,7 @@ def main(argv: list[str] | None = None) -> int:
         claim_status=claim_status,
         claim_reason=claim_reason,
         train_seconds=args.train_seconds,
+        n_eval=n_eval,
         out_path=summary_path,
     )
     print(f"Wrote {summary_path}")
