@@ -1,0 +1,236 @@
+{
+  "protocol": "docs/public-accuracy-eval.md",
+  "claim_status": "not_published",
+  "disclaimer": "Scaffolding / measurement report only. Do not cite as a public accuracy claim until the protocol checklist passes. Do not cite CRISP val_bpb=0.458756 or synthetic 0.3682 as public accuracy.",
+  "generated_at": "2026-09-18T14:40:03Z",
+  "seed": 1,
+  "score_method": "length_baseline",
+  "git": {
+    "head": "dd0280cd9b1daeb9df4c8fa278657f61dbf70f71",
+    "train_py": "fd4cbb674fd2eb29b977355de6467c5d0ae6f9ae",
+    "prepare_py": "b71a0d440d5bb05af85fba6b575b7a245af38a7a"
+  },
+  "corpus": {
+    "capture_dir": "/workspace/corpus/fixtures/public_ranking_card_v1",
+    "capture_id": "public_ranking_card_v1",
+    "source_id": "aomb-public-ranking-card-v1",
+    "source_kind": "synthetic_lab_fixture",
+    "corpus_version": "public_ranking_card_v1",
+    "license": "Apache-2.0",
+    "windows": [
+      {
+        "label": "normal",
+        "binary": 0,
+        "start": "2026-09-11T17:00:00Z",
+        "end": "2026-09-11T17:20:00Z",
+        "fault": "",
+        "notes": "steady-state healthy traffic"
+      },
+      {
+        "label": "incident",
+        "binary": 1,
+        "start": "2026-09-11T17:20:00Z",
+        "end": "2026-09-11T17:40:00Z",
+        "fault": "api_latency",
+        "notes": "induced latency + error burst (synthetic)"
+      },
+      {
+        "label": "cascade",
+        "binary": 1,
+        "start": "2026-09-11T17:40:00Z",
+        "end": "2026-09-11T17:50:00Z",
+        "fault": "kill_redis",
+        "notes": "dependency failure cascade (synthetic)"
+      }
+    ],
+    "content_sha256": "7dae2e232f78276026eb067fc3d2bc10a695764d019ce8fd2daf6f69aa0eb8ce",
+    "session_count": 16,
+    "n_scorable": 16,
+    "n_excluded": 0,
+    "label_counts": {
+      "cascade": 3,
+      "incident": 5,
+      "normal": 8
+    },
+    "n_events_missing_timestamp": 0
+  },
+  "hardware": {
+    "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "machine": "x86_64",
+    "device": "unknown"
+  },
+  "train": {},
+  "metrics": {
+    "n": 16,
+    "n_positive": 8,
+    "n_negative": 8,
+    "auroc": 0.609375,
+    "pr_auc": 0.7181547619047619,
+    "precision_at_k": {
+      "1": 1.0,
+      "8": 0.625
+    },
+    "score_mean_by_label": {
+      "0": 764.0,
+      "1": 816.125
+    },
+    "random_baseline": {
+      "n_draws": 64,
+      "seed": 1,
+      "auroc": {
+        "mean": 0.483642578125,
+        "std": 0.1543392516400776,
+        "n": 64
+      },
+      "pr_auc": {
+        "mean": 0.5724508618551587,
+        "std": 0.11995796743256684,
+        "n": 64
+      },
+      "precision_at_k": {
+        "1": {
+          "mean": 0.5,
+          "std": 0.5039526306789697,
+          "n": 64
+        },
+        "8": {
+          "mean": 0.49609375,
+          "std": 0.13357260896261391,
+          "n": 64
+        }
+      }
+    }
+  },
+  "notes": "Fixture/length baselines are for harness verification only. They are not a public accuracy claim.",
+  "sessions": [
+    {
+      "session_id": "public_ranking_card_v1:0:0",
+      "label": "cascade",
+      "binary": 1,
+      "fault": "kill_redis",
+      "n_chars": 1177,
+      "score": 1177.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:1",
+      "label": "cascade",
+      "binary": 1,
+      "fault": "kill_redis",
+      "n_chars": 646,
+      "score": 646.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:2",
+      "label": "cascade",
+      "binary": 1,
+      "fault": "kill_redis",
+      "n_chars": 1177,
+      "score": 1177.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:3",
+      "label": "incident",
+      "binary": 1,
+      "fault": "api_latency",
+      "n_chars": 474,
+      "score": 474.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:4",
+      "label": "incident",
+      "binary": 1,
+      "fault": "api_latency",
+      "n_chars": 790,
+      "score": 790.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:5",
+      "label": "incident",
+      "binary": 1,
+      "fault": "api_latency",
+      "n_chars": 1000,
+      "score": 1000.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:6",
+      "label": "incident",
+      "binary": 1,
+      "fault": "api_latency",
+      "n_chars": 790,
+      "score": 790.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:7",
+      "label": "incident",
+      "binary": 1,
+      "fault": "api_latency",
+      "n_chars": 475,
+      "score": 475.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:8",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 605,
+      "score": 605.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:9",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 605,
+      "score": 605.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:10",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 786,
+      "score": 786.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:11",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 605,
+      "score": 605.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:12",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 968,
+      "score": 968.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:13",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 606,
+      "score": 606.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:14",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 787,
+      "score": 787.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:15",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 1150,
+      "score": 1150.0
+    }
+  ]
+}

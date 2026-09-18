@@ -95,6 +95,8 @@ AOMB’s **public accuracy claim** (when published) is a **ranking** claim: sess
 
 That claim is **not published** until the pass/fail checklist in **[`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md)** passes. Until labeled ranking metrics exist, ship **protocol/checklist + harness only** — no inflated accuracy language. Harness: [`eval/`](eval/).
 
+**Public ranking card v1 (fixture):** frozen fixture + reproduce path for a *future* honest public claim — [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md), pack [`corpus/fixtures/public_ranking_card_v1/`](corpus/fixtures/public_ranking_card_v1/), `./scripts/run_public_ranking_card_v1.sh`. Still `claim_status=not_published`. Fixture **baseline** numbers only (see `reports/public-ranking-card-v1/CARD.md`); **not** the private lab pool, and **never** lab-pool AUROC as the public card. Private lab lane: [`docs/lab/`](docs/lab/).
+
 Keep factual `val_bpb` lanes separate (neither is public accuracy):
 
 | Lane | val_bpb | Role |
