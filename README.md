@@ -43,8 +43,7 @@ An ILM trained on your own telemetry has an anomaly detector no vendor can repli
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync
 
-# 2a. FLAGSHIP — real reference corpus v1 (Uber CRISP + lab). See section below.
-#     Details: docs/corpus-v1.md
+# 2a. Prefer real Uber CRISP for training (see "Three lanes"). Details: docs/corpus-v1.md
 
 # 2b. SMOKE / CI ONLY — synthetic generator (not the product corpus)
 uv run python generate_observability_corpus.py
@@ -75,103 +74,55 @@ uv run python morning_report.py --plot
 
 ---
 
-## Reference corpus v1 (real)
+## Three lanes (read this once)
 
-**Flagship training data is real production telemetry** — not synthetic demos/testbeds.
+AOMB uses **three separate lanes**. Do not mix their numbers.
 
-| Role | Source |
-|------|--------|
-| **(A) Public-real bootstrap** | **Uber CRISP** — ~100k production Jaeger traces, [Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), `CRISP-main.zip` ~2.33 GB, **CC BY 4.0** (cite Zhang et al., ATC'22). Session = `traceID`. |
-| **(B) Lab-captured** | Org-level stack (`lab/`) with OTel export + induced faults; windows `normal` / `incident` |
-| **Flagship scale (opt-in)** | Uber Tale of Errors — DOIs [13947828](https://doi.org/10.5281/zenodo.13947828) + [13952897](https://doi.org/10.5281/zenodo.13952897), ~1.4M traces, CC BY 4.0, **300–500GB decompressed** — `python -m corpus.ingest.fetch_tale_of_errors --list-only` + sample fixture; **full dump local-only, not CI** |
-| **Eval-only** | AIOps Challenge 2020 — labeled faults, **non-commercial**; cite+fetch, do not redistribute |
-| **Rejected as flagship** | OTel Demo / `otel-demo-telemetry`, tracegen, Sock Shop+Chaos Mesh testbeds, DeathStarBench |
+| Lane | What it is | What you can say |
+|------|------------|------------------|
+| **1. Train (Uber CRISP)** | Real public Jaeger traces for training | Factual **`val_bpb`** only — CRISP has **no incident labels**, so it is **not** ranking accuracy |
+| **2. Lab (private labeled)** | Your Docker stack + faults; optional redacted public pack | Ranking evidence in [`docs/lab/`](docs/lab/) — default **`not_published`** |
+| **3. Public fixture card** | Tiny synthetic pack strangers can clone + CI | **`published_fixture_card`** = harness smoke that beat baselines — **not** production AUROC |
 
-Full provenance: **[`docs/corpus-v1.md`](docs/corpus-v1.md)**. Ingest: [`corpus/README.md`](corpus/README.md). Lab: [`lab/README.md`](lab/README.md).
+Details: CRISP train [`docs/corpus-v1.md`](docs/corpus-v1.md) · `val_bpb` facts [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · fixture card [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · lab [`docs/lab/`](docs/lab/) · protocol [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md).
 
-### Public accuracy eval (protocol)
-
-AOMB’s **public accuracy claim** (when published) is a **ranking** claim: session-level next-token surprise / BPB ranks incident/cascade windows above normal — measured with AUROC, PR-AUC, and precision@k over multi-seed runs.
-
-That claim is **not published** until the pass/fail checklist in **[`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md)** passes. Until labeled ranking metrics exist, ship **protocol/checklist + harness only** — no inflated accuracy language. Harness: [`eval/`](eval/).
-
-**Public ranking card v1 (fixture / harness smoke):** frozen synthetic pack + reproduce path — [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md), [`corpus/fixtures/public_ranking_card_v1/`](corpus/fixtures/public_ranking_card_v1/), `./scripts/run_public_ranking_card_v1.sh`. **n_eval=36** balanced synthetic sessions; `claim_status=published_fixture_card` means fixture harness smoke that beat length/events — **not** production AUROC / general public accuracy. **Not** the private lab pool (never lab-pool AUROC). Lab lane: [`docs/lab/`](docs/lab/). See `reports/public-ranking-card-v1/CARD.md`.
-
-Keep factual `val_bpb` lanes separate (neither is public accuracy):
-
-| Lane | val_bpb | Role |
-|------|---------|------|
-| Synthetic / smoke-era | **0.3682** | Legacy generator overnight best — separate README table |
-| CRISP overnight best (200k subset) | **0.4309** | 20-exp Mac MPS overnight breeding (`73b1645`, exp 20) — [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) |
-| CRISP-500k `TIME_BUDGET` | **0.407753** | Local Mac MPS single-run on 500k spans / 7110 sessions (`crisp_zenodo_20260914T144906Z`) — same doc; **separate** from overnight **0.4309** |
-| CRISP prior floor (200k) | **0.458756** | Pre-overnight `TIME_BUDGET` single-run baseline (same doc) |
-
-Do **not** 1:1 compare or blend synthetic **0.3682** with CRISP numbers, and do **not** blend CRISP-500k **0.407753** with overnight subset **0.4309** (different span scale). CRISP alone is insufficient for the ranking claim (no incident labels); prefer lab captures with provenance windows.
-
-`prepare.py` stays sacred — ingest writes the same parquet shape (`text` column, pinned val shard `6542`).
-
-### Build from Uber CRISP (public-real)
+### Train on Uber CRISP
 
 ```bash
-uv run python -m corpus.ingest.fetch_crisp                 # instructions / use local zip
-# uv run python -m corpus.ingest.fetch_crisp --download    # ~2.33 GB — not for CI
-
+uv run python -m corpus.ingest.fetch_crisp                 # or --download (~2.33 GB, not CI)
 uv run python -m corpus.ingest.build_shards \
   --adapter crisp_zenodo \
   --input ~/.cache/autoresearch/corpus-v1/crisp/extracted \
-  --num-train-shards 8 \
-  --write-val-shard
-
-uv run python prepare.py --num-shards 8
-```
-
-### Run lab capture (Docker)
-
-```bash
-cd lab
-docker compose up -d --build
-./scripts/run_capture_session.sh    # normal → fault → incident → export
-cd ..
-
-uv run python -m corpus.ingest.build_shards \
-  --adapter lab_capture \
-  --input lab/captures/<capture_id> \
-  --num-train-shards 4 \
-  --write-val-shard
-```
-
-Fault modes: `latency`, `errors`, `both`, `kill_redis`, `kill_postgres` (`lab/scripts/inject_faults.sh`).
-
-### Synthetic = smoke / CI only
-
-`generate_observability_corpus.py` remains for fast loops without Docker or Zenodo.
-It is **not** the reference corpus product story.
-
-### Bring your own (BYO) telemetry
-
-Ingest your own OTLP JSONL / Jaeger JSON / parquet session dumps, then score
-sessions with the shippable CLI. Full guide: **[`docs/byo-and-scorer.md`](docs/byo-and-scorer.md)**.
-
-```bash
-# Build shards from a user dump (auto-detects format; writes provenance)
-uv run python -m corpus.ingest.build_shards \
-  --adapter byo --input /path/to/your/dump \
   --num-train-shards 8 --write-val-shard
 uv run python prepare.py --num-shards 8
-
-# Score sessions (dry-run needs no model; claim still not_published)
-uv run python -m score_session --input /path/to/your/dump --dry-run
-# uv run python -m score_session --input ... --train-seconds 30 --out report.json
+uv run python train.py
 ```
 
-**Scoring ≠ public accuracy claim** until the labeled checklist in
-[`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) passes.
-Do not invent accuracy metrics from scorer BPB. Adapter + scorer reuse
-`session_format` / `build_shards` / `eval.score` — they do **not** invent fake
-telemetry or touch sacred `prepare.evaluate_bpb`.
+Current factual CRISP `val_bpb` (training fitness, **not** accuracy): **0.407753** (500k spans) · overnight 200k best **0.4309**. Full tables live in the CRISP doc above.
 
-Or convert to the session line format and write `shard_*.parquet` yourself
-(column `text`), then the same downstream path: `prepare.py` → `train.py`.
+### Lab capture (labeled)
+
+```bash
+cd lab && docker compose up -d --build && ./scripts/run_capture_session.sh && cd ..
+```
+
+Private captures stay on your machine. A **redacted** public-safe pack is at [`corpus/fixtures/lab_public_pack_v0/`](corpus/fixtures/lab_public_pack_v0/) (`claim_status=not_published`). Do **not** put private lab AUROC on the README hero.
+
+### Public ranking card (clone → verify)
+
+```bash
+./scripts/run_public_ranking_card_v1.sh
+```
+
+Synthetic fixture only. Soft status: fixture-card / harness smoke. See the card doc.
+
+### BYO telemetry
+
+Bring your own dumps: [`docs/byo-and-scorer.md`](docs/byo-and-scorer.md). Scoring ≠ a published accuracy claim.
+
+### Synthetic generator = smoke / CI only
+
+`generate_observability_corpus.py` is for fast loops — **not** the flagship train story.
 
 ---
 
@@ -318,139 +269,13 @@ TOTAL_BATCH_SIZE = 2**16
 
 ---
 
-## How AOMB validates ranking (lab evidence — no hero metrics)
+## Results (where the numbers live)
 
-**Product seat:** Infrastructure Language Model on enterprise observability telemetry.
-Training minimizes validation bits-per-byte (`val_bpb`). The same surprise signal is the
-anomaly detector — higher session-level next-token surprise / BPB should rank
-incident / cascade windows above normal.
+- **CRISP `val_bpb` (train fitness):** [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md)
+- **Public fixture card (harness smoke):** [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · `reports/public-ranking-card-v1/CARD.md`
+- **Lab ranking (private / redacted pack):** [`docs/lab/`](docs/lab/) — `not_published` by default
 
-**Method check (lab):** fault-injected OpenTelemetry captures; multi-seed train-then-score;
-compare session BPB ranking to **length** and **event-count** baselines (and random ranking
-in harness JSON). Protocol: [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md).
-
-> **No AUROC / PR-AUC / precision table on this README.** Lab numbers live only under
-> [`docs/lab/ranking-validation.md`](docs/lab/ranking-validation.md) with
-> `claim_status=not_published`, limitations, and **captures not public**.
-> Do not treat CRISP / synthetic `val_bpb` rows below as ranking accuracy.
-
----
-
-## Empirical Results — Reference corpus v1 (Uber CRISP)
-
-Factual `val_bpb` documentation on **CRISP subsets** only — **not** a public accuracy claim, marketing number, or product benchmark.
-`claim_status=not_published`. Claim language stays gated until the checklist in [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) passes (protocol from [PR #6](https://github.com/pandeyaby/AOMB/pull/6)). Details: [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md).
-
-Corpus: Uber CRISP ([Zenodo 13956078](https://doi.org/10.5281/zenodo.13956078), CC BY 4.0; cite Zhang et al., USENIX ATC'22),
-`CRISP-main/data/bottom-up-trace` (span-capped subsets below).
-
-### CRISP-500k TIME_BUDGET (local Mac MPS)
-
-Scaled local CRISP subset — **factual training metric only** (`claim_status=not_published`). Single-run `TIME_BUDGET` train on Mac MPS. **Separate** from overnight 20-exp 200k-subset best **0.4309** and from synthetic smoke-era **0.3682**.
-
-| Field | Value |
-|-------|--------|
-| **`val_bpb`** | **0.407753** |
-| Spans / sessions | **500000** / **7110** |
-| Hardware | Mac Apple Silicon (MPS) |
-| Config | Single-run `TIME_BUDGET` train (`prepare.py` sacred; no overnight / no API spend) |
-| Provenance | `crisp_zenodo_20260914T144906Z` |
-| claim_status | Factual training metric only — **not** a public accuracy / AUROC claim |
-
-### Overnight CRISP breeding (Mac MPS, 200k subset)
-
-Overnight **20-exp** CRISP `agent_loop` breeding completed on Mac MPS on the **200k-span** subset (`--max-spans 200000`). Remains the overnight subset best; do **not** blend with CRISP-500k **0.407753** above.
-
-| Field | Value |
-|-------|--------|
-| **CRISP overnight best `val_bpb`** | **0.4309** |
-| Commit / experiment | `73b1645` / exp 20 |
-| Hardware | Mac Apple Silicon (MPS) |
-| Experiments | 20 |
-
-Committed improve chain (CRISP 200k overnight lane only): **0.4554 → 0.4525 → 0.4396 → 0.4309**.
-
-### Pre-overnight CRISP floor (TIME_BUDGET single run, 200k)
-
-Prior factual baseline before overnight breeding on the **200k** subset — keep for provenance; superseded as the 200k overnight best by **0.4309** above. Not the CRISP-500k lane.
-
-| Date | Corpus | Hardware | Config | val_bpb | Notes |
-|------|--------|----------|--------|---------|-------|
-| 2026-09-14 | CRISP bottom-up-trace, `--max-spans 200000`, 20 train shards + val `shard_06542` | MacBook Pro Apple Silicon (MPS) | DEPTH=4, WINDOW=SSL, ~8.5M params, vocab 5206 | **0.458756** | Single 5-min run (`TIME_BUDGET=300`); no overnight `agent_loop` / no API keys |
-
-| Metric | Value |
-|--------|-------|
-| `val_bpb` (pre-overnight floor) | **0.458756** |
-| `training_seconds` | 300.1 |
-| `total_seconds` (includes eval) | 401.4 |
-| `num_steps` | 603 |
-| `total_tokens_M` | 19.8 |
-| `num_params_M` | 8.5 |
-| depth / `window_pattern` | 4 / SSL |
-| `vocab_size` | 5206 |
-| Sessions | 2185 (1967 train / 218 val); 200000 spans; 2185 Jaeger JSON files |
-| Windows | normal only (CRISP dump has no incident labels) |
-| Provenance id | `crisp_zenodo_20260914T050751Z.json` |
-
-**Do not 1:1 compare** CRISP `val_bpb` (500k `TIME_BUDGET` **0.407753**, overnight **0.4309**, or 200k floor **0.458756**) to the synthetic smoke-era **0.3682** below — different data, tokenizer, and scale. Keep the tables separate; synthetic best remains non-CRISP. Neither lane is a public accuracy claim.
-
-### Reproduce the pre-overnight floor
-
-```bash
-uv run python -m corpus.ingest.fetch_crisp --download   # ~2.33 GB CRISP-main.zip
-
-uv run python -m corpus.ingest.build_shards \
-  --adapter crisp_zenodo \
-  --input ~/.cache/autoresearch/corpus-v1/crisp/extracted \
-  --max-spans 200000 \
-  --num-train-shards 20 \
-  --write-val-shard
-# Subset path inside extract: CRISP-main/data/bottom-up-trace
-
-uv run python prepare.py --num-shards 20
-uv run python train.py
-```
-
----
-
-## Empirical Results — Synthetic / smoke-era (legacy)
-
-> **Synthetic generator only** (`generate_observability_corpus.py`). Not the reference corpus product story.
-> Numbers below are retained for historical overnight agent_loop runs on smoke data.
-
-| Run | Hardware | Config | Best val_bpb | Experiments |
-|-----|----------|--------|-------------|-------------|
-| Night 3+ | MacBook Pro M-series | Focal loss + anomaly token weighting + Adam tuning | **0.3682** | 12 successful / 120 total |
-| Night 2 | MacBook Pro M-series | DEPTH=4, WINDOW=SSL, EMBEDDING_LR=0.3 | 0.4297 | 6 successful / 14 total |
-| Night 1 | MacBook Pro M-series | DEPTH=4, WINDOW=L | 0.4349 | 2 successful / 10 total |
-| Baseline (5 min) | MacBook Pro M-series | Default | 0.4372 | 1 |
-| Random model | — | — | ~8.0 | — |
-
-Training throughput: ~63,000 tokens/sec on Apple Silicon MPS.
-Each experiment cycle: ~10–15 minutes (Claude SDK call ~2–3 min + training 5 min + eval ~2 min).
-
-**val_bpb progression across all successful experiments (synthetic corpus):**
-
-| Exp | SHA | val_bpb | Δ | Change |
-|-----|-----|---------|---|--------|
-| Baseline | 2861c70 | 0.4372 | — | DEPTH=4, WINDOW=L |
-| 5 | 5962a57 | 0.4349 | -0.0023 | Sliding window attention |
-| 6 | 26cf5e3 | 0.4339 | -0.0010 | WINDOW_PATTERN = "SSL" |
-| 1 | 7a4eb57 | 0.4323 | -0.0016 | Architecture sweep |
-| 3 | 7c99e0e | 0.4300 | -0.0023 | TOTAL_BATCH_SIZE tuning |
-| 13 | dc4df4a | 0.4297 | -0.0003 | EMBEDDING_LR 0.6 → 0.3 |
-| **17** | **c2026cc** | **0.3950** | **-0.0347** | **Focal loss + anomaly token weighting** ← big jump |
-| 18 | e1b363a | 0.3856 | -0.0094 | Focal loss refinement |
-| 23 | 53b5b00 | 0.3855 | -0.0001 | WARMDOWN_RATIO 0.5 → 0.65 |
-| 27 | 92e58f1 | 0.3771 | -0.0084 | Loss + config refinements |
-| 28 | 3168d49 | 0.3771 | -0.0000 | FINAL_LR_FRAC reduction |
-| 33 | c887b39 | 0.3697 | -0.0074 | Forward pass loss calc |
-| 37 | da353a6 | 0.3692 | -0.0005 | Loss calc tweak |
-| 66 | 96c3404 | 0.3692 | -0.0000 | Cascade detection refinement |
-| 70 | fa2ee1e | 0.3691 | -0.0001 | Domain-aware loss tuning |
-| 109 | 77e9eba | 0.3686 | -0.0005 | Adam betas tuning |
-| 113 | 64b56fb | 0.3685 | -0.0001 | Adam betas refinement |
-| **114** | **983ee44** | **0.3682** | **-0.0003** | **Adam optimizer tuning ← synthetic best** |
+Legacy overnight synthetic `val_bpb` history stays in git history / morning reports — not the product headline.
 
 ---
 

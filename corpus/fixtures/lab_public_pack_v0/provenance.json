@@ -1,0 +1,36 @@
+{
+  "corpus_version": "lab_public_pack_v0",
+  "source_id": "aomb-lab-public-pack-v0",
+  "source_kind": "lab_capture_redacted",
+  "license": "Apache-2.0",
+  "capture_id": "lab_public_pack_v0",
+  "claim_status": "not_published",
+  "notes": "Public-safe redacted pack derived from local lab captures. Hostnames/IPs/ids stripped; services remapped to svc-*. Raw lab JSONL is NOT published. Distinct from synthetic public_ranking_card_v1 and from private docs/lab pool metrics.",
+  "windows": [
+    {
+      "label": "normal",
+      "start": "2026-09-18T12:00:00Z",
+      "end": "2026-09-18T12:30:00Z",
+      "fault": "",
+      "notes": "redacted public pack \u2014 normal window"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-18T12:30:00Z",
+      "end": "2026-09-18T13:00:00Z",
+      "fault": "mixed_lab_faults",
+      "notes": "redacted public pack \u2014 incident window (latency/errors/deps stylized)"
+    }
+  ],
+  "n_sessions_exported": 80,
+  "n_normal": 40,
+  "n_incident": 40,
+  "redaction": [
+    "ips",
+    "uuids",
+    "long_hex",
+    "emails",
+    "hostnames",
+    "service_name_map"
+  ]
+}

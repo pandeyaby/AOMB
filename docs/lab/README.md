@@ -16,3 +16,7 @@ Do **not** copy private lab-pool ranking metrics onto the public ranking card,
 README accuracy claims, or fixture reports.
 
 See also: [`docs/public-accuracy-eval.md`](../public-accuracy-eval.md).
+
+## Redacted public pack v0
+
+See [`lab-public-pack-v0.md`](lab-public-pack-v0.md) and [`corpus/fixtures/lab_public_pack_v0/`](../../corpus/fixtures/lab_public_pack_v0/).
