@@ -10,7 +10,9 @@ Companion (not this product): **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)*
 
 ## Steps
 
-1. **Cite a green badge (no clone)** — open the live [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) badge / workflow page, or pick a successful run URL to share.
+1. **Cite a green check (no clone)** — prefer this pinned **example** (or the live badge):
+   - **Example green cite (main)** — 2026-09-19 · `7abdfd5` · [run 35471119285](https://github.com/pandeyaby/AOMB/actions/runs/35471119285) (`stranger-verify`)
+   - **Canonical:** live [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) badge / workflow — the pinned URL is an **example**, not a forever-frozen claim.
 2. **Or run it yourself** — either:
    - **Codespaces:** [codespaces.new/pandeyaby/AOMB](https://codespaces.new/pandeyaby/AOMB) → then:
      ```bash
