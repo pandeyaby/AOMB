@@ -92,6 +92,7 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 - **60-second verify:** [`stranger-60s.md`](stranger-60s.md)
 - **Share snip (paste):** [`share-snip.md`](share-snip.md)
 - **Contributing as a stranger:** [`contributing-stranger.md`](contributing-stranger.md) · root [`CONTRIBUTING.md`](../CONTRIBUTING.md)
+- **Security (defensive scope / report path):** root [`SECURITY.md`](../SECURITY.md)
 - **License / NOTICE:** [`LICENSE`](../LICENSE) · [`NOTICE`](../NOTICE)
 - README blurb: [Public wins](../README.md#public-wins-what-an-outsider-can-verify-today)
 - Compute honesty: [`compute-paths.md`](compute-paths.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
