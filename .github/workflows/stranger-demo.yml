@@ -1,0 +1,70 @@
+# Stranger demo — cross-platform public entry (no MPS / no API keys)
+#
+# Exercises ./scripts/stranger_demo.sh on ubuntu-latest.
+# Fast path on PRs (baselines-only ranking card). Full CPU model smoke on
+# push to main and workflow_dispatch (honest: torch CPU, not MPS).
+
+name: stranger-demo
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "scripts/stranger_demo.sh"
+      - "scripts/run_diptych_full8.sh"
+      - "scripts/run_public_ranking_card_v1.sh"
+      - "docs/stranger-demo.md"
+      - "diptych-probes/**"
+      - "eval/**"
+      - "coverage/**"
+      - "corpus/fixtures/public_ranking_card_v1/**"
+      - "reports/public-ranking-card-v1/**"
+      - "tests/test_diptych_full8.py"
+      - "tests/test_public_ranking_card_v1.py"
+      - ".github/workflows/stranger-demo.yml"
+  workflow_dispatch:
+    inputs:
+      full_model:
+        description: "Run full ranking-card --with-model (CPU)"
+        type: boolean
+        default: true
+
+jobs:
+  stranger-path:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install stranger-path deps (CPU torch when full model)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyarrow rustbpe tiktoken numpy
+          # Full model on main / dispatch; PR uses STRANGER_FAST (no torch needed).
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]] \
+             || [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.full_model }}" == "true" ]]; then
+            pip install torch --index-url https://download.pytorch.org/whl/cpu
+            echo "STRANGER_MODE=full" >> "$GITHUB_ENV"
+          else
+            echo "STRANGER_MODE=fast" >> "$GITHUB_ENV"
+          fi
+
+      - name: Unit tests (diptych + ranking card harness)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest tests.test_diptych_full8 tests.test_public_ranking_card_v1 -v
+
+      - name: Stranger demo script
+        run: |
+          chmod +x scripts/stranger_demo.sh scripts/run_diptych_full8.sh scripts/run_public_ranking_card_v1.sh
+          if [[ "${STRANGER_MODE}" == "fast" ]]; then
+            STRANGER_FAST=1 ./scripts/stranger_demo.sh
+          else
+            ./scripts/stranger_demo.sh
+          fi
