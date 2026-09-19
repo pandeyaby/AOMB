@@ -1,0 +1,34 @@
+# Citation metadata for AOMB — no invented paper DOI / AUROC.
+cff-version: 1.2.0
+message: >-
+  If you use AOMB, please cite this GitHub repository (URL + date accessed).
+  There is no published paper DOI for AOMB yet — do not invent one.
+type: software
+title: Autonomous Observability Model Breeder
+authors:
+  - family-names: Pandey
+    given-names: Abhinav
+repository-code: "https://github.com/pandeyaby/AOMB"
+url: "https://github.com/pandeyaby/AOMB"
+license: MIT
+abstract: >-
+  AOMB breeds an Infrastructure Language Model (ILM) — next-token prediction
+  on observability telemetry. Companion DIPTYCH (separate product) grades
+  2-safety / calibration on paired probes; AOMB emits fixtures, DIPTYCH grades.
+  Do not merge the products. Lab AUROC stays not_published.
+keywords:
+  - observability
+  - infrastructure language model
+  - anomaly detection
+  - DIPTYCH companion
+references:
+  - type: software
+    title: DIPTYCH
+    authors:
+      - family-names: Pandey
+        given-names: Abhinav
+    repository-code: "https://github.com/pandeyaby/DIPTYCH"
+    url: "https://github.com/pandeyaby/DIPTYCH"
+    notes: >-
+      Companion product (not AOMB). Grades 2-safety / calibration on paired
+      probes. Cite separately; do not invent a shared paper DOI.
