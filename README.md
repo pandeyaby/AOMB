@@ -22,7 +22,8 @@ Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyab
 | **Clone demo** | `./scripts/stranger_demo.sh` ([§ Stranger demo](#stranger-demo-linux--ci--no-mps-no-api-keys)) | Full-8 + `gate_axis_mutate`; ranking-card harness smoke (CPU) | Lab AUROC, production accuracy, MPS train, overnight agent |
 | **Cite Action badge** | Green [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) ([§ Cite without cloning](#cite-without-cloning-stranger-verify)) | Same gates via Actions / Codespaces — no local Mac | Same limits — **no invented AUROC** |
 
-Both paths are honest harness / fixture smoke. Lab AUROC stays **`not_published`**.
+Both paths are honest harness / fixture smoke. Lab AUROC stays **`not_published`**.  
+Compute honesty (CPU stranger vs MPS product train; future CUDA = checklist only): [`docs/compute-paths.md`](docs/compute-paths.md).
 
 ---
 
@@ -390,11 +391,11 @@ karpathy/autoresearch          (original — H100, NVIDIA)
 
 ## Requirements
 
-**Stranger / CI path (Linux OK):** Python 3.10+, `uv` or pip — see [`docs/stranger-demo.md`](docs/stranger-demo.md). No MPS. No API keys.
+**Stranger / CI path (Linux OK):** Python 3.10+, `uv` or pip — see [`docs/stranger-demo.md`](docs/stranger-demo.md). No MPS. No API keys. CPU only — see [`docs/compute-paths.md`](docs/compute-paths.md).
 
 **Overnight research loop (Mac):**
 
-- macOS with Apple Silicon (M1/M2/M3/M4)
+- macOS with Apple Silicon (M1/M2/M3/M4) — product breed / `TIME_BUDGET` train is **MPS**, not a CUDA claim ([`docs/compute-paths.md`](docs/compute-paths.md))
 - Python 3.10+
 - `uv` package manager
 - An Anthropic API key (`AOMB_ANTHROPIC_API_KEYS`) — or Claude Code CLI fallback
