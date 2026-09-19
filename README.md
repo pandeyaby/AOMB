@@ -1,7 +1,6 @@
 # Autonomous Observability Model Breeder (AOMB)
 
 [![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml)
-[![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml)
 [![stranger-demo](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml)
 [![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml)
 [![public-ranking-card-v1](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml)
@@ -15,6 +14,16 @@
 Companion (not the same product): **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)** grades **2-safety / calibration** on **paired** probes. AOMB emits fixtures; DIPTYCH grades. Do not merge the products. Do not fork DIPTYCH harness/product code into this repo beyond the existing adapter emit path.
 
 Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212)
+
+### Public wins (what an outsider can verify today)
+
+| Path | How | Proves | Does **not** prove |
+|------|-----|--------|---------------------|
+| **Clone demo** | `./scripts/stranger_demo.sh` ([§ Stranger demo](#stranger-demo-linux--ci--no-mps-no-api-keys)) | Full-8 + `gate_axis_mutate`; ranking-card harness smoke (CPU) | Lab AUROC, production accuracy, MPS train, overnight agent |
+| **Cite Action badge** | Green [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) ([§ Cite without cloning](#cite-without-cloning-stranger-verify)) | Same gates via Actions / Codespaces — no local Mac | Same limits — **no invented AUROC** |
+
+Both paths are honest harness / fixture smoke. Lab AUROC stays **`not_published`**.  
+Compute honesty (CPU stranger vs MPS product train; future CUDA = checklist only): [`docs/compute-paths.md`](docs/compute-paths.md).
 
 ---
 
@@ -31,7 +40,8 @@ uv sync                          # or: pip install pyarrow numpy rustbpe tiktoke
 
 **Honest:** public ranking card = **`published_fixture_card` / harness smoke** (tiny-n synthetic). Lab AUROC stays **`not_published`** — no invented AUROC. CRISP **`val_bpb`** = train fitness only. Overnight agent / MPS product train = Mac path below — **not** this script.
 
-Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md).
+Prefer a linkable green check without cloning? → [Cite without cloning](#cite-without-cloning-stranger-verify) (`stranger-verify` badge / Codespaces).  
+Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md) · pair doc: [`docs/stranger-verify.md`](docs/stranger-verify.md).
 
 ---
 
@@ -43,7 +53,7 @@ Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md)
 | **2. Lab — private** | Docker stack + faults (optional redacted pack) | Ranking evidence under [`docs/lab/`](docs/lab/) — default **`not_published`** |
 | **3. Public fixture card** | Tiny synthetic pack + CI | **`published_fixture_card`** = **harness smoke** that beat baselines — **not** lab / production ranking |
 
-Details: [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md).
+Details: [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md).
 
 ---
 
@@ -381,11 +391,11 @@ karpathy/autoresearch          (original — H100, NVIDIA)
 
 ## Requirements
 
-**Stranger / CI path (Linux OK):** Python 3.10+, `uv` or pip — see [`docs/stranger-demo.md`](docs/stranger-demo.md). No MPS. No API keys.
+**Stranger / CI path (Linux OK):** Python 3.10+, `uv` or pip — see [`docs/stranger-demo.md`](docs/stranger-demo.md). No MPS. No API keys. CPU only — see [`docs/compute-paths.md`](docs/compute-paths.md).
 
 **Overnight research loop (Mac):**
 
-- macOS with Apple Silicon (M1/M2/M3/M4)
+- macOS with Apple Silicon (M1/M2/M3/M4) — product breed / `TIME_BUDGET` train is **MPS**, not a CUDA claim ([`docs/compute-paths.md`](docs/compute-paths.md))
 - Python 3.10+
 - `uv` package manager
 - An Anthropic API key (`AOMB_ANTHROPIC_API_KEYS`) — or Claude Code CLI fallback
@@ -402,6 +412,9 @@ Outsiders can cite a green **`stranger-verify`** check without a local clone or 
 - **One-pager:** [`docs/stranger-verify.md`](docs/stranger-verify.md)
 
 **Proves:** DIPTYCH full-8 + `gate_axis_mutate`, plus ranking-card baselines ε (optional CPU `--with-model` via dispatch). **Does not prove:** lab AUROC (`not_published`), production accuracy, MPS train, overnight agent. Tiny-n fixture limits apply — no invented AUROC.
+
+Already cloning? Prefer the fuller local entry: [Stranger demo](#stranger-demo-linux--ci--no-mps-no-api-keys) (`./scripts/stranger_demo.sh`).  
+`stranger_verify.sh` defaults to `STRANGER_FAST=1` and **delegates** to `stranger_demo.sh` when present — same honesty limits either way.
 
 ---
 

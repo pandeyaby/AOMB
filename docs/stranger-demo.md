@@ -4,6 +4,8 @@
 
 **Goal:** verify the public deterministic gates in a few minutes. Not the overnight Mac research loop.
 
+**Pair path (cite without cloning):** green [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) badge / Codespaces — see [`stranger-verify.md`](stranger-verify.md). Same honesty limits; different entry (linkable Action vs local clone).
+
 ---
 
 ## Honesty banner (read first)
@@ -55,6 +57,13 @@ STRANGER_FAST=1 ./scripts/stranger_demo.sh
 
 **Honest:** baselines-only proves length/events ε against committed refs. It does **not** re-train the fixture model or refresh `published_fixture_card` model means. Full model smoke is still **CPU** (CI already runs it on `ubuntu-latest`) — **not** MPS-gated.
 
+### Cite path vs clone path
+
+| Entry | Command / link | Default card mode |
+|-------|----------------|-------------------|
+| **Clone demo** (this doc) | `./scripts/stranger_demo.sh` | Full `--with-model` unless `STRANGER_FAST=1` |
+| **Cite / verify** | [`stranger-verify`](stranger-verify.md) badge or `./scripts/stranger_verify.sh` | Defaults `STRANGER_FAST=1` (baselines ε); delegates to demo when present |
+
 ---
 
 ## What a stranger can verify vs what needs Mac MPS
@@ -64,7 +73,7 @@ STRANGER_FAST=1 ./scripts/stranger_demo.sh
 | DIPTYCH full-8 + `gate_axis_mutate` | Overnight `agent_loop` / morning report |
 | Ranking card baselines ε (seconds) | Product Uber CRISP train on MPS |
 | Ranking card fixture model smoke (~4–10 min CPU) | Claiming lab AUROC as public |
-| Adapter CI badge green on `main` | Editing `prepare.py` (don’t) |
+| Adapter / stranger CI badges green on `main` | Editing `prepare.py` (don’t) |
 
 ---
 
@@ -75,6 +84,7 @@ STRANGER_FAST=1 ./scripts/stranger_demo.sh
 | [![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml) | Full-8 + `gate_axis_mutate` on every push to `main` |
 | [![public-ranking-card-v1](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml) | Fixture card baselines + CPU model smoke (path-filtered) |
 | [![stranger-demo](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml) | End-to-end `./scripts/stranger_demo.sh` (fast baselines mode on PR; full model on `main` / dispatch) |
+| [![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) | Cite path — `./scripts/stranger_verify.sh` (default fast; optional CPU model via dispatch) |
 
 ---
 
@@ -90,6 +100,7 @@ STRANGER_EXPECT_OVERNIGHT=1 ./scripts/stranger_demo.sh
 
 ## Related docs
 
+- [`docs/stranger-verify.md`](stranger-verify.md) — cite without cloning (Actions / Codespaces)
 - [`docs/public-ranking-card-v1.md`](public-ranking-card-v1.md) — fixture limits
 - [`docs/crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) — train fitness only
 - [`docs/lab/`](lab/) — lab lane (`not_published`)

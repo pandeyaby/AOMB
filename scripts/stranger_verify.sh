@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# Stranger verify — one-command public gate (no Apple MPS, no API keys).
+# Stranger verify — cite-without-cloning public gate (no Apple MPS, no API keys).
 #
-# Prefer scripts/stranger_demo.sh when present (e.g. after #21 merges).
-# Until then, this thin vendor runs:
-#   1) ./scripts/run_diptych_full8.sh (+ axis_power assert)
-#   2) ranking-card baselines-only + ε  (STRANGER_FAST=1 default)
+# Entry for Actions / Codespaces / “share a green check.” Defaults STRANGER_FAST=1.
+# Shared runner: scripts/stranger_demo.sh (clone-first path; see docs/stranger-demo.md).
+# This script sets STRANGER_FAST then delegates to demo when present.
 #
 # NOT claimed: lab AUROC, production accuracy, MPS train, overnight agent.
-# prepare.py is sacred — never touched here.
+# prepare.py is sacred — never touched here. No DIPTYCH harness contamination.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -33,13 +32,15 @@ banner() {
 if [[ "${STRANGER_EXPECT_MPS:-}" == "1" ]] || [[ "${STRANGER_EXPECT_OVERNIGHT:-}" == "1" ]]; then
   die "Stranger verify does not run overnight agent or MPS product train.
   Unset STRANGER_EXPECT_MPS / STRANGER_EXPECT_OVERNIGHT.
-  Cite path proves: diptych full-8 + gate_axis_mutate, ranking-card baselines ε (or demo script)."
+  Cite path proves: diptych full-8 + gate_axis_mutate, ranking-card baselines ε (or demo script).
+  Clone-first docs: docs/stranger-demo.md · cite docs: docs/stranger-verify.md"
 fi
 
 for arg in "$@"; do
   case "$arg" in
     --overnight|--agent|--mps-train)
-      die "Refusing '$arg'. Stranger verify = no overnight, no MPS train, no API keys."
+      die "Refusing '$arg'. Stranger verify = no overnight, no MPS train, no API keys.
+  See docs/stranger-verify.md (cite) or docs/stranger-demo.md (clone)."
       ;;
   esac
 done
@@ -50,14 +51,14 @@ export STRANGER_FAST="${STRANGER_FAST:-1}"
 
 banner "AOMB stranger verify (no MPS / no API keys)"
 echo "Repo: $ROOT"
-echo "Docs: docs/stranger-verify.md"
+echo "Docs: docs/stranger-verify.md (cite) · docs/stranger-demo.md (clone)"
 echo "STRANGER_FAST=${STRANGER_FAST}"
 echo
 
-# Prefer the fuller stranger_demo.sh once it lands on main (#21).
+# Prefer the shared stranger_demo.sh runner (clone-first path).
 if [[ -x scripts/stranger_demo.sh ]] || [[ -f scripts/stranger_demo.sh ]]; then
   chmod +x scripts/stranger_demo.sh scripts/run_diptych_full8.sh scripts/run_public_ranking_card_v1.sh
-  echo "Delegating to scripts/stranger_demo.sh (present on this tree)."
+  echo "Delegating to scripts/stranger_demo.sh (shared stranger runner)."
   if [[ "${STRANGER_FAST}" == "1" ]]; then
     exec env STRANGER_FAST=1 ./scripts/stranger_demo.sh
   else
@@ -65,7 +66,7 @@ if [[ -x scripts/stranger_demo.sh ]] || [[ -f scripts/stranger_demo.sh ]]; then
   fi
 fi
 
-# ── Thin vendor path (main before #21) ──────────────────────────────────────
+# ── Thin vendor path (demo script absent — keep cite path self-contained) ──
 PYTHON="${PYTHON:-python3}"
 if command -v uv >/dev/null 2>&1; then
   RUN=(uv run python)
@@ -132,5 +133,5 @@ echo "  • Product MPS train / Uber CRISP val_bpb overnight"
 echo "  • Lab ranking AUROC (stays not_published — no invented AUROC)"
 echo "  • Production / field accuracy — fixture card is tiny-n synthetic harness smoke only"
 echo
-echo "Honesty: docs/stranger-verify.md · docs/public-ranking-card-v1.md · README three lanes"
+echo "Honesty: docs/stranger-verify.md · docs/stranger-demo.md · docs/public-ranking-card-v1.md · README three lanes"
 echo "${GRN}Stranger verify PASS${RST}"
