@@ -1,0 +1,353 @@
+{
+  "ok": true,
+  "failures": [],
+  "results": [
+    {
+      "operator": "SIGNFLIP",
+      "probe_id": "aomb.signflip_v0.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "odd_err=0.0 fp_equal=True",
+      "evidence": {
+        "odd_err": 0.0,
+        "eps": 1e-09
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SIGNFLIP",
+      "probe_id": "aomb.signflip_v0.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "odd_err=7.0 fp_equal=False",
+      "evidence": {
+        "odd_err": 7.0,
+        "eps": 1e-09
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "TRAJSWAP",
+      "probe_id": "aomb.trajswap_v0.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "crn=True cross=True resid_ok=True",
+      "evidence": {
+        "shared_noise_err": 2.220446049250313e-16,
+        "cross": true,
+        "resid_ok": true,
+        "bound": 5.0
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "TRAJSWAP",
+      "probe_id": "aomb.trajswap_v0.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "crn=False cross=False resid_ok=False",
+      "evidence": {
+        "shared_noise_err": 5.0,
+        "cross": false,
+        "resid_ok": false,
+        "bound": 1.0
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "VARSCALE",
+      "probe_id": "aomb.varscale_v0.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "crn=True mean=True ord=True within=True",
+      "evidence": {
+        "reconstruct_err": 1.7763568394002505e-15,
+        "mean_a": 10.002061733314457,
+        "mean_b": 10.004123466628915,
+        "var_a": 0.5574347758845637,
+        "var_b": 2.2297391035382548,
+        "mean_matched": true,
+        "ordering": true,
+        "within": true,
+        "sample_mean_a": 10.002061733314457,
+        "sample_mean_b": 10.004123466628915,
+        "crn_mean": 10.0
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "VARSCALE",
+      "probe_id": "aomb.varscale_v0.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "crn=False mean=True ord=True within=False",
+      "evidence": {
+        "reconstruct_err": 22.31747710019733,
+        "mean_a": 10.002061733314457,
+        "mean_b": 7.782851541470221,
+        "var_a": 0.5574347758845637,
+        "var_b": 84.63558499824558,
+        "mean_matched": true,
+        "ordering": true,
+        "within": false,
+        "sample_mean_a": 10.002061733314457,
+        "sample_mean_b": 7.782851541470221,
+        "crn_mean": 10.0
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SATEXTEND",
+      "probe_id": "aomb.satextend_v0.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "in_sat=True in_legal=True",
+      "evidence": {
+        "min": -1.0,
+        "max": 1.0,
+        "sat": [
+          -1.0,
+          1.0
+        ],
+        "legal": [
+          -1.0,
+          1.0
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SATEXTEND",
+      "probe_id": "aomb.satextend_v0.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "in_sat=True in_legal=False",
+      "evidence": {
+        "min": -2.0,
+        "max": 2.0,
+        "sat": [
+          -2.0,
+          2.0
+        ],
+        "legal": [
+          -1.0,
+          1.0
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "HISTSWAP",
+      "probe_id": "aomb.histswap_v0.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "cross=True present=True corrupt=False",
+      "evidence": {
+        "cross": true,
+        "present_ok": true,
+        "corrupt": false
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "HISTSWAP",
+      "probe_id": "aomb.histswap_v0.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "cross=False present=False corrupt=True",
+      "evidence": {
+        "cross": false,
+        "present_ok": false,
+        "corrupt": true
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "FREEZEDRY",
+      "probe_id": "aomb.freezedry_v0.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "frozen=True identical=True",
+      "evidence": {
+        "fp0": "sha256:579c5ac0aa1863a1aca4b082835c0dbb2751f39e6b2a1018a058774963fd2517",
+        "fp1": "sha256:579c5ac0aa1863a1aca4b082835c0dbb2751f39e6b2a1018a058774963fd2517",
+        "freeze0": [
+          "clock",
+          "rng"
+        ],
+        "freeze1": [
+          "clock",
+          "rng"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "FREEZEDRY",
+      "probe_id": "aomb.freezedry_v0.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "frozen=False identical=False",
+      "evidence": {
+        "fp0": "sha256:579c5ac0aa1863a1aca4b082835c0dbb2751f39e6b2a1018a058774963fd2517",
+        "fp1": "sha256:83a8b464021e39ae37c1df3fa8fcc6b94801afd5df72b8749d7f975e3d54decc",
+        "freeze0": [],
+        "freeze1": []
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "RESEED",
+      "probe_id": "aomb.reseed_v0.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "Linf=0.010000000000000009 eps=0.05",
+      "evidence": {
+        "max_abs": 0.010000000000000009,
+        "epsilon": 0.05
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "RESEED",
+      "probe_id": "aomb.reseed_v0.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "Linf=2.5 eps=0.05",
+      "evidence": {
+        "max_abs": 2.5,
+        "epsilon": 0.05
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SCHEMAX",
+      "probe_id": "aomb.schemax_v0.conforming",
+      "control_role": "conforming",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "reason": "keysets equal",
+      "evidence": {
+        "a": [
+          "duration_ms",
+          "service_name",
+          "span_id",
+          "start_time",
+          "status_code",
+          "trace_id"
+        ],
+        "b": [
+          "duration_ms",
+          "service_name",
+          "span_id",
+          "start_time",
+          "status_code",
+          "trace_id"
+        ],
+        "required": [
+          "duration_ms",
+          "service_name",
+          "span_id",
+          "start_time",
+          "status_code",
+          "trace_id"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "operator": "SCHEMAX",
+      "probe_id": "aomb.schemax_v0.violating",
+      "control_role": "violating",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "reason": "keyset mismatch",
+      "evidence": {
+        "a": [
+          "duration_ms",
+          "service_name",
+          "span_id",
+          "start_time",
+          "status_code",
+          "trace_id"
+        ],
+        "b": [
+          "latency_ms",
+          "service_name",
+          "span_id",
+          "start_time",
+          "trace_id"
+        ],
+        "required": [
+          "duration_ms",
+          "service_name",
+          "span_id",
+          "start_time",
+          "status_code",
+          "trace_id"
+        ]
+      },
+      "matches_expected": true
+    }
+  ],
+  "matrix": {
+    "diptych_schema": "0.2",
+    "source_row": "aomb",
+    "operators": {
+      "SIGNFLIP": {
+        "diptych_core": "pending",
+        "zeroday": "pending",
+        "aomb": "green"
+      },
+      "TRAJSWAP": {
+        "diptych_core": "pending",
+        "zeroday": "pending",
+        "aomb": "green"
+      },
+      "VARSCALE": {
+        "diptych_core": "pending",
+        "zeroday": "pending",
+        "aomb": "green"
+      },
+      "SATEXTEND": {
+        "diptych_core": "pending",
+        "zeroday": "pending",
+        "aomb": "green"
+      },
+      "HISTSWAP": {
+        "diptych_core": "pending",
+        "zeroday": "pending",
+        "aomb": "green"
+      },
+      "FREEZEDRY": {
+        "diptych_core": "pending",
+        "zeroday": "pending",
+        "aomb": "green"
+      },
+      "RESEED": {
+        "diptych_core": "pending",
+        "zeroday": "pending",
+        "aomb": "green"
+      },
+      "SCHEMAX": {
+        "diptych_core": "pending",
+        "zeroday": "pending",
+        "aomb": "green"
+      }
+    }
+  }
+}

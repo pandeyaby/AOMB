@@ -1,0 +1,46 @@
+{
+  "diptych_schema": "0.2",
+  "source_row": "aomb",
+  "operators": {
+    "SIGNFLIP": {
+      "diptych_core": "pending",
+      "zeroday": "pending",
+      "aomb": "green"
+    },
+    "TRAJSWAP": {
+      "diptych_core": "pending",
+      "zeroday": "pending",
+      "aomb": "green"
+    },
+    "VARSCALE": {
+      "diptych_core": "pending",
+      "zeroday": "pending",
+      "aomb": "green"
+    },
+    "SATEXTEND": {
+      "diptych_core": "pending",
+      "zeroday": "pending",
+      "aomb": "green"
+    },
+    "HISTSWAP": {
+      "diptych_core": "pending",
+      "zeroday": "pending",
+      "aomb": "green"
+    },
+    "FREEZEDRY": {
+      "diptych_core": "pending",
+      "zeroday": "pending",
+      "aomb": "green"
+    },
+    "RESEED": {
+      "diptych_core": "pending",
+      "zeroday": "pending",
+      "aomb": "green"
+    },
+    "SCHEMAX": {
+      "diptych_core": "pending",
+      "zeroday": "pending",
+      "aomb": "green"
+    }
+  }
+}

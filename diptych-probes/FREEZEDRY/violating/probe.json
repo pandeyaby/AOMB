@@ -1,0 +1,54 @@
+{
+  "diptych_schema": "0.2",
+  "source": "aomb",
+  "operator": "FREEZEDRY",
+  "coupling": "open_loop",
+  "horizon": {
+    "unit": "steps",
+    "length": 8
+  },
+  "probe_id": "aomb.freezedry_v0.violating",
+  "fixture_id": "aomb.freezedry_v0.violating",
+  "control_role": "violating",
+  "expected_verdict": "fail",
+  "traces": [
+    {
+      "trace_id": "a",
+      "events": [],
+      "channels": {
+        "params": {
+          "values": [
+            0.1,
+            0.2,
+            0.3
+          ]
+        }
+      },
+      "meta": {
+        "seed": 0,
+        "freeze_channels": [],
+        "decision_fingerprint": "sha256:579c5ac0aa1863a1aca4b082835c0dbb2751f39e6b2a1018a058774963fd2517",
+        "frozen": false
+      }
+    },
+    {
+      "trace_id": "b",
+      "events": [],
+      "channels": {
+        "params": {
+          "values": [
+            0.9,
+            0.8,
+            0.7
+          ]
+        }
+      },
+      "meta": {
+        "seed": 1,
+        "freeze_channels": [],
+        "decision_fingerprint": "sha256:83a8b464021e39ae37c1df3fa8fcc6b94801afd5df72b8749d7f975e3d54decc",
+        "frozen": false
+      }
+    }
+  ]
+}
