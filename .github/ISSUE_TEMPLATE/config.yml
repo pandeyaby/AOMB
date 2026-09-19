@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security policy
+    url: https://github.com/pandeyaby/AOMB/blob/main/SECURITY.md
+    about: Defensive scope + how to report (no public exploit dumps; no invented AUROC).
+  - name: Public wins (stranger verify)
+    url: https://github.com/pandeyaby/AOMB/blob/main/docs/public-wins.md
+    about: What outsiders can verify today — badge, Codespaces, example green run.
