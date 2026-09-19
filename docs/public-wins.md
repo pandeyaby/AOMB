@@ -25,6 +25,16 @@ Both workflows already expose **`workflow_dispatch`**. Prefer **stranger-verify*
 
 ---
 
+## Example green cite (main)
+
+**Example green cite (main)** — 2026-09-19 · `7abdfd5` · [`stranger-verify` run 35471119285](https://github.com/pandeyaby/AOMB/actions/runs/35471119285)
+
+This is an **example** of a successful check outsiders can share without hunting history — **not** a forever-frozen claim. The live **badge / workflow** remains canonical; tip of `main` may move.
+
+**Proves (when that run is green):** DIPTYCH full-8 emit + `gate_axis_mutate` (`aomb=green`, `axis_power=true`) + ranking-card baselines ε. **Does not prove:** lab AUROC, CUDA, production / field accuracy.
+
+---
+
 ## Live badges (cite these)
 
 [![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml)
