@@ -23,7 +23,8 @@ Share / paste for outsiders: [`docs/share-snip.md`](docs/share-snip.md).
 
 Index + honesty: **[`docs/public-wins.md`](docs/public-wins.md)** · cheatsheet: [`docs/stranger-60s.md`](docs/stranger-60s.md).  
 **Contributing as a stranger:** [`docs/contributing-stranger.md`](docs/contributing-stranger.md).  
-**Security:** [`SECURITY.md`](SECURITY.md) — defensive scope + report path.
+**Security:** [`SECURITY.md`](SECURITY.md) — defensive scope + report path.  
+**Support:** [`SUPPORT.md`](SUPPORT.md) — verify · vulns · PRs (no invented AUROC / CUDA; `prepare.py` sacred).
 
 | Path | How | Proves | Does **not** prove |
 |------|-----|--------|---------------------|
