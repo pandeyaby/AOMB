@@ -1,7 +1,9 @@
 # Autonomous Observability Model Breeder (AOMB)
 
 [![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml)
+[![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml)
 [![stranger-demo](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml)
+[![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml)
 [![public-ranking-card-v1](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml)
 
 ![Traces → small next-token ILM → anomaly via surprise; Apple Silicon research loop](docs/assets/aomb-readme-hero.png)
@@ -388,6 +390,18 @@ karpathy/autoresearch          (original — H100, NVIDIA)
 - `uv` package manager
 - An Anthropic API key (`AOMB_ANTHROPIC_API_KEYS`) — or Claude Code CLI fallback
 - ~500 MB disk for corpus + tokenizer (more for CRISP download)
+
+---
+
+## Cite without cloning (stranger verify)
+
+Outsiders can cite a green **`stranger-verify`** check without a local clone or Apple MPS:
+
+- **Badge / runs:** [stranger-verify workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) — share a successful Actions run URL.
+- **Codespaces:** [Open in Codespaces](https://codespaces.new/pandeyaby/AOMB) → `STRANGER_FAST=1 ./scripts/stranger_verify.sh`
+- **One-pager:** [`docs/stranger-verify.md`](docs/stranger-verify.md)
+
+**Proves:** DIPTYCH full-8 + `gate_axis_mutate`, plus ranking-card baselines ε (optional CPU `--with-model` via dispatch). **Does not prove:** lab AUROC (`not_published`), production accuracy, MPS train, overnight agent. Tiny-n fixture limits apply — no invented AUROC.
 
 ---
 
