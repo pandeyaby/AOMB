@@ -7,3 +7,5 @@ Thanks for looking. Keep changes small and honest.
 Also: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/share-snip.md`](docs/share-snip.md) · [`docs/compute-paths.md`](docs/compute-paths.md) · [`SECURITY.md`](SECURITY.md).
 
 `prepare.py` is sacred. License: [`LICENSE`](LICENSE) · attribution: [`NOTICE`](NOTICE).
+
+Review ownership for critical paths: [`.github/CODEOWNERS`](.github/CODEOWNERS) (`@pandeyaby`).
