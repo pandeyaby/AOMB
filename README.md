@@ -17,12 +17,14 @@ Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyab
 
 ### Public wins (what an outsider can verify today)
 
+Landing page (badges, one-click Codespaces / `workflow_dispatch`, honesty): **[`docs/public-wins.md`](docs/public-wins.md)**.
+
 | Path | How | Proves | Does **not** prove |
 |------|-----|--------|---------------------|
 | **Clone demo** | `./scripts/stranger_demo.sh` ([§ Stranger demo](#stranger-demo-linux--ci--no-mps-no-api-keys)) | Full-8 + `gate_axis_mutate`; ranking-card harness smoke (CPU) | Lab AUROC, production accuracy, MPS train, overnight agent |
 | **Cite Action badge** | Green [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) ([§ Cite without cloning](#cite-without-cloning-stranger-verify)) | Same gates via Actions / Codespaces — no local Mac | Same limits — **no invented AUROC** |
 
-Both paths are honest harness / fixture smoke. Lab AUROC stays **`not_published`**.  
+Both paths are honest harness / fixture smoke. Lab AUROC stays **`not_published`**. No CUDA claim yet.  
 Compute honesty (CPU stranger vs MPS product train; future CUDA = checklist only): [`docs/compute-paths.md`](docs/compute-paths.md).
 
 ---
@@ -53,7 +55,7 @@ Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md)
 | **2. Lab — private** | Docker stack + faults (optional redacted pack) | Ranking evidence under [`docs/lab/`](docs/lab/) — default **`not_published`** |
 | **3. Public fixture card** | Tiny synthetic pack + CI | **`published_fixture_card`** = **harness smoke** that beat baselines — **not** lab / production ranking |
 
-Details: [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md).
+Details: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md) · [`docs/compute-paths.md`](docs/compute-paths.md).
 
 ---
 
@@ -407,9 +409,10 @@ karpathy/autoresearch          (original — H100, NVIDIA)
 
 Outsiders can cite a green **`stranger-verify`** check without a local clone or Apple MPS:
 
-- **Badge / runs:** [stranger-verify workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) — share a successful Actions run URL.
-- **Codespaces:** [Open in Codespaces](https://codespaces.new/pandeyaby/AOMB) → `STRANGER_FAST=1 ./scripts/stranger_verify.sh`
-- **One-pager:** [`docs/stranger-verify.md`](docs/stranger-verify.md)
+- **Open in Codespaces (one click):** [codespaces.new/pandeyaby/AOMB](https://codespaces.new/pandeyaby/AOMB) → `STRANGER_FAST=1 ./scripts/stranger_verify.sh`
+- **Run workflow (one click):** [stranger-verify → Run workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) (`workflow_dispatch`; optional `full_model=true` = CPU card smoke)
+- **Badge / past runs:** share a successful Actions run URL from the same workflow page
+- **One-pager:** [`docs/stranger-verify.md`](docs/stranger-verify.md) · full list: [`docs/public-wins.md`](docs/public-wins.md)
 
 **Proves:** DIPTYCH full-8 + `gate_axis_mutate`, plus ranking-card baselines ε (optional CPU `--with-model` via dispatch). **Does not prove:** lab AUROC (`not_published`), production accuracy, MPS train, overnight agent. Tiny-n fixture limits apply — no invented AUROC.
 
