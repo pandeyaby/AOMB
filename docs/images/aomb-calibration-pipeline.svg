@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-labelledby="title desc">
+  <title id="title">AOMB calibration pipeline</title>
+  <desc id="desc">Breed and score on CRISP train fitness, then public fixture card harness smoke, then DIPTYCH paired probes for hyperproperty grading. Lab ranking stays unpublished.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f1c24"/>
+      <stop offset="100%" stop-color="#1a2f3a"/>
+    </linearGradient>
+    <linearGradient id="stage1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e4d5c"/>
+      <stop offset="100%" stop-color="#163845"/>
+    </linearGradient>
+    <linearGradient id="stage2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a5540"/>
+      <stop offset="100%" stop-color="#1e3d2e"/>
+    </linearGradient>
+    <linearGradient id="stage3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4a3d28"/>
+      <stop offset="100%" stop-color="#332a1c"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8fb4c4"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="280" fill="url(#bg)" rx="12"/>
+  <text x="32" y="36" fill="#c8dde6" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="15" font-weight="600">AOMB ’ DIPTYCH calibration path</text>
+  <text x="32" y="56" fill="#7a9aaa" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="11">Three lanes stay separate · no AUROC hero · prepare.py sacred</text>
+
+  <!-- Stage 1 -->
+  <rect x="32" y="84" width="250" height="140" rx="10" fill="url(#stage1)" stroke="#3d7a8c" stroke-width="1.5"/>
+  <text x="48" y="112" fill="#9fd0e0" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="12" font-weight="700" letter-spacing="0.04em">1 · BREED / SCORE</text>
+  <text x="48" y="140" fill="#e8f4f8" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="14" font-weight="600">Train fitness</text>
+  <text x="48" y="164" fill="#b7d4de" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="12">Uber CRISP ’ val_bpb</text>
+  <text x="48" y="186" fill="#8fb4c4" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="11">agent_loop · train.py only</text>
+  <text x="48" y="206" fill="#6a95a5" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="11">not ranking accuracy</text>
+
+  <line x1="292" y1="154" x2="328" y2="154" stroke="#8fb4c4" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Stage 2 -->
+  <rect x="338" y="84" width="250" height="140" rx="10" fill="url(#stage2)" stroke="#4a8a62" stroke-width="1.5"/>
+  <text x="354" y="112" fill="#a8d4b8" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="12" font-weight="700" letter-spacing="0.04em">2 · PUBLIC FIXTURE CARD</text>
+  <text x="354" y="140" fill="#e8f6ec" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="14" font-weight="600">Harness smoke</text>
+  <text x="354" y="164" fill="#b8dcc4" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="12">published_fixture_card</text>
+  <text x="354" y="186" fill="#8fbc9e" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="11">synthetic n=36 · clone ’ CI</text>
+  <text x="354" y="206" fill="#6a9a78" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="11">not production AUROC</text>
+
+  <line x1="598" y1="154" x2="634" y2="154" stroke="#8fb4c4" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Stage 3 -->
+  <rect x="644" y="84" width="284" height="140" rx="10" fill="url(#stage3)" stroke="#a08048" stroke-width="1.5"/>
+  <text x="660" y="112" fill="#e0c888" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="12" font-weight="700" letter-spacing="0.04em">3 · DIPTYCH PROBES</text>
+  <text x="660" y="140" fill="#f5ebd4" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="14" font-weight="600">Hyperproperty grading</text>
+  <text x="660" y="164" fill="#d4c49a" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="12">full-8 paired probes</text>
+  <text x="660" y="186" fill="#b8a878" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="11">adapter CI · gate_axis_mutate</text>
+  <text x="660" y="206" fill="#968858" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="11">calibration ` AUROC hero</text>
+
+  <!-- Footnote strip -->
+  <rect x="32" y="242" width="896" height="26" rx="6" fill="#0a141a" opacity="0.65"/>
+  <text x="48" y="260" fill="#7a9aaa" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="11">Lab ranking lane: private / redacted pack · claim_status=not_published · stays out of the hero path</text>
+</svg>
