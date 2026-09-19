@@ -16,6 +16,10 @@ Cite a green [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workf
 
 Report via [`SECURITY.md`](SECURITY.md) — **not** a public issue with exploit details.
 
+## Conduct
+
+[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) — harassment-free; no pressure to invent AUROC / metrics (`prepare.py` sacred).
+
 ## Contributing / PRs
 
 - Short pointer: [`CONTRIBUTING.md`](CONTRIBUTING.md)

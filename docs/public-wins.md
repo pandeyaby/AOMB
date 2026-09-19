@@ -92,7 +92,7 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 - **60-second verify:** [`stranger-60s.md`](stranger-60s.md)
 - **Share snip (paste):** [`share-snip.md`](share-snip.md)
 - **Contributing as a stranger:** [`contributing-stranger.md`](contributing-stranger.md)
-- **Org trust (optional):** [`SECURITY.md`](../SECURITY.md) · [`SUPPORT.md`](../SUPPORT.md) · [`CITATION.cff`](../CITATION.cff) · [`NOTICE`](../NOTICE) · [`CONTRIBUTING.md`](../CONTRIBUTING.md) · review ownership via [`.github/CODEOWNERS`](../.github/CODEOWNERS) (`@pandeyaby`)
+- **Org trust (optional):** [`SECURITY.md`](../SECURITY.md) · [`SUPPORT.md`](../SUPPORT.md) · [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) · [`CITATION.cff`](../CITATION.cff) · [`NOTICE`](../NOTICE) · [`CONTRIBUTING.md`](../CONTRIBUTING.md) · review ownership via [`.github/CODEOWNERS`](../.github/CODEOWNERS) (`@pandeyaby`)
 - **License:** [`LICENSE`](../LICENSE)
 - README blurb: [Public wins](../README.md#public-wins-what-an-outsider-can-verify-today)
 - Compute honesty: [`compute-paths.md`](compute-paths.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)

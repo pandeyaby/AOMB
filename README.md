@@ -25,6 +25,7 @@ Index + honesty: **[`docs/public-wins.md`](docs/public-wins.md)** · cheatsheet:
 **Contributing as a stranger:** [`docs/contributing-stranger.md`](docs/contributing-stranger.md).  
 **Security:** [`SECURITY.md`](SECURITY.md) — defensive scope + report path.  
 **Support:** [`SUPPORT.md`](SUPPORT.md) — verify · vulns · PRs (no invented AUROC / CUDA; `prepare.py` sacred).  
+**Conduct:** [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) — no harassment; no pressure to invent AUROC / metrics.  
 **Cite:** [`CITATION.cff`](CITATION.cff) — GitHub URL + date accessed (no paper DOI yet; companion [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) is separate).
 
 | Path | How | Proves | Does **not** prove |
