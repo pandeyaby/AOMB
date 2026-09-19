@@ -15,7 +15,7 @@
 
 **Do not invent:** CUDA wall-clock numbers, CUDA `val_bpb`, or any AUROC (lab stays `not_published` until a separate published checklist is green).
 
-Related: [`stranger-60s.md`](stranger-60s.md) · [`public-wins.md`](public-wins.md) · [`stranger-demo.md`](stranger-demo.md) · [`stranger-verify.md`](stranger-verify.md) · [`public-ranking-card-v1.md`](public-ranking-card-v1.md) · [`lab/`](lab/) · [DIPTYCH](https://github.com/pandeyaby/DIPTYCH).
+Related: [`stranger-60s.md`](stranger-60s.md) · [`public-wins.md`](public-wins.md) · [`stranger-demo.md`](stranger-demo.md) · [`stranger-verify.md`](stranger-verify.md) · [`public-ranking-card-v1.md`](public-ranking-card-v1.md) · [`product-mac-path.md`](product-mac-path.md) · [`lab/`](lab/) · [`lab/publish-checklist.md`](lab/publish-checklist.md) · [DIPTYCH](https://github.com/pandeyaby/DIPTYCH).
 
 ---
 
@@ -55,7 +55,7 @@ A public CUDA path may be claimed **only after** all boxes below are filled with
 | `val_bpb` train fitness on that corpus (same honesty as MPS CRISP docs) | Production / field ranking accuracy |
 | Throughput notes (tokens/sec) if measured on that run | Invented or cross-hardware “speedup” without both runs cited |
 
-**Lab AUROC:** still forbidden until the lab publish path is independently green — CUDA does not unlock it.
+**Lab AUROC:** still forbidden until [`lab/publish-checklist.md`](lab/publish-checklist.md) is independently green — CUDA does not unlock it.
 
 ---
 

@@ -61,7 +61,7 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 | Path | Hardware today | Honest claim |
 |------|----------------|--------------|
 | Stranger demo / verify / CI badges | **CPU** (Linux / Actions / Codespaces) | Public gates only — no MPS, no API keys, **no CUDA** |
-| Product overnight breed / `TIME_BUDGET` train | **Apple Silicon MPS** | Train fitness **`val_bpb`** — **not** a CUDA claim, **not** lab AUROC |
+| Product overnight breed / `TIME_BUDGET` train | **Apple Silicon MPS** | Train fitness **`val_bpb`** — **not** a CUDA claim, **not** lab AUROC · bridge: [`product-mac-path.md`](product-mac-path.md) |
 | Future CUDA | Checklist only | Empty boxes = **no claim** — see [`compute-paths.md`](compute-paths.md) |
 
 ---
@@ -79,7 +79,7 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 
 | Surface | Status |
 |---------|--------|
-| **Lab AUROC** | **`not_published`** — no invented AUROC; private numbers stay under [`lab/`](lab/) |
+| **Lab AUROC** | **`not_published`** — no invented AUROC; private numbers stay under [`lab/`](lab/); publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md) (empty boxes = no claim) |
 | **CUDA** | **No claim yet** — checklist only in [`compute-paths.md`](compute-paths.md) |
 | **Public ranking card** | **`published_fixture_card` / harness smoke** — tiny-n synthetic; not production / field accuracy |
 | **CRISP `val_bpb`** | Train fitness only when cited — **not** ranking accuracy |
@@ -95,6 +95,6 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 - **Org trust (optional):** [`SECURITY.md`](../SECURITY.md) · [`SUPPORT.md`](../SUPPORT.md) · [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) · [`CITATION.cff`](../CITATION.cff) · [`NOTICE`](../NOTICE) · [`CONTRIBUTING.md`](../CONTRIBUTING.md) · review ownership via [`.github/CODEOWNERS`](../.github/CODEOWNERS) (`@pandeyaby`)
 - **License:** [`LICENSE`](../LICENSE)
 - README blurb: [Public wins](../README.md#public-wins-what-an-outsider-can-verify-today)
-- Compute honesty: [`compute-paths.md`](compute-paths.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
+- Compute honesty: [`compute-paths.md`](compute-paths.md) · Mac product bridge: [`product-mac-path.md`](product-mac-path.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
 - Three lanes: README · [`corpus-v1.md`](corpus-v1.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)
-- Lab lane: [`lab/`](lab/) (`not_published` by default)
+- Lab lane: [`lab/`](lab/) (`not_published` by default) · publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md)

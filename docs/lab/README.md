@@ -6,6 +6,8 @@ Captures themselves are **not published** in this repository (JSONL stays on the
 > **Public README** describes method only. Numeric lab AUROC / PR-AUC / precision@k live in
 > [`ranking-validation.md`](ranking-validation.md) with `claim_status=not_published`.
 
+**Publish gate (empty boxes = still `not_published`):** [`publish-checklist.md`](publish-checklist.md) — does **not** flip claim status or put lab AUROC on the README hero.
+
 | Lane | Location | Public accuracy? |
 |------|----------|------------------|
 | **Public ranking card v1 (fixture)** | [`docs/public-ranking-card-v1.md`](../public-ranking-card-v1.md) + [`corpus/fixtures/public_ranking_card_v1/`](../../corpus/fixtures/public_ranking_card_v1/) | `published_fixture_card` = harness smoke only — **never** lab-pool / production AUROC |
