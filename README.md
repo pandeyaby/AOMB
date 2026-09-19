@@ -17,6 +17,8 @@ Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyab
 
 > **Verify in 60s** — [![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) · [Open in Codespaces](https://codespaces.new/pandeyaby/AOMB) · [Example green run](https://github.com/pandeyaby/AOMB/actions/runs/35471119285)
 
+Share / paste for outsiders: [`docs/share-snip.md`](docs/share-snip.md).
+
 ### Public wins (what an outsider can verify today)
 
 Index + honesty: **[`docs/public-wins.md`](docs/public-wins.md)** · cheatsheet: [`docs/stranger-60s.md`](docs/stranger-60s.md).
