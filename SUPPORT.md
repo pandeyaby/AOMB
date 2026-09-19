@@ -21,6 +21,10 @@ Report via [`SECURITY.md`](SECURITY.md) — **not** a public issue with exploit 
 - Short pointer: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Outsider path: [`docs/contributing-stranger.md`](docs/contributing-stranger.md)
 
+## Cite
+
+Preferred citation: [`CITATION.cff`](CITATION.cff) / GitHub URL + date accessed — **no paper DOI yet**. Companion [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) is a separate product.
+
 ## Explicit honesty
 
 - **No inventing AUROC** — lab AUROC stays `not_published`
