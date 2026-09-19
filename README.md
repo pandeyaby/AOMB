@@ -34,7 +34,8 @@ Index + honesty: **[`docs/public-wins.md`](docs/public-wins.md)** · cheatsheet:
 | **Cite Action badge** | Green [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) ([§ Cite without cloning](#cite-without-cloning-stranger-verify)) | Same gates via Actions / Codespaces — no local Mac | Same limits — **no invented AUROC** |
 
 Both paths are honest harness / fixture smoke. Lab AUROC stays **`not_published`**. No CUDA claim yet.  
-Compute honesty (CPU stranger vs MPS product train; future CUDA = checklist only): [`docs/compute-paths.md`](docs/compute-paths.md).
+Compute honesty (CPU stranger vs MPS product train; future CUDA = checklist only): [`docs/compute-paths.md`](docs/compute-paths.md).  
+On a Mac already? Stranger CPU ≠ product MPS — short bridge: [`docs/product-mac-path.md`](docs/product-mac-path.md) (`./scripts/product_mac_smoke.sh`).
 
 ---
 
@@ -407,6 +408,7 @@ karpathy/autoresearch          (original — H100, NVIDIA)
 **Overnight research loop (Mac):**
 
 - macOS with Apple Silicon (M1/M2/M3/M4) — product breed / `TIME_BUDGET` train is **MPS**, not a CUDA claim ([`docs/compute-paths.md`](docs/compute-paths.md))
+- Bridge from stranger CPU → MPS `val_bpb` smoke (no keys, no AUROC): [`docs/product-mac-path.md`](docs/product-mac-path.md) · `./scripts/product_mac_smoke.sh`
 - Python 3.10+
 - `uv` package manager
 - An Anthropic API key (`AOMB_ANTHROPIC_API_KEYS`) — or Claude Code CLI fallback
