@@ -1,0 +1,19 @@
+%% AOMB × DIPTYCH companion architecture (diagram-as-code source)
+%% Render: mermaid-cli → docs/images/aomb-diptych-architecture.svg
+%% Products stay separate: AOMB emits fixtures; DIPTYCH grades 2-safety.
+
+flowchart LR
+  subgraph AOMB["AOMB (emit)"]
+    Breed["breed / score loop<br/>train.py · val_bpb"]
+    Fixtures["fixtures<br/>diptych-probes/ · ranking card"]
+    Breed --> Fixtures
+  end
+
+  subgraph DIPTYCH["DIPTYCH (grade) — companion"]
+    Probes["paired probes<br/>conforming × violating"]
+    Gate["2-safety / calibration<br/>full-8 + gate_axis_mutate"]
+    Fixtures --> Probes
+    Probes --> Gate
+  end
+
+  Gate -->|"aomb=green requires<br/>axis_power / mutate"| Matrix["coverage/matrix.json"]

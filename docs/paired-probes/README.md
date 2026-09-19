@@ -1,5 +1,9 @@
 # AOMB ↔ DIPTYCH adapter (diptych_schema 0.2)
 
+AOMB **emits** fixtures; **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)** **grades** 2-safety / calibration on paired probes. Companion layer only — do not merge the products.
+
+Architecture: [`docs/images/aomb-diptych-architecture.svg`](../images/aomb-diptych-architecture.svg) · paper notes [`docs/images/README.md`](../images/README.md).
+
 **Pinned Origin URLs** (canonical): [`diptych/README.md`](diptych/README.md).  
 Offline vendor copies: [`diptych/`](diptych/) (CONTRACT, GATING, OPERATORS, aomb, OPERATOR_TABLE, ONEPAGER).
 
@@ -13,6 +17,8 @@ Probes: `diptych-probes/<OP>/{conforming,violating}/probe.json`
 Coverage: `coverage/matrix.json` (AOMB column)  
 Report: `reports/paired-probes/full8_gate_report.json`  
 Adapter validator: `adapters/aomb.py`
+
+**`aomb=green` requires `gate_axis_mutate`:** twin conf/viol is necessary but not sufficient. CI asserts `axis_power=true` on every operator (`diptych-adapter-gate` on every push to `main`).
 
 ## AOMB channel sketches (exact)
 
