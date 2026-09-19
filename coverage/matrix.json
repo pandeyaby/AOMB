@@ -3,44 +3,45 @@
   "source_row": "aomb",
   "operators": {
     "SIGNFLIP": {
-      "diptych_core": "pending",
+      "diptych_core": "green",
       "zeroday": "pending",
       "aomb": "green"
     },
     "TRAJSWAP": {
-      "diptych_core": "pending",
+      "diptych_core": "green",
       "zeroday": "pending",
       "aomb": "green"
     },
     "VARSCALE": {
-      "diptych_core": "pending",
+      "diptych_core": "green",
       "zeroday": "pending",
       "aomb": "green"
     },
     "SATEXTEND": {
-      "diptych_core": "pending",
+      "diptych_core": "green",
       "zeroday": "pending",
       "aomb": "green"
     },
     "HISTSWAP": {
-      "diptych_core": "pending",
+      "diptych_core": "green",
       "zeroday": "pending",
       "aomb": "green"
     },
     "FREEZEDRY": {
-      "diptych_core": "pending",
+      "diptych_core": "green",
       "zeroday": "pending",
       "aomb": "green"
     },
     "RESEED": {
-      "diptych_core": "pending",
+      "diptych_core": "green",
       "zeroday": "pending",
       "aomb": "green"
     },
     "SCHEMAX": {
-      "diptych_core": "pending",
+      "diptych_core": "green",
       "zeroday": "pending",
       "aomb": "green"
     }
-  }
+  },
+  "notes": "diptych_core green confirmed by DIPTYCH upstream; aomb green from ./scripts/run_diptych_full8.sh on this branch; origin pins: docs/paired-probes/diptych/README.md"
 }

@@ -1,17 +1,18 @@
 # Adapter contract pointer
 
-**Canonical DIPTYCH contract for this repo:** [`diptych/CONTRACT.md`](diptych/CONTRACT.md) (`diptych_schema="0.2"`).
+**Pinned Origin sources (canonical):** see [`diptych/README.md`](diptych/README.md).
 
-Supporting vendor copies (offline):
+| Doc | Origin raw URL |
+|-----|----------------|
+| CONTRACT | https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a/raw/main/docs/adapters/CONTRACT.md |
+| GATING | https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a/raw/main/docs/adapters/GATING.md |
+| AOMB binding | https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a/raw/main/docs/adapters/aomb.md |
+| OPERATORS | https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a/raw/main/docs/OPERATORS.md |
+| ONEPAGER | https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a/raw/main/docs/adapters/ONEPAGER.md |
 
-| Doc | Path |
-|-----|------|
-| CONTRACT | [`diptych/CONTRACT.md`](diptych/CONTRACT.md) |
-| GATING | [`diptych/GATING.md`](diptych/GATING.md) |
-| OPERATORS | [`diptych/OPERATORS.md`](diptych/OPERATORS.md) |
-| OPERATOR_TABLE | [`diptych/OPERATOR_TABLE.md`](diptych/OPERATOR_TABLE.md) |
-| ONEPAGER | [`diptych/ONEPAGER.md`](diptych/ONEPAGER.md) |
-| AOMB binding | [`diptych/aomb.md`](diptych/aomb.md) |
+**Upstream repo:** https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a
+
+Offline vendor copies (this repo): [`diptych/`](diptych/) — `diptych_schema="0.2"`.
 
 AOMB emits probe pairs under `diptych-probes/` and mirrors coverage in `coverage/matrix.json`.
 See [`README.md`](README.md).

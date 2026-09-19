@@ -1,6 +1,7 @@
 # AOMB ↔ DIPTYCH adapter (diptych_schema 0.2)
 
-Canonical DIPTYCH specs are vendored under [`diptych/`](diptych/) (CONTRACT, GATING, OPERATORS, aomb, OPERATOR_TABLE, ONEPAGER).
+**Pinned Origin URLs** (canonical): [`diptych/README.md`](diptych/README.md).  
+Offline vendor copies: [`diptych/`](diptych/) (CONTRACT, GATING, OPERATORS, aomb, OPERATOR_TABLE, ONEPAGER).
 
 ## Emit path
 
