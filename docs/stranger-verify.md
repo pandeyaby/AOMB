@@ -42,7 +42,9 @@ STRANGER_FAST=1 ./scripts/stranger_verify.sh
 3. **Badge / past runs** — green check on the same workflow page; open a successful run → share that URL.
 4. **Clone (optional)** — same command after `pip install pyarrow numpy rustbpe tiktoken` (or `uv sync`). For the fuller local default (model smoke when torch is present), use [`stranger_demo.sh`](../scripts/stranger_demo.sh) instead — see [`stranger-demo.md`](stranger-demo.md).
 
-Full outsider index: [`public-wins.md`](public-wins.md).
+**60-second cheatsheet:** [`stranger-60s.md`](stranger-60s.md). Full outsider index: [`public-wins.md`](public-wins.md).
+
+`workflow_dispatch` input alias: **`full_model=false`** (default) ↔ `STRANGER_FAST=1` (baselines-only ε); `full_model=true` ↔ `STRANGER_FAST=0` (CPU `--with-model` only — still not lab AUROC / CUDA).
 
 ---
 
@@ -61,9 +63,10 @@ Default `STRANGER_FAST=1`. Set `STRANGER_FAST=0` for full fixture-model CPU smok
 
 ## Related
 
+- **60-second verify:** [`stranger-60s.md`](stranger-60s.md)
 - Outsider landing: [`public-wins.md`](public-wins.md)
 - Clone-first stranger path: [`stranger-demo.md`](stranger-demo.md) / `scripts/stranger_demo.sh`
-- Compute honesty: [`compute-paths.md`](compute-paths.md)
+- Compute honesty: [`compute-paths.md`](compute-paths.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
 - Adapter gate CI: [`.github/workflows/diptych-adapter-gate.yml`](../.github/workflows/diptych-adapter-gate.yml)
 - Ranking card CI: [`.github/workflows/public-ranking-card-v1.yml`](../.github/workflows/public-ranking-card-v1.yml)
 - Cite CI: [`.github/workflows/stranger-verify.yml`](../.github/workflows/stranger-verify.yml)

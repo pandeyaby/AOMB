@@ -17,7 +17,8 @@ Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyab
 
 ### Public wins (what an outsider can verify today)
 
-Landing page (badges, one-click Codespaces / `workflow_dispatch`, honesty): **[`docs/public-wins.md`](docs/public-wins.md)**.
+Landing page (badges, one-click Codespaces / `workflow_dispatch`, honesty): **[`docs/public-wins.md`](docs/public-wins.md)**.  
+**60-second verify:** [`docs/stranger-60s.md`](docs/stranger-60s.md).
 
 | Path | How | Proves | Does **not** prove |
 |------|-----|--------|---------------------|
@@ -55,7 +56,7 @@ Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md)
 | **2. Lab — private** | Docker stack + faults (optional redacted pack) | Ranking evidence under [`docs/lab/`](docs/lab/) — default **`not_published`** |
 | **3. Public fixture card** | Tiny synthetic pack + CI | **`published_fixture_card`** = **harness smoke** that beat baselines — **not** lab / production ranking |
 
-Details: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md) · [`docs/compute-paths.md`](docs/compute-paths.md).
+Details: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/stranger-60s.md`](docs/stranger-60s.md) · [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md) · [`docs/compute-paths.md`](docs/compute-paths.md).
 
 ---
 

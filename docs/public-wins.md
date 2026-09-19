@@ -7,15 +7,21 @@
 
 ---
 
+## 60-second path
+
+Tightest outsider cheatsheet: **[`stranger-60s.md`](stranger-60s.md)** (`STRANGER_FAST=1 ./scripts/stranger_verify.sh` · badge / Codespaces · what green means).
+
+---
+
 ## One-click verify (no clone required)
 
 | Action | Link |
 |--------|------|
 | **Open in Codespaces** | [codespaces.new/pandeyaby/AOMB](https://codespaces.new/pandeyaby/AOMB) → then `STRANGER_FAST=1 ./scripts/stranger_verify.sh` |
-| **Run Action (workflow_dispatch)** | [stranger-verify → Run workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) — optional `full_model=true` = CPU torch card smoke, **not** lab AUROC |
+| **Run Action (workflow_dispatch)** | [stranger-verify → Run workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) — default `full_model=false` ≡ fast path (`STRANGER_FAST=1`); optional `full_model=true` = CPU torch card smoke, **not** lab AUROC |
 | **Same for local demo CI** | [stranger-demo → Run workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml) |
 
-Both workflows already expose **`workflow_dispatch`**. Prefer **stranger-verify** when you only need a citeable green check.
+Both workflows already expose **`workflow_dispatch`**. Prefer **stranger-verify** when you only need a citeable green check. Input alias: **`full_model=false`** (default) ↔ `STRANGER_FAST=1`.
 
 ---
 
@@ -79,6 +85,8 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 
 ## Related
 
+- **60-second verify:** [`stranger-60s.md`](stranger-60s.md)
 - README blurb: [Public wins](../README.md#public-wins-what-an-outsider-can-verify-today)
+- Compute honesty: [`compute-paths.md`](compute-paths.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
 - Three lanes: README · [`corpus-v1.md`](corpus-v1.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)
 - Lab lane: [`lab/`](lab/) (`not_published` by default)
