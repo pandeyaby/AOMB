@@ -8,3 +8,4 @@ Emit under `diptych_schema: "0.2"` probe-pair JSON (see CONTRACT.md).
 No lab AUROC / no fabricated scores. Public ranking card = smoke narrative only.
 
 CI must fail if coverage manifest lists any operator as stub/TODO/missing violating twin.
+**`aomb=green` requires `gate_axis_mutate`** (power-on-axis / `axis_power=true`) — twin conf/viol alone is not enough.

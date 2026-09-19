@@ -8,15 +8,11 @@
 name: diptych-adapter-gate
 
 on:
+  # Badge / main tip: always run on push to main (not path-filtered).
   push:
-    paths:
-      - "diptych-probes/**"
-      - "eval/diptych/**"
-      - "coverage/**"
-      - "docs/paired-probes/**"
-      - "scripts/run_diptych_full8.sh"
-      - "tests/test_diptych_full8.py"
-      - ".github/workflows/diptych-adapter-gate.yml"
+    branches:
+      - main
+  # PRs: keep path filters so unrelated docs/train PRs stay cheap.
   pull_request:
     paths:
       - "diptych-probes/**"
@@ -26,6 +22,7 @@ on:
       - "scripts/run_diptych_full8.sh"
       - "tests/test_diptych_full8.py"
       - ".github/workflows/diptych-adapter-gate.yml"
+  workflow_dispatch:
 
 jobs:
   full8-gate:
@@ -48,7 +45,7 @@ jobs:
           chmod +x scripts/run_diptych_full8.sh
           ./scripts/run_diptych_full8.sh
 
-      - name: Assert all aomb cells green (requires axis_power)
+      - name: Assert all aomb cells green (requires gate_axis_mutate / axis_power)
         run: |
           python - <<'PY'
           import json, sys
@@ -58,7 +55,7 @@ jobs:
               if c.get("aomb") != "green" or c.get("axis_power") is not True
           }
           if bad:
-            print("non-green or missing axis_power:", bad)
+            print("non-green or missing axis_power (gate_axis_mutate):", bad)
             sys.exit(1)
-          print("all 8 aomb cells green with axis_power=true")
+          print("all 8 aomb cells green with axis_power=true (gate_axis_mutate)")
           PY
