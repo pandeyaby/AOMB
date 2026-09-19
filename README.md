@@ -185,6 +185,7 @@ Calibration path: ![Breed/score → public fixture card → DIPTYCH probes](docs
 ### BYO / synthetic smoke
 
 - BYO dumps: [`docs/byo-and-scorer.md`](docs/byo-and-scorer.md) — scoring ≠ published accuracy.
+- One-command: `./scripts/byo_score.sh /path/to/dump` (session BPB only; lab stays `not_published`).
 - `generate_observability_corpus.py` = smoke / CI only — **not** the flagship train story.
 
 ---

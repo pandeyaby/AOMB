@@ -98,3 +98,4 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 - Compute honesty: [`compute-paths.md`](compute-paths.md) · Mac product bridge: [`product-mac-path.md`](product-mac-path.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
 - Three lanes: README · [`corpus-v1.md`](corpus-v1.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)
 - Lab lane: [`lab/`](lab/) (`not_published` by default) · publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md)
+- BYO session BPB (not AUROC): [`byo-and-scorer.md`](byo-and-scorer.md) · `./scripts/byo_score.sh`

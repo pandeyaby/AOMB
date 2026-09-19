@@ -89,6 +89,7 @@ Full card runs: 3–5 seeds via `run_multiseed` / `run_public_ranking_card`. See
 Per-session surprise/BPB without ranking metrics — for BYO dumps and diagnostics:
 
 ```bash
+./scripts/byo_score.sh corpus/fixtures/lab_sample
 uv run python -m eval.score_cli --input corpus/fixtures/lab_sample --dry-run
 uv run python -m score_session --input path/to/dump --train-seconds 30 --out /tmp/score.json
 ```
