@@ -21,7 +21,8 @@ Share / paste for outsiders: [`docs/share-snip.md`](docs/share-snip.md).
 
 ### Public wins (what an outsider can verify today)
 
-Index + honesty: **[`docs/public-wins.md`](docs/public-wins.md)** · cheatsheet: [`docs/stranger-60s.md`](docs/stranger-60s.md).
+Index + honesty: **[`docs/public-wins.md`](docs/public-wins.md)** · cheatsheet: [`docs/stranger-60s.md`](docs/stranger-60s.md).  
+**Contributing as a stranger:** [`docs/contributing-stranger.md`](docs/contributing-stranger.md).
 
 | Path | How | Proves | Does **not** prove |
 |------|-----|--------|---------------------|
@@ -428,7 +429,9 @@ Already cloning? Prefer the fuller local entry: [Stranger demo](#stranger-demo-l
 
 ## License
 
-MIT — builds on [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) (MIT)
+MIT — see [`LICENSE`](LICENSE). Upstream attributions (org / redistribution clarity): [`NOTICE`](NOTICE).
+
+Builds on [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) (MIT)
 which builds on [karpathy/autoresearch](https://github.com/karpathy/autoresearch) (MIT).
 
 *Authored by Abhinav Pandey*
