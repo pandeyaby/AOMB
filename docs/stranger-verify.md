@@ -32,16 +32,17 @@ Honesty parent docs: [`public-ranking-card-v1.md`](public-ranking-card-v1.md) ·
 
 ## Cite without cloning
 
-1. **Badge / Actions** — green check on workflow [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml). Open a successful run → share that URL.
-2. **Codespaces** — [Open in GitHub Codespaces](https://codespaces.new/pandeyaby/AOMB) (uses [`.devcontainer/`](../.devcontainer/)). Then:
+1. **Open in Codespaces (one click)** — [codespaces.new/pandeyaby/AOMB](https://codespaces.new/pandeyaby/AOMB) (uses [`.devcontainer/`](../.devcontainer/)). Then:
 
 ```bash
 STRANGER_FAST=1 ./scripts/stranger_verify.sh
 ```
 
-3. **Clone (optional)** — same command after `pip install pyarrow numpy rustbpe tiktoken` (or `uv sync`). For the fuller local default (model smoke when torch is present), use [`stranger_demo.sh`](../scripts/stranger_demo.sh) instead — see [`stranger-demo.md`](stranger-demo.md).
+2. **Run workflow (one click)** — [`stranger-verify` → Run workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) (`workflow_dispatch`). Optional **`full_model=true`** installs CPU torch and runs ranking-card `--with-model` — still **not** lab AUROC / MPS train.
+3. **Badge / past runs** — green check on the same workflow page; open a successful run → share that URL.
+4. **Clone (optional)** — same command after `pip install pyarrow numpy rustbpe tiktoken` (or `uv sync`). For the fuller local default (model smoke when torch is present), use [`stranger_demo.sh`](../scripts/stranger_demo.sh) instead — see [`stranger-demo.md`](stranger-demo.md).
 
-`workflow_dispatch` with **full_model=true** installs CPU torch and runs ranking-card `--with-model` — still **not** lab AUROC / MPS train.
+Full outsider index: [`public-wins.md`](public-wins.md).
 
 ---
 
@@ -60,7 +61,9 @@ Default `STRANGER_FAST=1`. Set `STRANGER_FAST=0` for full fixture-model CPU smok
 
 ## Related
 
+- Outsider landing: [`public-wins.md`](public-wins.md)
 - Clone-first stranger path: [`stranger-demo.md`](stranger-demo.md) / `scripts/stranger_demo.sh`
+- Compute honesty: [`compute-paths.md`](compute-paths.md)
 - Adapter gate CI: [`.github/workflows/diptych-adapter-gate.yml`](../.github/workflows/diptych-adapter-gate.yml)
 - Ranking card CI: [`.github/workflows/public-ranking-card-v1.yml`](../.github/workflows/public-ranking-card-v1.yml)
 - Cite CI: [`.github/workflows/stranger-verify.yml`](../.github/workflows/stranger-verify.yml)

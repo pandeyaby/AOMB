@@ -15,7 +15,7 @@
 
 **Do not invent:** CUDA wall-clock numbers, CUDA `val_bpb`, or any AUROC (lab stays `not_published` until a separate published checklist is green).
 
-Related: [`stranger-demo.md`](stranger-demo.md) · [`stranger-verify.md`](stranger-verify.md) · [`public-ranking-card-v1.md`](public-ranking-card-v1.md) · [`lab/`](lab/).
+Related: [`public-wins.md`](public-wins.md) · [`stranger-demo.md`](stranger-demo.md) · [`stranger-verify.md`](stranger-verify.md) · [`public-ranking-card-v1.md`](public-ranking-card-v1.md) · [`lab/`](lab/).
 
 ---
 
