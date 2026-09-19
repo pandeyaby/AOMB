@@ -1,9 +1,13 @@
 # How DIPTYCH gates thin implementations
 
+> **Pinned Origin (normative):**  
+> https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a/raw/main/docs/adapters/GATING.md  
+> This file is the AOMB vendor mirror. Prefer Origin when reachable; keep this copy in lockstep with the `gate_axis_mutate` section.
+
 1. **Manifest gate:** every source in `{diptych_core,zeroday,aomb}` must declare 8 operators × {conforming,violating} artifact paths (`eval/diptych/gates.py::gate_manifest`).
 2. **Contrast gate:** for each pair, run harness; require asymmetric verdicts (pass vs fail) unless both honestly `inconclusive` with documented reason (inconclusive≠green). Identical twins → fail (`gate_contrast`).
 3. **Axis presence gate:** conforming + violating must carry the operator's axis fields / coupling (`gate_axis`). TRAJSWAP/VARSCALE require `crn_closed_loop`.
-4. **`gate_axis_mutate` (power-on-axis):** after contrast + axis presence, mutate *only* the operator axis on the conforming fixture and re-grade. Baseline must be `pass`; mutated must be `fail`. Axis fingerprint must change. Cosmetic sole edits (`expected_verdict`-only, SARIF level rename, AUROC) do **not** count as power. See mutation table below. Implemented in `eval/diptych/gates.py::gate_axis_mutate` + `eval/diptych/mutate_axis.py`.
+4. **`gate_axis_mutate` (power-on-axis):** after contrast + axis presence, mutate *only* the operator axis on the conforming fixture and re-grade. Baseline must be `pass`; mutated must be `fail`. Axis fingerprint (`axis_fingerprint`) must change. Cosmetic sole edits do **not** count as power (see forbidden list). Implemented in `eval/diptych/gates.py::gate_axis_mutate` + `eval/diptych/mutate_axis.py`.
 5. **Stub detectors:** reject strings/markers `TODO`, `NotImplemented`, `stub`, empty traces, `expected_verdict` hardcoded without running grader.
 6. **Coverage matrix:** `coverage/matrix.json` may set `aomb=green` **only** when twin contrast **and** `gate_axis_mutate` both pass (`axis_power: true`). Do not keep `aomb=green` unless mutate gate passes.
 7. **PR policy:** DIPTYCH flags product PRs that only smoke 1–2 operators; GRAX informed; coverage matrix stays non-green. **HOLD merge** on adapter PRs until full-8 + axis power are green.
@@ -29,7 +33,10 @@ Mutate **only** these axes on conforming (then re-grade → must fail):
 - SARIF level rename
 - AUROC / fabricated scores
 
-Negative coverage: `tests/test_diptych_full8.py::test_verdict_only_flip_is_not_axis_power`.
+Negative coverage (AOMB mirrors DIPTYCH harness cosmetic-relabel rejection):
+
+- `tests/test_diptych_full8.py::test_verdict_only_flip_is_not_axis_power`
+- `tests/test_diptych_full8.py::test_cosmetic_relabel_is_not_axis_power` (SARIF rename + AUROC inject)
 
 ## AOMB wiring
 

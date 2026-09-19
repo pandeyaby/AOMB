@@ -132,6 +132,40 @@ class TestDiptychFull8(unittest.TestCase):
             [f.__dict__ for f in failures],
         )
 
+    def test_cosmetic_relabel_is_not_axis_power(self):
+        """Negative (DIPTYCH cosmetic-relabel): SARIF rename / AUROC inject ≠ power."""
+        from eval.diptych.contract import load_probe
+        from eval.diptych.gates import gate_axis_mutate
+        from eval.diptych.mutate_axis import (
+            axis_fingerprint,
+            cosmetic_auroc_inject,
+            cosmetic_sarif_level_rename,
+        )
+
+        conf = load_probe(ROOT / "diptych-probes" / "SIGNFLIP" / "conforming" / "probe.json")
+        for name, mutator in (
+            ("sarif_level_rename", cosmetic_sarif_level_rename),
+            ("auroc_inject", cosmetic_auroc_inject),
+        ):
+            failures, evidence = gate_axis_mutate(
+                op="SIGNFLIP", conf=conf, mutator=mutator
+            )
+            self.assertFalse(evidence["power_ok"], name)
+            self.assertFalse(evidence["axis_changed"], name)
+            self.assertEqual(
+                axis_fingerprint(conf),
+                axis_fingerprint(mutator(conf)),
+                name,
+            )
+            self.assertTrue(any(f.gate == "axis_mutate" for f in failures), name)
+            self.assertTrue(
+                any(
+                    "cosmetic" in f.detail or "verdict-only" in f.detail
+                    for f in failures
+                ),
+                f"{name}: {[f.__dict__ for f in failures]}",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

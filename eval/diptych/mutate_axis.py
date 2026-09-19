@@ -205,3 +205,24 @@ def cosmetic_verdict_only(doc: dict[str, Any]) -> dict[str, Any]:
     out = _deep(doc)
     out["expected_verdict"] = "fail" if doc.get("expected_verdict") == "pass" else "pass"
     return out
+
+
+def cosmetic_sarif_level_rename(doc: dict[str, Any]) -> dict[str, Any]:
+    """Forbidden sole edit: SARIF level rename without axis change (for negative tests)."""
+    out = _deep(doc)
+    # Top-level / envelope cosmetics only — must not touch traces channels+meta.
+    out["sarif_level"] = "error" if doc.get("sarif_level") != "error" else "warning"
+    out["sarif"] = {
+        **(doc.get("sarif") or {}),
+        "level": out["sarif_level"],
+        "ruleId": (doc.get("sarif") or {}).get("ruleId", "diptych.cosmetic"),
+    }
+    return out
+
+
+def cosmetic_auroc_inject(doc: dict[str, Any]) -> dict[str, Any]:
+    """Forbidden sole edit: inject AUROC / fabricated score without axis change."""
+    out = _deep(doc)
+    out["auroc"] = 0.99
+    out["fabricated_score"] = 0.99
+    return out
