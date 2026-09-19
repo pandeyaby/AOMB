@@ -27,6 +27,7 @@ Workflow: [`.github/workflows/diptych-adapter-gate.yml`](../../.github/workflows
 - `aomb=green` in `coverage/matrix.json` **only** when twin OK **and** `axis_power=true`.
 - Forbidden sole edits (do not count as power): `expected_verdict`-only flip, SARIF rename, AUROC inject.
 - `prepare.py` remains sacred / untouched by this path.
+- Path-filtered CI: `.github/workflows/diptych-adapter-gate.yml` runs on `docs/paired-probes/**` changes.
 
 ## AOMB channel sketches (exact)
 
