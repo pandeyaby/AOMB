@@ -35,9 +35,14 @@ def main(argv: list[str] | None = None) -> int:
     args.out.write_text(json.dumps(report.to_dict(), indent=2) + "\n", encoding="utf-8")
 
     print(f"diptych_schema={report.matrix.get('diptych_schema')} source={report.matrix.get('source_row')}")
-    print("operator matrix (aomb column):")
+    print("operator matrix (aomb column; green only after gate_axis_mutate):")
     for op, cell in report.matrix.get("operators", {}).items():
-        print(f"  {op:12} aomb={cell.get('aomb')}")
+        power = report.axis_power.get(op, {})
+        print(
+            f"  {op:12} aomb={cell.get('aomb')} "
+            f"axis_power={cell.get('axis_power')} "
+            f"mutate={power.get('baseline_verdict')}→{power.get('mutated_verdict')}"
+        )
     if report.failures:
         print("FAILURES:")
         for f in report.failures:

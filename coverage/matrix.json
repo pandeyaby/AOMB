@@ -5,43 +5,51 @@
     "SIGNFLIP": {
       "diptych_core": "green",
       "zeroday": "pending",
-      "aomb": "green"
+      "aomb": "green",
+      "axis_power": true
     },
     "TRAJSWAP": {
       "diptych_core": "green",
       "zeroday": "pending",
-      "aomb": "green"
+      "aomb": "green",
+      "axis_power": true
     },
     "VARSCALE": {
       "diptych_core": "green",
       "zeroday": "pending",
-      "aomb": "green"
+      "aomb": "green",
+      "axis_power": true
     },
     "SATEXTEND": {
       "diptych_core": "green",
       "zeroday": "pending",
-      "aomb": "green"
+      "aomb": "green",
+      "axis_power": true
     },
     "HISTSWAP": {
       "diptych_core": "green",
       "zeroday": "pending",
-      "aomb": "green"
+      "aomb": "green",
+      "axis_power": true
     },
     "FREEZEDRY": {
       "diptych_core": "green",
       "zeroday": "pending",
-      "aomb": "green"
+      "aomb": "green",
+      "axis_power": true
     },
     "RESEED": {
       "diptych_core": "green",
       "zeroday": "pending",
-      "aomb": "green"
+      "aomb": "green",
+      "axis_power": true
     },
     "SCHEMAX": {
       "diptych_core": "green",
       "zeroday": "pending",
-      "aomb": "green"
+      "aomb": "green",
+      "axis_power": true
     }
   },
-  "notes": "diptych_core green confirmed by DIPTYCH upstream; aomb green from ./scripts/run_diptych_full8.sh on this branch; origin pins: docs/paired-probes/diptych/README.md"
+  "notes": "aomb=green requires twin conf/viol AND gate_axis_mutate power-on-axis; diptych_core green confirmed upstream"
 }

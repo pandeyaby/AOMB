@@ -2,7 +2,8 @@
 #
 # Deterministic fixture probes only. No MPS train. No API spend.
 # Fails on: missing operator/role, stub markers, identical twins,
-# asymmetric-verdict failure, TRAJSWAP/VARSCALE without crn_closed_loop.
+# asymmetric-verdict failure, TRAJSWAP/VARSCALE without crn_closed_loop,
+# and gate_axis_mutate power-on-axis (aomb=green only if mutate passes).
 
 name: diptych-adapter-gate
 
@@ -47,14 +48,17 @@ jobs:
           chmod +x scripts/run_diptych_full8.sh
           ./scripts/run_diptych_full8.sh
 
-      - name: Assert all aomb cells green
+      - name: Assert all aomb cells green (requires axis_power)
         run: |
           python - <<'PY'
           import json, sys
           m = json.load(open("coverage/matrix.json"))
-          bad = {op: c for op, c in m["operators"].items() if c.get("aomb") != "green"}
+          bad = {
+              op: c for op, c in m["operators"].items()
+              if c.get("aomb") != "green" or c.get("axis_power") is not True
+          }
           if bad:
-            print("non-green:", bad)
+            print("non-green or missing axis_power:", bad)
             sys.exit(1)
-          print("all 8 aomb cells green")
+          print("all 8 aomb cells green with axis_power=true")
           PY

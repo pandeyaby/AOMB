@@ -313,45 +313,136 @@
     "source_row": "aomb",
     "operators": {
       "SIGNFLIP": {
-        "diptych_core": "pending",
+        "diptych_core": "green",
         "zeroday": "pending",
-        "aomb": "green"
+        "aomb": "green",
+        "axis_power": true
       },
       "TRAJSWAP": {
-        "diptych_core": "pending",
+        "diptych_core": "green",
         "zeroday": "pending",
-        "aomb": "green"
+        "aomb": "green",
+        "axis_power": true
       },
       "VARSCALE": {
-        "diptych_core": "pending",
+        "diptych_core": "green",
         "zeroday": "pending",
-        "aomb": "green"
+        "aomb": "green",
+        "axis_power": true
       },
       "SATEXTEND": {
-        "diptych_core": "pending",
+        "diptych_core": "green",
         "zeroday": "pending",
-        "aomb": "green"
+        "aomb": "green",
+        "axis_power": true
       },
       "HISTSWAP": {
-        "diptych_core": "pending",
+        "diptych_core": "green",
         "zeroday": "pending",
-        "aomb": "green"
+        "aomb": "green",
+        "axis_power": true
       },
       "FREEZEDRY": {
-        "diptych_core": "pending",
+        "diptych_core": "green",
         "zeroday": "pending",
-        "aomb": "green"
+        "aomb": "green",
+        "axis_power": true
       },
       "RESEED": {
-        "diptych_core": "pending",
+        "diptych_core": "green",
         "zeroday": "pending",
-        "aomb": "green"
+        "aomb": "green",
+        "axis_power": true
       },
       "SCHEMAX": {
-        "diptych_core": "pending",
+        "diptych_core": "green",
         "zeroday": "pending",
-        "aomb": "green"
+        "aomb": "green",
+        "axis_power": true
       }
+    },
+    "notes": "aomb=green requires twin conf/viol AND gate_axis_mutate power-on-axis; diptych_core green confirmed upstream"
+  },
+  "axis_power": {
+    "SIGNFLIP": {
+      "operator": "SIGNFLIP",
+      "mutation": "replace -a with +a on signflip_channel; break sign_normalized_fingerprint",
+      "baseline_verdict": "pass",
+      "mutated_verdict": "fail",
+      "axis_changed": true,
+      "power_ok": true,
+      "baseline_reason": "odd_err=0.0 fp_equal=True",
+      "mutated_reason": "odd_err=8.0 fp_equal=False"
+    },
+    "TRAJSWAP": {
+      "operator": "TRAJSWAP",
+      "mutation": "offset trajectory (break CRN noise) and blow closed_loop_residual past bound",
+      "baseline_verdict": "pass",
+      "mutated_verdict": "fail",
+      "axis_changed": true,
+      "power_ok": true,
+      "baseline_reason": "crn=True cross=True resid_ok=True",
+      "mutated_reason": "crn=False cross=False resid_ok=False"
+    },
+    "VARSCALE": {
+      "operator": "VARSCALE",
+      "mutation": "raise meta.var_scale past var_scale_bound (CRN values / mean-match honest)",
+      "baseline_verdict": "pass",
+      "mutated_verdict": "fail",
+      "axis_changed": true,
+      "power_ok": true,
+      "baseline_reason": "crn=True mean=True ord=True within=True",
+      "mutated_reason": "crn=False mean=True ord=True within=False"
+    },
+    "SATEXTEND": {
+      "operator": "SATEXTEND",
+      "mutation": "push a clipped value above legal_hi while keeping sat bounds covering it",
+      "baseline_verdict": "pass",
+      "mutated_verdict": "fail",
+      "axis_changed": true,
+      "power_ok": true,
+      "baseline_reason": "in_sat=True in_legal=True",
+      "mutated_reason": "in_sat=True in_legal=False"
+    },
+    "HISTSWAP": {
+      "operator": "HISTSWAP",
+      "mutation": "corrupt history at hist_splice_at and break alt_history cross-link",
+      "baseline_verdict": "pass",
+      "mutated_verdict": "fail",
+      "axis_changed": true,
+      "power_ok": true,
+      "baseline_reason": "cross=True present=True corrupt=False",
+      "mutated_reason": "cross=False present=True corrupt=True"
+    },
+    "FREEZEDRY": {
+      "operator": "FREEZEDRY",
+      "mutation": "clear freeze_channels and diverge graded series + fingerprint",
+      "baseline_verdict": "pass",
+      "mutated_verdict": "fail",
+      "axis_changed": true,
+      "power_ok": true,
+      "baseline_reason": "frozen=True series_identical=True fp_identical=True",
+      "mutated_reason": "frozen=False series_identical=False fp_identical=False"
+    },
+    "RESEED": {
+      "operator": "RESEED",
+      "mutation": "inflate stability.values on twin B beyond meta.epsilon",
+      "baseline_verdict": "pass",
+      "mutated_verdict": "fail",
+      "axis_changed": true,
+      "power_ok": true,
+      "baseline_reason": "Linf=0.010000000000000009 eps=0.05",
+      "mutated_reason": "Linf=1.06 eps=0.05"
+    },
+    "SCHEMAX": {
+      "operator": "SCHEMAX",
+      "mutation": "rename/drop a required channels.schema.keys entry on twin B",
+      "baseline_verdict": "pass",
+      "mutated_verdict": "fail",
+      "axis_changed": true,
+      "power_ok": true,
+      "baseline_reason": "keysets equal",
+      "mutated_reason": "keyset mismatch"
     }
   }
 }

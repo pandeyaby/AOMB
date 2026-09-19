@@ -96,6 +96,42 @@ class TestDiptychFull8(unittest.TestCase):
             self.assertNotIn("auroc", text.lower())
             self.assertNotIn("0.766", text)
 
+    def test_axis_mutate_flips_each_operator(self):
+        """gate_axis_mutate: mutate only each op's axis → pass→fail for all 8."""
+        from eval.diptych import OPERATORS
+        from eval.diptych.contract import load_probe
+        from eval.diptych.gates import gate_axis_mutate
+        from eval.diptych.mutate_axis import MUTATION_DESCRIPTIONS, MUTATORS
+
+        self.assertEqual(set(MUTATORS), set(OPERATORS))
+        self.assertEqual(set(MUTATION_DESCRIPTIONS), set(OPERATORS))
+
+        for op in OPERATORS:
+            conf = load_probe(ROOT / "diptych-probes" / op / "conforming" / "probe.json")
+            failures, evidence = gate_axis_mutate(op, conf)
+            self.assertEqual(failures, [], f"{op}: { [f.__dict__ for f in failures] }")
+            self.assertTrue(evidence["power_ok"], op)
+            self.assertTrue(evidence["axis_changed"], op)
+            self.assertEqual(evidence["baseline_verdict"], "pass", op)
+            self.assertEqual(evidence["mutated_verdict"], "fail", op)
+
+    def test_verdict_only_flip_is_not_axis_power(self):
+        """Negative: expected_verdict-only flip without axis edit must NOT count as power."""
+        from eval.diptych.contract import load_probe
+        from eval.diptych.gates import gate_axis_mutate
+        from eval.diptych.mutate_axis import axis_fingerprint, cosmetic_verdict_only
+
+        conf = load_probe(ROOT / "diptych-probes" / "RESEED" / "conforming" / "probe.json")
+        failures, evidence = gate_axis_mutate(op="RESEED", conf=conf, mutator=cosmetic_verdict_only)
+        self.assertFalse(evidence["power_ok"])
+        self.assertFalse(evidence["axis_changed"])
+        self.assertEqual(axis_fingerprint(conf), axis_fingerprint(cosmetic_verdict_only(conf)))
+        self.assertTrue(any(f.gate == "axis_mutate" for f in failures))
+        self.assertTrue(
+            any("cosmetic" in f.detail or "verdict-only" in f.detail for f in failures),
+            [f.__dict__ for f in failures],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

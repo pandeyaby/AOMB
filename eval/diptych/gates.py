@@ -1,7 +1,8 @@
 """DIPTYCH gates for AOMB (GATING.md / CONTRACT.md).
 
 Fails on: incomplete manifest, missing violating twin, identical twins,
-asymmetric-verdict failure, stub markers, wrong coupling on CRN ops.
+asymmetric-verdict failure, stub markers, wrong coupling on CRN ops,
+and missing axis-power (gate_axis_mutate) flips.
 """
 
 from __future__ import annotations
@@ -10,11 +11,16 @@ import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from eval.diptych import CRN_REQUIRED, OPERATORS, SCHEMA, SOURCE, STUB_MARKERS
 from eval.diptych.contract import ContractError, load_probe, validate_envelope
 from eval.diptych.grade import GradeResult, grade_document
+from eval.diptych.mutate_axis import (
+    MUTATION_DESCRIPTIONS,
+    axis_fingerprint,
+    mutate_axis,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 PROBES = ROOT / "diptych-probes"
@@ -33,6 +39,7 @@ class Report:
     failures: list[Failure] = field(default_factory=list)
     results: list[dict[str, Any]] = field(default_factory=list)
     matrix: dict[str, Any] = field(default_factory=dict)
+    axis_power: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -40,6 +47,7 @@ class Report:
             "failures": [f.__dict__ for f in self.failures],
             "results": self.results,
             "matrix": self.matrix,
+            "axis_power": self.axis_power,
         }
 
 
@@ -61,7 +69,6 @@ def gate_manifest() -> list[Failure]:
 
 def gate_stubs(paths: list[Path]) -> list[Failure]:
     out: list[Failure] = []
-    # Probe JSON: reject empty traces / inverted expected_verdict / literal stub tokens in values
     for path in paths:
         text = path.read_text(encoding="utf-8")
         doc = json.loads(text)
@@ -74,9 +81,8 @@ def gate_stubs(paths: list[Path]) -> list[Failure]:
         for marker in ("TODO", "NotImplemented", "STUB_OPERATOR", "hardcoded_pass"):
             if f'"{marker}"' in text or f": {marker}" in text:
                 out.append(Failure("stub", f"{path.relative_to(ROOT)} contains stub token {marker!r}"))
-    # Grader sources: reject NotImplementedError / ellipsis bodies / hardcoded True returns
     for path in (ROOT / "eval" / "diptych").glob("*.py"):
-        if path.name in {"gates.py", "__init__.py"}:
+        if path.name in {"gates.py", "__init__.py", "mutate_axis.py"}:
             continue
         src = path.read_text(encoding="utf-8")
         if "raise NotImplementedError" in src or "raise NotImplemented" in src:
@@ -141,6 +147,94 @@ def gate_axis(op: str, conf: dict, viol: dict) -> list[Failure]:
     return out
 
 
+def gate_axis_mutate(
+    op: str,
+    conf: dict[str, Any],
+    *,
+    mutator: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
+) -> tuple[list[Failure], dict[str, Any]]:
+    """Power-on-axis: mutate only the operator axis on conforming; grader must flip.
+
+    Rejects cosmetic edits (expected_verdict-only / non-axis fingerprint unchanged).
+    """
+    failures: list[Failure] = []
+    evidence: dict[str, Any] = {
+        "operator": op,
+        "mutation": MUTATION_DESCRIPTIONS.get(op, ""),
+        "baseline_verdict": None,
+        "mutated_verdict": None,
+        "axis_changed": False,
+        "power_ok": False,
+    }
+    try:
+        validate_envelope(conf)
+        base = grade_document(conf)
+    except ContractError as e:
+        failures.append(Failure("axis_mutate", f"{op}: conforming grade error: {e}"))
+        return failures, evidence
+
+    evidence["baseline_verdict"] = base.actual_verdict
+    if base.actual_verdict != "pass":
+        failures.append(
+            Failure(
+                "axis_mutate",
+                f"{op}: conforming baseline must pass before mutate "
+                f"(got {base.actual_verdict}: {base.reason})",
+            )
+        )
+        return failures, evidence
+
+    apply = mutator or (lambda d: mutate_axis(d, op))
+    try:
+        mutated = apply(conf)
+    except Exception as e:  # noqa: BLE001
+        failures.append(Failure("axis_mutate", f"{op}: mutator raised {e}"))
+        return failures, evidence
+
+    fp_before = axis_fingerprint(conf)
+    fp_after = axis_fingerprint(mutated)
+    evidence["axis_changed"] = fp_before != fp_after
+    if fp_before == fp_after:
+        failures.append(
+            Failure(
+                "axis_mutate",
+                f"{op}: no axis payload change "
+                f"(verdict-only / cosmetic edits do not count as power)",
+            )
+        )
+        return failures, evidence
+
+    try:
+        if op in CRN_REQUIRED and mutated.get("coupling") != "crn_closed_loop":
+            failures.append(
+                Failure("axis_mutate", f"{op}: mutator dropped crn_closed_loop coupling")
+            )
+            return failures, evidence
+        mutated.setdefault("control_role", conf.get("control_role", "conforming"))
+        mutated.setdefault("expected_verdict", conf.get("expected_verdict", "pass"))
+        validate_envelope(mutated)
+        after = grade_document(mutated)
+    except ContractError as e:
+        failures.append(Failure("axis_mutate", f"{op}: mutated grade error: {e}"))
+        return failures, evidence
+
+    evidence["mutated_verdict"] = after.actual_verdict
+    evidence["baseline_reason"] = base.reason
+    evidence["mutated_reason"] = after.reason
+    if after.actual_verdict != "fail":
+        failures.append(
+            Failure(
+                "axis_mutate",
+                f"{op}: axis mutate did not flip pass→fail "
+                f"(baseline={base.actual_verdict}, mutated={after.actual_verdict}: {after.reason})",
+            )
+        )
+        return failures, evidence
+
+    evidence["power_ok"] = True
+    return failures, evidence
+
+
 def run_gates() -> Report:
     failures = gate_manifest()
     if failures:
@@ -151,6 +245,7 @@ def run_gates() -> Report:
 
     results: list[dict[str, Any]] = []
     matrix_ops: dict[str, Any] = {}
+    axis_power: dict[str, Any] = {}
 
     for op in OPERATORS:
         conf = load_probe(_path(op, "conforming"))
@@ -158,42 +253,75 @@ def run_gates() -> Report:
         failures.extend(gate_contrast(op, conf, viol))
         failures.extend(gate_axis(op, conf, viol))
 
+        # Power-on-axis AFTER contrast / axis-presence checks
+        mutate_failures, power_ev = gate_axis_mutate(op, conf)
+        failures.extend(mutate_failures)
+        axis_power[op] = power_ev
+        mutate_ok = power_ev.get("power_ok") is True
+
         grades: list[GradeResult] = []
+        grade_error = False
         for doc in (conf, viol):
             try:
                 validate_envelope(doc)
                 g = grade_document(doc)
             except ContractError as e:
                 failures.append(Failure("grade", f"{op}: {e}"))
-                matrix_ops[op] = {"diptych_core": "pending", "zeroday": "pending", "aomb": "stub"}
-                continue
+                matrix_ops[op] = {
+                    "diptych_core": "green",
+                    "zeroday": "pending",
+                    "aomb": "stub",
+                    "axis_power": False,
+                }
+                grade_error = True
+                break
             grades.append(g)
             results.append(g.to_dict())
             if not g.matches_expected:
                 failures.append(
                     Failure(
                         "contrast",
-                        f"{op}/{g.control_role}: expected {g.expected_verdict} got {g.actual_verdict} ({g.reason})",
+                        f"{op}/{g.control_role}: expected {g.expected_verdict} "
+                        f"got {g.actual_verdict} ({g.reason})",
                     )
                 )
+        if grade_error:
+            continue
 
-        green = (
+        twin_ok = (
             len(grades) == 2
             and all(g.matches_expected for g in grades)
             and grades[0].actual_verdict == "pass"
             and grades[1].actual_verdict == "fail"
         )
+        # aomb green ONLY if twin contrast AND mutate-axis power both pass
+        green = twin_ok and mutate_ok
         matrix_ops[op] = {
-            "diptych_core": "pending",
+            "diptych_core": "green",
             "zeroday": "pending",
             "aomb": "green" if green else "pending",
+            "axis_power": mutate_ok,
         }
 
-    matrix = {"diptych_schema": SCHEMA, "source_row": SOURCE, "operators": matrix_ops}
-    ok = not failures and all(v["aomb"] == "green" for v in matrix_ops.values())
+    matrix = {
+        "diptych_schema": SCHEMA,
+        "source_row": SOURCE,
+        "operators": matrix_ops,
+        "notes": (
+            "aomb=green requires twin conf/viol AND gate_axis_mutate power-on-axis; "
+            "diptych_core green confirmed upstream"
+        ),
+    }
+    ok = not failures and all(v.get("aomb") == "green" for v in matrix_ops.values())
     if not ok and not failures:
         failures.append(Failure("matrix", "not all aomb cells green"))
-    return Report(ok=ok, failures=failures, results=results, matrix=matrix)
+    return Report(
+        ok=ok,
+        failures=failures,
+        results=results,
+        matrix=matrix,
+        axis_power=axis_power,
+    )
 
 
 def write_matrix(matrix: dict[str, Any], path: Path = MATRIX) -> None:
