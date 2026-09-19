@@ -25,3 +25,5 @@ Companion diagram for the IEEE / product one-pager path.
 ```
 
 CI: `.github/workflows/diptych-adapter-gate.yml` (always on `push` to `main`).
+
+| Calibration pipeline (breed → fixture card → DIPTYCH) | [`aomb-calibration-pipeline.svg`](aomb-calibration-pipeline.svg) |
