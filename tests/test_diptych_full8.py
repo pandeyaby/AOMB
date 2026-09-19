@@ -166,6 +166,28 @@ class TestDiptychFull8(unittest.TestCase):
                 f"{name}: {[f.__dict__ for f in failures]}",
             )
 
+    def test_forbidden_cosmetics_leave_axis_fingerprint_unchanged(self):
+        """Invariant: all three forbidden sole edits leave axis fingerprint identical."""
+        from eval.diptych.contract import load_probe
+        from eval.diptych.mutate_axis import (
+            axis_fingerprint,
+            cosmetic_auroc_inject,
+            cosmetic_sarif_level_rename,
+            cosmetic_verdict_only,
+        )
+
+        conf = load_probe(ROOT / "diptych-probes" / "SCHEMAX" / "conforming" / "probe.json")
+        before = axis_fingerprint(conf)
+        for name, mutator in (
+            ("verdict_only", cosmetic_verdict_only),
+            ("sarif_level_rename", cosmetic_sarif_level_rename),
+            ("auroc_inject", cosmetic_auroc_inject),
+        ):
+            after = mutator(conf)
+            self.assertEqual(before, axis_fingerprint(after), name)
+            # Envelope cosmetics may change, but traces channels+meta must not.
+            self.assertEqual(conf["traces"], after["traces"], name)
+
 
 if __name__ == "__main__":
     unittest.main()
