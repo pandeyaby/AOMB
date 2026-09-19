@@ -1,6 +1,8 @@
 # Autonomous Observability Model Breeder (AOMB)
 
 [![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml)
+[![stranger-demo](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml)
+[![public-ranking-card-v1](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml)
 
 ![Traces → small next-token ILM → anomaly via surprise; Apple Silicon research loop](docs/assets/aomb-readme-hero.png)
 
@@ -8,9 +10,26 @@
 
 **AOMB** breeds an **Infrastructure Language Model (ILM)** — next-token prediction on observability telemetry. Lower **`val_bpb`** = better grasp of *normal* = surprise becomes the anomaly signal.
 
-Companion (not the same product): **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)** grades **2-safety / calibration** on **paired** probes. AOMB emits fixtures; DIPTYCH grades. Do not merge the products.
+Companion (not the same product): **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)** grades **2-safety / calibration** on **paired** probes. AOMB emits fixtures; DIPTYCH grades. Do not merge the products. Do not fork DIPTYCH harness/product code into this repo beyond the existing adapter emit path.
 
 Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212)
+
+---
+
+## Stranger demo (Linux / CI — no MPS, no API keys)
+
+Just cloned? Prove the public gates without Apple Silicon or Anthropic/OpenAI keys:
+
+```bash
+uv sync                          # or: pip install pyarrow numpy rustbpe tiktoken
+                                 # + CPU torch for full card: pip install torch --index-url https://download.pytorch.org/whl/cpu
+./scripts/stranger_demo.sh       # full-8 + gate_axis_mutate, then ranking-card harness smoke
+# faster subset (baselines ε only):  STRANGER_FAST=1 ./scripts/stranger_demo.sh
+```
+
+**Honest:** public ranking card = **`published_fixture_card` / harness smoke** (tiny-n synthetic). Lab AUROC stays **`not_published`** — no invented AUROC. CRISP **`val_bpb`** = train fitness only. Overnight agent / MPS product train = Mac path below — **not** this script.
+
+Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md).
 
 ---
 
@@ -22,7 +41,7 @@ Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyab
 | **2. Lab — private** | Docker stack + faults (optional redacted pack) | Ranking evidence under [`docs/lab/`](docs/lab/) — default **`not_published`** |
 | **3. Public fixture card** | Tiny synthetic pack + CI | **`published_fixture_card`** = **harness smoke** that beat baselines — **not** lab / production ranking |
 
-Details: [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md).
+Details: [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md).
 
 ---
 
@@ -31,16 +50,17 @@ Details: [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseli
 ```bash
 uv sync
 
+# Stranger path (no MPS / no keys) — preferred first run off Mac
+./scripts/stranger_demo.sh
+
+# Or individually:
+./scripts/run_diptych_full8.sh              # DIPTYCH full-8 + gate_axis_mutate
+./scripts/run_public_ranking_card_v1.sh     # harness smoke (CPU torch OK)
+
 # Smoke train (synthetic corpus — CI/dev only, not the product train story)
 uv run python generate_observability_corpus.py
 uv run python prepare.py --num-shards 20
 # 60s train smoke — see Quickstart below
-
-# Public ranking card = harness smoke (clone → verify)
-./scripts/run_public_ranking_card_v1.sh
-
-# DIPTYCH full-8 adapter gate (fixtures + gate_axis_mutate)
-./scripts/run_diptych_full8.sh
 ```
 
 **Product train (Uber CRISP):** see [Train on Uber CRISP](#train-on-uber-crisp).  
@@ -358,6 +378,10 @@ karpathy/autoresearch          (original — H100, NVIDIA)
 ---
 
 ## Requirements
+
+**Stranger / CI path (Linux OK):** Python 3.10+, `uv` or pip — see [`docs/stranger-demo.md`](docs/stranger-demo.md). No MPS. No API keys.
+
+**Overnight research loop (Mac):**
 
 - macOS with Apple Silicon (M1/M2/M3/M4)
 - Python 3.10+
