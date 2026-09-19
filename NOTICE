@@ -1,0 +1,14 @@
+AOMB — Autonomous Observability Model Breeder
+Copyright (c) 2026 Abhinav Pandey
+
+Licensed under the MIT License — see LICENSE.
+
+Upstream (MIT; retained for org / redistribution clarity):
+
+  - miolini/autoresearch-macos — https://github.com/miolini/autoresearch-macos
+  - karpathy/autoresearch — https://github.com/karpathy/autoresearch
+
+This NOTICE does not grant extra rights beyond LICENSE. It does not
+publish lab AUROC, CUDA results, or production accuracy claims.
+Public stranger paths are harness / fixture smoke only — see
+docs/public-wins.md and docs/compute-paths.md.
