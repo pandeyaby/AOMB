@@ -1,0 +1,20 @@
+{
+  "name": "AOMB stranger verify",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "echo \"AOMB stranger verify ready. Run: STRANGER_FAST=1 ./scripts/stranger_verify.sh  (docs/stranger-verify.md)\"",
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  },
+  "containerEnv": {
+    "STRANGER_FAST": "1",
+    "PYTHONUNBUFFERED": "1"
+  }
+}
