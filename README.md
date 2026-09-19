@@ -15,10 +15,11 @@ Companion (not the same product): **[DIPTYCH](https://github.com/pandeyaby/DIPTY
 
 Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212)
 
+> **Verify in 60s** — [![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) · [Open in Codespaces](https://codespaces.new/pandeyaby/AOMB) · [Example green run](https://github.com/pandeyaby/AOMB/actions/runs/35471119285)
+
 ### Public wins (what an outsider can verify today)
 
-Landing page (badges, one-click Codespaces / `workflow_dispatch`, honesty): **[`docs/public-wins.md`](docs/public-wins.md)**.  
-**60-second verify:** [`docs/stranger-60s.md`](docs/stranger-60s.md).
+Index + honesty: **[`docs/public-wins.md`](docs/public-wins.md)** · cheatsheet: [`docs/stranger-60s.md`](docs/stranger-60s.md).
 
 | Path | How | Proves | Does **not** prove |
 |------|-----|--------|---------------------|

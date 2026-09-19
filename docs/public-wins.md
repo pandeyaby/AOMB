@@ -1,15 +1,13 @@
 # Public wins — what a stranger can verify today
 
+> **Verify in 60s** — [![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) · [Open in Codespaces](https://codespaces.new/pandeyaby/AOMB) · [Example green run](https://github.com/pandeyaby/AOMB/actions/runs/35471119285)
+
 **Audience:** outsiders (no Mac, no API keys, no private lab access).  
 **Rule:** only list checks that are green or clone-reproducible **now**. No invented AUROC. No CUDA claim.
 
 `prepare.py` is **sacred** — never edited for these paths.
 
----
-
-## 60-second path
-
-Tightest outsider cheatsheet: **[`stranger-60s.md`](stranger-60s.md)** (`STRANGER_FAST=1 ./scripts/stranger_verify.sh` · badge / Codespaces · what green means).
+Cheatsheet (what green means): **[`stranger-60s.md`](stranger-60s.md)**.
 
 ---
 
@@ -17,21 +15,15 @@ Tightest outsider cheatsheet: **[`stranger-60s.md`](stranger-60s.md)** (`STRANGE
 
 | Action | Link |
 |--------|------|
+| **stranger-verify badge** | [Live workflow / badge](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) — cite a green check |
 | **Open in Codespaces** | [codespaces.new/pandeyaby/AOMB](https://codespaces.new/pandeyaby/AOMB) → then `STRANGER_FAST=1 ./scripts/stranger_verify.sh` |
+| **Example green run** | [run 35471119285](https://github.com/pandeyaby/AOMB/actions/runs/35471119285) — pinned **example** cite (main · 2026-09-19 · `7abdfd5`); badge/workflow remains canonical |
 | **Run Action (workflow_dispatch)** | [stranger-verify → Run workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) — default `full_model=false` ≡ fast path (`STRANGER_FAST=1`); optional `full_model=true` = CPU torch card smoke, **not** lab AUROC |
 | **Same for local demo CI** | [stranger-demo → Run workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml) |
 
 Both workflows already expose **`workflow_dispatch`**. Prefer **stranger-verify** when you only need a citeable green check. Input alias: **`full_model=false`** (default) ↔ `STRANGER_FAST=1`.
 
----
-
-## Example green cite (main)
-
-**Example green cite (main)** — 2026-09-19 · `7abdfd5` · [`stranger-verify` run 35471119285](https://github.com/pandeyaby/AOMB/actions/runs/35471119285)
-
-This is an **example** of a successful check outsiders can share without hunting history — **not** a forever-frozen claim. The live **badge / workflow** remains canonical; tip of `main` may move.
-
-**Proves (when that run is green):** DIPTYCH full-8 emit + `gate_axis_mutate` (`aomb=green`, `axis_power=true`) + ranking-card baselines ε. **Does not prove:** lab AUROC, CUDA, production / field accuracy.
+**Example green run proves (when green):** DIPTYCH full-8 emit + `gate_axis_mutate` (`aomb=green`, `axis_power=true`) + ranking-card baselines ε. **Does not prove:** lab AUROC, CUDA, production / field accuracy. Tip of `main` may move — the live badge remains canonical.
 
 ---
 
