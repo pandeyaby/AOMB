@@ -4,6 +4,10 @@
 # Proven on Linux/CI: DIPTYCH full-8 + gate_axis_mutate, public ranking card
 # harness smoke (CPU torch OK for --with-model; baselines-only is faster).
 #
+# Cite-without-cloning entry (Actions badge / Codespaces): scripts/stranger_verify.sh
+#   → docs/stranger-verify.md  (defaults STRANGER_FAST=1; delegates here)
+# Clone-first docs: docs/stranger-demo.md
+#
 # NOT claimed: overnight agent, MPS product train, lab AUROC, production ranking.
 # prepare.py is sacred — this script never touches it.
 set -euo pipefail
@@ -138,5 +142,6 @@ echo "  • Lab ranking AUROC (stays not_published — no invented AUROC)"
 echo "  • Production / field accuracy — fixture card is tiny-n synthetic harness smoke only"
 echo "  • CRISP val_bpb as ranking accuracy (train fitness only when cited)"
 echo
-echo "Honesty: docs/stranger-demo.md · docs/public-ranking-card-v1.md · README three lanes"
+echo "Honesty: docs/stranger-demo.md · docs/stranger-verify.md · docs/public-ranking-card-v1.md · README three lanes"
+echo "Cite without cloning: green stranger-verify Actions badge (docs/stranger-verify.md)"
 echo "${GRN}Stranger demo PASS${RST}"
