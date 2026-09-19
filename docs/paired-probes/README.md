@@ -10,39 +10,27 @@ Canonical DIPTYCH specs are vendored under [`diptych/`](diptych/) (CONTRACT, GAT
 
 Probes: `diptych-probes/<OP>/{conforming,violating}/probe.json`  
 Coverage: `coverage/matrix.json` (AOMB column)  
-Report: `reports/paired-probes/full8_gate_report.json`
+Report: `reports/paired-probes/full8_gate_report.json`  
+Adapter validator: `adapters/aomb.py`
 
-## Operator matrix (this PR)
+## AOMB channel sketches (exact)
 
-| Operator | Coupling | Conforming | Violating | AOMB cell |
-|----------|----------|------------|-----------|-----------|
-| SIGNFLIP | open_loop | pass | fail | green when CI passes |
-| TRAJSWAP | **crn_closed_loop** | pass | fail | green when CI passes |
-| VARSCALE | **crn_closed_loop** | pass | fail | green when CI passes |
-| SATEXTEND | open_loop | pass | fail | green when CI passes |
-| HISTSWAP | open_loop | pass | fail | green when CI passes |
-| FREEZEDRY | open_loop | pass | fail | green when CI passes |
-| RESEED | open_loop | pass | fail | green when CI passes |
-| SCHEMAX | open_loop | pass | fail | green when CI passes |
+| Operator | Coupling | Channels / meta |
+|----------|----------|-----------------|
+| FREEZEDRY | open_loop | freeze `rng`/`clock` → identical `channels.graded.values` (+ `meta.decision_fingerprint`); leak → diverge |
+| RESEED | open_loop | `meta.seed` differs; `channels.stability.values` + `meta.epsilon` |
+| SCHEMAX | open_loop | `channels.schema.keys` equal vs rename/drop |
+| SIGNFLIP | open_loop | `meta.signflip_channel` + values; odd-symmetric holds vs breaks |
+| SATEXTEND | open_loop | `meta.sat_lo` / `meta.sat_hi` + clipped target values |
+| HISTSWAP | open_loop | `channels.history` + `meta.hist_splice_at` |
+| TRAJSWAP | **crn_closed_loop** | `channels.trajectory.*` + `channels.closed_loop_residual.values` |
+| VARSCALE | **crn_closed_loop** | `channels.variance_proxy` / `meta.var_scale` mean-matched — **not AUROC** |
 
-## Envelope (hard keys)
-
-`diptych_schema`, `source`, `operator`, `coupling`, `probe_id`, `control_role`, `traces` (≥2), `expected_verdict`.
-
-See [`diptych/CONTRACT.md`](diptych/CONTRACT.md). Do **not** invent AUROC / model-grade fields.
+`expected_verdict`: `pass` \| `fail` \| `inconclusive` only. Cell green only for conforming→pass and violating→fail.
 
 ## What this cannot claim
 
 - Not production ranking accuracy / AUROC
 - Lab ranking stays `not_published` under `docs/lab/`
-- Public ranking card remains **harness smoke** (`published_fixture_card`) — separate lane
-- Single-trace / tiny-pair smoke cannot claim field performance
+- Public ranking card remains **harness smoke**
 - `prepare.py` untouched
-
-## Gates (must fail)
-
-1. Missing operator or missing conforming/violating twin  
-2. Identical twins / same expected_verdict  
-3. Stub / TODO / NotImplemented / hardcoded pass  
-4. TRAJSWAP or VARSCALE without `crn_closed_loop`  
-5. Grader verdict ≠ expected_verdict on either control  

@@ -51,8 +51,8 @@
       },
       "meta": {
         "seed": 0,
-        "hist_splice_at": 4,
-        "history_corrupt": false
+        "history_corrupt": false,
+        "hist_splice_at": 4
       }
     },
     {
@@ -94,8 +94,8 @@
       },
       "meta": {
         "seed": 1,
-        "hist_splice_at": 4,
-        "history_corrupt": false
+        "history_corrupt": false,
+        "hist_splice_at": 4
       }
     }
   ]

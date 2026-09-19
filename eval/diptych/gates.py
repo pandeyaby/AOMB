@@ -104,12 +104,24 @@ def gate_axis(op: str, conf: dict, viol: dict) -> list[Failure]:
             if doc.get("coupling") != "crn_closed_loop":
                 out.append(Failure("axis", f"{op}/{role}: coupling must be crn_closed_loop"))
     checks = {
-        "RESEED": lambda d: "stability" in d["traces"][0]["channels"],
-        "SCHEMAX": lambda d: "schema" in d["traces"][0]["channels"],
-        "FREEZEDRY": lambda d: "decision_fingerprint" in d["traces"][0]["meta"],
+        "RESEED": lambda d: (
+            "stability" in d["traces"][0]["channels"]
+            and "epsilon" in d["traces"][0]["meta"]
+            and d["traces"][0]["meta"].get("seed") != d["traces"][1]["meta"].get("seed")
+        ),
+        "SCHEMAX": lambda d: "schema" in d["traces"][0]["channels"]
+        and isinstance(d["traces"][0]["channels"]["schema"].get("keys"), list),
+        "FREEZEDRY": lambda d: (
+            "graded" in d["traces"][0]["channels"]
+            and "freeze_channels" in d["traces"][0]["meta"]
+            and "decision_fingerprint" in d["traces"][0]["meta"]
+        ),
         "SIGNFLIP": lambda d: "signflip_channel" in d["traces"][0]["meta"],
         "SATEXTEND": lambda d: "sat_lo" in d["traces"][0]["meta"] and "sat_hi" in d["traces"][0]["meta"],
-        "HISTSWAP": lambda d: "history" in d["traces"][0]["channels"],
+        "HISTSWAP": lambda d: (
+            "history" in d["traces"][0]["channels"]
+            and "hist_splice_at" in d["traces"][0]["meta"]
+        ),
         "TRAJSWAP": lambda d: (
             "trajectory" in d["traces"][0]["channels"]
             and "closed_loop_residual" in d["traces"][0]["channels"]

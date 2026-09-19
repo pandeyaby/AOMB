@@ -75,9 +75,25 @@ def grade_freezedry(doc):
     f0 = set(t0["meta"].get("freeze_channels") or [])
     f1 = set(t1["meta"].get("freeze_channels") or [])
     frozen = bool(f0 & {"rng", "clock"}) and bool(f1 & {"rng", "clock"})
-    identical = fp0 is not None and fp0 == fp1
-    return _res(doc, frozen and identical, f"frozen={frozen} identical={identical}",
-                {"fp0": fp0, "fp1": fp1, "freeze0": sorted(f0), "freeze1": sorted(f1)})
+    # Graded series (AOMB sketch): identical under freeze; diverge when rng/clock leak
+    g0 = _vals(t0, "graded")
+    g1 = _vals(t1, "graded")
+    series_identical = len(g0) == len(g1) and max_abs(g0, g1) <= 1e-12
+    fp_identical = fp0 is not None and fp0 == fp1
+    ok = frozen and series_identical and fp_identical
+    return _res(
+        doc,
+        ok,
+        f"frozen={frozen} series_identical={series_identical} fp_identical={fp_identical}",
+        {
+            "fp0": fp0,
+            "fp1": fp1,
+            "freeze0": sorted(f0),
+            "freeze1": sorted(f1),
+            "series_identical": series_identical,
+            "series_max_abs": max_abs(g0, g1),
+        },
+    )
 
 def grade_signflip(doc):
     t0, t1 = doc["traces"][0], doc["traces"][1]

@@ -16,18 +16,23 @@
       "trace_id": "a",
       "events": [],
       "channels": {
-        "params": {
+        "graded": {
           "values": [
             0.1,
-            0.2,
-            0.3
+            0.12,
+            0.11,
+            0.13,
+            0.1,
+            0.12,
+            0.11,
+            0.13
           ]
         }
       },
       "meta": {
         "seed": 0,
         "freeze_channels": [],
-        "decision_fingerprint": "sha256:579c5ac0aa1863a1aca4b082835c0dbb2751f39e6b2a1018a058774963fd2517",
+        "decision_fingerprint": "sha256:6ffe4fbf82e9536b79125926e19ed8baee0c192dbb5a51484fa4f42e8930aa98",
         "frozen": false
       }
     },
@@ -35,18 +40,23 @@
       "trace_id": "b",
       "events": [],
       "channels": {
-        "params": {
+        "graded": {
           "values": [
-            0.9,
+            0.5,
+            0.01,
+            0.99,
+            0.2,
             0.8,
-            0.7
+            0.05,
+            0.7,
+            0.4
           ]
         }
       },
       "meta": {
         "seed": 1,
         "freeze_channels": [],
-        "decision_fingerprint": "sha256:83a8b464021e39ae37c1df3fa8fcc6b94801afd5df72b8749d7f975e3d54decc",
+        "decision_fingerprint": "sha256:9d47ad35a8760af7c1ea94a92bc3c450d1e472e2e0fbcd0b6c9c160441e4ed5a",
         "frozen": false
       }
     }

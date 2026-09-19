@@ -12,6 +12,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class TestDiptychFull8(unittest.TestCase):
+    def test_aomb_adapter_axis_sketches(self):
+        from adapters.aomb import validate_aomb_probe
+        from eval.diptych import OPERATORS
+        for op in OPERATORS:
+            for role in ("conforming", "violating"):
+                p = ROOT / "diptych-probes" / op / role / "probe.json"
+                doc = json.loads(p.read_text(encoding="utf-8"))
+                validate_aomb_probe(doc)
+
     def test_gate_pass_on_repo_fixtures(self):
         from eval.diptych.gates import run_gates
 
