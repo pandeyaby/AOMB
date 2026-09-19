@@ -1,6 +1,7 @@
 # Adapter contract pointer
 
-**Pinned Origin sources (canonical):** see [`diptych/README.md`](diptych/README.md).
+**Hyperproperty grading:** [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH) (full-8 adapters already merged into AOMB).  
+**Pinned Origin sources (offline mirror):** see [`diptych/README.md`](diptych/README.md).
 
 | Doc | Origin raw URL |
 |-----|----------------|
@@ -10,9 +11,8 @@
 | OPERATORS | https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a/raw/main/docs/OPERATORS.md |
 | ONEPAGER | https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a/raw/main/docs/adapters/ONEPAGER.md |
 
-**Upstream repo:** https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a
+**Origin mirror:** https://origin.cursor.com/abhinavpandey/tmp-c44b600dec44401a
 
 Offline vendor copies (this repo): [`diptych/`](diptych/) — `diptych_schema="0.2"`.
 
-AOMB emits probe pairs under `diptych-probes/` and mirrors coverage in `coverage/matrix.json`.
-See [`README.md`](README.md).
+AOMB emits probe pairs under `diptych-probes/` and mirrors coverage in `coverage/matrix.json`. Adapter CI (`.github/workflows/diptych-adapter-gate.yml`) requires `gate_axis_mutate` before `aomb=green`. See [`README.md`](README.md).

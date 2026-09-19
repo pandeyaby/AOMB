@@ -120,15 +120,23 @@ Private captures stay local. Redacted pack: [`corpus/fixtures/lab_public_pack_v0
 ./scripts/run_public_ranking_card_v1.sh
 ```
 
-Synthetic fixture only. Soft status: fixture-card / harness smoke — **not** lab unpublished ranking, **not** a production accuracy claim.
+Synthetic fixture only. Soft status: **`published_fixture_card` / harness smoke** — not production AUROC, not a lab ranking claim. Lab lane stays **`not_published`**. See the card doc. Do not put fixture AUROC on the README hero.
 
-### DIPTYCH paired probes (full-8)
+### DIPTYCH paired probes (hyperproperty grading)
+
+[DIPTYCH](https://github.com/pandeyaby/DIPTYCH) grades **calibration** as 2-safety hyperproperties: not one run, but a coupled pair that shares all exogenous inputs except one controlled perturbation. AOMB’s full-8 adapters are already merged (`diptych_schema=0.2`); this repo emits the product probes that DIPTYCH grades.
 
 ```bash
 ./scripts/run_diptych_full8.sh
 ```
 
-All 8 operators × conforming/violating under `diptych-probes/` (`diptych_schema=0.2`). Coverage: `coverage/matrix.json`. **Not** a public ranking claim; calibration grading belongs to [DIPTYCH](https://github.com/pandeyaby/DIPTYCH).
+All 8 operators × conforming/violating under `diptych-probes/` (`diptych_schema=0.2`). Coverage: `coverage/matrix.json`. Docs: [`docs/paired-probes/`](docs/paired-probes/).
+
+**Adapter CI is required.** `.github/workflows/diptych-adapter-gate.yml` must stay green (runs on every push to `main`). Cells turn `aomb=green` only when twin contrast **and** `gate_axis_mutate` (power-on-axis) both pass — cosmetic verdict flips / SARIF renames / AUROC injects do not count. **Not** lab AUROC; **not** a public ranking claim. Calibration grading belongs to [DIPTYCH](https://github.com/pandeyaby/DIPTYCH).
+
+Architecture (pieces fit): ![AOMB breed/score → fixtures → DIPTYCH](docs/images/aomb-diptych-architecture.svg)
+
+Calibration path: ![Breed/score → public fixture card → DIPTYCH probes](docs/images/aomb-calibration-pipeline.svg)
 
 ### BYO / synthetic smoke
 
@@ -239,8 +247,9 @@ Not vanilla nanoGPT. Built-in from day one:
 ## Results (where the numbers live)
 
 - **CRISP `val_bpb` (train fitness):** [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md)
-- **Public fixture card (harness smoke):** [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · `reports/public-ranking-card-v1/CARD.md`
-- **Lab ranking (private / redacted):** [`docs/lab/`](docs/lab/) — `not_published` by default
+- **Public fixture card (harness smoke):** [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · `reports/public-ranking-card-v1/CARD.md` — clone→CI smoke only; **no AUROC hero**
+- **Lab ranking (private / redacted pack):** [`docs/lab/`](docs/lab/) — `not_published` by default
+- **DIPTYCH calibration grading:** [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH) · local emit path [`docs/paired-probes/`](docs/paired-probes/) — adapter CI + `gate_axis_mutate` required
 
 No AUROC heroes on this README. Legacy synthetic overnight `val_bpb` history stays in git / morning reports — not the product headline.
 
