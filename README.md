@@ -116,6 +116,14 @@ Private captures stay on your machine. A **redacted** public-safe pack is at [`c
 
 Synthetic fixture only. Soft status: fixture-card / harness smoke. See the card doc.
 
+### DIPTYCH paired probes (full-8 harness smoke)
+
+```bash
+./scripts/run_diptych_full8.sh
+```
+
+All 8 operators × conforming/violating under `diptych-probes/` (`diptych_schema=0.2`). Coverage matrix: `coverage/matrix.json`. Docs: [`docs/paired-probes/`](docs/paired-probes/). **Not** lab AUROC; **not** a public ranking claim.
+
 ### BYO telemetry
 
 Bring your own dumps: [`docs/byo-and-scorer.md`](docs/byo-and-scorer.md). Scoring ≠ a published accuracy claim.
