@@ -10,9 +10,12 @@
 # OR:
 #   --fetch-key KEY (single Zenodo key only; documents selective fetch)
 #
-# Refuses: --auroc / ranking / --download-all / full-corpus pulls.
+# Honesty refusals (mirror eval.stranger_path / product_mac_smoke invent set):
+#   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent synonyms)
+# Also refuses: --download-all / full decompress / multi-key bulk pulls.
 # Never invents val_bpb. Lab stays claim_status=not_published.
 # prepare.py is sacred — optional invoke only (--prepare); never edited here.
+# CUDA gate stays skipped. No Zenodo bulk / no MPS required for refusals.
 #
 # Docs: docs/tale-val-bpb-baseline.md · docs/tale-scale.md · docs/corpus-v1.md
 set -euo pipefail
@@ -26,6 +29,9 @@ GRN=$'\033[32m'
 BOLD=$'\033[1m'
 RST=$'\033[0m'
 
+# Must match stranger / product_mac invent refusals (exit 1).
+EXIT_REFUSED_FLAG=1
+
 # Free-disk floors (GiB). Full Tale decompress is hundreds of GB — out of scope.
 MIN_FREE_SHARD_GIB=8          # local --input → shard / prepare room
 MIN_FREE_FETCH_GIB=5          # one selective Zenodo piece
@@ -34,6 +40,11 @@ MIN_FREE_DECOMPRESS_GIB=350   # refuse any decompress-intent path under this
 die() {
   echo "${RED}ERROR:${RST} $*" >&2
   exit 1
+}
+
+die_refuse() {
+  echo "${RED}ERROR:${RST} $*" >&2
+  exit "$EXIT_REFUSED_FLAG"
 }
 
 usage() {
@@ -60,14 +71,15 @@ Optional (shard path):
   --min-free-gib N      Override free-disk floor for the chosen path
   -h, --help            Show this help
 
-Explicitly refused:
-  --auroc / ranking / publish flags
-  --download-all / multi-key bulk / full corpus pulls
+Explicitly refused (exit 1):
+  --auroc / --publish / --cuda / invent synonyms (same set as stranger / product_mac)
+  --download-all / multi-key bulk / full corpus / decompress pulls
   Invented metrics / fixture-as-baseline without a real tree
 
 Docs: docs/tale-val-bpb-baseline.md
 Honesty: train lane only. No incident labels → no AUROC. Lab stays not_published.
          Do not invent Tale val_bpb — row stays pending until a measured Mac run.
+         CUDA gate stays skipped.
 USAGE
 }
 
@@ -118,18 +130,21 @@ FETCH_KEY=""
 FETCH_OUT="${HOME}/.cache/autoresearch/corpus-v1/tale_of_errors"
 MIN_FREE_OVERRIDE=""
 
-# ── Loud refusals ────────────────────────────────────────────────────────────
+# ── Loud refusals (keep in sync with stranger / product_mac invent set) ──────
 for arg in "$@"; do
-  case "$arg" in
-    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim)
-      die "Refusing '$arg'.
+  key="${arg%%=*}"
+  case "$key" in
+    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim|--invent-metrics|--invent-auroc|--claim-auroc|--val-bpb|--invent-val-bpb|--readme-hero|--publish-readme|--hero-auroc|--cuda|--gpu)
+      die_refuse "Refusing '$key'.
   Tale capped baseline is the public-real *train* lane (factual val_bpb when you train).
+  Never invents AUROC / published ranking / val_bpb numbers.
   No incident labels on Tale dumps → no AUROC from this path.
   Lab stays claim_status=not_published.
+  CUDA gate stays skipped — no --cuda / --gpu claim path.
   See docs/tale-val-bpb-baseline.md · docs/public-accuracy-eval.md · docs/lab/publish-checklist.md"
       ;;
-    --download-all|--fetch-all|--download|--decompress|--assemble-all)
-      die "Refusing '$arg' in the capped baseline wrapper.
+    --download-all|--fetch-all|--download|--decompress|--assemble-all|--full-decompress|--decompress-all)
+      die_refuse "Refusing '$key' in the capped baseline wrapper.
   Full / multi-GB / decompress-all paths are OUT OF SCOPE (~315 Gi free ≠ hundreds of GB/archive).
   Allowed:
     --fetch-key <ONE_KEY>     # selective single Zenodo piece

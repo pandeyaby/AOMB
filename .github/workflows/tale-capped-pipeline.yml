@@ -1,6 +1,8 @@
 # Tale capped pipeline — fixture dry-run E2E (no Zenodo / no MPS)
 #
 # Unit tests: flag matrix (--auroc / invent / uncapped / --train on CI).
+# Shell invent refusals: tale_capped_baseline.sh + tale_scale_smoke.sh
+#   (--auroc / --publish / --cuda + invent synonyms → exit 1).
 # E2E: --fixture --dry-run → shards only (extract skipped; no prepare/train).
 # prepare.py untouched. No invented AUROC / val_bpb. CUDA gate stays skipped.
 
@@ -15,7 +17,10 @@ on:
       - "corpus/ingest/adapters/**"
       - "corpus/fixtures/tale_of_errors_sample/**"
       - "scripts/tale_capped_train_score.sh"
+      - "scripts/tale_capped_baseline.sh"
+      - "scripts/tale_scale_smoke.sh"
       - "tests/test_tale_capped_pipeline.py"
+      - "tests/test_tale_script_refusals.py"
       - ".github/workflows/tale-capped-pipeline.yml"
   pull_request:
     paths:
@@ -25,7 +30,10 @@ on:
       - "corpus/ingest/adapters/**"
       - "corpus/fixtures/tale_of_errors_sample/**"
       - "scripts/tale_capped_train_score.sh"
+      - "scripts/tale_capped_baseline.sh"
+      - "scripts/tale_scale_smoke.sh"
       - "tests/test_tale_capped_pipeline.py"
+      - "tests/test_tale_script_refusals.py"
       - ".github/workflows/tale-capped-pipeline.yml"
 
 jobs:
@@ -49,6 +57,12 @@ jobs:
         run: |
           export PYTHONPATH="$PWD"
           python -m unittest tests.test_tale_capped_pipeline -v
+
+      - name: Tale script invent refusals (subprocess; no Zenodo / no MPS)
+        run: |
+          export PYTHONPATH="$PWD"
+          chmod +x scripts/tale_capped_baseline.sh scripts/tale_scale_smoke.sh
+          python -m unittest tests.test_tale_script_refusals -v
 
       - name: Fixture dry-run E2E (shards only; no prepare/train)
         run: |
@@ -83,6 +97,32 @@ jobs:
             >/tmp/tale-prep.out 2>/tmp/tale-prep.err && exit 1 || test $? -eq 1
           grep -qi prepare /tmp/tale-prep.err
 
+          # Baseline / scale-smoke invent + CUDA refusals (exit 1)
+          bash scripts/tale_capped_baseline.sh --auroc \
+            >/tmp/tb-auroc.out 2>/tmp/tb-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/tb-auroc.err
+          grep -qi not_published /tmp/tb-auroc.err
+
+          bash scripts/tale_capped_baseline.sh --publish \
+            >/tmp/tb-pub.out 2>/tmp/tb-pub.err && exit 1 || test $? -eq 1
+          grep -qi publish /tmp/tb-pub.err
+
+          bash scripts/tale_capped_baseline.sh --cuda \
+            >/tmp/tb-cuda.out 2>/tmp/tb-cuda.err && exit 1 || test $? -eq 1
+          grep -qi cuda /tmp/tb-cuda.err
+
+          bash scripts/tale_capped_baseline.sh --download-all \
+            >/tmp/tb-dl.out 2>/tmp/tb-dl.err && exit 1 || test $? -eq 1
+          grep -qi refusing /tmp/tb-dl.err
+
+          bash scripts/tale_scale_smoke.sh --invent-metrics \
+            >/tmp/ts-inv.out 2>/tmp/ts-inv.err && exit 1 || test $? -eq 1
+          grep -qi invent /tmp/ts-inv.err
+
+          bash scripts/tale_scale_smoke.sh --cuda \
+            >/tmp/ts-cuda.out 2>/tmp/ts-cuda.err && exit 1 || test $? -eq 1
+          grep -qi cuda /tmp/ts-cuda.err
+
       - name: Job summary
         if: always()
         run: |
@@ -98,6 +138,8 @@ jobs:
             echo "- \`--fixture --dry-run --max-spans N\` → shards only (extract skipped)"
             echo "- Shell wrapper fixture dry-run matches module path"
             echo "- \`--auroc\` / invent flags refused (exit 1)"
+            echo "- \`tale_capped_baseline.sh\` / \`tale_scale_smoke.sh\` refuse \`--auroc\` / \`--publish\` / \`--cuda\` / invent synonyms (exit 1)"
+            echo "- \`--download-all\` / full decompress still refused on baseline + smoke"
             echo "- \`--train\` / \`--prepare\` refused on Linux CI (no invent val_bpb)"
             echo
             echo "### Not claimed"
