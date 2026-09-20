@@ -7,10 +7,12 @@ Does **not** call or modify ``prepare.evaluate_bpb`` (sacred shard-level metric)
 Reuses ``eval.score.session_bpb_texts`` and ``prepare.Tokenizer``.
 
 Scoring output is **not** a public accuracy claim until the labeled checklist in
-docs/public-accuracy-eval.md passes.
+docs/public-accuracy-eval.md passes. Lab stays ``claim_status=not_published``.
+Never invents AUROC / published ranking from this CLI.
 
 Usage::
 
+    uv run python -m eval.score_cli --help
     uv run python -m eval.score_cli --input corpus/fixtures/lab_sample --dry-run
     uv run python -m score_session --input path/to/dump --train-seconds 30
     uv run python -m eval.score_cli --input shards/ --checkpoint model.pt
@@ -19,13 +21,14 @@ Modes:
   --dry-run          Load sessions and print ids/lengths (no torch / no train)
   --train-seconds N  Short smoke train then score (requires prepared tokenizer)
   --checkpoint PATH  Load a previously saved scorer checkpoint then score
+
+Refused: --auroc / --publish / ranking / invent-metric flags.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 from typing import Any, Optional
@@ -40,6 +43,81 @@ DISCLAIMER = (
     "claim. See docs/public-accuracy-eval.md (claim_status=not_published until "
     "labeled checklist passes)."
 )
+
+# Loud refusals — session scorer prints BPB/surprise only (never AUROC).
+_REFUSED_METRIC_FLAGS = frozenset(
+    {
+        "--auroc",
+        "--lab-auroc",
+        "--accuracy",
+        "--ranking",
+        "--publish",
+        "--claim",
+        "--invent-metrics",
+        "--invent-auroc",
+        "--claim-auroc",
+    }
+)
+
+
+def _refuse_loud_flags(argv: list[str]) -> None:
+    """Fail loud on ranking / AUROC / publish flags before argparse."""
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in _REFUSED_METRIC_FLAGS:
+            raise SystemExit(
+                f"ERROR: Refusing '{key}'.\n"
+                "  Session scorer prints per-session BPB / surprise only.\n"
+                "  Never invents AUROC / published ranking accuracy.\n"
+                "  Lab claim_status stays not_published.\n"
+                "  Use --dry-run, --checkpoint PATH, or --train-seconds N."
+            )
+
+
+def validate_runtime_paths(
+    *,
+    input_path: str,
+    checkpoint: Optional[str] = None,
+    dry_run: bool = False,
+    train_seconds: float = 0.0,
+) -> Optional[str]:
+    """
+    Validate dump + checkpoint paths before loading sessions / torch.
+
+    Returns an error message string, or None when paths are usable.
+    """
+    dump = Path(input_path)
+    if not dump.exists():
+        return (
+            f"ERROR: session dump not found: {input_path}\n"
+            "  Pass a real OTLP JSONL / Jaeger / parquet path "
+            "(file or directory).\n"
+            "  Fixtures: corpus/fixtures/lab_sample · "
+            "corpus/fixtures/crisp_sample\n"
+            "  Or use --help."
+        )
+
+    if checkpoint is not None:
+        ckpt = Path(checkpoint)
+        if not ckpt.is_file():
+            return (
+                f"ERROR: checkpoint not found: {checkpoint}\n"
+                "  Pass a real aomb_session_scorer_v1 .pt file, "
+                "or use --dry-run / --train-seconds N.\n"
+                "  Or use --help."
+            )
+
+    if not dry_run and not checkpoint and train_seconds <= 0:
+        return (
+            "ERROR: model scoring requires --checkpoint PATH or "
+            "--train-seconds N > 0\n"
+            "  Use --dry-run to load sessions without a model "
+            "(ids / lengths only).\n"
+            "  Output is session BPB / surprise only — never AUROC.\n"
+            "  Or use --help."
+        )
+
+    return None
 
 
 def load_session_texts(
@@ -313,7 +391,13 @@ def save_checkpoint(path: str | Path, model, meta: dict[str, Any]) -> None:
 def load_checkpoint(path: str | Path, model) -> dict[str, Any]:
     import torch
 
-    payload = torch.load(path, map_location="cpu", weights_only=False)
+    ckpt = Path(path)
+    if not ckpt.is_file():
+        raise FileNotFoundError(
+            f"checkpoint not found: {path}\n"
+            "  Pass a real aomb_session_scorer_v1 .pt file."
+        )
+    payload = torch.load(ckpt, map_location="cpu", weights_only=False)
     if isinstance(payload, dict) and "model_state_dict" in payload:
         model.load_state_dict(payload["model_state_dict"])
         return payload.get("meta") or {}
@@ -384,12 +468,20 @@ def score_with_model(
     return scores, train_meta
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
+        prog="score_session",
         description=(
-            "AOMB session scorer — per-session surprise/BPB "
-            "(not a public accuracy claim)"
-        )
+            "AOMB session scorer — per-session surprise/BPB only "
+            "(not a public accuracy / AUROC claim; "
+            "claim_status=not_published)"
+        ),
+        epilog=(
+            "Refuses --auroc / --publish / ranking flags. "
+            "prepare.py is sacred — not modified. "
+            "Output: session_id + bpb (or dry_run metadata)."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument(
         "--input",
@@ -443,11 +535,35 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Print machine-readable JSON lines to stdout",
     )
-    args = p.parse_args(argv)
+    return p
 
-    rows, meta = load_session_texts(
-        args.input, adapter=args.adapter, max_sessions=args.max_sessions
+
+def main(argv: list[str] | None = None) -> int:
+    raw = list(sys.argv[1:] if argv is None else argv)
+    _refuse_loud_flags(raw)
+
+    args = build_parser().parse_args(raw)
+
+    path_err = validate_runtime_paths(
+        input_path=args.input,
+        checkpoint=args.checkpoint,
+        dry_run=args.dry_run,
+        train_seconds=args.train_seconds,
     )
+    if path_err:
+        print(path_err, file=sys.stderr)
+        return 2
+
+    try:
+        rows, meta = load_session_texts(
+            args.input, adapter=args.adapter, max_sessions=args.max_sessions
+        )
+    except Exception as e:
+        print(
+            f"ERROR: failed to load session dump {args.input!r}: {e}",
+            file=sys.stderr,
+        )
+        return 2
     if not rows:
         print("ERROR: no sessions loaded from", args.input, file=sys.stderr)
         return 2
@@ -488,6 +604,9 @@ def main(argv: list[str] | None = None) -> int:
                 save_ckpt=args.save_checkpoint,
                 seed=args.seed,
             )
+        except FileNotFoundError as e:
+            print(f"ERROR: {e}", file=sys.stderr)
+            return 2
         except Exception as e:
             print(f"ERROR: scoring failed: {e}", file=sys.stderr)
             return 2
@@ -509,6 +628,7 @@ def main(argv: list[str] | None = None) -> int:
                     f"n_chars={r['n_chars']}\tbpb={bpb_disp}"
                 )
 
+    # Always not_published — this CLI never flips publish state / invents AUROC.
     report = {
         "claim_status": "not_published",
         "disclaimer": DISCLAIMER,
