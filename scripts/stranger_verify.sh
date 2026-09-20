@@ -7,6 +7,8 @@
 #
 # Honesty refusals (shared with eval.stranger_path / stranger_demo / session scorer):
 #   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent / overnight)
+#   EXIT_PATH_ERROR=2    (missing/malformed Tale measured card on --tale-card-line)
+# CI-safe: --tale-card-line → factual Tale measured one-liner (no MPS).
 # NOT claimed: lab AUROC, production accuracy, MPS train, overnight agent.
 # prepare.py is sacred — never touched here. CUDA gate stays skipped.
 # No DIPTYCH harness contamination.
@@ -23,6 +25,7 @@ RST=$'\033[0m'
 
 # Must match eval.stranger_path.EXIT_* / REFUSED_METRIC_FLAGS.
 EXIT_REFUSED_FLAG=1
+EXIT_PATH_ERROR=2  # missing/malformed Tale measured card on --tale-card-line
 
 die() {
   echo "${RED}ERROR:${RST} $*" >&2
@@ -44,6 +47,7 @@ usage() {
 Usage:
   ./scripts/stranger_verify.sh
   STRANGER_FAST=0 ./scripts/stranger_verify.sh   # full ranking-card --with-model (CPU)
+  ./scripts/stranger_verify.sh --tale-card-line  # factual Tale measured one-liner (CI)
 
 Cite path defaults STRANGER_FAST=1 (baselines-only ε). Delegates to stranger_demo.sh.
 
@@ -51,6 +55,8 @@ Honesty: DIPTYCH full-8 + ranking-card harness smoke only.
   Never invents AUROC / val_bpb / published ranking.
   Lab claim_status stays not_published. CUDA gate stays skipped.
   prepare.py sacred. Refused: --auroc / --publish / --cuda / invent flags.
+  --tale-card-line: factual Tale measured card line (train fitness only, not AUROC);
+    missing/malformed → unavailable (exit 2). Linux CI OK (no MPS).
 USAGE
 }
 
@@ -64,6 +70,7 @@ fi
 
 # Keep case arm in sync with eval.stranger_path.REFUSED_METRIC_FLAGS (+ product).
 # Refuse before delegation so invent flags never reach the shared runner unnoticed.
+TALE_CARD_LINE=0
 for arg in "$@"; do
   key="${arg%%=*}"
   case "$key" in
@@ -80,12 +87,40 @@ for arg in "$@"; do
       die_refuse "Refusing '$key'. Stranger verify = no overnight, no MPS train, no API keys.
   See docs/stranger-verify.md (cite) or docs/stranger-demo.md (clone)."
       ;;
+    --tale-card-line)
+      TALE_CARD_LINE=1
+      ;;
     -h|--help|help)
       usage
       exit 0
       ;;
   esac
 done
+
+
+# ── Optional Tale measured-card one-liner (CI-safe; no MPS / no full demo) ────
+if [[ "$TALE_CARD_LINE" -eq 1 ]]; then
+  banner "AOMB stranger — Tale measured card line (CI; no MPS)"
+  echo "Repo: $ROOT"
+  echo "Card: reports/tale-capped/measured_capped_200k.json"
+  echo "Honesty: train fitness only — not AUROC / measured_not_published is not a published accuracy claim"
+  echo
+  PYTHON="${PYTHON:-python3}"
+  set +e
+  if command -v uv >/dev/null 2>&1; then
+    uv run python -m eval.public_wins_tale_line
+    rc=$?
+  else
+    PYTHONPATH="${PYTHONPATH:-$ROOT}" "$PYTHON" -m eval.public_wins_tale_line
+    rc=$?
+  fi
+  set -e
+  if [[ "$rc" -eq 0 ]]; then
+    banner "Done (tale-card-line)"
+    exit 0
+  fi
+  exit "$rc"
+fi
 
 # Default cite path is fast (baselines-only). Set STRANGER_FAST=0 for full
 # ranking-card --with-model when torch CPU is installed (still not MPS/lab AUROC).
