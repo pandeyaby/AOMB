@@ -82,7 +82,7 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 | **Lab AUROC** | **`not_published`** — no invented AUROC; private numbers stay under [`lab/`](lab/); publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md) (empty boxes = no claim) |
 | **CUDA** | **No claim yet** — checklist only in [`compute-paths.md`](compute-paths.md) |
 | **Public ranking card** | **`published_fixture_card` / harness smoke** — tiny-n synthetic; not production / field accuracy |
-| **CRISP `val_bpb`** | Train fitness only when cited — **not** ranking accuracy |
+| **CRISP / Tale `val_bpb`** | Train fitness only when cited — **not** ranking accuracy; Tale has no published baseline yet ([`tale-scale.md`](tale-scale.md)) |
 | **Overnight `agent_loop`** | Mac + API keys — **out of scope** for stranger paths |
 
 ---
@@ -99,3 +99,4 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 - Three lanes: README · [`corpus-v1.md`](corpus-v1.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)
 - Lab lane: [`lab/`](lab/) (`not_published` by default) · publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md)
 - BYO session BPB (not AUROC): [`byo-and-scorer.md`](byo-and-scorer.md) · `./scripts/byo_score.sh`
+- Tale-scale train path (no AUROC; fixture smoke only in-repo): [`tale-scale.md`](tale-scale.md) · `./scripts/tale_scale_smoke.sh`

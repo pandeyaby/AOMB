@@ -30,6 +30,7 @@ corpus/
 Public accuracy ranking protocol (claim not published): [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md), harness [`eval/`](../eval/).
 **Public ranking card v1 (fixture / harness smoke):** [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — synthetic pack (72 sessions, n_eval=36 balanced); distinct from private lab pool (`docs/lab/`). Reproduce: `./scripts/run_public_ranking_card_v1.sh`. Not production AUROC.
 BYO ingest + session scorer: [`docs/byo-and-scorer.md`](../docs/byo-and-scorer.md).
+Tale-scale (flagship public-real train path): [`docs/tale-scale.md`](../docs/tale-scale.md) · `./scripts/tale_scale_smoke.sh`.
 
 ## Quick commands
 
@@ -43,6 +44,7 @@ uv run python -m corpus.ingest.build_shards \
   --num-train-shards 8 --write-val-shard
 
 # Flagship scale — Uber Tale of Errors (CC BY 4.0; do not mix sanitization with CRISP)
+# One-pager: docs/tale-scale.md · fixture smoke (no multi-GB): ./scripts/tale_scale_smoke.sh
 uv run python -m corpus.ingest.fetch_tale_of_errors --list-only
 uv run python -m corpus.ingest.fetch_tale_of_errors --download trace1_aa   # one piece; not CI
 # After assembling Jaeger tree (cat split parts + zstd; 300–500 GB/archive):
@@ -51,6 +53,8 @@ uv run python -m corpus.ingest.build_shards \
   --input /path/to/assembled/jaeger/tree \
   --max-spans N --num-train-shards 8 --write-val-shard
 # Smoke fixture (no Zenodo):
+./scripts/tale_scale_smoke.sh
+# or:
 uv run python -m corpus.ingest.build_shards \
   --adapter tale_of_errors \
   --input corpus/fixtures/tale_of_errors_sample \

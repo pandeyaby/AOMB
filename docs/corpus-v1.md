@@ -108,6 +108,8 @@ uv run python prepare.py --num-shards 8
 
 ## Source B — Uber Tale of Errors (flagship scale)
 
+**Outsider one-pager (fetch → shard → prepare → train fitness):** [`docs/tale-scale.md`](tale-scale.md) · smoke: `./scripts/tale_scale_smoke.sh` (fixture only; no multi-GB pull).
+
 | Field | Value |
 |-------|--------|
 | **Part 1** | [10.5281/zenodo.13947828](https://doi.org/10.5281/zenodo.13947828) |
@@ -117,6 +119,7 @@ uv run python prepare.py --num-shards 8
 | **License** | **CC BY 4.0** |
 | **CI** | Full download **not required** and must not be part of CI (`fetch_tale_of_errors` refuses CI pulls) |
 | **Sanitization** | **Do not mix** mapping with CRISP (Zenodo 13956078) — mappings are inconsistent |
+| **Honest claim** | Train lane only (`val_bpb` when you train) — **no** incident labels → **no AUROC**; lab stays `not_published` |
 
 **Attribution / citation** (required under CC BY): Lee, Zhang, Parwal, Chabbi — *The Tale of Errors in Microservices*, SIGMETRICS 2025 — https://doi.org/10.1145/3700436; artifacts https://doi.org/10.5281/zenodo.13947828 and https://doi.org/10.5281/zenodo.13952897.
 
@@ -147,6 +150,8 @@ uv run python -m corpus.ingest.build_shards \
   --write-val-shard
 
 # Smoke / CI fixture only (no Zenodo):
+./scripts/tale_scale_smoke.sh
+# or:
 uv run python -m corpus.ingest.build_shards \
   --adapter tale_of_errors \
   --input corpus/fixtures/tale_of_errors_sample \
@@ -154,7 +159,7 @@ uv run python -m corpus.ingest.build_shards \
   --num-train-shards 1 --write-val-shard
 ```
 
-Adapter `tale_of_errors` accepts a *local* assembled Jaeger JSON tree (same parser as CRISP; different `source_id` / provenance). `prepare.py` is unchanged.
+Adapter `tale_of_errors` accepts a *local* assembled Jaeger JSON tree (same parser as CRISP; different `source_id` / provenance). `prepare.py` is unchanged. Full outsider path: [`tale-scale.md`](tale-scale.md).
 
 ---
 
