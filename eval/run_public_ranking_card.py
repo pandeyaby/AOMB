@@ -1,17 +1,24 @@
 """
-Public ranking card v1 — one-command reproduce entry.
+Public ranking card v1 — honest fixture runner.
 
-Runs multiseed length/events baselines (and optional fixture-only model) on the
-public fixture pack's **held-out eval split**, writing reports under
-reports/public-ranking-card-v1/.
+Scores **committed** local fixtures (public_ranking_card_v1 / lab_public_pack_v0)
+and emits only harness-allowed outputs:
+
+  - length / events baselines (deterministic, no torch)
+  - optional fixture-only session-BPB model path (--with-model)
+  - ranking aggregates computed from those real scores (never invented)
+
+Does **not** invent AUROC heroes, README marketing numbers, lab-pool AUROC,
+or val_bpb. Loudly refuses invent / publish / README-hero flags.
 
 Model path (--with-model) trains ONLY on frozen train-split session texts
 (ephemeral in-memory dataloader). No CRISP. No prepare data download.
 prepare.py is untouched.
 
-claim_status becomes `published_fixture_card` (harness smoke) when model mean
-AUROC beats length and events on the synthetic eval split — NOT production AUROC.
-Does not promote private lab-pool AUROC as the public card.
+claim_status becomes `published_fixture_card` (harness smoke) only when the
+frozen public_ranking_card_v1 model mean AUROC beats length and events on the
+synthetic eval split — NOT production AUROC, NOT a README hero.
+lab_public_pack_v0 stays `not_published`.
 """
 
 from __future__ import annotations
@@ -20,17 +27,26 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any, Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from eval.labels import content_hash_capture
+from eval.labels import content_hash_capture, filter_scorable, load_lab_sessions
 from eval.run_multiseed import main as multiseed_main
 from eval.run_multiseed import parse_seeds
+from eval.score import score_event_count, score_length
 
 CARD_ID = "public_ranking_card_v1"
-FIXTURE = ROOT / "corpus" / "fixtures" / "public_ranking_card_v1"
+FIXTURES_ROOT = ROOT / "corpus" / "fixtures"
+DEFAULT_FIXTURE_NAME = "public_ranking_card_v1"
+KNOWN_FIXTURES = frozenset(
+    {
+        "public_ranking_card_v1",
+        "lab_public_pack_v0",
+    }
+)
 REPORT_ROOT = ROOT / "reports" / "public-ranking-card-v1"
 PROTOCOL = "docs/public-ranking-card-v1.md"
 # Deterministic baseline AUROC/PR-AUC/precision must match within this ε
@@ -41,19 +57,175 @@ DEFAULT_SEEDS = "0..4"
 DEFAULT_RANDOM_DRAWS = 64
 DEFAULT_TRAIN_SECONDS = 45.0
 
+# Loud refusals — never invent AUROC heroes / README publish / val_bpb.
+# The harness still *computes* ranking metrics from real fixture scores;
+# these flags would invent or market claims without that honest path.
+_REFUSED_METRIC_FLAGS = frozenset(
+    {
+        "--auroc",
+        "--lab-auroc",
+        "--accuracy",
+        "--publish",
+        "--claim",
+        "--invent-metrics",
+        "--invent-auroc",
+        "--claim-auroc",
+        "--readme-hero",
+        "--publish-readme",
+        "--hero-auroc",
+        "--val-bpb",
+        "--invent-val-bpb",
+    }
+)
+
+
+def _refuse_loud_flags(argv: list[str]) -> None:
+    """Fail loud on invent / publish / README-hero flags before argparse."""
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in _REFUSED_METRIC_FLAGS:
+            raise SystemExit(
+                f"ERROR: Refusing '{key}'.\n"
+                "  Ranking-card runner scores committed local fixtures only.\n"
+                "  Emits length/events baselines (+ optional session BPB model).\n"
+                "  Never invents AUROC heroes, README marketing numbers, or val_bpb.\n"
+                "  Lab / lab_public_pack stay claim_status=not_published.\n"
+                "  Use --baselines-only, --with-model, --fixture NAME, or --help."
+            )
+
+
+def resolve_fixture(name_or_path: str) -> Path:
+    """Resolve a known fixture name or absolute/relative capture path."""
+    raw = Path(name_or_path)
+    if raw.is_dir():
+        return raw.resolve()
+    # Explicit path that does not exist yet — surface as missing dir (validate).
+    if raw.is_absolute() or "/" in name_or_path or name_or_path.startswith("."):
+        return raw.resolve()
+    name = name_or_path.strip().strip("/")
+    if name in KNOWN_FIXTURES:
+        return (FIXTURES_ROOT / name).resolve()
+    # Allow corpus/fixtures/<name> style
+    candidate = FIXTURES_ROOT / name
+    if candidate.is_dir():
+        return candidate.resolve()
+    raise FileNotFoundError(
+        f"Unknown fixture {name_or_path!r}. "
+        f"Known committed fixtures: {sorted(KNOWN_FIXTURES)}"
+    )
+
+
+def validate_fixture(fixture: Path) -> Optional[str]:
+    """
+    Validate committed fixture layout before scoring.
+
+    Returns an error message string, or None when usable.
+    """
+    if not fixture.is_dir():
+        return (
+            f"ERROR: fixture directory not found: {fixture}\n"
+            f"  Known committed fixtures: {sorted(KNOWN_FIXTURES)}\n"
+            "  Or pass --fixture public_ranking_card_v1 | lab_public_pack_v0."
+        )
+    if not (fixture / "provenance.json").is_file():
+        return (
+            f"ERROR: missing provenance.json under {fixture}\n"
+            "  Ranking card requires a labeled lab_capture-style fixture.\n"
+            "  Or use --help."
+        )
+    has_traces = (fixture / "traces.jsonl").is_file() or (
+        fixture / "spans.jsonl"
+    ).is_file()
+    if not has_traces:
+        return (
+            f"ERROR: missing traces.jsonl / spans.jsonl under {fixture}\n"
+            "  Fixture must contain session telemetry to score.\n"
+            "  Or use --help."
+        )
+    return None
+
+
+def emit_session_baseline_scores(
+    fixture: Path,
+    *,
+    session_split: str = "all",
+    out_path: Path,
+) -> dict[str, Any]:
+    """
+    Emit per-session length/events baseline scores from a real local fixture.
+
+    No torch. No invented AUROC. claim_status stays not_published on this
+    sidecar (aggregates may still report harness ranking metrics separately).
+    """
+    sessions, meta = load_lab_sessions(fixture)
+    y_true, kept = filter_scorable(sessions)
+    split_meta: dict[str, Any] = {"split_role": "all"}
+    if session_split != "all":
+        from eval.fixture_train import load_split, partition_by_split
+
+        split = load_split(fixture)
+        train_s, eval_s = partition_by_split(kept, split)
+        kept = eval_s if session_split == "eval" else train_s
+        y_true = [int(s.binary) for s in kept]  # type: ignore[arg-type]
+        split_meta = {
+            "split_role": session_split,
+            "split_id": split.get("split_id"),
+            "n_train": int(split.get("n_train") or len(train_s)),
+            "n_eval": int(split.get("n_eval") or len(eval_s)),
+        }
+
+    length_scores = score_length(kept)
+    events_scores = score_event_count(kept)
+    rows = []
+    for s, y, ls, es in zip(kept, y_true, length_scores, events_scores):
+        rows.append(
+            {
+                "session_id": s.session_id,
+                "label": s.label,
+                "binary": y,
+                "n_chars": s.n_chars,
+                "n_events": s.n_events,
+                "score_length": float(ls),
+                "score_events": float(es),
+            }
+        )
+
+    payload: dict[str, Any] = {
+        "card_id": CARD_ID,
+        "claim_status": "not_published",
+        "disclaimer": (
+            "Per-session length/events baselines from a committed local fixture. "
+            "Not a published ranking claim and not lab-pool accuracy. "
+            "Harness ranking aggregates (when run) are computed from these "
+            "real scores — never invented."
+        ),
+        "fixture": str(fixture.relative_to(ROOT)) if fixture.is_relative_to(ROOT) else str(fixture),
+        "fixture_content_sha256": meta.get("content_sha256")
+        or content_hash_capture(fixture),
+        "capture_id": meta.get("capture_id"),
+        "session_split": split_meta,
+        "n_sessions": len(rows),
+        "sessions": rows,
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return payload
+
 
 def _run_multiseed(
     *,
+    fixture: Path,
     scores_from: str,
     out_dir: Path,
     seeds: str,
     random_draws: int,
+    session_split: str = "eval",
     train_seconds: float = 0.0,
     train_corpus: str = "prepare",
 ) -> int:
     argv = [
         "--capture",
-        str(FIXTURE),
+        str(fixture),
         "--scores-from",
         scores_from,
         "--seeds",
@@ -63,7 +235,7 @@ def _run_multiseed(
         "--random-draws",
         str(random_draws),
         "--session-split",
-        "eval",
+        session_split,
     ]
     if scores_from == "model":
         argv += [
@@ -116,13 +288,38 @@ def _decide_claim_status(
     length_agg: dict,
     events_agg: dict,
     model_agg: dict | None,
+    *,
+    fixture_name: str,
+    allow_publish_fixture_card: bool,
+    baselines_only: bool = False,
 ) -> tuple[str, str]:
     """
     Fixture-card / harness-smoke status only.
 
-    `published_fixture_card` when model mean AUROC beats length and events on
-    the same eval split. This is NOT production AUROC / general public accuracy.
+    `published_fixture_card` only for the frozen public_ranking_card_v1 protocol
+    when model mean AUROC beats length and events on the same eval split.
+    This is NOT production AUROC / general public accuracy / README hero.
+    lab_public_pack and baselines-only stay not_published.
     """
+    if baselines_only:
+        return (
+            "not_published",
+            (
+                "Baselines-only run (length/events from real local fixture scores). "
+                "No fixture-only model aggregate — claim_status stays not_published. "
+                "No AUROC hero, no README publish."
+            ),
+        )
+    if not allow_publish_fixture_card:
+        return (
+            "not_published",
+            (
+                f"Fixture {fixture_name!r} is outside the frozen "
+                f"{DEFAULT_FIXTURE_NAME} publish lane. Harness metrics may be "
+                "computed from real local scores; claim_status stays "
+                "not_published — no AUROC hero, no README publish."
+            ),
+        )
     if model_agg is None:
         return (
             "not_published",
@@ -138,7 +335,8 @@ def _decide_claim_status(
                 f"Fixture-only model mean AUROC {m:.6f} beats length {l:.6f} "
                 f"and events {e:.6f} on the frozen synthetic eval split. "
                 "Status = published fixture card / harness smoke only — "
-                "NOT production AUROC, NOT general public accuracy, NOT lab pool."
+                "NOT production AUROC, NOT general public accuracy, NOT lab pool, "
+                "NOT a README hero."
             ),
         )
     return (
@@ -153,6 +351,7 @@ def _decide_claim_status(
 
 def _write_card_summary(
     *,
+    fixture: Path,
     fixture_sha: str,
     seeds: list[int],
     length_agg: dict,
@@ -166,6 +365,9 @@ def _write_card_summary(
 ) -> None:
     length_auroc = length_agg["metrics_mean_std"]["auroc"]
     events_auroc = events_agg["metrics_mean_std"]["auroc"]
+    fixture_disp = (
+        str(fixture.relative_to(ROOT)) if fixture.is_relative_to(ROOT) else str(fixture)
+    )
     lines = [
         "# Public ranking card v1 — fixture report",
         "",
@@ -175,11 +377,12 @@ def _write_card_summary(
         "",
         "> ## Limitations (read first)",
         ">",
-        f"> - **n_eval = {n_eval}** labeled sessions on a **synthetic** fixture — harness smoke, not a field study.",
+        f"> - **n_eval = {n_eval}** labeled sessions on a **committed local fixture** — harness smoke, not a field study.",
         "> - **High / perfect AUROC on this toy pack ≠ general public accuracy** and ≠ production AUROC.",
-        "> - Text patterns are stylized (catalog_ok vs checkout_failed / redis_unavailable); separation can be easy.",
+        "> - Text patterns may be stylized; separation can be easy.",
         "> - **Not** private lab-pool AUROC (incl. 0.766). **Not** CRISP `val_bpb`. **Not** a support/SLO metric.",
-        "> - Train corpus = fixture train-split **normal** texts only (no CRISP / prepare shards).",
+        "> - **Not** a README AUROC hero. Metrics below are computed from real local fixture scores.",
+        "> - Train corpus (model path) = fixture train-split **normal** texts only (no CRISP / prepare shards).",
         "",
         f"**Claim gate:** {claim_reason}",
         "",
@@ -187,7 +390,7 @@ def _write_card_summary(
         "",
         f"| Field | Value |",
         f"|-------|-------|",
-        f"| Fixture | `corpus/fixtures/public_ranking_card_v1` |",
+        f"| Fixture | `{fixture_disp}` |",
         f"| Fixture content SHA-256 | `{fixture_sha}` |",
         f"| Split | `split.json` (eval n={n_eval}) |",
         f"| Seeds | `{seeds}` |",
@@ -227,7 +430,7 @@ def _write_card_summary(
             "",
             (
                 "If AUROC is ~1.0 on this synthetic pack, treat it as **toy separation / harness smoke**, "
-                "not a marketable production accuracy number."
+                "not a marketable production accuracy number or README hero."
             ),
             "",
         ]
@@ -235,6 +438,7 @@ def _write_card_summary(
         "## Explicit non-claims",
         "",
         "- Not general public accuracy or production AUROC.",
+        "- Not a README / marketing AUROC hero.",
         "- Not the private lab pool (including any lab-pool AUROC such as 0.766).",
         "- Not CRISP / synthetic `val_bpb`.",
         "- Not a production support or incident-response SLO metric.",
@@ -243,15 +447,37 @@ def _write_card_summary(
         "## Lane reminders",
         "",
         "- Private lab pool metrics stay in `docs/lab/` (`not_published` lane).",
-        "- `published_fixture_card` = fixture harness smoke that beat baselines — still not production.",
+        "- `published_fixture_card` = fixture harness smoke that beat baselines — still not production / not README hero.",
+        "- Per-session length/events baselines: `session_baseline_scores.json` (always `not_published`).",
         "",
     ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        description="Public ranking card v1 reproduce (fixture eval-split)"
+        prog="run_public_ranking_card",
+        description=(
+            "Honest public ranking-card fixture runner — scores committed "
+            "local fixtures (length/events baselines + optional session BPB). "
+            "Never invents AUROC heroes / README publish / val_bpb "
+            "(claim_status=not_published unless frozen card harness gate passes)."
+        ),
+        epilog=(
+            "Refuses --auroc / --publish / --readme-hero / invent flags. "
+            "prepare.py is sacred — not modified. "
+            "Fixtures: public_ranking_card_v1 · lab_public_pack_v0."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p.add_argument(
+        "--fixture",
+        type=str,
+        default=DEFAULT_FIXTURE_NAME,
+        help=(
+            "Committed fixture name or path "
+            f"(default: {DEFAULT_FIXTURE_NAME}; also: lab_public_pack_v0)"
+        ),
     )
     p.add_argument(
         "--baselines-only",
@@ -288,42 +514,116 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Refresh REFERENCE_*.json from live aggregates (for commit)",
     )
-    args = p.parse_args(argv)
+    p.add_argument(
+        "--session-scores-only",
+        action="store_true",
+        help=(
+            "Emit session_baseline_scores.json from the fixture and exit "
+            "(no multiseed ranking aggregates; no invented AUROC)"
+        ),
+    )
+    return p
 
-    if not FIXTURE.is_dir():
-        print(f"ERROR: missing fixture {FIXTURE}", file=sys.stderr)
+
+def main(argv: list[str] | None = None) -> int:
+    raw = list(sys.argv[1:] if argv is None else argv)
+    _refuse_loud_flags(raw)
+
+    args = build_parser().parse_args(raw)
+
+    try:
+        fixture = resolve_fixture(args.fixture)
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
         return 2
-    if not (FIXTURE / "split.json").is_file():
-        print(f"ERROR: missing frozen split {FIXTURE / 'split.json'}", file=sys.stderr)
+
+    path_err = validate_fixture(fixture)
+    if path_err:
+        print(path_err, file=sys.stderr)
+        return 2
+
+    fixture_name = fixture.name
+    has_split = (fixture / "split.json").is_file()
+    # Frozen card publish lane only for the committed public_ranking_card_v1 pack.
+    allow_publish_fixture_card = (
+        fixture_name == DEFAULT_FIXTURE_NAME and has_split
+    )
+    # Eval split when frozen split exists; otherwise score all scorable sessions.
+    session_split = "eval" if has_split else "all"
+
+    if fixture_name == DEFAULT_FIXTURE_NAME and not has_split:
+        print(
+            f"ERROR: missing frozen split {fixture / 'split.json'}",
+            file=sys.stderr,
+        )
         return 2
 
     out_root = Path(args.out_dir)
     out_root.mkdir(parents=True, exist_ok=True)
     seeds = parse_seeds(args.seeds)
-    fixture_sha = content_hash_capture(FIXTURE)
+    fixture_sha = content_hash_capture(fixture)
+
+    # Always emit honest per-session baseline scores from the real fixture.
+    session_scores_path = out_root / "session_baseline_scores.json"
+    session_payload = emit_session_baseline_scores(
+        fixture,
+        session_split=session_split,
+        out_path=session_scores_path,
+    )
+    print(
+        f"[{CARD_ID}] wrote {session_scores_path} "
+        f"(n={session_payload['n_sessions']} session baselines; "
+        f"claim_status={session_payload['claim_status']})"
+    )
+
+    if args.session_scores_only:
+        print(
+            f"[{CARD_ID}] session-scores-only — no multiseed aggregates, "
+            "no invented AUROC heroes."
+        )
+        return 0
 
     length_dir = out_root / "baselines-length"
     events_dir = out_root / "baselines-events"
     model_dir = out_root / "model-fixture"
 
-    run_model = args.with_model and not args.baselines_only
+    # Model path only on frozen card fixture with split (fixture-train needs it).
+    run_model = (
+        args.with_model
+        and not args.baselines_only
+        and allow_publish_fixture_card
+    )
+    if args.with_model and not allow_publish_fixture_card:
+        print(
+            f"[{CARD_ID}] NOTE: --with-model ignored for fixture {fixture_name!r} "
+            "(fixture-train / published_fixture_card lane requires "
+            f"{DEFAULT_FIXTURE_NAME} + split.json). Running baselines only.",
+            file=sys.stderr,
+        )
 
     if not args.skip_run:
-        print(f"[{CARD_ID}] fixture_sha={fixture_sha}")
-        print(f"[{CARD_ID}] seeds={seeds} session_split=eval")
+        print(f"[{CARD_ID}] fixture={fixture_name} fixture_sha={fixture_sha}")
+        print(
+            f"[{CARD_ID}] seeds={seeds} session_split={session_split} "
+            f"allow_publish_fixture_card={allow_publish_fixture_card}"
+        )
         rc = _run_multiseed(
+            fixture=fixture,
             scores_from="length",
             out_dir=length_dir,
             seeds=args.seeds,
             random_draws=args.random_draws,
+            session_split=session_split,
         )
         if rc != 0:
             return rc
         rc = _run_multiseed(
+            fixture=fixture,
             scores_from="events",
             out_dir=events_dir,
             seeds=args.seeds,
             random_draws=args.random_draws,
+            session_split=session_split,
         )
         if rc != 0:
             return rc
@@ -334,10 +634,12 @@ def main(argv: list[str] | None = None) -> int:
                 "(no CRISP / prepare shards)"
             )
             rc = _run_multiseed(
+                fixture=fixture,
                 scores_from="model",
                 out_dir=model_dir,
                 seeds=args.seeds,
                 random_draws=args.random_draws,
+                session_split=session_split,
                 train_seconds=args.train_seconds,
                 train_corpus="fixture-train",
             )
@@ -357,15 +659,28 @@ def main(argv: list[str] | None = None) -> int:
     length_agg = _load_agg(length_agg_path)
     events_agg = _load_agg(events_agg_path)
 
-    split = json.loads((FIXTURE / "split.json").read_text(encoding="utf-8"))
-    n_eval = int(split.get("n_eval") or len(split.get("eval_session_ids") or []))
+    if has_split:
+        split = json.loads((fixture / "split.json").read_text(encoding="utf-8"))
+        n_eval = int(split.get("n_eval") or len(split.get("eval_session_ids") or []))
+    else:
+        n_eval = int(session_payload["n_sessions"])
 
     model_agg = None
     model_agg_path = model_dir / "aggregate.json"
-    if model_agg_path.is_file():
+    if model_agg_path.is_file() and run_model:
+        model_agg = _load_agg(model_agg_path)
+    elif model_agg_path.is_file() and allow_publish_fixture_card and not args.baselines_only:
+        # skip-run / prior model aggregate on frozen card
         model_agg = _load_agg(model_agg_path)
 
-    claim_status, claim_reason = _decide_claim_status(length_agg, events_agg, model_agg)
+    claim_status, claim_reason = _decide_claim_status(
+        length_agg,
+        events_agg,
+        model_agg,
+        fixture_name=fixture_name,
+        allow_publish_fixture_card=allow_publish_fixture_card,
+        baselines_only=bool(args.baselines_only),
+    )
 
     # Stamp card identity onto aggregates
     for agg, method in ((length_agg, "length"), (events_agg, "events")):
@@ -374,9 +689,10 @@ def main(argv: list[str] | None = None) -> int:
         agg["claim_status"] = claim_status
         agg["claim_reason"] = claim_reason
         agg["fixture_content_sha256"] = fixture_sha
+        agg["fixture_name"] = fixture_name
         agg["epsilon"] = EPS
         agg["baseline"] = method
-        agg["session_split"] = "eval"
+        agg["session_split"] = session_split
         agg["n_eval"] = n_eval
         (out_root / f"baselines-{method}" / "aggregate.json").write_text(
             json.dumps(agg, indent=2) + "\n", encoding="utf-8"
@@ -388,7 +704,8 @@ def main(argv: list[str] | None = None) -> int:
         model_agg["claim_status"] = claim_status
         model_agg["claim_reason"] = claim_reason
         model_agg["fixture_content_sha256"] = fixture_sha
-        model_agg["session_split"] = "eval"
+        model_agg["fixture_name"] = fixture_name
+        model_agg["session_split"] = session_split
         model_agg["n_eval"] = n_eval
         model_agg["train_corpus"] = "fixture_train_split_only"
         model_agg["epsilon_model"] = MODEL_EPS
@@ -396,6 +713,7 @@ def main(argv: list[str] | None = None) -> int:
 
     summary_path = out_root / "CARD.md"
     _write_card_summary(
+        fixture=fixture,
         fixture_sha=fixture_sha,
         seeds=seeds,
         length_agg=length_agg,
@@ -413,7 +731,16 @@ def main(argv: list[str] | None = None) -> int:
     ref_events = out_root / "REFERENCE_baselines-events.json"
     ref_model = out_root / "REFERENCE_model-fixture.json"
     failures: list[str] = []
+    # ε check only against committed refs for the frozen public card fixture.
     if args.check_eps:
+        if not allow_publish_fixture_card:
+            print(
+                "ERROR: --check-eps only applies to frozen "
+                f"{DEFAULT_FIXTURE_NAME} references "
+                f"(got fixture={fixture_name!r})",
+                file=sys.stderr,
+            )
+            return 2
         for live, ref_path, label, eps in (
             (length_agg, ref_length, "length", EPS),
             (events_agg, ref_events, "events", EPS),
@@ -441,10 +768,21 @@ def main(argv: list[str] | None = None) -> int:
             for f in failures:
                 print(f"  - {f}", file=sys.stderr)
             return 3
-        print(f"ε check passed (baselines ≤{EPS}" + (f", model ≤{MODEL_EPS}" if model_agg and ref_model.is_file() else "") + ")")
+        print(
+            f"ε check passed (baselines ≤{EPS}"
+            + (
+                f", model ≤{MODEL_EPS}"
+                if model_agg and ref_model.is_file()
+                else ""
+            )
+            + ")"
+        )
 
-    # Refresh references when explicitly requested or after a fresh baseline/model run
-    if args.write_references or (not args.skip_run and not args.check_eps):
+    # Refresh references when explicitly requested or after a fresh baseline/model
+    # run on the frozen public card only (never write hero refs for lab pack).
+    if allow_publish_fixture_card and (
+        args.write_references or (not args.skip_run and not args.check_eps)
+    ):
         for agg, path in ((length_agg, ref_length), (events_agg, ref_events)):
             path.write_text(json.dumps(agg, indent=2) + "\n", encoding="utf-8")
             print(f"Wrote {path}")
