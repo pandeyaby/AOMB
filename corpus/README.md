@@ -17,6 +17,7 @@ corpus/
     build_shards.py           # shard_NNNNN.parquet + provenance
     fetch_crisp.py            # Zenodo CRISP-main.zip (~2.33 GB, opt-in)
     fetch_tale_of_errors.py   # Zenodo part1+part2 list/selective download (not CI)
+    tale_stream_extract.py    # capped stream extract from trace*_ / .tar.zst (no full decompress)
     fetch_aiops_challenge.py  # eval-only cite+fetch (no redistribute)
     rejected_sources.py       # explicit denylist (demo/testbed/synthetic)
     adapters/
@@ -48,10 +49,14 @@ uv run python -m corpus.ingest.build_shards \
 # One-pager: docs/tale-scale.md · fixture smoke (no multi-GB): ./scripts/tale_scale_smoke.sh
 uv run python -m corpus.ingest.fetch_tale_of_errors --list-only
 uv run python -m corpus.ingest.fetch_tale_of_errors --download trace1_aa   # one piece; not CI
-# After assembling Jaeger tree (cat split parts + zstd; 300–500 GB/archive):
+# Preferred on ~315 Gi free: stream-capped extract (never full zstd -d):
+uv run python -m corpus.ingest.tale_stream_extract --help
+./scripts/tale_stream_capped_extract.sh \
+  --input ~/.cache/autoresearch/corpus-v1/tale_of_errors \
+  --out /tmp/aomb-tale-capped --prefix trace1_ --max-spans 200000
 uv run python -m corpus.ingest.build_shards \
   --adapter tale_of_errors \
-  --input /path/to/assembled/jaeger/tree \
+  --input /tmp/aomb-tale-capped \
   --max-spans N --num-train-shards 8 --write-val-shard
 # Smoke fixture (no Zenodo):
 ./scripts/tale_scale_smoke.sh
