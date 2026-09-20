@@ -3,6 +3,8 @@
 # Check name (badge-friendly): stranger-verify / stranger-verify
 # Default path: STRANGER_FAST=1 → full-8 + gate_axis_mutate + ranking baselines ε.
 # Optional dispatch: full ranking-card --with-model on CPU torch (still not lab AUROC).
+# Honesty: --auroc / --publish / --cuda invent refusals (see stranger-honesty job
+# in stranger-demo.yml + tests/test_stranger_scripts.py).
 
 name: stranger-verify
 
@@ -18,11 +20,13 @@ on:
       - "diptych-probes/**"
       - "eval/diptych/**"
       - "eval/run_public_ranking_card.py"
+      - "eval/stranger_path.py"
       - "coverage/**"
       - "corpus/fixtures/public_ranking_card_v1/**"
       - "reports/public-ranking-card-v1/**"
       - "tests/test_diptych_full8.py"
       - "tests/test_public_ranking_card_v1.py"
+      - "tests/test_stranger_scripts.py"
       - ".github/workflows/stranger-verify.yml"
   pull_request:
     paths:
@@ -35,11 +39,13 @@ on:
       - "diptych-probes/**"
       - "eval/diptych/**"
       - "eval/run_public_ranking_card.py"
+      - "eval/stranger_path.py"
       - "coverage/**"
       - "corpus/fixtures/public_ranking_card_v1/**"
       - "reports/public-ranking-card-v1/**"
       - "tests/test_diptych_full8.py"
       - "tests/test_public_ranking_card_v1.py"
+      - "tests/test_stranger_scripts.py"
       - ".github/workflows/stranger-verify.yml"
   workflow_dispatch:
     inputs:
@@ -49,6 +55,22 @@ on:
         default: false
 
 jobs:
+  stranger-honesty:
+    name: stranger-honesty
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Honesty refusal tests (torch-free)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest tests.test_stranger_scripts -v
+
   stranger-verify:
     name: stranger-verify
     runs-on: ubuntu-latest
@@ -99,11 +121,13 @@ jobs:
             echo "### Proven (when green)"
             echo "- DIPTYCH full-8 emit + \`gate_axis_mutate\` → all \`aomb=green\`, \`axis_power=true\`"
             echo "- Public ranking card harness smoke (default: baselines-only ε; optional CPU \`--with-model\`)"
+            echo "- \`--auroc\` / \`--publish\` / \`--cuda\` invent refusals (exit 1; see stranger-honesty)"
             echo
             echo "### Not claimed"
             echo "- Lab AUROC (stays \`not_published\` — no invented AUROC)"
             echo "- Production / field accuracy"
             echo "- MPS product train / overnight \`agent_loop\` (no API keys in this path)"
+            echo "- CUDA (gate stays skipped)"
             echo
             echo "Docs: \`docs/stranger-verify.md\` · Codespaces: \`.devcontainer/\`"
             echo

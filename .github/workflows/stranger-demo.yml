@@ -3,6 +3,9 @@
 # Exercises ./scripts/stranger_demo.sh on ubuntu-latest.
 # Fast path on PRs (baselines-only ranking card). Full CPU model smoke on
 # push to main and workflow_dispatch (honest: torch CPU, not MPS).
+#
+# Honesty job: --auroc / --publish / --cuda invent refusals + exit codes
+# (torch-free; shared with eval.stranger_path / stranger_verify).
 
 name: stranger-demo
 
@@ -13,6 +16,7 @@ on:
   pull_request:
     paths:
       - "scripts/stranger_demo.sh"
+      - "scripts/stranger_verify.sh"
       - "scripts/run_diptych_full8.sh"
       - "scripts/run_public_ranking_card_v1.sh"
       - "docs/stranger-demo.md"
@@ -23,6 +27,7 @@ on:
       - "reports/public-ranking-card-v1/**"
       - "tests/test_diptych_full8.py"
       - "tests/test_public_ranking_card_v1.py"
+      - "tests/test_stranger_scripts.py"
       - ".github/workflows/stranger-demo.yml"
   workflow_dispatch:
     inputs:
@@ -32,6 +37,39 @@ on:
         default: true
 
 jobs:
+  stranger-honesty:
+    name: stranger-honesty
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Honesty refusal tests (torch-free)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest tests.test_stranger_scripts -v
+
+      - name: CLI smoke (auroc / publish / cuda refuse)
+        run: |
+          set -euo pipefail
+          chmod +x scripts/stranger_demo.sh scripts/stranger_verify.sh
+          ./scripts/stranger_demo.sh --auroc >/tmp/sd-auroc.out 2>/tmp/sd-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/sd-auroc.err
+          grep -qi not_published /tmp/sd-auroc.err
+
+          ./scripts/stranger_verify.sh --publish >/tmp/sv-pub.out 2>/tmp/sv-pub.err && exit 1 || test $? -eq 1
+          grep -qi publish /tmp/sv-pub.err
+
+          ./scripts/stranger_demo.sh --cuda >/tmp/sd-cuda.out 2>/tmp/sd-cuda.err && exit 1 || test $? -eq 1
+          grep -qi cuda /tmp/sd-cuda.err
+
+          python -m eval.stranger_path --auroc >/tmp/sp.out 2>/tmp/sp.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/sp.err
+
   stranger-path:
     runs-on: ubuntu-latest
     timeout-minutes: 30

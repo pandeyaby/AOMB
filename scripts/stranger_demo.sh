@@ -8,8 +8,10 @@
 #   → docs/stranger-verify.md  (defaults STRANGER_FAST=1; delegates here)
 # Clone-first docs: docs/stranger-demo.md
 #
+# Honesty refusals (shared with eval.stranger_path / session scorer / demo_anomaly):
+#   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent / overnight)
 # NOT claimed: overnight agent, MPS product train, lab AUROC, production ranking.
-# prepare.py is sacred — this script never touches it.
+# prepare.py is sacred — this script never touches it. CUDA gate stays skipped.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -21,9 +23,17 @@ YLW=$'\033[33m'
 BOLD=$'\033[1m'
 RST=$'\033[0m'
 
+# Must match eval.stranger_path.EXIT_* / REFUSED_METRIC_FLAGS.
+EXIT_REFUSED_FLAG=1
+
 die() {
   echo "${RED}ERROR:${RST} $*" >&2
   exit 1
+}
+
+die_refuse() {
+  echo "${RED}ERROR:${RST} $*" >&2
+  exit "$EXIT_REFUSED_FLAG"
 }
 
 banner() {
@@ -31,19 +41,50 @@ banner() {
   echo "${BOLD}═══ $* ═══${RST}"
 }
 
+usage() {
+  cat >&2 <<'USAGE'
+Usage:
+  ./scripts/stranger_demo.sh
+  STRANGER_FAST=1 ./scripts/stranger_demo.sh   # baselines-only ranking card
+
+Cite-without-cloning (defaults STRANGER_FAST=1):
+  ./scripts/stranger_verify.sh
+
+Honesty: DIPTYCH full-8 + ranking-card harness smoke only.
+  Never invents AUROC / val_bpb / published ranking.
+  Lab claim_status stays not_published. CUDA gate stays skipped.
+  prepare.py sacred. Refused: --auroc / --publish / --cuda / invent flags.
+USAGE
+}
+
 # ── Loud refusals for Mac/agent-only expectations ───────────────────────────
 if [[ "${STRANGER_EXPECT_MPS:-}" == "1" ]] || [[ "${STRANGER_EXPECT_OVERNIGHT:-}" == "1" ]]; then
-  die "This stranger path does not run overnight agent or MPS product train.
+  die_refuse "This stranger path does not run overnight agent or MPS product train.
   Unset STRANGER_EXPECT_MPS / STRANGER_EXPECT_OVERNIGHT.
   On Apple Silicon with API keys, see README Quickstart (agent_loop / train.py).
   Here we only prove: diptych full-8 gate + public ranking card harness smoke."
 fi
 
+# Keep case arm in sync with eval.stranger_path.REFUSED_METRIC_FLAGS (+ product).
 for arg in "$@"; do
-  case "$arg" in
+  key="${arg%%=*}"
+  case "$key" in
+    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim|--invent-metrics|--invent-auroc|--claim-auroc|--val-bpb|--invent-val-bpb|--readme-hero|--publish-readme|--hero-auroc|--cuda|--gpu)
+      die_refuse "Refusing '$key'.
+  Stranger demo proves DIPTYCH full-8 + ranking-card harness smoke only.
+  Never invents AUROC / val_bpb / published ranking accuracy.
+  Lab claim_status stays not_published.
+  CUDA gate stays skipped — use CPU stranger path (no --cuda / --gpu).
+  Run without invent flags. Optional: STRANGER_FAST=1 for baselines-only
+  (same refusals as: python -m eval.stranger_path --help)."
+      ;;
     --overnight|--agent|--mps-train)
-      die "Refusing '$arg'. Stranger demo = no overnight agent, no MPS train, no API keys.
+      die_refuse "Refusing '$key'. Stranger demo = no overnight agent, no MPS train, no API keys.
   Run without those flags. Optional: STRANGER_FAST=1 for baselines-only ranking card."
+      ;;
+    -h|--help|help)
+      usage
+      exit 0
       ;;
   esac
 done
@@ -142,6 +183,7 @@ echo "  • Product MPS train / Uber CRISP val_bpb overnight"
 echo "  • Lab ranking AUROC (stays not_published — no invented AUROC)"
 echo "  • Production / field accuracy — fixture card is tiny-n synthetic harness smoke only"
 echo "  • CRISP val_bpb as ranking accuracy (train fitness only when cited)"
+echo "  • CUDA (gate stays skipped)"
 echo
 echo "Honesty: docs/stranger-demo.md · docs/stranger-verify.md · docs/public-ranking-card-v1.md · README three lanes"
 echo "Cite without cloning: green stranger-verify Actions badge (docs/stranger-verify.md)"
