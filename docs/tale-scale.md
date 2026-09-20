@@ -12,6 +12,7 @@
 > - **No CUDA claim.** Product overnight / MPS train honesty: [`compute-paths.md`](compute-paths.md) · [`product-mac-path.md`](product-mac-path.md).
 
 Bootstrap (smaller) public-real path: Uber **CRISP** — [`corpus-v1.md`](corpus-v1.md) · factual CRISP `val_bpb`: [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md).  
+Capped Tale `val_bpb` subset protocol (disk-safe; measured row **pending** until a Mac run): [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`.  
 One-command fixture smoke (no Zenodo): `./scripts/tale_scale_smoke.sh`.
 
 ---
@@ -124,7 +125,7 @@ exec(open('train.py').read())
 uv run python train.py
 ```
 
-Record whatever `val_bpb:` the run prints as a **factual training metric**. Do **not** turn it into AUROC / ranking accuracy. There is **no published Tale `val_bpb` baseline** in this repo yet — do not invent one. CRISP numbers in [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) are a **different** source / scale; do not 1:1 compare.
+Record whatever `val_bpb:` the run prints as a **factual training metric**. Do **not** turn it into AUROC / ranking accuracy. There is **no published Tale `val_bpb` baseline** in this repo yet — do not invent one. Protocol + **pending** measured row (capped subset only; full decompress out of scope on ~315 Gi free): [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md). CRISP numbers in [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) are a **different** source / scale; do not 1:1 compare.
 
 ---
 
@@ -134,6 +135,7 @@ Record whatever `val_bpb:` the run prints as a **factual training metric**. Do *
 |----------|------|
 | Tale fixture smoke | Adapter + shard wiring (no Zenodo) |
 | Tale scale shards + `prepare.py` + `train.py` | Public-real **train fitness** (`val_bpb`) when you have the disk |
+| Capped Tale `val_bpb` baseline doc | Disk-safe subset protocol — measured number **pending** until Mac run ([`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md)) |
 | CRISP `val_bpb` baselines | Separate bootstrap lane — not interchangeable with Tale |
 | Lab AUROC / ranking | **`not_published`** until [`lab/publish-checklist.md`](lab/publish-checklist.md) |
 | Public ranking card | Synthetic harness smoke — unrelated to Tale |
@@ -144,6 +146,7 @@ Record whatever `val_bpb:` the run prints as a **factual training metric**. Do *
 
 - Corpus map: [`corpus-v1.md`](corpus-v1.md) · tree: [`corpus/README.md`](../corpus/README.md)
 - CRISP train fitness: [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md)
+- Capped Tale train fitness (pending measure): [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`
 - BYO dumps (your telemetry): [`byo-and-scorer.md`](byo-and-scorer.md) · `./scripts/byo_score.sh`
 - Public wins / stranger path: [`public-wins.md`](public-wins.md)
 - Accuracy claim gate (not this path): [`public-accuracy-eval.md`](public-accuracy-eval.md)
