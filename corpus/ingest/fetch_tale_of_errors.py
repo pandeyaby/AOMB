@@ -122,67 +122,243 @@ def print_file_listing(files: list[dict[str, Any]]) -> None:
             )
 
 
+EXIT_REFUSED_FLAG = 1
+
+# Invent / publish / cuda refusals (mirror score_cli / tale baseline spirit).
+REFUSED_FLAGS = frozenset(
+    {
+        "--auroc",
+        "--lab-auroc",
+        "--accuracy",
+        "--ranking",
+        "--publish",
+        "--claim",
+        "--cuda",
+        "--gpu",
+        "--invent-metrics",
+        "--invent-auroc",
+        "--invent-val-bpb",
+        "--claim-auroc",
+        "--invent",
+    }
+)
+
+
+def refuse_loud_flags(argv: list[str]) -> None:
+    """Fail loud on invent / publish / cuda flags before argparse."""
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in REFUSED_FLAGS:
+            msg = (
+                f"ERROR: Refusing '{key}'.\n"
+                "  Tale Zenodo fetch downloads corpus pieces only.\n"
+                "  Never invents AUROC / published ranking / CUDA path.\n"
+                "  Use --list-only or --download KEY…"
+            )
+            print(msg, file=sys.stderr)
+            raise SystemExit(EXIT_REFUSED_FLAG)
+
+
+def partial_path(dest: str) -> str:
+    """In-progress resume target for a final destination path."""
+    return dest + ".partial"
+
+
+def assert_size_ok(path: str, expected: int, *, label: str) -> None:
+    """Loud size check — never claim success on mismatch."""
+    got = os.path.getsize(path) if os.path.exists(path) else -1
+    if expected > 0 and got != expected:
+        raise RuntimeError(
+            f"Size mismatch for {label}: got {got}, expected {expected}. "
+            "Leaving .partial in place; not promoting corrupt final."
+        )
+
+
+def verify_checksum(path: str, checksum: str, *, label: str) -> None:
+    """Verify Zenodo-style checksum (e.g. md5:hex). Empty checksum → skip."""
+    checksum = (checksum or "").strip()
+    if not checksum:
+        return
+    if ":" not in checksum:
+        raise RuntimeError(f"Unrecognized checksum for {label}: {checksum!r}")
+    algo, expected_hex = checksum.split(":", 1)
+    algo = algo.lower().strip()
+    expected_hex = expected_hex.strip().lower()
+    if algo != "md5":
+        # Zenodo currently publishes md5; refuse silent skip of unknown algos.
+        raise RuntimeError(
+            f"Unsupported checksum algo for {label}: {algo!r} (expected md5)"
+        )
+    import hashlib
+
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8 * 1024 * 1024), b""):
+            h.update(chunk)
+    got = h.hexdigest()
+    if got != expected_hex:
+        raise RuntimeError(
+            f"Checksum mismatch for {label}: got md5:{got}, expected {checksum}. "
+            "Not promoting to final; .partial retained for retry."
+        )
+
+
+def promote_partial(
+    tmp: str,
+    dest: str,
+    *,
+    expected: int,
+    checksum: str = "",
+    label: str = "",
+) -> str:
+    """Size (+ optional checksum) check, then atomic replace into final path."""
+    name = label or os.path.basename(dest)
+    if not os.path.exists(tmp):
+        raise RuntimeError(f"Missing .partial for {name}: {tmp}")
+    assert_size_ok(tmp, expected, label=name)
+    verify_checksum(tmp, checksum, label=name)
+    os.replace(tmp, dest)
+    return dest
+
+
+def prepare_resume_state(
+    dest: str,
+    expected: int,
+    *,
+    key: str,
+) -> tuple[str, int, str, dict[str, str]]:
+    """Return (tmp, existing_bytes, open_mode, headers) for a download attempt.
+
+    Rules:
+      - Final dest with exact expected size → caller should skip (handled upstream).
+      - Corrupt final (wrong size) is removed; never left as silent success.
+      - Oversized .partial is deleted and restarted.
+      - Exact-sized .partial is promoted by caller (not here).
+      - Undersized .partial becomes Range resume target.
+    """
+    tmp = partial_path(dest)
+
+    if os.path.exists(dest):
+        dest_size = os.path.getsize(dest)
+        if expected > 0 and dest_size == expected:
+            return tmp, -1, "wb", {}  # sentinel: already complete
+        # Corrupt / incomplete final — do not trust it.
+        print(
+            f"WARNING: removing corrupt/incomplete final for {key}: "
+            f"{dest} ({_format_bytes(dest_size)}"
+            + (f", expected {_format_bytes(expected)})" if expected else ")"),
+            file=sys.stderr,
+        )
+        os.remove(dest)
+
+    existing = os.path.getsize(tmp) if os.path.exists(tmp) else 0
+    if expected > 0 and existing > expected:
+        print(
+            f"WARNING: oversized .partial for {key} "
+            f"({_format_bytes(existing)} > {_format_bytes(expected)}); "
+            "deleting and restarting from byte 0",
+            file=sys.stderr,
+        )
+        os.remove(tmp)
+        existing = 0
+
+    headers: dict[str, str] = {}
+    mode = "wb"
+    if existing > 0 and (not expected or existing < expected):
+        headers["Range"] = f"bytes={existing}-"
+        mode = "ab"
+        print(f"Resuming {key} from {_format_bytes(existing)} (.partial)")
+    return tmp, existing, mode, headers
+
+
 def download_file(
     meta: dict[str, Any],
     out_dir: str,
     *,
     chunk_size: int = 8 * 1024 * 1024,
 ) -> str:
-    """Download one Zenodo file with HTTP Range resume into out_dir."""
+    """Download one Zenodo file with HTTP Range resume into out_dir.
+
+    Writes only to ``K.partial`` until size (+ optional checksum) checks pass,
+    then atomically renames to final ``K``. Never leaves a silent corrupt final.
+    On failure, ``.partial`` is retained for retry; success is not claimed.
+    """
     import requests
 
     os.makedirs(out_dir, exist_ok=True)
     dest = os.path.join(out_dir, meta["key"])
     expected = int(meta["size"] or 0)
+    checksum = str(meta.get("checksum") or "")
+
     if os.path.exists(dest) and expected and os.path.getsize(dest) == expected:
+        # Final already matches size; optional checksum verify.
+        try:
+            verify_checksum(dest, checksum, label=meta["key"])
+        except RuntimeError:
+            print(
+                f"WARNING: final checksum failed for {meta['key']}; "
+                "removing and re-downloading",
+                file=sys.stderr,
+            )
+            os.remove(dest)
+        else:
+            print(f"Already complete: {dest} ({_format_bytes(expected)})")
+            return dest
+
+    tmp, existing, mode, headers = prepare_resume_state(
+        dest, expected, key=meta["key"]
+    )
+    if existing == -1:
         print(f"Already complete: {dest} ({_format_bytes(expected)})")
         return dest
 
-    tmp = dest + ".partial"
-    existing = os.path.getsize(tmp) if os.path.exists(tmp) else 0
-    headers: dict[str, str] = {}
-    mode = "wb"
-    if existing > 0 and (not expected or existing < expected):
-        headers["Range"] = f"bytes={existing}-"
-        mode = "ab"
-        print(f"Resuming {meta['key']} from {_format_bytes(existing)}")
-    elif existing >= expected > 0:
-        # Partial already full-sized; promote.
-        os.replace(tmp, dest)
-        print(f"Already complete (from partial): {dest}")
+    # Exact-sized leftover .partial → promote after checks (no network).
+    if expected > 0 and existing == expected and os.path.exists(tmp):
+        promote_partial(
+            tmp, dest, expected=expected, checksum=checksum, label=meta["key"]
+        )
+        print(f"Already complete (from .partial): {dest}")
         return dest
 
     url = meta["download_url"]
     print(f"Downloading {meta['key']} ({_format_bytes(expected)})")
     print(f"  ← {url}")
-    print(f"  → {dest}")
-    with requests.get(url, stream=True, timeout=120, headers=headers) as r:
-        # Some hosts ignore Range; restart from scratch if 200 after Range request.
-        if existing and r.status_code == 200:
-            mode = "wb"
-            existing = 0
-            print("  server ignored Range — restarting from byte 0")
-        r.raise_for_status()
-        with open(tmp, mode) as f:
-            for chunk in r.iter_content(chunk_size=chunk_size):
-                if chunk:
-                    f.write(chunk)
-                    size_now = os.path.getsize(tmp)
-                    if expected:
-                        pct = 100.0 * size_now / expected
-                        print(
-                            f"  … {_format_bytes(size_now)} / {_format_bytes(expected)} "
-                            f"({pct:.1f}%)",
-                            flush=True,
-                        )
-                    else:
-                        print(f"  … {_format_bytes(size_now)}", flush=True)
-    if expected and os.path.getsize(tmp) != expected:
-        raise RuntimeError(
-            f"Size mismatch for {meta['key']}: got {os.path.getsize(tmp)}, "
-            f"expected {expected}"
+    print(f"  → {dest}  (via {tmp})")
+    try:
+        with requests.get(url, stream=True, timeout=120, headers=headers) as r:
+            # Some hosts ignore Range; restart from scratch if 200 after Range request.
+            if existing and r.status_code == 200:
+                mode = "wb"
+                existing = 0
+                print("  server ignored Range — restarting from byte 0")
+            r.raise_for_status()
+            with open(tmp, mode) as f:
+                for chunk in r.iter_content(chunk_size=chunk_size):
+                    if chunk:
+                        f.write(chunk)
+                        size_now = os.path.getsize(tmp)
+                        if expected:
+                            pct = 100.0 * size_now / expected
+                            print(
+                                f"  … {_format_bytes(size_now)} / {_format_bytes(expected)} "
+                                f"({pct:.1f}%)",
+                                flush=True,
+                            )
+                        else:
+                            print(f"  … {_format_bytes(size_now)}", flush=True)
+        promote_partial(
+            tmp, dest, expected=expected, checksum=checksum, label=meta["key"]
         )
-    os.replace(tmp, dest)
+    except Exception:
+        # Keep .partial for resume; never promote on failure.
+        if os.path.exists(dest) and expected and os.path.getsize(dest) != expected:
+            # Should not happen (we only replace after checks), but be defensive.
+            print(
+                f"ERROR: refusing corrupt final for {meta['key']}; removing {dest}",
+                file=sys.stderr,
+            )
+            os.remove(dest)
+        raise
     return dest
 
 
@@ -264,6 +440,8 @@ def _index_by_key(files: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    raw = list(sys.argv[1:] if argv is None else argv)
+    refuse_loud_flags(raw)
     p = argparse.ArgumentParser(
         description=(
             "Fetch Uber Tale of Errors from Zenodo "
@@ -295,7 +473,7 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Override CI guard (dangerous; never use in default CI jobs)",
     )
-    args = p.parse_args(argv)
+    args = p.parse_args(raw)
     out_dir = os.path.abspath(args.out)
     os.makedirs(out_dir, exist_ok=True)
 
