@@ -37,6 +37,8 @@ Both paths are honest harness / fixture smoke. Lab AUROC stays **`not_published`
 Compute honesty (CPU stranger vs MPS product train; future CUDA = checklist only): [`docs/compute-paths.md`](docs/compute-paths.md).  
 On a Mac already? Stranger CPU ≠ product MPS — short bridge: [`docs/product-mac-path.md`](docs/product-mac-path.md) (`./scripts/product_mac_smoke.sh`).
 
+**Understand the product (~30 min):** train fitness surprise → score a session → higher BPB ≈ more anomalous — [`docs/anomaly-story.md`](docs/anomaly-story.md) · `uv run python demo_anomaly.py`. Gates above prove harness smoke; the story doc is how `val_bpb` *is* the anomaly signal (no invented AUROC).
+
 ---
 
 ## Stranger demo (Linux / CI — no MPS, no API keys)
@@ -65,7 +67,7 @@ Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md)
 | **2. Lab — private** | Docker stack + faults (optional redacted pack) | Ranking evidence under [`docs/lab/`](docs/lab/) — default **`not_published`** |
 | **3. Public fixture card** | Tiny synthetic pack + CI | **`published_fixture_card`** = **harness smoke** that beat baselines — **not** lab / production ranking |
 
-Details: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/stranger-60s.md`](docs/stranger-60s.md) · [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md) · [`docs/compute-paths.md`](docs/compute-paths.md).
+Details: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/stranger-60s.md`](docs/stranger-60s.md) · [`docs/anomaly-story.md`](docs/anomaly-story.md) · [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md) · [`docs/compute-paths.md`](docs/compute-paths.md).
 
 ---
 
@@ -127,6 +129,7 @@ exec(open('train.py').read())
 " 2>&1 | tail -5
 
 # Anomaly story — look for anomalous/cascade mean_bpb >> normal
+# (same family as val_bpb — docs/anomaly-story.md)
 uv run python demo_anomaly.py
 
 # Overnight agent + morning report
@@ -245,6 +248,8 @@ No rules. No labels. No thresholds. Just next-token prediction — and the anoma
 
 The training objective (`val_bpb` — validation bits-per-byte) *is* the anomaly detection capability.
 Lower val_bpb = model understands your infrastructure's language = better anomaly detector.
+
+**30-minute clone path:** [`docs/anomaly-story.md`](docs/anomaly-story.md) → `uv run python demo_anomaly.py` (look for anomalous/cascade `mean_bpb` ≫ normal).
 
 An ILM trained on your own telemetry has an anomaly detector no vendor can replicate — because the model learned the statistical fingerprint of that specific environment.
 

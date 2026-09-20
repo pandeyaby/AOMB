@@ -169,3 +169,5 @@ Implementation notes:
 | Public accuracy claim | Only after [`public-accuracy-eval.md`](public-accuracy-eval.md) checklist |
 
 Synthetic `generate_observability_corpus.py` remains **smoke/CI only**.
+
+**Before BYO:** get the thesis in ~30 min — [`anomaly-story.md`](anomaly-story.md) (`demo_anomaly.py`). Session BPB here is the same surprise family.

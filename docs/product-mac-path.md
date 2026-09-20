@@ -85,4 +85,4 @@ Out of scope for stranger paths and for the no-keys smoke script. See README ove
 - No CUDA numbers; no wall-clock “speedup” claims vs stranger CPU.
 - Smoke-bounded runs are **not** the CRISP-500k / overnight baselines — cite those only from [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md).
 
-Related: [`compute-paths.md`](compute-paths.md) · [`public-wins.md`](public-wins.md) · [`stranger-verify.md`](stranger-verify.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) · README [Requirements / overnight](../README.md#requirements).
+Related: [`anomaly-story.md`](anomaly-story.md) (thesis first) · [`compute-paths.md`](compute-paths.md) · [`public-wins.md`](public-wins.md) · [`stranger-verify.md`](stranger-verify.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) · README [Requirements / overnight](../README.md#requirements).

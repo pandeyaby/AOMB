@@ -220,6 +220,9 @@ def main():
     print("=" * 72)
     print("  AOMB ANOMALY STORY — next-token surprise IS anomaly detection")
     print("=" * 72)
+    print("  HONESTY: same family as train-lane val_bpb (surprise / bits-per-byte).")
+    print("           Not AUROC. Lab stays not_published. Fixture card = harness smoke.")
+    print("           Docs: docs/anomaly-story.md")
     print(f"  Device          : {DEVICE.type}"
           + (" (Apple Silicon MPS)" if DEVICE.type == "mps" else " (honest CPU fallback)"))
     print(f"  Train budget    : {args.seconds:.0f}s")
@@ -465,6 +468,9 @@ def main():
     print("    • anomalous / cascade mean_bpb  >  normal  (the gap is the detector)")
     print("    • after longer train, cascade often ≥ anomalous (denser failures)")
     print("  Same objective as val_bpb — no labels at train time, no thresholds.")
+    print("  Not claimed: lab AUROC · CUDA · production accuracy · fixture-card heroes.")
+    print("  Next (optional): docs/product-mac-path.md · docs/byo-and-scorer.md")
+    print("  Story doc: docs/anomaly-story.md")
     print("=" * 72)
 
     # Non-zero exit if the story failed directionally (helps CI / newcomers)
