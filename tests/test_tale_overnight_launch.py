@@ -21,6 +21,7 @@ from eval.tale_overnight_launch import (  # noqa: E402
     EXIT_OK,
     EXIT_PLATFORM,
     EXIT_REFUSED_FLAG,
+    assess_cache_lane,
     card_ok,
     main,
     planned_env,
@@ -136,6 +137,128 @@ class TestCli(unittest.TestCase):
             check=False,
         )
         self.assertEqual(proc.returncode, EXIT_REFUSED_FLAG)
+
+
+
+class TestCacheLaneGate(unittest.TestCase):
+    """cache_lane status gate: dry-run warns; --run refuses without active lane."""
+
+    def _home_cache(self):
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        home = Path(td.name)
+        cache = home / ".cache" / "autoresearch"
+        cache.mkdir(parents=True)
+        return home, cache
+
+    def _good_card(self) -> Path:
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        return _write_card(Path(td.name) / "measured.json", **GOOD)
+
+    def test_assess_ready_when_active(self):
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()
+        (cache / "tokenizer").mkdir()
+        ready, summary, lines = assess_cache_lane(cache)
+        self.assertTrue(ready)
+        self.assertIn("ready", summary.lower())
+        blob = "\n".join(lines).lower()
+        self.assertIn("active: data=yes", blob)
+        self.assertIn("tokenizer=yes", blob)
+
+    def test_assess_missing_and_partial(self):
+        home, cache = self._home_cache()
+        ready, summary, lines = assess_cache_lane(cache)
+        self.assertFalse(ready)
+        self.assertIn("no active data", summary.lower())
+        (cache / "data").mkdir()
+        ready2, summary2, _ = assess_cache_lane(cache)
+        self.assertFalse(ready2)
+        self.assertIn("partial", summary2.lower())
+
+    def test_dry_run_prints_status_without_active(self):
+        home, cache = self._home_cache()
+        card = self._good_card()
+        # quarantine-only fixture
+        q = cache / "data_tale_20260920_010203"
+        q.mkdir()
+        (cache / "tokenizer_tale_20260920_010203").mkdir()
+        buf = __import__("io").StringIO()
+        with mock.patch("sys.stdout", buf):
+            code = main(
+                ["--dry-run", "--card", str(card), "--home", str(home)]
+            )
+        self.assertEqual(code, EXIT_OK)
+        out = buf.getvalue().lower()
+        self.assertIn("cache_lane:", out)
+        self.assertIn("quarantined:", out)
+        self.assertIn("data_tale_20260920_010203", out)
+        self.assertIn("warning", out)
+        self.assertIn("no agent_loop", out)
+        self.assertNotIn("starting agent_loop", out)
+
+    def test_dry_run_active_lane_ok(self):
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()
+        (cache / "tokenizer").mkdir()
+        card = self._good_card()
+        buf = __import__("io").StringIO()
+        with mock.patch("sys.stdout", buf):
+            code = main(
+                ["--dry-run", "--card", str(card), "--cache-root", str(cache)]
+            )
+        self.assertEqual(code, EXIT_OK)
+        out = buf.getvalue().lower()
+        self.assertIn("active: data=yes", out)
+        self.assertIn("ready for --run", out)  # verdict wording
+
+    def test_run_refuses_missing_lane_exit_2(self):
+        home, cache = self._home_cache()
+        card = self._good_card()
+        with mock.patch("eval.tale_overnight_launch.start_agent_loop") as start:
+            with mock.patch(
+                "eval.tale_overnight_launch.darwin_mps_ok",
+                return_value=(True, "Darwin + MPS available"),
+            ):
+                err = __import__("io").StringIO()
+                with mock.patch("sys.stderr", err):
+                    code = main(
+                        ["--run", "--card", str(card), "--home", str(home)]
+                    )
+        self.assertEqual(code, EXIT_PLATFORM)
+        self.assertIn("cache_lane", err.getvalue().lower())
+        self.assertIn("not ready", err.getvalue().lower())
+        start.assert_not_called()
+
+    def test_run_proceeds_when_lane_ready(self):
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()
+        (cache / "tokenizer").mkdir()
+        card = self._good_card()
+        with mock.patch(
+            "eval.tale_overnight_launch.start_agent_loop", return_value=0
+        ) as start:
+            with mock.patch(
+                "eval.tale_overnight_launch.darwin_mps_ok",
+                return_value=(True, "Darwin + MPS available"),
+            ):
+                code = main(
+                    ["--run", "--card", str(card), "--cache-root", str(cache)]
+                )
+        self.assertEqual(code, EXIT_OK)
+        start.assert_called_once_with()
+
+    def test_invent_still_refused(self):
+        home, _ = self._home_cache()
+        for flag in ("--auroc", "--publish", "--cuda"):
+            with self.subTest(flag=flag):
+                with mock.patch("eval.tale_overnight_launch.start_agent_loop") as start:
+                    self.assertEqual(
+                        main(["--dry-run", flag, "--home", str(home)]),
+                        EXIT_REFUSED_FLAG,
+                    )
+                    start.assert_not_called()
 
 
 if __name__ == "__main__":
