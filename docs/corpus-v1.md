@@ -108,7 +108,8 @@ uv run python prepare.py --num-shards 8
 
 ## Source B — Uber Tale of Errors (flagship scale)
 
-**Outsider one-pager (fetch → shard → prepare → train fitness):** [`docs/tale-scale.md`](tale-scale.md) · smoke: `./scripts/tale_scale_smoke.sh` (fixture only; no multi-GB pull).
+**Outsider one-pager (fetch → shard → prepare → train fitness):** [`docs/tale-scale.md`](tale-scale.md) · smoke: `./scripts/tale_scale_smoke.sh` (fixture only; no multi-GB pull).  
+**Capped `val_bpb` subset protocol** (disk-safe; measured row pending): [`docs/tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`.
 
 | Field | Value |
 |-------|--------|
@@ -151,6 +152,8 @@ uv run python -m corpus.ingest.build_shards \
 
 # Smoke / CI fixture only (no Zenodo):
 ./scripts/tale_scale_smoke.sh
+# Capped public-real baseline path (requires local tree + --max-spans; no invented val_bpb):
+./scripts/tale_capped_baseline.sh --input /path/to/jaeger/tree --max-spans N
 # or:
 uv run python -m corpus.ingest.build_shards \
   --adapter tale_of_errors \
@@ -159,7 +162,7 @@ uv run python -m corpus.ingest.build_shards \
   --num-train-shards 1 --write-val-shard
 ```
 
-Adapter `tale_of_errors` accepts a *local* assembled Jaeger JSON tree (same parser as CRISP; different `source_id` / provenance). `prepare.py` is unchanged. Full outsider path: [`tale-scale.md`](tale-scale.md).
+Adapter `tale_of_errors` accepts a *local* assembled Jaeger JSON tree (same parser as CRISP; different `source_id` / provenance). `prepare.py` is unchanged. Full outsider path: [`tale-scale.md`](tale-scale.md). Capped baseline (pending measure): [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md).
 
 ---
 

@@ -61,11 +61,11 @@ Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md)
 
 | Lane | What it is | Honest claim |
 |------|------------|--------------|
-| **1. Train — Uber CRISP** (+ Tale scale) | Real public Jaeger traces | Factual **`val_bpb` only** — no incident labels → **not** ranking accuracy · Tale: [`docs/tale-scale.md`](docs/tale-scale.md) |
+| **1. Train — Uber CRISP** (+ Tale scale) | Real public Jaeger traces | Factual **`val_bpb` only** — no incident labels → **not** ranking accuracy · Tale: [`docs/tale-scale.md`](docs/tale-scale.md) · capped baseline (pending): [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) |
 | **2. Lab — private** | Docker stack + faults (optional redacted pack) | Ranking evidence under [`docs/lab/`](docs/lab/) — default **`not_published`** |
 | **3. Public fixture card** | Tiny synthetic pack + CI | **`published_fixture_card`** = **harness smoke** that beat baselines — **not** lab / production ranking |
 
-Details: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/stranger-60s.md`](docs/stranger-60s.md) · [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md) · [`docs/compute-paths.md`](docs/compute-paths.md).
+Details: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/stranger-60s.md`](docs/stranger-60s.md) · [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md) · [`docs/compute-paths.md`](docs/compute-paths.md).
 
 ---
 
@@ -152,7 +152,8 @@ Current factual CRISP `val_bpb` (training fitness, **not** accuracy): **0.407753
 
 ### Tale-scale (Uber Tale of Errors — train lane)
 
-Flagship-scale public-real path (CC BY 4.0; hundreds of GB). **Train fitness only** — no incident labels → **no AUROC**. Fixture smoke (no Zenodo pull): `./scripts/tale_scale_smoke.sh`. Docs: [`docs/tale-scale.md`](docs/tale-scale.md).
+Flagship-scale public-real path (CC BY 4.0; hundreds of GB). **Train fitness only** — no incident labels → **no AUROC**. Fixture smoke (no Zenodo pull): `./scripts/tale_scale_smoke.sh`. Docs: [`docs/tale-scale.md`](docs/tale-scale.md).  
+**Capped subset baseline** (disk-safe; measured `val_bpb` **pending** until a Mac run): [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`.
 
 ### Lab capture (labeled, unpublished by default)
 
@@ -191,6 +192,7 @@ Calibration path: ![Breed/score → public fixture card → DIPTYCH probes](docs
 - BYO dumps: [`docs/byo-and-scorer.md`](docs/byo-and-scorer.md) — scoring ≠ published accuracy.
 - One-command: `./scripts/byo_score.sh /path/to/dump` (session BPB only; lab stays `not_published`).
 - Tale-scale (public-real train lane, not AUROC): [`docs/tale-scale.md`](docs/tale-scale.md) · `./scripts/tale_scale_smoke.sh`
+- Capped Tale `val_bpb` (pending measure): [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`
 - `generate_observability_corpus.py` = smoke / CI only — **not** the flagship train story.
 
 ---

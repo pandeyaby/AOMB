@@ -30,7 +30,8 @@ corpus/
 Public accuracy ranking protocol (claim not published): [`docs/public-accuracy-eval.md`](../docs/public-accuracy-eval.md), harness [`eval/`](../eval/).
 **Public ranking card v1 (fixture / harness smoke):** [`docs/public-ranking-card-v1.md`](../docs/public-ranking-card-v1.md) — synthetic pack (72 sessions, n_eval=36 balanced); distinct from private lab pool (`docs/lab/`). Reproduce: `./scripts/run_public_ranking_card_v1.sh`. Not production AUROC.
 BYO ingest + session scorer: [`docs/byo-and-scorer.md`](../docs/byo-and-scorer.md).
-Tale-scale (flagship public-real train path): [`docs/tale-scale.md`](../docs/tale-scale.md) · `./scripts/tale_scale_smoke.sh`.
+Tale-scale (flagship public-real train path): [`docs/tale-scale.md`](../docs/tale-scale.md) · `./scripts/tale_scale_smoke.sh`.  
+Capped Tale `val_bpb` subset (pending Mac measure): [`docs/tale-val-bpb-baseline.md`](../docs/tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`.
 
 ## Quick commands
 
