@@ -47,6 +47,7 @@ REFUSED_PRODUCT_FLAGS = frozenset(
 
 EXIT_OK = 0
 EXIT_REFUSED_FLAG = 1
+EXIT_PATH_ERROR = 2  # missing/malformed Tale card
 
 
 def refuse_loud_flags(argv: list[str]) -> None:
@@ -78,10 +79,28 @@ def refuse_loud_flags(argv: list[str]) -> None:
             raise SystemExit(EXIT_REFUSED_FLAG)
 
 
+def wants_tale_card_line(argv: list[str]) -> bool:
+    """True when argv requests the Tale measured-card one-liner (CI-safe)."""
+    for arg in argv:
+        if arg.split("=", 1)[0] == "--tale-card-line":
+            return True
+    return False
+
+
 def main(argv: list[str] | None = None) -> int:
-    """Thin CLI: refuse invent flags, else print honesty help and exit 0."""
+    """Thin CLI: refuse invent flags; optional --tale-card-line; else help."""
     args = list(sys.argv[1:] if argv is None else argv)
     refuse_loud_flags(args)
+    if wants_tale_card_line(args):
+        from eval.public_wins_tale_line import DEFAULT_CARD, run as tale_run
+
+        code, line = tale_run(DEFAULT_CARD)
+        if code == EXIT_OK:
+            print(line)
+        else:
+            print(line, file=sys.stderr)
+            print(line)
+        return code
     if args and args[0] in ("-h", "--help", "help"):
         print(
             "AOMB stranger path honesty helper.\n"

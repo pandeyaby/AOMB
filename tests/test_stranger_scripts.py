@@ -287,5 +287,65 @@ class TestSubprocessModuleCli(unittest.TestCase):
         self.assertIn("cuda", proc.stderr.lower())
 
 
+
+class TestStrangerTaleCardLine(unittest.TestCase):
+    def test_demo_tale_card_line_success(self):
+        from eval.stranger_path import EXIT_OK
+
+        card = ROOT / "reports" / "tale-capped" / "measured_capped_200k.json"
+        if not card.is_file():
+            self.skipTest("committed Tale measured card missing")
+        proc = _run_script(DEMO_SCRIPT, "--tale-card-line")
+        self.assertEqual(proc.returncode, EXIT_OK, proc.stderr + proc.stdout)
+        blob = proc.stdout + proc.stderr
+        self.assertIn("val_bpb=", blob)
+        self.assertIn("measured_not_published", blob)
+        self.assertIn("train fitness only, not AUROC", blob)
+
+    def test_verify_tale_card_line_success(self):
+        from eval.stranger_path import EXIT_OK
+
+        card = ROOT / "reports" / "tale-capped" / "measured_capped_200k.json"
+        if not card.is_file():
+            self.skipTest("committed Tale measured card missing")
+        proc = _run_script(VERIFY_SCRIPT, "--tale-card-line")
+        self.assertEqual(proc.returncode, EXIT_OK, proc.stderr + proc.stdout)
+        blob = proc.stdout + proc.stderr
+        self.assertIn("measured_not_published", blob)
+        self.assertIn("train fitness only, not AUROC", blob)
+
+    def test_invent_refuse_with_tale_card_line(self):
+        from eval.stranger_path import EXIT_REFUSED_FLAG
+
+        for script in (DEMO_SCRIPT, VERIFY_SCRIPT):
+            with self.subTest(script=script.name):
+                proc = _run_script(script, "--tale-card-line", "--auroc")
+                self.assertEqual(proc.returncode, EXIT_REFUSED_FLAG)
+
+    def test_module_tale_card_line(self):
+        from eval.stranger_path import EXIT_OK, main
+
+        card = ROOT / "reports" / "tale-capped" / "measured_capped_200k.json"
+        if not card.is_file():
+            self.skipTest("committed Tale measured card missing")
+        import io
+        from unittest import mock
+
+        buf = io.StringIO()
+        with mock.patch("sys.stdout", buf):
+            rc = main(["--tale-card-line"])
+        self.assertEqual(rc, EXIT_OK)
+        self.assertIn("train fitness only, not AUROC", buf.getvalue())
+
+    def test_shell_documents_exit_path_error(self):
+        from eval.stranger_path import EXIT_PATH_ERROR
+
+        for script in (DEMO_SCRIPT, VERIFY_SCRIPT):
+            src = script.read_text(encoding="utf-8")
+            self.assertIn("--tale-card-line", src)
+            self.assertIn(f"EXIT_PATH_ERROR={EXIT_PATH_ERROR}", src)
+
+
+
 if __name__ == "__main__":
     unittest.main()
