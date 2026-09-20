@@ -17,6 +17,9 @@ Start with:
 
 Stop cleanly:
     kill $(cat logs/agent_loop.pid)
+
+Honesty: refuses --auroc / --publish / --cuda invent flags (exit 1).
+Never invents val_bpb / AUROC. prepare.py is sacred.
 """
 
 import ast
@@ -36,6 +39,7 @@ from best_val_bpb import (
     resolve_best_val_bpb,
     resolve_lane_from_environ,
 )
+from eval.stranger_path import EXIT_REFUSED_FLAG, REFUSED_METRIC_FLAGS
 from val_bpb_parse import parse_val_bpb_from_train_log
 
 try:
@@ -665,5 +669,37 @@ def main():
     pid_path.unlink(missing_ok=True)
 
 
-if __name__ == "__main__":
+def find_refused_invent_flag(argv: list[str]) -> str | None:
+    """Return first invent / publish / CUDA flag in argv, else None.
+
+    Shares ``REFUSED_METRIC_FLAGS`` with ``eval.stranger_path`` (not the
+    overnight/product refuse set — ``--agent`` is this program's job).
+    """
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in REFUSED_METRIC_FLAGS:
+            return key
+    return None
+
+
+def cli(argv: list[str] | None = None) -> int:
+    """Entry: refuse invent flags loud, then run the overnight loop."""
+    argv = list(sys.argv[1:] if argv is None else argv)
+    bad = find_refused_invent_flag(argv)
+    if bad is not None:
+        print(
+            f"ERROR: Refusing '{bad}'.\n"
+            "  agent_loop breeds on factual val_bpb only.\n"
+            "  Never invents AUROC / published ranking / accuracy claims.\n"
+            "  CUDA invent flags are refused — overnight uses the configured device.\n"
+            "  Re-run without invent flags. prepare.py stays untouched.",
+            file=sys.stderr,
+        )
+        return EXIT_REFUSED_FLAG
+    # Unknown non-invent args are ignored (loop takes no CLI knobs today).
     main()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(cli())
