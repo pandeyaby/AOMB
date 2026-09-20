@@ -5,15 +5,16 @@ Run after an overnight autoresearch-macos session to summarize progress.
 Usage:
     uv run python morning_report.py
     uv run python morning_report.py --plot   # save overnight_progress.png
+    uv run python morning_report.py --from-log train.log  # factual val_bpb only
 """
 
 import argparse
-import json
-import math
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+from val_bpb_parse import parse_val_bpb_from_commit_message, parse_val_bpb_from_train_log
 
 
 # ── Git log parsing ───────────────────────────────────────────────────────────
@@ -31,22 +32,49 @@ def parse_git_log() -> list[dict]:
         sha, msg = parts[0][:8], parts[1]
         timestamp = parts[2].strip() if len(parts) > 2 else ""
 
-        bpb_m   = re.search(r"val_bpb=(\d+\.\d+)", msg)
+        # Factual extract only — skip inventing when the token is missing/malformed.
+        val_bpb = parse_val_bpb_from_commit_message(msg)
+        if val_bpb is None:
+            continue
+
         delta_m  = re.search(r"Δ=([+-]?\d+\.\d+)", msg)
         change_m = re.search(r"\[change: ([^\]]+)\]", msg)
         hyp_m    = re.search(r"\[hypothesis: ([^\]]+)\]", msg)
 
-        if bpb_m:
-            experiments.append({
-                "sha":       sha,
-                "val_bpb":   float(bpb_m.group(1)),
-                "delta":     float(delta_m.group(1)) if delta_m else None,
-                "change":    change_m.group(1) if change_m else msg[:60],
-                "hypothesis": hyp_m.group(1) if hyp_m else "",
-                "timestamp": timestamp,
-            })
+        experiments.append({
+            "sha":       sha,
+            "val_bpb":   val_bpb,
+            "delta":     float(delta_m.group(1)) if delta_m else None,
+            "change":    change_m.group(1) if change_m else msg[:60],
+            "hypothesis": hyp_m.group(1) if hyp_m else "",
+            "timestamp": timestamp,
+        })
 
     return list(reversed(experiments))  # chronological
+
+
+def report_val_bpb_from_log(path: Path) -> int:
+    """Print factual val_bpb from a train log, or refuse (exit 1) if missing.
+
+    For Mac measured-fill later: cite only what train.py printed.
+    """
+    if not path.is_file():
+        print(f"REFUSED: log file not found: {path}", file=sys.stderr)
+        print("No invented val_bpb. Re-run train.py and pass its log.", file=sys.stderr)
+        return 1
+    text = path.read_text(encoding="utf-8", errors="replace")
+    val = parse_val_bpb_from_train_log(text)
+    if val is None:
+        print(f"REFUSED: no factual val_bpb: line in {path}", file=sys.stderr)
+        print(
+            "Will not invent AUROC or val_bpb. Wait for train.py to print "
+            "`val_bpb: <float>` (final eval), then re-run --from-log.",
+            file=sys.stderr,
+        )
+        return 1
+    # Machine-readable single line for Mac measured-fill scripts.
+    print(f"val_bpb: {val:.6f}")
+    return 0
 
 
 # ── Sparkline ─────────────────────────────────────────────────────────────────
@@ -203,5 +231,13 @@ def _plot_progress(exps, bpb_vals):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AOMB morning report")
     parser.add_argument("--plot", action="store_true", help="Save matplotlib progress chart")
+    parser.add_argument(
+        "--from-log",
+        type=Path,
+        metavar="PATH",
+        help="Parse factual val_bpb from a train log (refuse invent if missing)",
+    )
     args = parser.parse_args()
+    if args.from_log is not None:
+        raise SystemExit(report_val_bpb_from_log(args.from_log))
     main(plot=args.plot)

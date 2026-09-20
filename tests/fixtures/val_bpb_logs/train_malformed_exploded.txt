@@ -1,0 +1,4 @@
+# Exploded fitness — refuse invent (sane upper bound).
+---
+val_bpb:          999.123456
+training_seconds: 1.0

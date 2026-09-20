@@ -1,0 +1,78 @@
+# Morning report / val_bpb parse — fixture unit tests (no MPS / no Zenodo)
+#
+# Pure text fixtures → factual val_bpb extract; refuse invent when missing.
+# prepare.py untouched. No invented AUROC. CUDA gate stays skipped.
+
+name: morning-report-val-bpb
+
+on:
+  push:
+    paths:
+      - "morning_report.py"
+      - "val_bpb_parse.py"
+      - "tests/test_val_bpb_parse.py"
+      - "tests/fixtures/val_bpb_logs/**"
+      - ".github/workflows/morning-report-val-bpb.yml"
+  pull_request:
+    paths:
+      - "morning_report.py"
+      - "val_bpb_parse.py"
+      - "tests/test_val_bpb_parse.py"
+      - "tests/fixtures/val_bpb_logs/**"
+      - ".github/workflows/morning-report-val-bpb.yml"
+
+jobs:
+  morning-report-val-bpb:
+    name: morning-report-val-bpb
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests (fixture log snippets — success / missing / malformed)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest tests.test_val_bpb_parse -v
+
+      - name: CLI smoke (factual extract + refuse invent)
+        run: |
+          set -euo pipefail
+          python morning_report.py --from-log tests/fixtures/val_bpb_logs/train_success.txt \
+            | grep -E '^val_bpb: 0\.430912$'
+
+          python morning_report.py --from-log tests/fixtures/val_bpb_logs/train_missing.txt \
+            >/tmp/mr-missing.out 2>/tmp/mr-missing.err && exit 1 || test $? -eq 1
+          grep -qi refused /tmp/mr-missing.err
+          ! grep -E 'val_bpb:\s*[0-9]' /tmp/mr-missing.out
+
+          python morning_report.py --from-log tests/fixtures/val_bpb_logs/train_malformed_pending.txt \
+            >/tmp/mr-bad.out 2>/tmp/mr-bad.err && exit 1 || test $? -eq 1
+          grep -qi refused /tmp/mr-bad.err
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## morning-report-val-bpb"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Check name** | \`morning-report-val-bpb\` |"
+            echo "| **Outcome** | ${{ job.status }} |"
+            echo
+            echo "### Proven (when green)"
+            echo "- Fixture train log → factual \`val_bpb:\` extract"
+            echo "- Missing / malformed / NaN / exploded → refuse invent (exit 1)"
+            echo "- \`morning_report.py --from-log\` CLI smoke"
+            echo
+            echo "### Not claimed"
+            echo "- Lab AUROC / invented val_bpb"
+            echo "- MPS train / Zenodo / overnight agent"
+            echo "- CUDA (gate stays skipped)"
+            echo
+            echo "\`prepare.py\` sacred."
+          } >> "$GITHUB_STEP_SUMMARY"

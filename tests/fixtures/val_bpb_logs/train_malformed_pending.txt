@@ -1,0 +1,7 @@
+# Malformed / non-numeric val_bpb tokens — refuse invent.
+step 0010 | loss 2.100 | ...
+
+---
+val_bpb:          pending
+training_seconds: 10.0
+total_seconds:    12.0
