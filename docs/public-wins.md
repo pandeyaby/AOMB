@@ -59,6 +59,19 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 
 ---
 
+## Tale capped measured card (train fitness only)
+
+Committed factual Mac run (not a public accuracy / AUROC claim):
+
+- Card: [`reports/tale-capped/measured_capped_200k.json`](../reports/tale-capped/measured_capped_200k.json) — `claim_status=measured_not_published`
+- One-liner printer: `python -m eval.public_wins_tale_line` · `./scripts/public_wins_tale_line.sh`
+- Baseline write-up: [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md)
+
+Prints `val_bpb` + `claim_status` + `max_spans` with an explicit **train fitness only, not AUROC** note. Missing/malformed card → unavailable (exit 2). Never invents.
+
+
+---
+
 ## Compute honesty
 
 | Path | Hardware today | Honest claim |
