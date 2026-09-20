@@ -7,6 +7,7 @@ Usage:
     uv run python morning_report.py --plot   # save overnight_progress.png
     uv run python morning_report.py --from-log train.log  # factual val_bpb only
     uv run python morning_report.py --tale-card  # optional Tale measured card
+    uv run python morning_report.py --tale-overnight-dry-run  # overnight helper dry-run
     AOMB_TALE_CARD=1 uv run python morning_report.py
 
 Honesty: never invents AUROC / val_bpb. measured_not_published is not a
@@ -31,6 +32,7 @@ DEFAULT_TALE_CARD = ROOT / "reports" / "tale-capped" / "measured_capped_200k.jso
 
 EXIT_OK = 0
 EXIT_REFUSED_FLAG = 1
+EXIT_PATH_ERROR = 2  # missing/malformed card on --tale-overnight-dry-run
 
 # Share invent-flag set with best_val_bpb / stranger CLIs.
 REFUSED_METRIC_FLAGS = frozenset(
@@ -425,6 +427,33 @@ def _plot_progress(exps, bpb_vals):
     print(f"\n  Plot saved: {out}")
 
 
+
+def run_tale_overnight_dry_run(card_path: Path | None = None) -> int:
+    """Invoke eval.tale_overnight_launch --dry-run only (never --run / agent_loop).
+
+    Missing/malformed measured card → EXIT_PATH_ERROR (2). Invent flags must
+    already be refused by cli(). No API spend.
+    """
+    from eval.tale_overnight_launch import (
+        DEFAULT_CARD,
+        card_ok,
+        main as overnight_main,
+    )
+
+    card = Path(card_path) if card_path is not None else DEFAULT_CARD
+    ok, msg = card_ok(card)
+    if not ok:
+        print(
+            f"ERROR: {msg}\n"
+            "  morning_report --tale-overnight-dry-run requires a factual measured card.\n"
+            "  Never invents val_bpb / AUROC. No agent_loop started; no API spend.\n"
+            "  Helper --run would also exit 2 without this card.",
+            file=sys.stderr,
+        )
+        return EXIT_PATH_ERROR
+    return overnight_main(["--dry-run", "--card", str(card)])
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
@@ -453,6 +482,15 @@ def build_parser() -> argparse.ArgumentParser:
             "measured_not_published is not a public accuracy claim."
         ),
     )
+    parser.add_argument(
+        "--tale-overnight-dry-run",
+        action="store_true",
+        help=(
+            "Invoke Tale overnight launch helper in dry-run only "
+            "(never --run / agent_loop / API spend). Requires measured card "
+            "(missing → exit 2). Linux CI OK."
+        ),
+    )
     return parser
 
 
@@ -468,6 +506,9 @@ def cli(argv: list[str] | None = None) -> int:
         return EXIT_REFUSED_FLAG
 
     args = build_parser().parse_args(argv)
+    if args.tale_overnight_dry_run:
+        # Dry-run only path — never starts agent_loop; card required (exit 2).
+        return run_tale_overnight_dry_run()
     if args.from_log is not None:
         return report_val_bpb_from_log(args.from_log)
 
