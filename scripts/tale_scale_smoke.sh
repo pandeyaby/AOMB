@@ -7,6 +7,11 @@
 # Default: corpus/fixtures/tale_of_errors_sample + --max-spans cap.
 # Never invents val_bpb / AUROC. Lab stays claim_status=not_published.
 #
+# Honesty refusals (mirror eval.stranger_path / product_mac_smoke invent set):
+#   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent synonyms)
+# Also refuses: --download / --download-all / Zenodo bulk pulls.
+# CUDA gate stays skipped. No Zenodo / no MPS required for refusals.
+#
 # Docs: docs/tale-scale.md · docs/corpus-v1.md
 # prepare.py is sacred — optional invoke only (--prepare); never edited here.
 set -euo pipefail
@@ -20,9 +25,17 @@ GRN=$'\033[32m'
 BOLD=$'\033[1m'
 RST=$'\033[0m'
 
+# Must match stranger / product_mac invent refusals (exit 1).
+EXIT_REFUSED_FLAG=1
+
 die() {
   echo "${RED}ERROR:${RST} $*" >&2
   exit 1
+}
+
+die_refuse() {
+  echo "${RED}ERROR:${RST} $*" >&2
+  exit "$EXIT_REFUSED_FLAG"
 }
 
 usage() {
@@ -42,14 +55,14 @@ Options:
   --list-only           Proxy to fetch_tale_of_errors --list-only (needs network; no download)
   -h, --help            Show this help
 
-Explicitly refused (use fetch module on a big disk, not this smoke):
+Explicitly refused (exit 1; use fetch module on a big disk, not this smoke):
+  --auroc / --publish / --cuda / invent synonyms (same set as stranger / product_mac)
   --download / --download-all / Zenodo bulk pulls
-  --auroc / ranking / publish flags
   Invented metrics
 
 Docs: docs/tale-scale.md
 Honesty: CRISP/Tale = train lane (val_bpb). No incident labels → no AUROC.
-         Lab stays not_published.
+         Lab stays not_published. CUDA gate stays skipped.
 USAGE
 }
 
@@ -65,18 +78,21 @@ DATA_DIR="/tmp/aomb-tale-smoke"
 DO_PREPARE=0
 DO_LIST_ONLY=0
 
-# ── Loud refusals ────────────────────────────────────────────────────────────
+# ── Loud refusals (keep in sync with stranger / product_mac invent set) ──────
 for arg in "$@"; do
-  case "$arg" in
-    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim)
-      die "Refusing '$arg'.
+  key="${arg%%=*}"
+  case "$key" in
+    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim|--invent-metrics|--invent-auroc|--claim-auroc|--val-bpb|--invent-val-bpb|--readme-hero|--publish-readme|--hero-auroc|--cuda|--gpu)
+      die_refuse "Refusing '$key'.
   Tale-scale is the public-real *train* lane (factual val_bpb when you train).
+  Never invents AUROC / published ranking / val_bpb numbers.
   No incident labels on Tale dumps → no AUROC from this path.
   Lab stays claim_status=not_published.
+  CUDA gate stays skipped — no --cuda / --gpu claim path.
   See docs/tale-scale.md · docs/public-accuracy-eval.md · docs/lab/publish-checklist.md"
       ;;
-    --download|--download-all|--fetch-all)
-      die "Refusing '$arg' in the smoke wrapper.
+    --download|--download-all|--fetch-all|--full-decompress|--decompress-all|--decompress|--assemble-all)
+      die_refuse "Refusing '$key' in the smoke wrapper.
   Multi-GB Zenodo pulls are opt-in via:
     uv run python -m corpus.ingest.fetch_tale_of_errors --list-only
     uv run python -m corpus.ingest.fetch_tale_of_errors --download <FILE>
