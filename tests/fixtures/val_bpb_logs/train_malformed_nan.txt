@@ -1,0 +1,4 @@
+# NaN / exploded tokens — refuse invent.
+---
+val_bpb:          nan
+training_seconds: 1.0
