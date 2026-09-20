@@ -7,8 +7,9 @@
 #
 # Honesty refusals (shared with eval.product_mac_path / session scorer / stranger):
 #   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent flags)
-#   EXIT_PLATFORM=2      (not Darwin / MPS unavailable on real path)
-# CI (Linux OK): --dry-run / --help-only — no MPS / no full TIME_BUDGET.
+#   EXIT_PLATFORM=2      (not Darwin / MPS unavailable on real path;
+#                        also missing/malformed Tale measured card on --tale-card-line)
+# CI (Linux OK): --dry-run / --help-only / --tale-card-line — no MPS / no full TIME_BUDGET.
 #
 # Docs: docs/product-mac-path.md · docs/compute-paths.md · docs/crisp-val-bpb-baseline.md
 set -euo pipefail
@@ -52,6 +53,7 @@ Usage:
   ./scripts/product_mac_smoke.sh                 # Darwin + MPS real path
   ./scripts/product_mac_smoke.sh --dry-run       # CI: honesty + wiring (no MPS)
   ./scripts/product_mac_smoke.sh --help-only     # same as --help (exit 0)
+  ./scripts/product_mac_smoke.sh --tale-card-line  # CI: factual Tale measured one-liner
 
 Env (real path only):
   PRODUCT_MAC_SMOKE_SECONDS   wall-clock bound (default 60; 0 = full TIME_BUDGET)
@@ -61,10 +63,12 @@ Honesty: factual val_bpb on MPS only. Never invents AUROC / published ranking.
   Lab claim_status stays not_published. CUDA gate stays skipped.
   prepare.py sacred. Refused: --auroc / --publish / --cuda / invent flags (exit 1).
   Platform fail (not Darwin / no MPS): exit 2.
+  --tale-card-line: prints factual Tale measured card line (train fitness only, not AUROC);
+    missing/malformed card → unavailable (exit 2). Linux CI OK (no MPS).
 USAGE
 }
 
-MODE="real"  # real | dry-run | help
+MODE="real"  # real | dry-run | help | tale-card-line
 
 # ── Loud refusals (before platform / train) ──────────────────────────────────
 if [[ "${PRODUCT_MAC_ALLOW_CUDA:-}" == "1" ]] || [[ "${PRODUCT_MAC_FAKE_CUDA:-}" == "1" ]]; then
@@ -93,9 +97,12 @@ for arg in "$@"; do
     --help-only|-h|--help|help)
       MODE="help"
       ;;
+    --tale-card-line)
+      MODE="tale-card-line"
+      ;;
     *)
       die_refuse "Unknown arg '$arg'.
-  Use --dry-run / --help-only on CI, or no flags on Darwin + MPS.
+  Use --dry-run / --help-only / --tale-card-line on CI, or no flags on Darwin + MPS.
   See: ./scripts/product_mac_smoke.sh --help"
       ;;
   esac
@@ -105,6 +112,30 @@ done
 if [[ "$MODE" == "help" ]]; then
   usage
   exit 0
+fi
+
+if [[ "$MODE" == "tale-card-line" ]]; then
+  banner "AOMB product Mac smoke — Tale measured card line (CI; no MPS)"
+  echo "Repo: $ROOT"
+  echo "Card: reports/tale-capped/measured_capped_200k.json"
+  echo "Honesty: train fitness only — not AUROC / not a published accuracy claim"
+  echo
+  PYTHON="${PYTHON:-python3}"
+  set +e
+  if command -v uv >/dev/null 2>&1; then
+    uv run python -m eval.public_wins_tale_line
+    rc=$?
+  else
+    PYTHONPATH="${PYTHONPATH:-$ROOT}" "$PYTHON" -m eval.public_wins_tale_line
+    rc=$?
+  fi
+  set -e
+  if [[ "$rc" -eq 0 ]]; then
+    banner "Done (tale-card-line)"
+    exit 0
+  fi
+  # Propagate exit 1 (invent refuse from module) or exit 2 (unavailable card).
+  exit "$rc"
 fi
 
 if [[ "$MODE" == "dry-run" ]]; then
@@ -140,8 +171,9 @@ echo
 if [[ "$(uname -s)" != "Darwin" ]]; then
   die_platform "Not Darwin (detected: $(uname -s)).
   Product Mac path requires macOS + Apple Silicon MPS.
-  On Linux / Codespaces / CI use dry-run or stranger verify instead:
+  On Linux / Codespaces / CI use dry-run / tale-card-line or stranger verify instead:
     ./scripts/product_mac_smoke.sh --dry-run
+    ./scripts/product_mac_smoke.sh --tale-card-line
     ./scripts/stranger_verify.sh
   See docs/stranger-verify.md · docs/compute-paths.md · docs/product-mac-path.md"
 fi

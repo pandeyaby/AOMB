@@ -6,7 +6,7 @@ Keep shell case arms in sync with REFUSED_METRIC_FLAGS.
 
 Product Mac path = Darwin + MPS train fitness (factual val_bpb only).
 Never invents AUROC / published ranking. CUDA gate stays skipped.
-prepare.py is sacred. CI uses --dry-run / --help-only (no MPS / no TIME_BUDGET).
+prepare.py is sacred. CI uses --dry-run / --help-only / --tale-card-line (no MPS / no TIME_BUDGET).
 """
 
 from __future__ import annotations
@@ -38,6 +38,7 @@ REFUSED_METRIC_FLAGS = frozenset(
 
 # CI-safe modes: no Darwin/MPS/train required.
 DRY_RUN_FLAGS = frozenset({"--dry-run", "--help-only", "-h", "--help", "help"})
+TALE_CARD_LINE_FLAGS = frozenset({"--tale-card-line"})
 
 EXIT_OK = 0
 EXIT_REFUSED_FLAG = 1
@@ -83,10 +84,30 @@ def dry_run_message() -> str:
     )
 
 
+def wants_tale_card_line(argv: list[str]) -> bool:
+    """True when argv requests the Tale measured-card one-liner (CI-safe)."""
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in TALE_CARD_LINE_FLAGS:
+            return True
+    return False
+
+
 def main(argv: list[str] | None = None) -> int:
-    """Thin CLI: refuse invent flags; dry-run/help exit 0; else honesty hint."""
+    """Thin CLI: refuse invent flags; dry-run/help/tale-card-line; else hint."""
     args = list(sys.argv[1:] if argv is None else argv)
     refuse_loud_flags(args)
+
+    if wants_tale_card_line(args):
+        from eval.public_wins_tale_line import DEFAULT_CARD, run as tale_run
+
+        code, line = tale_run(DEFAULT_CARD)
+        if code == EXIT_OK:
+            print(line)
+        else:
+            print(line, file=sys.stderr)
+            print(line)
+        return code
 
     if is_dry_run(args):
         # Prefer help text when only help was asked.
@@ -98,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
                 "AOMB product Mac path honesty helper.\n"
                 "  Script: ./scripts/product_mac_smoke.sh\n"
                 "  Real: Darwin + MPS → factual val_bpb only (no AUROC / no CUDA).\n"
-                "  CI: --dry-run or --help-only (Linux OK; no MPS / no TIME_BUDGET).\n"
+                "  CI: --dry-run / --help-only / --tale-card-line (Linux OK; no MPS).\n"
                 "  Refuses --auroc / --publish / --cuda / invent flags (exit 1).\n"
                 "  Lab claim_status stays not_published. prepare.py sacred.\n"
                 "  CUDA gate stays skipped. Platform fail on real path: exit 2.",
