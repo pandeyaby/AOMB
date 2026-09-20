@@ -100,13 +100,14 @@ STRANGER_EXPECT_OVERNIGHT=1 ./scripts/stranger_demo.sh
 
 ## Related docs
 
+- [`docs/anomaly-story.md`](anomaly-story.md) — **~30 min thesis:** `val_bpb` / session surprise *is* the anomaly signal (`demo_anomaly.py`)
 - [`docs/stranger-60s.md`](stranger-60s.md) — 60-second outsider cheatsheet
 - [`docs/public-wins.md`](public-wins.md) — outsider landing (badges + one-click verify)
 - [`docs/stranger-verify.md`](stranger-verify.md) — cite without cloning (Actions / Codespaces)
 - [`docs/compute-paths.md`](compute-paths.md) — CPU stranger vs MPS product train (CUDA = checklist only)
 - [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) — companion grading (AOMB emits; DIPTYCH grades)
-- [`docs/compute-paths.md`](compute-paths.md) — CPU stranger vs MPS product; CUDA checklist only
 - [`docs/public-ranking-card-v1.md`](public-ranking-card-v1.md) — fixture limits
 - [`docs/crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) — train fitness only
 - [`docs/lab/`](lab/) — lab lane (`not_published`)
 - [`docs/paired-probes/`](paired-probes/) — AOMB emit path for DIPTYCH
+- Optional after the story: [`product-mac-path.md`](product-mac-path.md) · [`byo-and-scorer.md`](byo-and-scorer.md)

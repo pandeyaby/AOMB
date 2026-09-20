@@ -32,3 +32,5 @@ Companion (not this product): **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)*
 | Public gates on **CPU** Linux | MPS product train / overnight `agent_loop` / **CUDA** |
 
 Tiny-n fixture limits apply. Details: [`stranger-verify.md`](stranger-verify.md) · index: [`public-wins.md`](public-wins.md) · hardware honesty: [`compute-paths.md`](compute-paths.md).
+
+**Want the product idea next?** [`anomaly-story.md`](anomaly-story.md) (~30 min) — train → score → higher BPB ≈ more anomalous. Not this 60s path.

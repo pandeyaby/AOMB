@@ -64,6 +64,7 @@ Default `STRANGER_FAST=1`. Set `STRANGER_FAST=0` for full fixture-model CPU smok
 ## Related
 
 - **60-second verify:** [`stranger-60s.md`](stranger-60s.md)
+- **Anomaly story (~30 min):** [`anomaly-story.md`](anomaly-story.md) — after gates, understand why `val_bpb` *is* the signal
 - Outsider landing: [`public-wins.md`](public-wins.md)
 - Clone-first stranger path: [`stranger-demo.md`](stranger-demo.md) / `scripts/stranger_demo.sh`
 - Compute honesty: [`compute-paths.md`](compute-paths.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)

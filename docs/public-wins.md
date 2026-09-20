@@ -9,7 +9,8 @@
 
 Cheatsheet (what green means): **[`stranger-60s.md`](stranger-60s.md)**.  
 Share / paste snip (markdown + plain text): **[`share-snip.md`](share-snip.md)**.  
-Contributing as a stranger: **[`contributing-stranger.md`](contributing-stranger.md)**.
+Contributing as a stranger: **[`contributing-stranger.md`](contributing-stranger.md)**.  
+**Understand the thesis (~30 min):** **[`anomaly-story.md`](anomaly-story.md)** — `val_bpb` / session surprise *is* the anomaly signal (not AUROC).
 
 ---
 
@@ -54,6 +55,8 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 # faster: STRANGER_FAST=1 ./scripts/stranger_demo.sh
 ```
 
+**After gates are green — get the story:** [`anomaly-story.md`](anomaly-story.md) (`demo_anomaly.py`). Optional next: Mac product path · BYO session BPB.
+
 ---
 
 ## Compute honesty
@@ -90,6 +93,7 @@ uv sync   # or: pip install pyarrow numpy rustbpe tiktoken
 ## Related
 
 - **60-second verify:** [`stranger-60s.md`](stranger-60s.md)
+- **Anomaly story (~30 min):** [`anomaly-story.md`](anomaly-story.md) · `demo_anomaly.py`
 - **Share snip (paste):** [`share-snip.md`](share-snip.md)
 - **Contributing as a stranger:** [`contributing-stranger.md`](contributing-stranger.md)
 - **Org trust (optional):** [`SECURITY.md`](../SECURITY.md) · [`SUPPORT.md`](../SUPPORT.md) · [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) · [`CITATION.cff`](../CITATION.cff) · [`NOTICE`](../NOTICE) · [`CONTRIBUTING.md`](../CONTRIBUTING.md) · review ownership via [`.github/CODEOWNERS`](../.github/CODEOWNERS) (`@pandeyaby`)

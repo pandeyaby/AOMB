@@ -51,6 +51,7 @@ done
 banner "AOMB stranger demo (no MPS / no API keys)"
 echo "Repo: $ROOT"
 echo "Docs: docs/stranger-demo.md"
+echo "Story (optional, after gates): docs/anomaly-story.md — val_bpb/surprise IS the signal"
 echo
 
 # ── Dependency check ────────────────────────────────────────────────────────
@@ -144,4 +145,5 @@ echo "  • CRISP val_bpb as ranking accuracy (train fitness only when cited)"
 echo
 echo "Honesty: docs/stranger-demo.md · docs/stranger-verify.md · docs/public-ranking-card-v1.md · README three lanes"
 echo "Cite without cloning: green stranger-verify Actions badge (docs/stranger-verify.md)"
+echo "Understand the thesis (~30 min): docs/anomaly-story.md → uv run python demo_anomaly.py"
 echo "${GRN}Stranger demo PASS${RST}"
