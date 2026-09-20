@@ -163,6 +163,7 @@ class TestProductMacShellParity(unittest.TestCase):
         self.assertIn("CUDA gate stays skipped", src)
         self.assertIn("--dry-run", src)
         self.assertIn("--help-only", src)
+        self.assertIn("--tale-card-line", src)
 
     def test_prepare_py_not_edited_by_this_change(self):
         # Sanity: sacred file exists; smoke script invokes but must not rewrite it.
@@ -311,6 +312,66 @@ class TestSubprocessModuleCli(unittest.TestCase):
         )
         self.assertEqual(proc.returncode, EXIT_REFUSED_FLAG)
         self.assertIn("cuda", proc.stderr.lower())
+
+
+
+class TestProductMacTaleCardLine(unittest.TestCase):
+    def test_shell_tale_card_line_success(self):
+        from eval.product_mac_path import EXIT_OK
+
+        card = ROOT / "reports" / "tale-capped" / "measured_capped_200k.json"
+        if not card.is_file():
+            self.skipTest("committed Tale measured card missing")
+        proc = _run_script("--tale-card-line")
+        self.assertEqual(proc.returncode, EXIT_OK, proc.stderr + proc.stdout)
+        blob = proc.stdout + proc.stderr
+        self.assertIn("val_bpb=", blob)
+        self.assertIn("measured_not_published", blob)
+        self.assertIn("train fitness only, not AUROC", blob)
+        self.assertNotIn("AUROC=", blob)
+
+    def test_shell_tale_card_line_with_dry_run_flag_order(self):
+        """--tale-card-line is CI-safe; invent still refused when combined."""
+        from eval.product_mac_path import EXIT_REFUSED_FLAG
+
+        proc = _run_script("--dry-run", "--auroc", "--tale-card-line")
+        self.assertEqual(proc.returncode, EXIT_REFUSED_FLAG)
+
+    def test_shell_tale_card_line_missing_card(self):
+        from eval.product_mac_path import EXIT_PLATFORM
+        from eval.public_wins_tale_line import EXIT_PATH_ERROR
+
+        self.assertEqual(EXIT_PLATFORM, EXIT_PATH_ERROR)  # both exit 2
+        # Point module at missing path via env by invoking python directly —
+        # shell uses default card; exercise module path with temp miss.
+        from eval.public_wins_tale_line import run
+
+        code, line = run(Path("/no/such/measured_capped_200k.json"))
+        self.assertEqual(code, EXIT_PATH_ERROR)
+        self.assertIn("unavailable", line)
+
+    def test_module_tale_card_line(self):
+        from eval.product_mac_path import EXIT_OK, main
+
+        card = ROOT / "reports" / "tale-capped" / "measured_capped_200k.json"
+        if not card.is_file():
+            self.skipTest("committed Tale measured card missing")
+        buf_out = io.StringIO()
+        buf_err = io.StringIO()
+        with mock.patch("sys.stdout", buf_out), mock.patch("sys.stderr", buf_err):
+            rc = main(["--tale-card-line"])
+        self.assertEqual(rc, EXIT_OK)
+        self.assertIn("train fitness only, not AUROC", buf_out.getvalue())
+
+    def test_module_refuse_invent_with_tale_card_line(self):
+        from eval.product_mac_path import EXIT_REFUSED_FLAG, main
+
+        buf = io.StringIO()
+        with mock.patch("sys.stderr", buf):
+            with self.assertRaises(SystemExit) as ctx:
+                main(["--tale-card-line", "--auroc"])
+        self.assertEqual(ctx.exception.code, EXIT_REFUSED_FLAG)
+
 
 
 if __name__ == "__main__":
