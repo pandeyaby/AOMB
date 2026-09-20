@@ -56,6 +56,17 @@ jobs:
             tests.test_byo_and_scorer \
             -v
 
+      - name: BYO script smoke (refusals + missing dump + fixture dry-run)
+        run: |
+          set -euo pipefail
+          # Shared exit codes with eval.score_cli
+          bash scripts/byo_score.sh corpus/fixtures/lab_sample --auroc >/tmp/byo-auroc.out 2>/tmp/byo-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/byo-auroc.err
+          bash scripts/byo_score.sh /no/such/byo-dump --dry-run >/tmp/byo-miss.out 2>/tmp/byo-miss.err && exit 1 || test $? -eq 2
+          grep -qi 'dump path not found' /tmp/byo-miss.err
+          bash scripts/byo_score.sh corpus/fixtures/lab_sample --dry-run --max-sessions 1 --json >/tmp/byo-ok.out 2>/tmp/byo-ok.err
+          grep -qi not_published /tmp/byo-ok.err || grep -qi not_published /tmp/byo-ok.out
+
       - name: Job summary
         if: always()
         run: |
@@ -69,7 +80,8 @@ jobs:
             echo
             echo "### Proven (when green)"
             echo "- Missing dump / missing checkpoint → clear exit 2"
-            echo "- \`--auroc\` / publish / ranking flags refused"
+            echo "- \`--auroc\` / publish / ranking flags refused (CLI + BYO shell)"
+            echo "- BYO missing dump → exit 2; refused flags → exit 1 (shared with score_cli)"
             echo "- Fixture dry-run → session metadata + \`claim_status=not_published\`"
             echo "- Synthetic checkpoint path → deterministic BPB only (mocked; no torch)"
             echo
