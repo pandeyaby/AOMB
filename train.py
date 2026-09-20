@@ -2,7 +2,44 @@
 Autoresearch pretraining script. Single-GPU, single-file.
 Cherry-picked and simplified from nanochat.
 Usage: uv run train.py
+
+Honesty: refuses --auroc / --publish / --cuda invent flags (exit 1) before
+torch / MPS setup. Never invents val_bpb. prepare.py sacred.
 """
+
+import sys
+
+from eval.stranger_path import EXIT_REFUSED_FLAG, REFUSED_METRIC_FLAGS
+
+
+def find_refused_invent_flag(argv: list[str]) -> str | None:
+    """Return first invent / publish / CUDA flag in argv, else None."""
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in REFUSED_METRIC_FLAGS:
+            return key
+    return None
+
+
+def refuse_invent_flags(argv: list[str] | None = None) -> None:
+    """Exit 1 loudly if invent / publish / CUDA flags appear on argv."""
+    bad = find_refused_invent_flag(list(sys.argv[1:] if argv is None else argv))
+    if bad is None:
+        return
+    print(
+        f"ERROR: Refusing '{bad}'.\n"
+        "  train.py reports factual val_bpb / train fitness only.\n"
+        "  Never invents AUROC / published ranking / accuracy claims.\n"
+        "  CUDA invent flags are refused — product train uses the configured device.\n"
+        "  Re-run without invent flags. prepare.py stays untouched.",
+        file=sys.stderr,
+    )
+    raise SystemExit(EXIT_REFUSED_FLAG)
+
+
+# Gate invent flags before torch / MPS verify when run as a script.
+if __name__ == "__main__":
+    refuse_invent_flags()
 
 import os
 os.environ["PYTORCH_ALLOC_CONF"] = "expandable_segments:True"
