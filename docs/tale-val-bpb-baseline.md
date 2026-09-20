@@ -20,23 +20,24 @@ Full Tale-scale outsider path: [`tale-scale.md`](tale-scale.md). Fixture wiring 
 
 ---
 
-## Measured row (pending)
+## Measured row (Mac capped 200k)
 
-**No measured Tale `val_bpb` is attached to this PR.** Do **not** invent a number. Fill this table only after a capped Mac `TIME_BUDGET` run prints a factual `val_bpb:`.
+**Source of truth:** [`reports/tale-capped/measured_capped_200k.json`](../reports/tale-capped/measured_capped_200k.json) — emitted from the real Mac train log via `eval.tale_measured_report` (parse-only `val_bpb`; never hardcoded).
 
 | Field | Value |
 |-------|--------|
-| **val_bpb** | **pending / not yet measured** |
-| Spans / sessions | — (set after capped shard build) |
-| Hardware | Mac Apple Silicon (MPS) — intended |
-| Config | Single-run `TIME_BUDGET` train |
-| Subset | Capped public-real Tale (`--max-spans` required) |
-| Zenodo pieces | One/few selective keys — **not** full archive decompress |
-| Overnight `agent_loop` | **No** (for the fill protocol) |
+| **val_bpb** | **1.379520** (parsed from train log footer) |
+| Spans / sessions | `--max-spans 200000` · **158** sessions (143 train + 15 val) |
+| Hardware | `mac_mps` (Apple Silicon / Metal) |
+| Config | Single-run `TIME_BUDGET=300` train |
+| vocab_size | 2115 |
+| Subset | Capped public-real Tale |
+| Train tip | `7083fc1` (main tip at emit: `c9673fb`) |
+| Overnight `agent_loop` | **No** |
 | API keys used | **No** |
-| claim_status | Factual training metric only — **not** a public accuracy / AUROC claim |
+| claim_status | **`measured_not_published`** — factual training metric only; **not** AUROC / public ranking; **not** 1:1 vs CRISP |
 
-When a run lands, replace **pending / not yet measured** with the printed `val_bpb`, plus span/session counts, provenance id, and commit / date. Keep CRISP lanes separate.
+Honesty unchanged: train lane only; Tale has no incident labels → no AUROC; do not invent; do not blend with CRISP baselines.
 
 ---
 
@@ -132,7 +133,7 @@ Record whatever `val_bpb:` the run prints into the measured row above. **Do not*
 | Artifact | Role |
 |----------|------|
 | This doc + `tale_capped_baseline.sh` | Protocol for a **capped** Tale train-fitness `val_bpb` on a disk-safe subset |
-| Measured `val_bpb` row | **Pending** until a Mac capped run is attached — never invent |
+| Measured `val_bpb` row | **1.379520** on capped 200k — see `reports/tale-capped/measured_capped_200k.json` (not AUROC; not CRISP) |
 | Full Tale decompress / `--download-all` | **Out of scope** here (~315 Gi free ≠ hundreds of GB per archive) |
 | CRISP `val_bpb` baselines | Separate bootstrap lane — [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) |
 | Lab AUROC / ranking | **`not_published`** until [`lab/publish-checklist.md`](lab/publish-checklist.md) |

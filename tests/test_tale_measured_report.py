@@ -151,6 +151,44 @@ class TestCLISubprocess(unittest.TestCase):
             env={**dict(**{k: v for k, v in __import__("os").environ.items()}), "PYTHONPATH": str(ROOT)},
         )
 
+    def test_cli_metadata_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            proc = self._run(
+                [
+                    "--log",
+                    str(FIXTURES / "train_success.txt"),
+                    "--out-dir",
+                    tmp,
+                    "--filename",
+                    "meta.json",
+                    "--max-spans",
+                    "200000",
+                    "--sessions-total",
+                    "158",
+                    "--sessions-train",
+                    "143",
+                    "--sessions-val",
+                    "15",
+                    "--vocab-size",
+                    "2115",
+                    "--hardware",
+                    "mac_mps",
+                    "--time-budget-s",
+                    "300",
+                    "--train-git-sha",
+                    "7083fc1",
+                ]
+            )
+            self.assertEqual(proc.returncode, EXIT_OK, proc.stderr)
+            card = json.loads((Path(tmp) / "meta.json").read_text(encoding="utf-8"))
+            self.assertAlmostEqual(card["val_bpb"], 0.430912, places=6)
+            self.assertEqual(card["claim_status"], "measured_not_published")
+            self.assertEqual(card["sessions_total"], 158)
+            self.assertEqual(card["vocab_size"], 2115)
+            self.assertEqual(card["hardware"], "mac_mps")
+            self.assertEqual(card["time_budget_s"], 300)
+            self.assertEqual(card["train_git_sha"], "7083fc1")
+
     def test_cli_success(self):
         with tempfile.TemporaryDirectory() as tmp:
             proc = self._run(
