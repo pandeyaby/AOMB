@@ -31,6 +31,13 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from best_val_bpb import (
+    format_lane_commit_tags,
+    resolve_best_val_bpb,
+    resolve_lane_from_environ,
+)
+from val_bpb_parse import parse_val_bpb_from_train_log
+
 try:
     import anthropic as _anthropic_module
     _ANTHROPIC_AVAILABLE = True
@@ -177,26 +184,27 @@ def get_recent_experiments(n: int = MAX_GIT_LOG_LINES) -> str:
 
 
 def get_best_val_bpb() -> float:
-    """Parse git log to find the lowest val_bpb so far."""
+    """Lowest in-lane val_bpb so far (or env override). Never invents a floor.
+
+    Isolation: when ``AOMB_CORPUS`` / ``AOMB_SOURCE_ID`` is set, only commit
+    subjects tagged with a matching ``[corpus=…]`` / ``[source_id=…]`` count.
+    Untagged synthetic history cannot poison a CRISP/Tale overnight.
+
+    Override: ``AOMB_BEST_VAL_BPB`` still wins when set and sane.
+    Missing lane / malformed override → ``inf`` (start fresh) — no invented
+    CRISP/Tale/synthetic baseline.
+    """
     try:
-        log_output = git("log", "--format=%s", "-100")
-        bpbs = [
-            float(m.group(1))
-            for m in re.finditer(r"val_bpb=(\d+\.\d+)", log_output)
-        ]
-        return min(bpbs) if bpbs else float("inf")
+        log_output = git("log", "--format=%s", "-200")
+        subjects = log_output.splitlines() if log_output else []
     except Exception:
-        return float("inf")
+        subjects = []
+    return resolve_best_val_bpb(subjects)
 
 
 def parse_val_bpb(output: str) -> float | None:
-    """Extract the FINAL val_bpb line from train.py output."""
-    # train.py prints: "val_bpb:          X.XXXXXX"
-    matches = re.findall(r"val_bpb:\s+(\d+\.\d+)", output)
-    if matches:
-        val = float(matches[-1])
-        return None if (val != val or val > 50) else val   # NaN / exploded check
-    return None
+    """Extract the FINAL val_bpb line from train.py output (factual only)."""
+    return parse_val_bpb_from_train_log(output)
 
 
 def validate_python(code: str) -> tuple[bool, str]:
@@ -455,17 +463,23 @@ def run_training(experiment_num: int) -> tuple[str, float | None]:
 
 def commit_experiment(experiment_num: int, val_bpb: float, prev_best: float,
                       change_summary: str) -> None:
-    """Commit train.py with val_bpb in message."""
+    """Commit train.py with val_bpb + optional corpus/source_id lane tags."""
     delta = val_bpb - prev_best
+    corpus, source_id = resolve_lane_from_environ()
+    lane_tags = format_lane_commit_tags(corpus=corpus, source_id=source_id)
+    lane_frag = f" {lane_tags}" if lane_tags else ""
     msg = (
         f"[val_bpb={val_bpb:.4f}] [Δ={delta:+.4f}] "
         f"[change: {change_summary[:60]}] "
-        f"[exp: {experiment_num}]\n\n"
+        f"[exp: {experiment_num}]{lane_frag}\n\n"
         f"Authored-By: Abhinav Pandey <pandey.aby@gmail.com>"
     )
     git("add", "train.py")
     git("commit", "-m", msg)
-    log.info(f"[Exp {experiment_num}] Committed: val_bpb={val_bpb:.4f} (Δ={delta:+.4f})")
+    log.info(
+        f"[Exp {experiment_num}] Committed: val_bpb={val_bpb:.4f} "
+        f"(Δ={delta:+.4f}){(' ' + lane_tags) if lane_tags else ''}"
+    )
 
 
 def extract_change_summary(claude_response_path: Path) -> str:
@@ -528,8 +542,17 @@ def main():
             sys.exit(1)
 
     best_val_bpb = get_best_val_bpb()
+    corpus, source_id = resolve_lane_from_environ()
+    override_raw = os.getenv("AOMB_BEST_VAL_BPB", "").strip()
+    if override_raw:
+        log.info(f"Best-val override AOMB_BEST_VAL_BPB={override_raw}")
+    if corpus or source_id:
+        log.info(
+            f"Best-val lane isolation: corpus={corpus or '-'} "
+            f"source_id={source_id or '-'}"
+        )
     if best_val_bpb == float("inf"):
-        log.info("No prior experiments found. Starting fresh.")
+        log.info("No prior in-lane experiments found. Starting fresh.")
     else:
         log.info(f"Resuming from best val_bpb={best_val_bpb:.4f}")
 
