@@ -2,9 +2,9 @@
 Runtime hardening tests for the session scorer CLI + BYO wrapper.
 
 Covers missing dump / missing checkpoint, flag refusals, fixture dry-run,
-BYO shell edge cases (shared exit codes with score_cli), and a tiny synthetic
-checkpoint happy path (mocked model score — no torch, no Zenodo, no MPS,
-no invented AUROC).
+``score_session.py`` subprocess exit parity with score_cli, BYO shell edge
+cases (shared exit codes), and a tiny synthetic checkpoint happy path
+(mocked model score — no torch, no Zenodo, no MPS, no invented AUROC).
 """
 
 from __future__ import annotations
@@ -253,6 +253,8 @@ class TestHappyPathFixture(unittest.TestCase):
 
 
 class TestScoreSessionEntrypoint(unittest.TestCase):
+    """Thin ``score_session.py`` entrypoint — same refusals/exit codes as score_cli."""
+
     def test_module_delegates_to_score_cli(self):
         import score_session
         from eval import score_cli
@@ -265,6 +267,72 @@ class TestScoreSessionEntrypoint(unittest.TestCase):
         help_text = build_parser().format_help()
         self.assertIn("not_published", help_text)
         self.assertIn("auroc", help_text.lower())
+
+    def _run_score_session(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [sys.executable, str(ROOT / "score_session.py"), *args],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            env={**os.environ, "PYTHONPATH": str(ROOT)},
+            check=False,
+        )
+
+    def test_subprocess_refuses_auroc_exit_1(self):
+        from eval.score_cli import EXIT_REFUSED_FLAG
+
+        proc = self._run_score_session(
+            "--auroc", "--input", str(LAB_SAMPLE), "--dry-run"
+        )
+        self.assertEqual(proc.returncode, EXIT_REFUSED_FLAG)
+        blob = (proc.stderr + proc.stdout).lower()
+        self.assertIn("auroc", blob)
+        self.assertIn("not_published", blob)
+
+    def test_subprocess_refuses_publish_exit_1(self):
+        from eval.score_cli import EXIT_REFUSED_FLAG
+
+        proc = self._run_score_session(
+            "--publish", "--input", str(LAB_SAMPLE), "--dry-run"
+        )
+        self.assertEqual(proc.returncode, EXIT_REFUSED_FLAG)
+        blob = (proc.stderr + proc.stdout).lower()
+        self.assertIn("publish", blob)
+        self.assertIn("not_published", blob)
+
+    def test_subprocess_missing_dump_exit_2(self):
+        from eval.score_cli import EXIT_PATH_ERROR
+
+        proc = self._run_score_session(
+            "--input", "/no/such/score-session-dump", "--dry-run"
+        )
+        self.assertEqual(proc.returncode, EXIT_PATH_ERROR)
+        blob = (proc.stderr + proc.stdout).lower()
+        self.assertIn("session dump not found", blob)
+        self.assertIn("/no/such/score-session-dump", blob)
+
+    def test_subprocess_module_form_matches_script(self):
+        """``python -m score_session`` shares exit codes with ``score_session.py``."""
+        from eval.score_cli import EXIT_REFUSED_FLAG
+
+        proc = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "score_session",
+                "--auroc",
+                "--input",
+                str(LAB_SAMPLE),
+                "--dry-run",
+            ],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            env={**os.environ, "PYTHONPATH": str(ROOT)},
+            check=False,
+        )
+        self.assertEqual(proc.returncode, EXIT_REFUSED_FLAG)
+        self.assertIn("auroc", (proc.stderr + proc.stdout).lower())
 
 
 class TestByoShellWrapper(unittest.TestCase):
