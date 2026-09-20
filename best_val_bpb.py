@@ -2,26 +2,50 @@
 
 Product overnight previously needed ``AOMB_BEST_VAL_BPB`` so a synthetic
 smoke-era best (e.g. 0.3682) did not poison CRISP / Tale breeding. This
-module hardens that in code:
+module hardens that in code.
 
-1. Env override ``AOMB_BEST_VAL_BPB`` still wins when set and sane.
-2. When ``AOMB_CORPUS`` / ``AOMB_SOURCE_ID`` (or explicit args) are present,
-   only commit subjects tagged with a matching ``[corpus=…]`` /
-   ``[source_id=…]`` count toward the lane best.
-3. Missing / malformed / empty lane → ``float("inf")`` (start fresh).
-   Never invent a CRISP/Tale/synthetic floor.
+Precedence (first sane wins)::
+
+  1. Env / explicit override ``AOMB_BEST_VAL_BPB``
+  2. Tale measured card (when enabled) — factual ``val_bpb`` only
+  3. Min of in-lane git/log commit subjects
+  4. ``float("inf")`` — never invent a floor
+
+Card enablement::
+
+  - ``AOMB_CORPUS`` / ``AOMB_SOURCE_ID`` is a Tale lane alias
+    (``tale``, ``tale_of_errors``, ``uber-tale-of-errors``, …), **or**
+  - ``AOMB_BEST_VAL_FROM_CARD=1`` (or true/yes/on)
+
+Card acceptance::
+
+  - File present and JSON-parseable
+  - ``claim_status == "measured_not_published"``
+    (``pending`` / other / missing → treat as missing → no card floor)
+  - ``val_bpb`` is a finite number in ``[0, MAX_SANE]``
+
+Missing / malformed / null / NaN card → skip card (fall through). Never invent.
 
 Does not touch ``prepare.py``. Does not invent AUROC.
 """
 
 from __future__ import annotations
 
+import argparse
+import json
 import math
 import os
 import re
-from typing import Mapping
+import sys
+from pathlib import Path
+from typing import Any, Mapping
 
 from val_bpb_parse import parse_val_bpb_from_commit_message
+
+ROOT = Path(__file__).resolve().parent
+DEFAULT_TALE_MEASURED_CARD = (
+    ROOT / "reports" / "tale-capped" / "measured_capped_200k.json"
+)
 
 # Short aliases operators may set via AOMB_CORPUS → canonical lane keys.
 _CORPUS_ALIASES: dict[str, str] = {
@@ -30,17 +54,47 @@ _CORPUS_ALIASES: dict[str, str] = {
     "uber-crisp-zenodo-13956078": "uber-crisp-zenodo-13956078",
     "tale": "uber-tale-of-errors",
     "tale-of-errors": "uber-tale-of-errors",
+    "tale_of_errors": "uber-tale-of-errors",
     "uber-tale-of-errors": "uber-tale-of-errors",
     "synthetic": "synthetic-smoke",
     "smoke": "synthetic-smoke",
     "synthetic-smoke": "synthetic-smoke",
 }
 
+_TALE_LANE = "uber-tale-of-errors"
+
 _CORPUS_TAG_RE = re.compile(r"\[corpus=([^\]]+)\]", re.IGNORECASE)
 _SOURCE_TAG_RE = re.compile(r"\[source_id=([^\]]+)\]", re.IGNORECASE)
 
 # Reject nonsense override tokens the same way val_bpb_parse refuses invent.
 _MAX_SANE_VAL_BPB = 50.0
+
+ALLOWED_CARD_CLAIM_STATUS = frozenset({"measured_not_published"})
+
+# Invent / publish / CUDA — refuse on CLI (mirrors stranger / product_mac).
+REFUSED_METRIC_FLAGS = frozenset(
+    {
+        "--auroc",
+        "--lab-auroc",
+        "--accuracy",
+        "--ranking",
+        "--publish",
+        "--claim",
+        "--invent-metrics",
+        "--invent-auroc",
+        "--claim-auroc",
+        "--val-bpb",
+        "--invent-val-bpb",
+        "--readme-hero",
+        "--publish-readme",
+        "--hero-auroc",
+        "--cuda",
+        "--gpu",
+    }
+)
+
+EXIT_OK = 0
+EXIT_REFUSED_FLAG = 1
 
 
 def normalize_lane_key(raw: str | None) -> str | None:
@@ -51,6 +105,14 @@ def normalize_lane_key(raw: str | None) -> str | None:
     if not key:
         return None
     return _CORPUS_ALIASES.get(key, key)
+
+
+def is_tale_lane(*, corpus: str | None = None, source_id: str | None = None) -> bool:
+    """True when corpus/source_id normalizes to the Tale lane."""
+    return (
+        normalize_lane_key(corpus) == _TALE_LANE
+        or normalize_lane_key(source_id) == _TALE_LANE
+    )
 
 
 def parse_best_val_override(raw: str | None) -> float | None:
@@ -82,6 +144,89 @@ def parse_best_val_override(raw: str | None) -> float | None:
     if val < 0.0 or val > _MAX_SANE_VAL_BPB:
         return None
     return val
+
+
+def _truthy_env(raw: str | None) -> bool:
+    if raw is None:
+        return False
+    return raw.strip().lower() in {"1", "true", "yes", "on", "y"}
+
+
+def card_floor_enabled(
+    environ: Mapping[str, str] | None = None,
+    *,
+    corpus: str | None = None,
+    source_id: str | None = None,
+) -> bool:
+    """Whether to attempt reading the Tale measured card as a floor."""
+    env = os.environ if environ is None else environ
+    if _truthy_env(env.get("AOMB_BEST_VAL_FROM_CARD")):
+        return True
+    c = corpus
+    s = source_id
+    if c is None and s is None:
+        c, s = resolve_lane_from_environ(env)
+    return is_tale_lane(corpus=c, source_id=s)
+
+
+def parse_val_bpb_from_measured_card(
+    path: Path | str | None,
+) -> float | None:
+    """Read factual ``val_bpb`` from a Tale measured card, or None.
+
+    Never invents. Returns None when missing / malformed / wrong claim_status /
+    null / NaN / non-finite / out of sane range.
+    """
+    if path is None:
+        return None
+    card_path = Path(path)
+    if not card_path.is_file():
+        return None
+    try:
+        raw = card_path.read_text(encoding="utf-8")
+        data: Any = json.loads(raw)
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return None
+    if not isinstance(data, dict):
+        return None
+
+    claim = data.get("claim_status")
+    if claim in (None, "pending"):
+        return None
+    if not isinstance(claim, str) or claim not in ALLOWED_CARD_CLAIM_STATUS:
+        return None
+
+    val_raw = data.get("val_bpb")
+    if val_raw is None:
+        return None
+    if isinstance(val_raw, bool):
+        return None
+    if isinstance(val_raw, str):
+        return parse_best_val_override(val_raw)
+    try:
+        val = float(val_raw)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(val):
+        return None
+    if val < 0.0 or val > _MAX_SANE_VAL_BPB:
+        return None
+    return val
+
+
+def resolve_measured_card_path(
+    environ: Mapping[str, str] | None = None,
+    *,
+    card_path: Path | str | None = None,
+) -> Path:
+    """Explicit path / ``AOMB_BEST_VAL_CARD`` / default Tale measured card."""
+    if card_path is not None:
+        return Path(card_path)
+    env = os.environ if environ is None else environ
+    raw = (env.get("AOMB_BEST_VAL_CARD") or "").strip()
+    if raw:
+        return Path(raw).expanduser()
+    return DEFAULT_TALE_MEASURED_CARD
 
 
 def parse_commit_lane_tags(msg: str) -> tuple[str | None, str | None]:
@@ -160,13 +305,15 @@ def resolve_best_val_bpb(
     corpus: str | None = None,
     source_id: str | None = None,
     override: str | float | None = ...,  # type: ignore[assignment]
+    card_path: Path | str | None = None,
 ) -> float:
     """Resolve best-val for agent_loop.
 
     Priority:
       1. Explicit / env override ``AOMB_BEST_VAL_BPB`` (when sane)
-      2. Min of in-lane commit subjects
-      3. ``float("inf")`` — never invent a floor
+      2. Tale measured card (when enabled + factual)
+      3. Min of in-lane commit subjects
+      4. ``float("inf")`` — never invent a floor
     """
     env = os.environ if environ is None else environ
 
@@ -189,6 +336,13 @@ def resolve_best_val_bpb(
 
     if corpus is None and source_id is None:
         corpus, source_id = resolve_lane_from_environ(env)
+
+    if card_floor_enabled(env, corpus=corpus, source_id=source_id):
+        path = resolve_measured_card_path(env, card_path=card_path)
+        card_val = parse_val_bpb_from_measured_card(path)
+        if card_val is not None:
+            return card_val
+        # missing/malformed card → fall through (may still be inf)
 
     return best_val_from_commit_subjects(
         list(subjects or ()),
@@ -213,3 +367,66 @@ def format_lane_commit_tags(
     elif s and not c:
         parts.append(f"[source_id={s}]")
     return " ".join(parts)
+
+
+def refuse_loud_flags(argv: list[str]) -> str | None:
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in REFUSED_METRIC_FLAGS:
+            return key
+    return None
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI: print resolved best-val (debug). No invent / publish / CUDA flags."""
+    argv = list(sys.argv[1:] if argv is None else argv)
+    bad = refuse_loud_flags(argv)
+    if bad is not None:
+        print(
+            f"ERROR: refusing invent / publish / CUDA flag {bad}. "
+            "best_val_bpb never invents AUROC / floors.",
+            file=sys.stderr,
+        )
+        return EXIT_REFUSED_FLAG
+
+    p = argparse.ArgumentParser(
+        prog="best_val_bpb",
+        description=(
+            "Resolve AOMB best-val floor (override > Tale measured card > "
+            "git subjects > inf). Never invents AUROC / val_bpb."
+        ),
+    )
+    p.add_argument(
+        "--card",
+        type=Path,
+        default=None,
+        help="Override measured card path (default: reports/tale-capped/...)",
+    )
+    p.add_argument(
+        "--json",
+        action="store_true",
+        help="Print {best_val_bpb, card_enabled} as JSON",
+    )
+    args = p.parse_args(argv)
+
+    env = dict(os.environ)
+    best = resolve_best_val_bpb((), environ=env, card_path=args.card)
+    enabled = card_floor_enabled(env)
+    if args.json:
+        payload = {
+            "best_val_bpb": best if math.isfinite(best) else None,
+            "best_val_bpb_inf": not math.isfinite(best),
+            "card_enabled": enabled,
+        }
+        print(json.dumps(payload, indent=2))
+    else:
+        if math.isfinite(best):
+            print(f"best_val_bpb={best}")
+        else:
+            print("best_val_bpb=inf")
+        print(f"card_enabled={int(enabled)}")
+    return EXIT_OK
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

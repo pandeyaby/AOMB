@@ -16,12 +16,16 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from best_val_bpb import (  # noqa: E402
+    EXIT_REFUSED_FLAG,
     best_val_from_commit_subjects,
+    card_floor_enabled,
     commit_matches_lane,
     format_lane_commit_tags,
+    main as best_val_main,
     normalize_lane_key,
     parse_best_val_override,
     parse_commit_lane_tags,
+    parse_val_bpb_from_measured_card,
     resolve_best_val_bpb,
 )
 
@@ -72,6 +76,9 @@ class TestLaneNormalization(unittest.TestCase):
 
     def test_tale_aliases(self):
         self.assertEqual(normalize_lane_key("tale"), "uber-tale-of-errors")
+        self.assertEqual(
+            normalize_lane_key("tale_of_errors"), "uber-tale-of-errors"
+        )
         self.assertEqual(
             normalize_lane_key("uber-tale-of-errors"), "uber-tale-of-errors"
         )
@@ -183,7 +190,13 @@ class TestResolveBestValBpb(unittest.TestCase):
     def test_source_id_env_isolation(self):
         subjects = [_SYNTHETIC, _TALE, _CRISP_B]
         env = {"AOMB_SOURCE_ID": "uber-tale-of-errors"}
-        best = resolve_best_val_bpb(subjects, environ=env)
+        # Tale lane enables measured-card floor; point at missing card so
+        # this case still exercises git/log isolation only.
+        best = resolve_best_val_bpb(
+            subjects,
+            environ=env,
+            card_path=Path("/no/such/measured_card.json"),
+        )
         self.assertAlmostEqual(best, 0.5120, places=4)
 
 
@@ -286,6 +299,181 @@ class TestAgentLoopWiresHelper(unittest.TestCase):
             0.430912,
             places=6,
         )
+
+
+
+
+def _write_card(path: Path, **fields) -> Path:
+    import json
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(fields), encoding="utf-8")
+    return path
+
+
+class TestMeasuredCardFloor(unittest.TestCase):
+    def test_good_card(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+                corpus="tale_of_errors",
+            )
+            val = parse_val_bpb_from_measured_card(card)
+            self.assertAlmostEqual(val, 1.37952, places=5)
+
+    def test_missing_card(self):
+        self.assertIsNone(
+            parse_val_bpb_from_measured_card(Path("/no/such/card.json"))
+        )
+
+    def test_null_val_bpb(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "c.json",
+                claim_status="measured_not_published",
+                val_bpb=None,
+            )
+            self.assertIsNone(parse_val_bpb_from_measured_card(card))
+
+    def test_wrong_claim_status(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            for status in ("pending", "published", "lab_only", "not_published"):
+                card = _write_card(
+                    Path(tmp) / f"{status}.json",
+                    claim_status=status,
+                    val_bpb=1.37952,
+                )
+                self.assertIsNone(
+                    parse_val_bpb_from_measured_card(card), msg=status
+                )
+
+    def test_nan_and_non_finite(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            for bad in (float("nan"), float("inf"), "nan", "pending", "null"):
+                card = _write_card(
+                    Path(tmp) / "bad.json",
+                    claim_status="measured_not_published",
+                    val_bpb=bad,
+                )
+                self.assertIsNone(
+                    parse_val_bpb_from_measured_card(card), msg=repr(bad)
+                )
+
+    def test_malformed_json(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "bad.json"
+            path.write_text("{not-json", encoding="utf-8")
+            self.assertIsNone(parse_val_bpb_from_measured_card(path))
+
+    def test_resolve_uses_card_when_tale_corpus(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {"AOMB_CORPUS": "tale_of_errors"}
+            # Git subject would be worse/better — card wins when enabled
+            subjects = [
+                "[val_bpb=0.5120] [corpus=tale] [source_id=uber-tale-of-errors]"
+            ]
+            best = resolve_best_val_bpb(
+                subjects, environ=env, card_path=card
+            )
+            self.assertAlmostEqual(best, 1.37952, places=5)
+            self.assertTrue(card_floor_enabled(env))
+
+    def test_resolve_card_missing_falls_through_to_git(self):
+        env = {"AOMB_CORPUS": "tale"}
+        subjects = [
+            "[val_bpb=0.5120] [corpus=tale] [source_id=uber-tale-of-errors]"
+        ]
+        best = resolve_best_val_bpb(
+            subjects,
+            environ=env,
+            card_path=Path("/no/such/measured_card.json"),
+        )
+        self.assertAlmostEqual(best, 0.5120, places=4)
+
+    def test_resolve_card_missing_no_git_is_inf(self):
+        env = {"AOMB_CORPUS": "tale_of_errors"}
+        best = resolve_best_val_bpb(
+            [],
+            environ=env,
+            card_path=Path("/no/such/measured_card.json"),
+        )
+        self.assertTrue(math.isinf(best))
+
+    def test_env_override_beats_card(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {
+                "AOMB_CORPUS": "tale_of_errors",
+                "AOMB_BEST_VAL_BPB": "1.2000",
+            }
+            best = resolve_best_val_bpb([], environ=env, card_path=card)
+            self.assertAlmostEqual(best, 1.2000, places=4)
+
+    def test_explicit_from_card_flag_without_tale_corpus(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {"AOMB_BEST_VAL_FROM_CARD": "1"}
+            best = resolve_best_val_bpb([], environ=env, card_path=card)
+            self.assertAlmostEqual(best, 1.37952, places=5)
+
+    def test_crisp_corpus_does_not_read_card_by_default(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {"AOMB_CORPUS": "crisp"}
+            subjects = [
+                "[val_bpb=0.4309] [corpus=crisp] "
+                "[source_id=uber-crisp-zenodo-13956078]"
+            ]
+            best = resolve_best_val_bpb(
+                subjects, environ=env, card_path=card
+            )
+            self.assertAlmostEqual(best, 0.4309, places=4)
+            self.assertFalse(card_floor_enabled(env))
+
+
+class TestBestValCliRefuse(unittest.TestCase):
+    def test_refuse_auroc_publish_cuda(self):
+        for flag in ("--auroc", "--publish", "--cuda", "--invent-val-bpb"):
+            self.assertEqual(
+                best_val_main([flag]), EXIT_REFUSED_FLAG, msg=flag
+            )
 
 
 class TestHonestyNoInventedFloorInModule(unittest.TestCase):
