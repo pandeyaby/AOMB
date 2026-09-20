@@ -110,7 +110,21 @@ uv run python -m corpus.ingest.build_shards \
 
 ---
 
-## Score sessions (shippable CLI)
+## Score sessions (one-command polish)
+
+Thin wrapper (fails loudly without a dump path; defaults to `--dry-run`):
+
+```bash
+./scripts/byo_score.sh corpus/fixtures/lab_sample
+./scripts/byo_score.sh /path/to/your/dump --dry-run
+./scripts/byo_score.sh /path/to/your/dump --train-seconds 30 --out /tmp/byo-score.json
+./scripts/byo_score.sh /path/to/your/dump --checkpoint /tmp/aomb-scorer.pt --json
+```
+
+Loud banner: **scoring ≠ published ranking claim**; lab stays `not_published`.
+Refuses `--auroc` / ranking flags. Same honesty as below.
+
+Direct CLI (equivalent):
 
 ```bash
 # Dry-run — load + print session ids (no torch / no train)
@@ -134,7 +148,7 @@ uv run python -m score_session \
 
 Output: one line per session with `session_id`, `label` (if known), `n_chars`,
 and `bpb` (bits-per-byte surprise). Optional `--out` writes a JSON report with
-`claim_status=not_published`.
+`claim_status=not_published`. Never AUROC.
 
 Implementation notes:
 

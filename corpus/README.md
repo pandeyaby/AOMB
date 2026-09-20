@@ -81,6 +81,8 @@ uv run python -m corpus.ingest.build_shards \
   --num-train-shards 2 --write-val-shard --data-dir /tmp/aomb-byo
 
 # Session scorer dry-run (not a public accuracy claim)
+./scripts/byo_score.sh corpus/fixtures/lab_sample
+# equivalent:
 uv run python -m score_session --input corpus/fixtures/lab_sample --dry-run
 ```
 
