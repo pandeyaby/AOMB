@@ -63,7 +63,7 @@ Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md)
 
 | Lane | What it is | Honest claim |
 |------|------------|--------------|
-| **1. Train — Uber CRISP** (+ Tale scale) | Real public Jaeger traces | Factual **`val_bpb` only** — no incident labels → **not** ranking accuracy · Tale: [`docs/tale-scale.md`](docs/tale-scale.md) · capped baseline (pending): [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) |
+| **1. Train — Uber CRISP** (+ Tale scale) | Real public Jaeger traces | Factual **`val_bpb` only** — no incident labels → **not** ranking accuracy · Tale: [`docs/tale-scale.md`](docs/tale-scale.md) · capped measured **`val_bpb=1.379520`** (`claim_status=measured_not_published`; train fitness only, **not** AUROC; not 1:1 vs CRISP) — [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · [`docs/public-wins.md`](docs/public-wins.md) · `./scripts/public_wins_tale_line.sh` |
 | **2. Lab — private** | Docker stack + faults (optional redacted pack) | Ranking evidence under [`docs/lab/`](docs/lab/) — default **`not_published`** |
 | **3. Public fixture card** | Tiny synthetic pack + CI | **`published_fixture_card`** = **harness smoke** that beat baselines — **not** lab / production ranking |
 
@@ -156,7 +156,7 @@ Current factual CRISP `val_bpb` (training fitness, **not** accuracy): **0.407753
 ### Tale-scale (Uber Tale of Errors — train lane)
 
 Flagship-scale public-real path (CC BY 4.0; hundreds of GB). **Train fitness only** — no incident labels → **no AUROC**. Fixture smoke (no Zenodo pull): `./scripts/tale_scale_smoke.sh`. Docs: [`docs/tale-scale.md`](docs/tale-scale.md).  
-**Capped subset baseline** (disk-safe; measured `val_bpb` **pending** until a Mac run): [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`.
+**Capped subset measured** (disk-safe Mac run; `max_spans=200000`): factual **`val_bpb=1.379520`** with `claim_status=measured_not_published` — **train fitness only**, not AUROC, not a published accuracy claim, and **not** 1:1 comparable to CRISP. Card: [`reports/tale-capped/measured_capped_200k.json`](reports/tale-capped/measured_capped_200k.json) · write-up: [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · public-wins: [`docs/public-wins.md`](docs/public-wins.md) · one-liner: `./scripts/public_wins_tale_line.sh` (or `./scripts/stranger_demo.sh --tale-card-line`).
 
 ### Lab capture (labeled, unpublished by default)
 
@@ -195,7 +195,7 @@ Calibration path: ![Breed/score → public fixture card → DIPTYCH probes](docs
 - BYO dumps: [`docs/byo-and-scorer.md`](docs/byo-and-scorer.md) — scoring ≠ published accuracy.
 - One-command: `./scripts/byo_score.sh /path/to/dump` (session BPB only; lab stays `not_published`).
 - Tale-scale (public-real train lane, not AUROC): [`docs/tale-scale.md`](docs/tale-scale.md) · `./scripts/tale_scale_smoke.sh`
-- Capped Tale `val_bpb` (pending measure): [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`
+- Capped Tale measured `val_bpb=1.379520` (`measured_not_published`; train fitness only, not AUROC): [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · [`docs/public-wins.md`](docs/public-wins.md) · `./scripts/public_wins_tale_line.sh`
 - `generate_observability_corpus.py` = smoke / CI only — **not** the flagship train story.
 
 ---
