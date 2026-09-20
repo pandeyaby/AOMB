@@ -28,6 +28,7 @@ die() {
 usage() {
   cat >&2 <<'USAGE'
 Usage:
+  ./scripts/tale_capped_train_score.sh --fixture --dry-run --max-spans N
   ./scripts/tale_capped_train_score.sh --fixture --max-spans N [--score-dry-run]
   ./scripts/tale_capped_train_score.sh --extract-input PATH --max-spans N [opts]
   ./scripts/tale_capped_train_score.sh --jaeger-tree PATH --max-spans N [opts]
@@ -47,6 +48,7 @@ Optional:
   --extract-out PATH         Extract out (default: <data-dir>/extracted)
   --extract-max-files N      Extra extract file cap
   --num-train-shards N       Default: 1
+  --dry-run                  CI path: fixture/extract → shards only (no prepare/train)
   --prepare                  Invoke sacred prepare.py (Darwin + Metal only)
   --train [--train-seconds N]  Bounded train.py smoke (Darwin + MPS)
   --score-dry-run            eval.score_cli --dry-run (CI-safe)
@@ -54,6 +56,7 @@ Optional:
   -h, --help                 Show this help
 
 Refused: --auroc / ranking / invent metrics / --full-decompress / --uncapped
+         --train / --prepare on CI or non-Darwin (no invent val_bpb path)
 
 Equivalent:
   uv run python -m corpus.ingest.tale_capped_pipeline --help
@@ -66,13 +69,18 @@ banner() {
 }
 
 # ── Loud refusals ────────────────────────────────────────────────────────────
+in_ci=0
+if [[ "${CI:-}" =~ ^(1|true|yes)$ ]] || [[ "${GITHUB_ACTIONS:-}" =~ ^(1|true|yes)$ ]]; then
+  in_ci=1
+fi
+
 for arg in "$@"; do
   case "$arg" in
     -h|--help|help)
       usage
       exit 0
       ;;
-    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim|--val-bpb|--invent-metrics|--invent-val-bpb)
+    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim|--val-bpb|--invent-metrics|--invent-val-bpb|--invent-auroc|--claim-auroc)
       die "Refusing '$arg'.
   This wrapper is the *train/score* lane on a stream-capped Tale subset.
   Tale dumps have no AOMB incident labels → no AUROC.
@@ -83,6 +91,14 @@ for arg in "$@"; do
   Full Tale decompress is OUT OF SCOPE (300–500 GB/archive).
   Pass --max-spans N (and optional --extract-max-files).
   Stream extract: uv run python -m corpus.ingest.tale_stream_extract --help"
+      ;;
+    --train|--prepare)
+      if [[ "$in_ci" -eq 1 ]] || [[ "$(uname -s)" != "Darwin" ]]; then
+        die "Refusing '$arg' on CI/Linux.
+  --train / --prepare require Darwin + Metal/MPS.
+  CI fixture dry-run: --fixture --dry-run --max-spans N (shards only).
+  CUDA gate stays skipped. prepare.py is sacred."
+      fi
       ;;
   esac
 done

@@ -127,24 +127,27 @@ class TestTaleCappedPipeline(unittest.TestCase):
             self.assertEqual(result.claim_status, "not_published")
 
     def test_refuses_auroc_full_decompress_uncapped(self):
-        from corpus.ingest.tale_capped_pipeline import main
+        from corpus.ingest.tale_capped_pipeline import (
+            EXIT_REFUSED_FLAG,
+            main,
+        )
 
         with self.assertRaises(SystemExit) as ctx:
             main(["--auroc", "--fixture", "--max-spans", "10"])
-        self.assertIn("auroc", str(ctx.exception).lower())
+        self.assertEqual(ctx.exception.code, EXIT_REFUSED_FLAG)
 
         with self.assertRaises(SystemExit) as ctx2:
             main(["--full-decompress", "--fixture", "--max-spans", "10"])
-        msg2 = str(ctx2.exception).lower()
-        self.assertTrue("full" in msg2 or "decompress" in msg2)
+        self.assertEqual(ctx2.exception.code, EXIT_REFUSED_FLAG)
 
         with self.assertRaises(SystemExit) as ctx3:
             main(["--uncapped", "--fixture", "--max-spans", "10"])
-        self.assertIn("uncapped", str(ctx3.exception).lower())
+        self.assertEqual(ctx3.exception.code, EXIT_REFUSED_FLAG)
 
         with self.assertRaises(SystemExit) as ctx4:
             main(["--invent-metrics", "--fixture", "--max-spans", "10"])
-        self.assertIn("invent", str(ctx4.exception).lower())
+        self.assertEqual(ctx4.exception.code, EXIT_REFUSED_FLAG)
+
 
     def test_missing_input_exits_nonzero(self):
         from corpus.ingest.tale_capped_pipeline import main, run_pipeline
@@ -253,6 +256,135 @@ class TestTaleCappedPipeline(unittest.TestCase):
             self.assertTrue(Path(tmp, "s.json").is_file())
             report = json.loads(Path(tmp, "s.json").read_text(encoding="utf-8"))
             self.assertEqual(report["claim_status"], "not_published")
+
+
+    def test_flag_matrix_metric_and_uncap_refusals(self):
+        """Pipeline flag matrix: invent / AUROC / uncap → EXIT_REFUSED_FLAG."""
+        from corpus.ingest.tale_capped_pipeline import (
+            EXIT_REFUSED_FLAG,
+            _REFUSED_DECOMPRESS_FLAGS,
+            _REFUSED_METRIC_FLAGS,
+            main,
+        )
+
+        for flag in sorted(_REFUSED_METRIC_FLAGS | _REFUSED_DECOMPRESS_FLAGS):
+            with self.subTest(flag=flag):
+                with self.assertRaises(SystemExit) as ctx:
+                    main([flag, "--fixture", "--max-spans", "8"])
+                self.assertEqual(
+                    ctx.exception.code,
+                    EXIT_REFUSED_FLAG,
+                    msg=f"{flag} should refuse with EXIT_REFUSED_FLAG",
+                )
+
+    def test_ci_and_linux_refuse_train_prepare_invent_path(self):
+        """CI / non-Darwin must refuse --train / --prepare invent paths."""
+        from corpus.ingest.tale_capped_pipeline import EXIT_REFUSED_FLAG, main
+
+        if sys.platform == "darwin" and not (
+            os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")
+        ):
+            self.skipTest("train invent-path refusal is for CI / non-Darwin")
+
+        for flag in ("--train", "--prepare"):
+            with self.subTest(flag=flag):
+                with self.assertRaises(SystemExit) as ctx:
+                    main(["--fixture", "--max-spans", "8", flag])
+                self.assertEqual(ctx.exception.code, EXIT_REFUSED_FLAG)
+
+        # Explicit CI env even if somehow Darwin
+        old_ci = os.environ.get("CI")
+        os.environ["CI"] = "true"
+        try:
+            with self.assertRaises(SystemExit) as ctx:
+                main(["--fixture", "--max-spans", "8", "--train"])
+            self.assertEqual(ctx.exception.code, EXIT_REFUSED_FLAG)
+        finally:
+            if old_ci is None:
+                os.environ.pop("CI", None)
+            else:
+                os.environ["CI"] = old_ci
+
+    def test_fixture_dry_run_shards_only(self):
+        """--fixture --dry-run → shards only; no prepare/train; no Zenodo/MPS."""
+        from corpus.ingest.tale_capped_pipeline import EXIT_OK, main, run_pipeline
+
+        self.assertTrue(FIXTURE.is_dir(), "fixture must exist for CI")
+        with tempfile.TemporaryDirectory() as tmp:
+            result = run_pipeline(
+                max_spans=40,
+                fixture=True,
+                dry_run=True,
+                data_dir=tmp,
+            )
+            self.assertEqual(result.claim_status, "not_published")
+            self.assertIn("dry_run", result.stages)
+            self.assertIn("fixture", result.stages)
+            self.assertIn("build_shards", result.stages)
+            self.assertNotIn("prepare", result.stages)
+            self.assertNotIn("train", result.stages)
+            self.assertNotIn("extract", result.stages)  # fixture skips extract
+            shards = list(Path(tmp).glob("shard_*.parquet"))
+            self.assertGreaterEqual(len(shards), 1)
+            blob = json.dumps(result.to_dict())
+            self.assertNotIn("val_bpb=", blob)
+            self.assertNotRegex(blob.lower(), r"val_bpb\"?\s*[:=]\s*[0-9]")
+
+            rc = main(
+                [
+                    "--fixture",
+                    "--dry-run",
+                    "--max-spans",
+                    "40",
+                    "--data-dir",
+                    tmp + "-cli",
+                ]
+            )
+            self.assertEqual(rc, EXIT_OK)
+            self.assertGreaterEqual(
+                len(list(Path(tmp + "-cli").glob("shard_*.parquet"))), 1
+            )
+
+        # dry-run + train refused
+        from corpus.ingest.tale_capped_pipeline import EXIT_REFUSED_FLAG
+
+        with self.assertRaises(SystemExit) as ctx:
+            main(["--fixture", "--dry-run", "--max-spans", "8", "--train"])
+        self.assertEqual(ctx.exception.code, EXIT_REFUSED_FLAG)
+
+    def test_shell_wrapper_refuses_train_on_linux_and_dry_run(self):
+        self.assertTrue(SCRIPT.is_file())
+        bad_train = subprocess.run(
+            ["bash", str(SCRIPT), "--fixture", "--max-spans", "5", "--train"],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+        )
+        self.assertNotEqual(bad_train.returncode, 0)
+        self.assertIn("train", (bad_train.stderr + bad_train.stdout).lower())
+
+        with tempfile.TemporaryDirectory() as tmp:
+            ok = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--fixture",
+                    "--dry-run",
+                    "--max-spans",
+                    "30",
+                    "--data-dir",
+                    tmp,
+                ],
+                cwd=str(ROOT),
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(
+                ok.returncode,
+                0,
+                msg=f"stdout={ok.stdout}\nstderr={ok.stderr}",
+            )
+            self.assertGreaterEqual(len(list(Path(tmp).glob("shard_*.parquet"))), 1)
 
 
 if __name__ == "__main__":
