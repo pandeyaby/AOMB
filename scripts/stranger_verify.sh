@@ -5,8 +5,11 @@
 # Shared runner: scripts/stranger_demo.sh (clone-first path; see docs/stranger-demo.md).
 # This script sets STRANGER_FAST then delegates to demo when present.
 #
+# Honesty refusals (shared with eval.stranger_path / stranger_demo / session scorer):
+#   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent / overnight)
 # NOT claimed: lab AUROC, production accuracy, MPS train, overnight agent.
-# prepare.py is sacred — never touched here. No DIPTYCH harness contamination.
+# prepare.py is sacred — never touched here. CUDA gate stays skipped.
+# No DIPTYCH harness contamination.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -18,9 +21,17 @@ YLW=$'\033[33m'
 BOLD=$'\033[1m'
 RST=$'\033[0m'
 
+# Must match eval.stranger_path.EXIT_* / REFUSED_METRIC_FLAGS.
+EXIT_REFUSED_FLAG=1
+
 die() {
   echo "${RED}ERROR:${RST} $*" >&2
   exit 1
+}
+
+die_refuse() {
+  echo "${RED}ERROR:${RST} $*" >&2
+  exit "$EXIT_REFUSED_FLAG"
 }
 
 banner() {
@@ -28,19 +39,50 @@ banner() {
   echo "${BOLD}═══ $* ═══${RST}"
 }
 
+usage() {
+  cat >&2 <<'USAGE'
+Usage:
+  ./scripts/stranger_verify.sh
+  STRANGER_FAST=0 ./scripts/stranger_verify.sh   # full ranking-card --with-model (CPU)
+
+Cite path defaults STRANGER_FAST=1 (baselines-only ε). Delegates to stranger_demo.sh.
+
+Honesty: DIPTYCH full-8 + ranking-card harness smoke only.
+  Never invents AUROC / val_bpb / published ranking.
+  Lab claim_status stays not_published. CUDA gate stays skipped.
+  prepare.py sacred. Refused: --auroc / --publish / --cuda / invent flags.
+USAGE
+}
+
 # Loud refusals for Mac/agent-only expectations
 if [[ "${STRANGER_EXPECT_MPS:-}" == "1" ]] || [[ "${STRANGER_EXPECT_OVERNIGHT:-}" == "1" ]]; then
-  die "Stranger verify does not run overnight agent or MPS product train.
+  die_refuse "Stranger verify does not run overnight agent or MPS product train.
   Unset STRANGER_EXPECT_MPS / STRANGER_EXPECT_OVERNIGHT.
   Cite path proves: diptych full-8 + gate_axis_mutate, ranking-card baselines ε (or demo script).
   Clone-first docs: docs/stranger-demo.md · cite docs: docs/stranger-verify.md"
 fi
 
+# Keep case arm in sync with eval.stranger_path.REFUSED_METRIC_FLAGS (+ product).
+# Refuse before delegation so invent flags never reach the shared runner unnoticed.
 for arg in "$@"; do
-  case "$arg" in
+  key="${arg%%=*}"
+  case "$key" in
+    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim|--invent-metrics|--invent-auroc|--claim-auroc|--val-bpb|--invent-val-bpb|--readme-hero|--publish-readme|--hero-auroc|--cuda|--gpu)
+      die_refuse "Refusing '$key'.
+  Stranger verify proves DIPTYCH full-8 + ranking-card harness smoke only.
+  Never invents AUROC / val_bpb / published ranking accuracy.
+  Lab claim_status stays not_published.
+  CUDA gate stays skipped — use CPU stranger path (no --cuda / --gpu).
+  See docs/stranger-verify.md (cite) or docs/stranger-demo.md (clone)
+  (same refusals as: python -m eval.stranger_path --help)."
+      ;;
     --overnight|--agent|--mps-train)
-      die "Refusing '$arg'. Stranger verify = no overnight, no MPS train, no API keys.
+      die_refuse "Refusing '$key'. Stranger verify = no overnight, no MPS train, no API keys.
   See docs/stranger-verify.md (cite) or docs/stranger-demo.md (clone)."
+      ;;
+    -h|--help|help)
+      usage
+      exit 0
       ;;
   esac
 done
@@ -57,13 +99,14 @@ echo "STRANGER_FAST=${STRANGER_FAST}"
 echo
 
 # Prefer the shared stranger_demo.sh runner (clone-first path).
+# Forward remaining args so demo re-checks honesty refusals (parity belt).
 if [[ -x scripts/stranger_demo.sh ]] || [[ -f scripts/stranger_demo.sh ]]; then
   chmod +x scripts/stranger_demo.sh scripts/run_diptych_full8.sh scripts/run_public_ranking_card_v1.sh
   echo "Delegating to scripts/stranger_demo.sh (shared stranger runner)."
   if [[ "${STRANGER_FAST}" == "1" ]]; then
-    exec env STRANGER_FAST=1 ./scripts/stranger_demo.sh
+    exec env STRANGER_FAST=1 ./scripts/stranger_demo.sh "$@"
   else
-    exec env -u STRANGER_FAST ./scripts/stranger_demo.sh
+    exec env -u STRANGER_FAST ./scripts/stranger_demo.sh "$@"
   fi
 fi
 
@@ -133,6 +176,7 @@ echo "  • Overnight agent_loop (needs API keys + usually Mac)"
 echo "  • Product MPS train / Uber CRISP val_bpb overnight"
 echo "  • Lab ranking AUROC (stays not_published — no invented AUROC)"
 echo "  • Production / field accuracy — fixture card is tiny-n synthetic harness smoke only"
+echo "  • CUDA (gate stays skipped)"
 echo
 echo "Honesty: docs/stranger-verify.md · docs/stranger-demo.md · docs/public-ranking-card-v1.md · README three lanes"
 echo "Understand the thesis (~30 min): docs/anomaly-story.md → uv run python demo_anomaly.py"
