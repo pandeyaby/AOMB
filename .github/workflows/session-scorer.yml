@@ -1,0 +1,81 @@
+# Session scorer runtime — CI (no Zenodo / no MPS / no invented AUROC)
+#
+# Unit tests for eval.score_cli / score_session path hardening:
+# missing dump, missing checkpoint, flag refusals, fixture dry-run,
+# synthetic checkpoint happy path (mocked BPB).
+# prepare.py untouched. Lab stays claim_status=not_published.
+
+name: session-scorer
+
+on:
+  push:
+    paths:
+      - "eval/score_cli.py"
+      - "eval/score.py"
+      - "score_session.py"
+      - "scripts/byo_score.sh"
+      - "tests/test_session_scorer_runtime.py"
+      - "tests/test_byo_and_scorer.py"
+      - "corpus/fixtures/lab_sample/**"
+      - "corpus/fixtures/crisp_sample/**"
+      - ".github/workflows/session-scorer.yml"
+  pull_request:
+    paths:
+      - "eval/score_cli.py"
+      - "eval/score.py"
+      - "score_session.py"
+      - "scripts/byo_score.sh"
+      - "tests/test_session_scorer_runtime.py"
+      - "tests/test_byo_and_scorer.py"
+      - "corpus/fixtures/lab_sample/**"
+      - "corpus/fixtures/crisp_sample/**"
+      - ".github/workflows/session-scorer.yml"
+
+jobs:
+  session-scorer:
+    name: session-scorer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install scorer test deps (no torch / no Zenodo)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyarrow numpy
+
+      - name: Unit tests (session scorer runtime + BYO dry-run)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest \
+            tests.test_session_scorer_runtime \
+            tests.test_byo_and_scorer \
+            -v
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## session-scorer"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Check name** | \`session-scorer\` |"
+            echo "| **Outcome** | ${{ job.status }} |"
+            echo
+            echo "### Proven (when green)"
+            echo "- Missing dump / missing checkpoint → clear exit 2"
+            echo "- \`--auroc\` / publish / ranking flags refused"
+            echo "- Fixture dry-run → session metadata + \`claim_status=not_published\`"
+            echo "- Synthetic checkpoint path → deterministic BPB only (mocked; no torch)"
+            echo
+            echo "### Not claimed"
+            echo "- Lab AUROC (stays \`not_published\` — no invented AUROC)"
+            echo "- Zenodo download / MPS train / overnight agent"
+            echo
+            echo "\`prepare.py\` sacred. Help: \`python -m score_session --help\`."
+          } >> "$GITHUB_STEP_SUMMARY"
