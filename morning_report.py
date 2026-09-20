@@ -6,15 +6,207 @@ Usage:
     uv run python morning_report.py
     uv run python morning_report.py --plot   # save overnight_progress.png
     uv run python morning_report.py --from-log train.log  # factual val_bpb only
+    uv run python morning_report.py --tale-card  # optional Tale measured card
+    AOMB_TALE_CARD=1 uv run python morning_report.py
+
+Honesty: never invents AUROC / val_bpb. measured_not_published is not a
+public accuracy claim — morning_report only echoes factual card fields.
 """
 
 import argparse
+import json
+import math
+import os
 import re
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from val_bpb_parse import parse_val_bpb_from_commit_message, parse_val_bpb_from_train_log
+
+ROOT = Path(__file__).resolve().parent
+DEFAULT_TALE_CARD = ROOT / "reports" / "tale-capped" / "measured_capped_200k.json"
+
+EXIT_OK = 0
+EXIT_REFUSED_FLAG = 1
+
+# Share invent-flag set with best_val_bpb / stranger CLIs.
+REFUSED_METRIC_FLAGS = frozenset(
+    {
+        "--auroc",
+        "--lab-auroc",
+        "--accuracy",
+        "--ranking",
+        "--publish",
+        "--claim",
+        "--invent-metrics",
+        "--invent-auroc",
+        "--claim-auroc",
+        "--val-bpb",
+        "--invent-val-bpb",
+        "--readme-hero",
+        "--publish-readme",
+        "--hero-auroc",
+        "--cuda",
+        "--gpu",
+    }
+)
+
+
+
+def refuse_loud_flags(argv: list[str]) -> str | None:
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in REFUSED_METRIC_FLAGS:
+            return key
+    return None
+
+
+def _truthy_env(raw: str | None) -> bool:
+    if raw is None:
+        return False
+    return raw.strip().lower() in {"1", "true", "yes", "on", "y"}
+
+
+def resolve_tale_card_path(
+    *,
+    cli_path: Path | None = None,
+    environ: dict[str, str] | None = None,
+) -> Path | None:
+    """Return card path when --tale-card / AOMB_TALE_CARD enables it; else None."""
+    env = os.environ if environ is None else environ
+    if cli_path is not None:
+        return Path(cli_path)
+    if _truthy_env(env.get("AOMB_TALE_CARD")):
+        override = (env.get("AOMB_BEST_VAL_CARD") or "").strip()
+        if override:
+            return Path(override).expanduser()
+        return DEFAULT_TALE_CARD
+    return None
+
+
+@dataclass(frozen=True)
+class TaleCardSnapshot:
+    """Factual card view for morning_report (never invents)."""
+
+    path: Path
+    state: str  # ok | pending | unavailable | missing | malformed
+    val_bpb: float | None
+    claim_status: str | None
+
+    @property
+    def is_public_accuracy_claim(self) -> bool:
+        # measured_not_published must never be treated as a published claim.
+        return False
+
+
+def read_tale_card(path: Path | str) -> TaleCardSnapshot:
+    """Load Tale measured card for display. Never invents a val_bpb."""
+    card_path = Path(path)
+    if not card_path.is_file():
+        return TaleCardSnapshot(
+            path=card_path,
+            state="missing",
+            val_bpb=None,
+            claim_status=None,
+        )
+    try:
+        data: Any = json.loads(card_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return TaleCardSnapshot(
+            path=card_path,
+            state="malformed",
+            val_bpb=None,
+            claim_status=None,
+        )
+    if not isinstance(data, dict):
+        return TaleCardSnapshot(
+            path=card_path,
+            state="malformed",
+            val_bpb=None,
+            claim_status=None,
+        )
+
+    claim_raw = data.get("claim_status")
+    claim = claim_raw if isinstance(claim_raw, str) else None
+
+    if claim in (None, "pending"):
+        return TaleCardSnapshot(
+            path=card_path,
+            state="pending",
+            val_bpb=None,
+            claim_status=claim or "pending",
+        )
+
+    val_raw = data.get("val_bpb")
+    val: float | None = None
+    if val_raw is not None and not isinstance(val_raw, bool):
+        try:
+            if isinstance(val_raw, str):
+                token = val_raw.strip().lower()
+                if token in {"", "nan", "inf", "-inf", "+inf", "null", "none", "pending", "n/a"}:
+                    val = None
+                else:
+                    cand = float(val_raw)
+                    val = cand if math.isfinite(cand) else None
+            else:
+                cand = float(val_raw)
+                val = cand if math.isfinite(cand) else None
+        except (TypeError, ValueError):
+            val = None
+
+    if val is None:
+        return TaleCardSnapshot(
+            path=card_path,
+            state="unavailable",
+            val_bpb=None,
+            claim_status=claim,
+        )
+
+    # Finite val present — print it with claim_status. Still not a public claim.
+    return TaleCardSnapshot(
+        path=card_path,
+        state="ok",
+        val_bpb=val,
+        claim_status=claim,
+    )
+
+
+def format_tale_card_section(snap: TaleCardSnapshot) -> list[str]:
+    """Human lines for the Tale card block (no invented numbers / no hero AUROC)."""
+    lines = [
+        "",
+        "  Tale measured card",
+        f"  path                 : {snap.path}",
+    ]
+    if snap.state == "ok" and snap.val_bpb is not None:
+        claim = snap.claim_status or "unknown"
+        lines.append(f"  card val_bpb         : {snap.val_bpb:.6f}")
+        lines.append(f"  claim_status         : {claim}")
+        lines.append(
+            "  note                 : factual card only — "
+            "measured_not_published is NOT a public accuracy / AUROC claim"
+        )
+    elif snap.state == "pending":
+        lines.append("  card val_bpb         : pending / unavailable")
+        lines.append(
+            f"  claim_status         : {snap.claim_status or 'pending'}"
+        )
+        lines.append("  note                 : no invented val_bpb")
+    elif snap.state == "missing":
+        lines.append("  card val_bpb         : unavailable (card missing)")
+        lines.append("  note                 : no invented val_bpb")
+    elif snap.state == "malformed":
+        lines.append("  card val_bpb         : unavailable (card malformed)")
+        lines.append("  note                 : no invented val_bpb")
+    else:
+        lines.append("  card val_bpb         : pending / unavailable")
+        if snap.claim_status:
+            lines.append(f"  claim_status         : {snap.claim_status}")
+        lines.append("  note                 : no invented val_bpb")
+    return lines
 
 
 # ── Git log parsing ───────────────────────────────────────────────────────────
@@ -91,12 +283,17 @@ def sparkline(values: list[float]) -> str:
 
 # ── Main report ───────────────────────────────────────────────────────────────
 
-def main(plot: bool = False):
+def main(plot: bool = False, tale_card: Path | None = None):
     W = 72
     print("=" * W)
     print("  AUTONOMOUS OBSERVABILITY MODEL BREEDER — MORNING REPORT")
     print("  Cisco / Splunk / AppDynamics Telemetry Foundation Model")
     print("=" * W)
+
+    if tale_card is not None:
+        snap = read_tale_card(tale_card)
+        for line in format_tale_card_section(snap):
+            print(line)
 
     exps = parse_git_log()
 
@@ -228,8 +425,13 @@ def _plot_progress(exps, bpb_vals):
     print(f"\n  Plot saved: {out}")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="AOMB morning report")
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description=(
+            "AOMB morning report. Factual val_bpb only — never invents AUROC. "
+            "Optional Tale measured card is not a public accuracy claim."
+        ),
+    )
     parser.add_argument("--plot", action="store_true", help="Save matplotlib progress chart")
     parser.add_argument(
         "--from-log",
@@ -237,7 +439,42 @@ if __name__ == "__main__":
         metavar="PATH",
         help="Parse factual val_bpb from a train log (refuse invent if missing)",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--tale-card",
+        nargs="?",
+        const=DEFAULT_TALE_CARD,
+        default=None,
+        type=Path,
+        metavar="PATH",
+        help=(
+            "Print factual val_bpb + claim_status from a Tale measured card "
+            f"(default path: {DEFAULT_TALE_CARD}). "
+            "Also enabled by AOMB_TALE_CARD=1. Never invents; "
+            "measured_not_published is not a public accuracy claim."
+        ),
+    )
+    return parser
+
+
+def cli(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    bad = refuse_loud_flags(argv)
+    if bad is not None:
+        print(
+            f"ERROR: refusing invent / publish / CUDA flag {bad}. "
+            "morning_report never invents AUROC / val_bpb.",
+            file=sys.stderr,
+        )
+        return EXIT_REFUSED_FLAG
+
+    args = build_parser().parse_args(argv)
     if args.from_log is not None:
-        raise SystemExit(report_val_bpb_from_log(args.from_log))
-    main(plot=args.plot)
+        return report_val_bpb_from_log(args.from_log)
+
+    tale_path = resolve_tale_card_path(cli_path=args.tale_card)
+    main(plot=args.plot, tale_card=tale_path)
+    return EXIT_OK
+
+
+if __name__ == "__main__":
+    raise SystemExit(cli())
