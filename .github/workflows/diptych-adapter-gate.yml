@@ -17,10 +17,12 @@ on:
     paths:
       - "diptych-probes/**"
       - "eval/diptych/**"
+      - "adapters/**"
       - "coverage/**"
       - "docs/paired-probes/**"
       - "scripts/run_diptych_full8.sh"
       - "tests/test_diptych_full8.py"
+      - "tests/test_diptych_emit.py"
       - ".github/workflows/diptych-adapter-gate.yml"
   workflow_dispatch:
 
@@ -35,15 +37,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Unit tests (manifest / contrast / stub rejection)
+      - name: Unit tests (manifest / contrast / stub rejection + emit CLI)
         run: |
           export PYTHONPATH="$PWD"
-          python -m unittest tests.test_diptych_full8 -v
+          python -m unittest tests.test_diptych_full8 tests.test_diptych_emit -v
 
       - name: Full-8 DIPTYCH gate + coverage matrix
         run: |
           chmod +x scripts/run_diptych_full8.sh
           ./scripts/run_diptych_full8.sh
+
+      - name: Emit probe-pair JSON (deterministic regenerate smoke)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m eval.diptych.emit --out /tmp/diptych-emit-ci
+          test -f /tmp/diptych-emit-ci/emit_manifest.json
+          test -f /tmp/diptych-emit-ci/SIGNFLIP/conforming/probe.json
 
       - name: Assert all aomb cells green (requires gate_axis_mutate / axis_power)
         run: |
