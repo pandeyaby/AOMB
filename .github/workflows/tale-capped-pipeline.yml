@@ -1,0 +1,109 @@
+# Tale capped pipeline — fixture dry-run E2E (no Zenodo / no MPS)
+#
+# Unit tests: flag matrix (--auroc / invent / uncapped / --train on CI).
+# E2E: --fixture --dry-run → shards only (extract skipped; no prepare/train).
+# prepare.py untouched. No invented AUROC / val_bpb. CUDA gate stays skipped.
+
+name: tale-capped-pipeline
+
+on:
+  push:
+    paths:
+      - "corpus/ingest/tale_capped_pipeline.py"
+      - "corpus/ingest/build_shards.py"
+      - "corpus/ingest/tale_stream_extract.py"
+      - "corpus/ingest/adapters/**"
+      - "corpus/fixtures/tale_of_errors_sample/**"
+      - "scripts/tale_capped_train_score.sh"
+      - "tests/test_tale_capped_pipeline.py"
+      - ".github/workflows/tale-capped-pipeline.yml"
+  pull_request:
+    paths:
+      - "corpus/ingest/tale_capped_pipeline.py"
+      - "corpus/ingest/build_shards.py"
+      - "corpus/ingest/tale_stream_extract.py"
+      - "corpus/ingest/adapters/**"
+      - "corpus/fixtures/tale_of_errors_sample/**"
+      - "scripts/tale_capped_train_score.sh"
+      - "tests/test_tale_capped_pipeline.py"
+      - ".github/workflows/tale-capped-pipeline.yml"
+
+jobs:
+  tale-capped-fixture-dry-run:
+    name: tale-capped-fixture-dry-run
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pipeline test deps (no torch / no Zenodo / no MPS)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyarrow numpy zstandard
+
+      - name: Unit tests (flag matrix + fixture dry-run)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest tests.test_tale_capped_pipeline -v
+
+      - name: Fixture dry-run E2E (shards only; no prepare/train)
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$PWD"
+          DATA_DIR="$(mktemp -d)"
+
+          # Happy path: fixture → shards (extract skipped)
+          python -m corpus.ingest.tale_capped_pipeline \
+            --fixture --dry-run --max-spans 50 --data-dir "$DATA_DIR"
+          test -n "$(ls "$DATA_DIR"/shard_*.parquet 2>/dev/null)"
+
+          # Shell wrapper same path
+          DATA_DIR2="$(mktemp -d)"
+          bash scripts/tale_capped_train_score.sh \
+            --fixture --dry-run --max-spans 40 --data-dir "$DATA_DIR2"
+          test -n "$(ls "$DATA_DIR2"/shard_*.parquet 2>/dev/null)"
+
+          # Invent paths refused on CI
+          python -m corpus.ingest.tale_capped_pipeline \
+            --auroc --fixture --max-spans 10 \
+            >/tmp/tale-auroc.out 2>/tmp/tale-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/tale-auroc.err
+
+          python -m corpus.ingest.tale_capped_pipeline \
+            --fixture --max-spans 10 --train \
+            >/tmp/tale-train.out 2>/tmp/tale-train.err && exit 1 || test $? -eq 1
+          grep -qi train /tmp/tale-train.err
+
+          bash scripts/tale_capped_train_score.sh \
+            --fixture --max-spans 10 --prepare \
+            >/tmp/tale-prep.out 2>/tmp/tale-prep.err && exit 1 || test $? -eq 1
+          grep -qi prepare /tmp/tale-prep.err
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## tale-capped-pipeline"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Check name** | \`tale-capped-fixture-dry-run\` |"
+            echo "| **Outcome** | ${{ job.status }} |"
+            echo
+            echo "### Proven (when green)"
+            echo "- \`--fixture --dry-run --max-spans N\` → shards only (extract skipped)"
+            echo "- Shell wrapper fixture dry-run matches module path"
+            echo "- \`--auroc\` / invent flags refused (exit 1)"
+            echo "- \`--train\` / \`--prepare\` refused on Linux CI (no invent val_bpb)"
+            echo
+            echo "### Not claimed"
+            echo "- Lab AUROC / invented val_bpb"
+            echo "- Zenodo download / MPS train / prepare on Linux"
+            echo "- CUDA (gate stays skipped)"
+            echo
+            echo "\`prepare.py\` sacred. Help: \`python -m corpus.ingest.tale_capped_pipeline --help\`."
+          } >> "$GITHUB_STEP_SUMMARY"

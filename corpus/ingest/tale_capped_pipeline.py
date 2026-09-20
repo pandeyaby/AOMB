@@ -5,13 +5,13 @@ Designed for Mac MPS product path; CI uses fixture or synthetic ``.tar.zst`` and
 stops before prepare/train (or uses ``--score-dry-run``).
 
 Does **not** invent ``val_bpb`` / AUROC. ``prepare.py`` is sacred — invoked only,
-never edited. Lab ``claim_status`` stays ``not_published``.
+never edited. Lab ``claim_status`` stays ``not_published``. CUDA gate stays skipped.
 
 Usage::
 
   uv run python -m corpus.ingest.tale_capped_pipeline --help
   uv run python -m corpus.ingest.tale_capped_pipeline \\
-    --fixture --max-spans 50 --data-dir /tmp/aomb-tale-pipe --score-dry-run
+    --fixture --dry-run --max-spans 50 --data-dir /tmp/aomb-tale-pipe
 """
 
 from __future__ import annotations
@@ -35,6 +35,11 @@ DEFAULT_DATA_DIR = Path(
     os.path.join(os.path.expanduser("~"), ".cache", "autoresearch", "data")
 )
 
+# Exit codes shared with scripts/tale_capped_train_score.sh and ingest CLIs.
+EXIT_OK = 0
+EXIT_REFUSED_FLAG = 1
+EXIT_USAGE = 2
+
 _REFUSED_METRIC_FLAGS = frozenset(
     {
         "--auroc",
@@ -47,6 +52,8 @@ _REFUSED_METRIC_FLAGS = frozenset(
         "--invent-val-bpb",
         "--claim-val-bpb",
         "--invent-metrics",
+        "--invent-auroc",
+        "--claim-auroc",
     }
 )
 _REFUSED_DECOMPRESS_FLAGS = frozenset(
@@ -55,6 +62,13 @@ _REFUSED_DECOMPRESS_FLAGS = frozenset(
         "--decompress-all",
         "--uncapped",
         "--download-all",
+    }
+)
+# Mac-only stages — invent / fake train paths on Linux CI.
+_REFUSED_CI_TRAIN_FLAGS = frozenset(
+    {
+        "--train",
+        "--prepare",
     }
 )
 
@@ -79,25 +93,72 @@ class PipelineResult:
         return asdict(self)
 
 
+def _in_ci() -> bool:
+    """True under GitHub Actions / generic CI — no invent train / prepare path."""
+    return os.environ.get("CI", "").lower() in {"1", "true", "yes"} or os.environ.get(
+        "GITHUB_ACTIONS", ""
+    ).lower() in {"1", "true", "yes"}
+
+
 def _refuse_loud_flags(argv: list[str]) -> None:
-    for arg in argv:
-        key = arg.split("=", 1)[0]
+    """Fail loud on AUROC / invent / uncapped / CI train invent paths."""
+    keys = [arg.split("=", 1)[0] for arg in argv]
+    for key in keys:
         if key in _REFUSED_METRIC_FLAGS:
-            raise SystemExit(
+            print(
                 f"ERROR: Refusing '{key}'.\n"
                 "  This pipeline is the public-real *train/score* lane on a\n"
                 "  stream-capped Tale subset only.\n"
                 "  Tale dumps have no AOMB incident labels → no AUROC.\n"
                 "  Never invents val_bpb / ranking accuracy.\n"
-                "  Lab claim_status stays not_published."
+                "  Lab claim_status stays not_published.",
+                file=sys.stderr,
             )
+            raise SystemExit(EXIT_REFUSED_FLAG)
         if key in _REFUSED_DECOMPRESS_FLAGS:
-            raise SystemExit(
+            print(
                 f"ERROR: Refusing '{key}'.\n"
                 "  Full Tale decompress is OUT OF SCOPE (300–500 GB/archive).\n"
                 "  Pass --max-spans (and optional extract --max-files/--max-bytes).\n"
-                "  Use corpus.ingest.tale_stream_extract for capped stream extract."
+                "  Use corpus.ingest.tale_stream_extract for capped stream extract.",
+                file=sys.stderr,
             )
+            raise SystemExit(EXIT_REFUSED_FLAG)
+
+    # CI / Linux invent path: --train / --prepare are Mac MPS only.
+    if _in_ci() or platform.system() != "Darwin":
+        for key in keys:
+            if key in _REFUSED_CI_TRAIN_FLAGS:
+                where = "CI" if _in_ci() else platform.system()
+                print(
+                    f"ERROR: Refusing '{key}' on {where}.\n"
+                    "  --train / --prepare require Darwin + Metal/MPS.\n"
+                    "  CI fixture dry-run stops at shards (no invent val_bpb).\n"
+                    "  Use --fixture --dry-run --max-spans N on Linux / Actions.\n"
+                    "  CUDA gate stays skipped. prepare.py is sacred.",
+                    file=sys.stderr,
+                )
+                raise SystemExit(EXIT_REFUSED_FLAG)
+
+    if "--dry-run" in keys:
+        for key in keys:
+            if key in {"--train", "--prepare"}:
+                print(
+                    f"ERROR: Refusing '{key}' together with --dry-run.\n"
+                    "  --dry-run is fixture/extract → shards only "
+                    "(optional --score-dry-run).\n"
+                    "  No prepare / train invent path. No Zenodo / MPS.",
+                    file=sys.stderr,
+                )
+                raise SystemExit(EXIT_REFUSED_FLAG)
+            if key == "--score" and "--score-dry-run" not in keys:
+                print(
+                    "ERROR: Refusing '--score' together with --dry-run "
+                    "unless --score-dry-run is also set.\n"
+                    "  --dry-run is shards-only (optional load-only score).",
+                    file=sys.stderr,
+                )
+                raise SystemExit(EXIT_REFUSED_FLAG)
 
 
 def _resolve_path(path: str) -> Path:
@@ -335,6 +396,7 @@ def run_pipeline(
     concat_out: Optional[str] = None,
     num_train_shards: int = 1,
     data_dir: Optional[str] = None,
+    dry_run: bool = False,
     do_prepare: bool = False,
     do_train: bool = False,
     train_seconds: float = 60.0,
@@ -350,6 +412,25 @@ def run_pipeline(
             "ERROR: --max-spans N is required (positive integer; no uncapped path)."
         )
 
+    # --dry-run: fixture/extract → shards only (CI path). Never prepare/train.
+    if dry_run:
+        if do_prepare or do_train:
+            raise SystemExit(
+                "ERROR: --dry-run refuses --prepare / --train "
+                "(no invent train path on CI).\n"
+                "  Fixture → shards only. Optional: --score-dry-run."
+            )
+        do_prepare = False
+        do_train = False
+        if do_score and not score_dry_run and score_train_seconds > 0:
+            raise SystemExit(
+                "ERROR: --dry-run refuses model score / --score-train-seconds.\n"
+                "  Use --score-dry-run for load-only, or omit score."
+            )
+        if do_score and not score_dry_run:
+            score_dry_run = True
+            do_score = False
+
     data = str(_resolve_path(data_dir) if data_dir else Path("/tmp/aomb-tale-capped-pipeline"))
     result = PipelineResult(
         claim_status="not_published",
@@ -358,8 +439,12 @@ def run_pipeline(
         notes=[
             "Train lane only — factual val_bpb when you train on Mac; no AUROC.",
             "claim_status=not_published",
+            "CUDA gate stays skipped.",
         ],
     )
+    if dry_run:
+        result.notes.append("dry-run: shards only (no prepare/train; no Zenodo/MPS).")
+        result.stages.append("dry_run")
 
     tree: Optional[Path] = None
 
@@ -466,7 +551,8 @@ def build_parser() -> argparse.ArgumentParser:
         epilog=(
             "Honesty: no AUROC, no invented val_bpb, no full decompress, "
             "no uncapped shards. prepare.py is sacred. "
-            "claim_status=not_published."
+            "CUDA gate stays skipped. claim_status=not_published. "
+            "CI: --fixture --dry-run --max-spans N (shards only)."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -521,14 +607,22 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "CI-safe path: fixture/extract → shards only "
+            "(no prepare/train; no Zenodo/MPS). Pair with --score-dry-run if needed."
+        ),
+    )
+    p.add_argument(
         "--prepare",
         action="store_true",
-        help="Invoke sacred prepare.py (Darwin + Metal; default data dir only)",
+        help="Invoke sacred prepare.py (Darwin + Metal; default data dir only; refused on CI)",
     )
     p.add_argument(
         "--train",
         action="store_true",
-        help="Bounded train.py smoke (Darwin + MPS)",
+        help="Bounded train.py smoke (Darwin + MPS; refused on CI / Linux)",
     )
     p.add_argument(
         "--train-seconds",
@@ -581,30 +675,43 @@ def main(argv: list[str] | None = None) -> int:
             "ERROR: Specify exactly one of --fixture, --jaeger-tree, --extract-input.",
             file=sys.stderr,
         )
-        return 2
+        return EXIT_USAGE
 
-    result = run_pipeline(
-        max_spans=args.max_spans,
-        fixture=args.fixture,
-        jaeger_tree=args.jaeger_tree,
-        extract_input=args.extract_input,
-        extract_out=args.extract_out,
-        extract_max_files=args.extract_max_files,
-        extract_max_bytes=args.extract_max_bytes,
-        extract_prefix=args.extract_prefix,
-        concat_out=args.concat_out,
-        num_train_shards=args.num_train_shards,
-        data_dir=args.data_dir,
-        do_prepare=args.prepare,
-        do_train=args.train,
-        train_seconds=args.train_seconds,
-        do_score=args.score,
-        score_dry_run=args.score_dry_run,
-        score_input=args.score_input,
-        score_out=args.score_out,
-        score_max_sessions=args.score_max_sessions,
-        score_train_seconds=args.score_train_seconds,
-    )
+    try:
+        result = run_pipeline(
+            max_spans=args.max_spans,
+            fixture=args.fixture,
+            jaeger_tree=args.jaeger_tree,
+            extract_input=args.extract_input,
+            extract_out=args.extract_out,
+            extract_max_files=args.extract_max_files,
+            extract_max_bytes=args.extract_max_bytes,
+            extract_prefix=args.extract_prefix,
+            concat_out=args.concat_out,
+            num_train_shards=args.num_train_shards,
+            data_dir=args.data_dir,
+            dry_run=args.dry_run,
+            do_prepare=args.prepare,
+            do_train=args.train,
+            train_seconds=args.train_seconds,
+            do_score=args.score,
+            score_dry_run=args.score_dry_run,
+            score_input=args.score_input,
+            score_out=args.score_out,
+            score_max_sessions=args.score_max_sessions,
+            score_train_seconds=args.score_train_seconds,
+        )
+
+    except SystemExit as exc:
+        if isinstance(exc.code, int):
+            return exc.code
+        if isinstance(exc.code, str) and exc.code:
+            print(exc.code, file=sys.stderr)
+            low = exc.code.lower()
+            if "refusing" in low or "refuse" in low:
+                return EXIT_REFUSED_FLAG
+            return EXIT_USAGE
+        return EXIT_USAGE
 
     print(
         f"OK: tale capped pipeline stages={result.stages} "
@@ -632,7 +739,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     if args.json:
         print(json.dumps(result.to_dict(), indent=2, default=str))
-    return 0
+    return EXIT_OK
 
 
 if __name__ == "__main__":
