@@ -12,6 +12,9 @@ on:
       - "val_bpb_parse.py"
       - "tests/test_val_bpb_parse.py"
       - "tests/fixtures/val_bpb_logs/**"
+      - "eval/tale_measured_report.py"
+      - "scripts/tale_measured_report.sh"
+      - "tests/test_tale_measured_report.py"
       - ".github/workflows/morning-report-val-bpb.yml"
   pull_request:
     paths:
@@ -19,6 +22,9 @@ on:
       - "val_bpb_parse.py"
       - "tests/test_val_bpb_parse.py"
       - "tests/fixtures/val_bpb_logs/**"
+      - "eval/tale_measured_report.py"
+      - "scripts/tale_measured_report.sh"
+      - "tests/test_tale_measured_report.py"
       - ".github/workflows/morning-report-val-bpb.yml"
 
 jobs:
@@ -37,6 +43,11 @@ jobs:
         run: |
           export PYTHONPATH="$PWD"
           python -m unittest tests.test_val_bpb_parse -v
+
+      - name: Tale measured report emitter (factual card + refusals)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest tests.test_tale_measured_report -v
 
       - name: CLI smoke (factual extract + refuse invent)
         run: |
@@ -68,6 +79,8 @@ jobs:
             echo "- Fixture train log → factual \`val_bpb:\` extract"
             echo "- Missing / malformed / NaN / exploded → refuse invent (exit 1)"
             echo "- \`morning_report.py --from-log\` CLI smoke"
+            echo "- \`eval.tale_measured_report\` JSON card (pending / measured_not_published)"
+            echo "- Tale measured refusals: \`--auroc\` / \`--publish\` / \`--cuda\` → exit 1; missing → exit 2"
             echo
             echo "### Not claimed"
             echo "- Lab AUROC / invented val_bpb"
