@@ -1,8 +1,10 @@
-# Public ranking card v1 — CI (baselines + fixture-only model)
+# Public ranking card v1 — CI (honest fixture runner)
 #
-# Runs length/events on the frozen eval split and a short fixture-only
-# train-then-score (5 × ~45s CPU). No CRISP download, no overnight, no API.
-# prepare.py untouched.
+# Unit tests: flag refusals, fixture path validation, session baseline scores,
+# baselines on committed fixtures (public_ranking_card_v1 + lab_public_pack_v0).
+# Full reproduce: length/events + short fixture-only model + ε check.
+# No CRISP download, no overnight, no API, no Zenodo, no MPS.
+# prepare.py untouched. Never invents AUROC heroes / README publish / val_bpb.
 
 name: public-ranking-card-v1
 
@@ -10,6 +12,7 @@ on:
   push:
     paths:
       - "corpus/fixtures/public_ranking_card_v1/**"
+      - "corpus/fixtures/lab_public_pack_v0/**"
       - "eval/**"
       - "scripts/run_public_ranking_card_v1.sh"
       - "docs/public-ranking-card-v1.md"
@@ -19,6 +22,7 @@ on:
   pull_request:
     paths:
       - "corpus/fixtures/public_ranking_card_v1/**"
+      - "corpus/fixtures/lab_public_pack_v0/**"
       - "eval/**"
       - "scripts/run_public_ranking_card_v1.sh"
       - "docs/public-ranking-card-v1.md"
@@ -27,9 +31,59 @@ on:
       - "tests/test_public_ranking_card_v1.py"
 
 jobs:
+  honest-fixture-unit:
+    name: honest-fixture-unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install lightweight deps (no torch / no Zenodo)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyarrow numpy
+
+      - name: Unit tests (refusals + session baselines + harness metrics)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest \
+            tests.test_public_ranking_card_v1 \
+            tests.test_public_accuracy_eval \
+            -v
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## public-ranking-card honest fixture unit"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Check name** | \`honest-fixture-unit\` |"
+            echo "| **Outcome** | ${{ job.status }} |"
+            echo
+            echo "### Proven (when green)"
+            echo "- \`--auroc\` / invent / publish / README-hero flags refused"
+            echo "- Missing / unknown fixture → exit 2"
+            echo "- \`--session-scores-only\` → length/events from real fixtures, \`not_published\`"
+            echo "- lab_public_pack_v0 baselines stay \`not_published\` (no REFERENCE heroes)"
+            echo
+            echo "### Not claimed"
+            echo "- Lab AUROC / README hero / invented val_bpb"
+            echo "- Zenodo download / MPS train / overnight agent"
+            echo
+            echo "\`prepare.py\` sacred. Help: \`python -m eval.run_public_ranking_card --help\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   fixture-card:
+    name: fixture-card
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    needs: honest-fixture-unit
     steps:
       - uses: actions/checkout@v4
 
@@ -43,10 +97,6 @@ jobs:
           # Split installs: PyPI for pyarrow/tiktoken/rustbpe; official CPU wheel index for torch only.
           pip install pyarrow rustbpe tiktoken numpy
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-
-      - name: Unit tests (public ranking card + harness metrics)
-        run: |
-          python -m unittest tests.test_public_ranking_card_v1 tests.test_public_accuracy_eval -v
 
       - name: Reproduce fixture card (baselines + model) + ε check
         run: |
