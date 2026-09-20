@@ -5,6 +5,11 @@
 # Honest: stranger CPU gates ≠ product MPS train. No AUROC. No CUDA. No API keys.
 # prepare.py is sacred — never touched here.
 #
+# Honesty refusals (shared with eval.product_mac_path / session scorer / stranger):
+#   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent flags)
+#   EXIT_PLATFORM=2      (not Darwin / MPS unavailable on real path)
+# CI (Linux OK): --dry-run / --help-only — no MPS / no full TIME_BUDGET.
+#
 # Docs: docs/product-mac-path.md · docs/compute-paths.md · docs/crisp-val-bpb-baseline.md
 set -euo pipefail
 
@@ -17,9 +22,23 @@ YLW=$'\033[33m'
 BOLD=$'\033[1m'
 RST=$'\033[0m'
 
+# Must match eval.product_mac_path.EXIT_* / REFUSED_METRIC_FLAGS.
+EXIT_REFUSED_FLAG=1
+EXIT_PLATFORM=2
+
 die() {
   echo "${RED}ERROR:${RST} $*" >&2
   exit 1
+}
+
+die_refuse() {
+  echo "${RED}ERROR:${RST} $*" >&2
+  exit "$EXIT_REFUSED_FLAG"
+}
+
+die_platform() {
+  echo "${RED}ERROR:${RST} $*" >&2
+  exit "$EXIT_PLATFORM"
 }
 
 banner() {
@@ -27,22 +46,90 @@ banner() {
   echo "${BOLD}═══ $* ═══${RST}"
 }
 
-# ── Loud refusals ────────────────────────────────────────────────────────────
+usage() {
+  cat >&2 <<'USAGE'
+Usage:
+  ./scripts/product_mac_smoke.sh                 # Darwin + MPS real path
+  ./scripts/product_mac_smoke.sh --dry-run       # CI: honesty + wiring (no MPS)
+  ./scripts/product_mac_smoke.sh --help-only     # same as --help (exit 0)
+
+Env (real path only):
+  PRODUCT_MAC_SMOKE_SECONDS   wall-clock bound (default 60; 0 = full TIME_BUDGET)
+  PRODUCT_MAC_CORPUS          auto|smoke (default auto)
+
+Honesty: factual val_bpb on MPS only. Never invents AUROC / published ranking.
+  Lab claim_status stays not_published. CUDA gate stays skipped.
+  prepare.py sacred. Refused: --auroc / --publish / --cuda / invent flags (exit 1).
+  Platform fail (not Darwin / no MPS): exit 2.
+USAGE
+}
+
+MODE="real"  # real | dry-run | help
+
+# ── Loud refusals (before platform / train) ──────────────────────────────────
 if [[ "${PRODUCT_MAC_ALLOW_CUDA:-}" == "1" ]] || [[ "${PRODUCT_MAC_FAKE_CUDA:-}" == "1" ]]; then
-  die "Refusing CUDA / fake-CUDA fallback.
+  die_refuse "Refusing CUDA / fake-CUDA fallback.
   Product Mac smoke is Darwin + MPS only. No CUDA claim path here.
+  CUDA gate stays skipped. Lab claim_status stays not_published.
   See docs/compute-paths.md (CUDA checklist) and docs/product-mac-path.md."
 fi
 
+# Keep case arm in sync with eval.product_mac_path.REFUSED_METRIC_FLAGS.
 for arg in "$@"; do
-  case "$arg" in
-    --cuda|--gpu|--auroc|--lab-auroc)
-      die "Refusing '$arg'. This script reports factual val_bpb on MPS only.
-  Lab AUROC stays not_published — docs/lab/publish-checklist.md.
-  CUDA = checklist only — docs/compute-paths.md."
+  key="${arg%%=*}"
+  case "$key" in
+    --auroc|--lab-auroc|--accuracy|--ranking|--publish|--claim|--invent-metrics|--invent-auroc|--claim-auroc|--val-bpb|--invent-val-bpb|--readme-hero|--publish-readme|--hero-auroc|--cuda|--gpu)
+      die_refuse "Refusing '$key'.
+  Product Mac smoke reports factual val_bpb on Darwin + MPS only.
+  Never invents AUROC / published ranking accuracy.
+  Lab claim_status stays not_published.
+  CUDA gate stays skipped — no --cuda / --gpu claim path.
+  CI: --dry-run or --help-only (no MPS / no full TIME_BUDGET).
+  Same refusals as: python -m eval.product_mac_path --help"
+      ;;
+    --dry-run)
+      MODE="dry-run"
+      ;;
+    --help-only|-h|--help|help)
+      MODE="help"
+      ;;
+    *)
+      die_refuse "Unknown arg '$arg'.
+  Use --dry-run / --help-only on CI, or no flags on Darwin + MPS.
+  See: ./scripts/product_mac_smoke.sh --help"
       ;;
   esac
 done
+
+# ── CI dry-run / help-only (Linux OK — no MPS / no TIME_BUDGET) ──────────────
+if [[ "$MODE" == "help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ "$MODE" == "dry-run" ]]; then
+  banner "AOMB product Mac smoke — dry-run (CI; no MPS)"
+  echo "Repo: $ROOT"
+  echo "Docs: docs/product-mac-path.md"
+  echo
+  echo "${GRN}OK${RST}: dry-run honesty path (no Darwin/MPS/train required)."
+  echo "  claim_status=not_published"
+  echo "  CUDA gate stays skipped"
+  echo "  prepare.py sacred (not edited; not invoked here)"
+  echo "  Real path still requires Darwin + MPS → factual val_bpb only"
+  echo "  No invent AUROC · no full TIME_BUDGET · no CUDA claim"
+  echo
+  # Thin module parity (torch-free).
+  PYTHON="${PYTHON:-python3}"
+  if command -v uv >/dev/null 2>&1; then
+    uv run python -m eval.product_mac_path --dry-run
+  else
+    PYTHONPATH="${PYTHONPATH:-$ROOT}" "$PYTHON" -m eval.product_mac_path --dry-run
+  fi
+  banner "Done (dry-run)"
+  echo "On Apple Silicon: ./scripts/product_mac_smoke.sh (real MPS path)."
+  exit 0
+fi
 
 banner "AOMB product Mac smoke (MPS train fitness — val_bpb only)"
 echo "Repo: $ROOT"
@@ -51,11 +138,12 @@ echo
 
 # Platform gate — fail before any train attempt
 if [[ "$(uname -s)" != "Darwin" ]]; then
-  die "Not Darwin (detected: $(uname -s)).
+  die_platform "Not Darwin (detected: $(uname -s)).
   Product Mac path requires macOS + Apple Silicon MPS.
-  On Linux / Codespaces / CI use stranger verify instead:
+  On Linux / Codespaces / CI use dry-run or stranger verify instead:
+    ./scripts/product_mac_smoke.sh --dry-run
     ./scripts/stranger_verify.sh
-  See docs/stranger-verify.md · docs/compute-paths.md"
+  See docs/stranger-verify.md · docs/compute-paths.md · docs/product-mac-path.md"
 fi
 
 PYTHON="${PYTHON:-python3}"
@@ -68,9 +156,9 @@ else
 fi
 
 # MPS capability gate (no silent CPU/CUDA fallback)
-"${RUN[@]}" - <<'PY' || die "MPS check failed — install a Metal-capable PyTorch build on Apple Silicon.
+"${RUN[@]}" - <<'PY' || die_platform "MPS check failed — install a Metal-capable PyTorch build on Apple Silicon.
   Stranger CPU gates elsewhere do not substitute for product MPS train.
-  See docs/product-mac-path.md"
+  CUDA gate stays skipped. See docs/product-mac-path.md"
 import sys
 import torch
 

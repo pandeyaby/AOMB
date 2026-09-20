@@ -1,0 +1,104 @@
+# Product Mac smoke — Linux CI dry-run + invent refusals only
+#
+# Real Darwin + MPS train path is NOT exercised here (no Apple runners).
+# Unit/subprocess tests: --auroc / --publish / --cuda refusals, --dry-run /
+# --help-only (torch-free). prepare.py untouched. CUDA gate stays skipped.
+# Lab stays claim_status=not_published. No invented AUROC / val_bpb.
+
+name: product-mac-smoke
+
+on:
+  push:
+    paths:
+      - "scripts/product_mac_smoke.sh"
+      - "eval/product_mac_path.py"
+      - "tests/test_product_mac_smoke.py"
+      - ".github/workflows/product-mac-smoke.yml"
+  pull_request:
+    paths:
+      - "scripts/product_mac_smoke.sh"
+      - "eval/product_mac_path.py"
+      - "tests/test_product_mac_smoke.py"
+      - ".github/workflows/product-mac-smoke.yml"
+  workflow_dispatch:
+
+jobs:
+  product-mac-dry-run:
+    name: product-mac-dry-run
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests (torch-free dry-run + refusals)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest tests.test_product_mac_smoke -v
+
+      - name: CLI smoke (dry-run + auroc/publish/cuda refuse)
+        run: |
+          set -euo pipefail
+          chmod +x scripts/product_mac_smoke.sh
+
+          ./scripts/product_mac_smoke.sh --dry-run \
+            >/tmp/pm-dry.out 2>/tmp/pm-dry.err
+          grep -qi not_published /tmp/pm-dry.err /tmp/pm-dry.out
+          grep -qi "cuda gate stays skipped" /tmp/pm-dry.err /tmp/pm-dry.out
+
+          ./scripts/product_mac_smoke.sh --help-only \
+            >/tmp/pm-help.out 2>/tmp/pm-help.err
+          test $? -eq 0
+
+          ./scripts/product_mac_smoke.sh --auroc \
+            >/tmp/pm-auroc.out 2>/tmp/pm-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/pm-auroc.err
+          grep -qi not_published /tmp/pm-auroc.err
+
+          ./scripts/product_mac_smoke.sh --publish \
+            >/tmp/pm-pub.out 2>/tmp/pm-pub.err && exit 1 || test $? -eq 1
+          grep -qi publish /tmp/pm-pub.err
+
+          ./scripts/product_mac_smoke.sh --cuda \
+            >/tmp/pm-cuda.out 2>/tmp/pm-cuda.err && exit 1 || test $? -eq 1
+          grep -qi cuda /tmp/pm-cuda.err
+
+          # Real path on Linux → platform fail (exit 2), not invent
+          ./scripts/product_mac_smoke.sh \
+            >/tmp/pm-plat.out 2>/tmp/pm-plat.err && exit 1 || test $? -eq 2
+          grep -qi darwin /tmp/pm-plat.err
+
+          python -m eval.product_mac_path --dry-run \
+            >/tmp/pp.out 2>/tmp/pp.err
+          grep -qi not_published /tmp/pp.err
+
+          python -m eval.product_mac_path --auroc \
+            >/tmp/pp-auroc.out 2>/tmp/pp-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/pp-auroc.err
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## product-mac-dry-run"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Check name** | \`product-mac-dry-run\` |"
+            echo "| **Outcome** | ${{ job.status }} |"
+            echo
+            echo "### Proven (when green)"
+            echo "- \`--auroc\` / \`--publish\` / \`--cuda\` invent flags refused (exit 1)"
+            echo "- \`--dry-run\` / \`--help-only\` on Linux (no MPS / no TIME_BUDGET)"
+            echo "- Real path without Darwin → exit 2 (platform), not invent metrics"
+            echo
+            echo "### Not claimed"
+            echo "- Lab AUROC (stays \`not_published\`)"
+            echo "- Darwin + MPS train fitness / factual val_bpb (Mac-only real path)"
+            echo "- CUDA (gate stays skipped)"
+            echo
+            echo "\`prepare.py\` sacred. Help: \`./scripts/product_mac_smoke.sh --help-only\`."
+          } >> "$GITHUB_STEP_SUMMARY"
