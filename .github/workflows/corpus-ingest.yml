@@ -1,0 +1,83 @@
+# Corpus ingest — build_shards + tale_stream_extract (no Zenodo / no MPS)
+#
+# Integration + CLI refusal tests:
+#   synthetic .tar.zst → stream extract (early stop) → build_shards --max-spans
+#   --auroc / invent / uncapped Tale without --max-spans refused
+# prepare.py untouched. No invented AUROC / val_bpb.
+
+name: corpus-ingest
+
+on:
+  push:
+    paths:
+      - "corpus/ingest/build_shards.py"
+      - "corpus/ingest/tale_stream_extract.py"
+      - "corpus/ingest/adapters/**"
+      - "corpus/ingest/otlp_to_sessions.py"
+      - "corpus/fixtures/tale_of_errors_sample/**"
+      - "corpus/fixtures/lab_sample/**"
+      - "tests/test_build_shards_tale_stream.py"
+      - "tests/test_tale_stream_extract.py"
+      - "tests/test_corpus_ingest.py"
+      - ".github/workflows/corpus-ingest.yml"
+  pull_request:
+    paths:
+      - "corpus/ingest/build_shards.py"
+      - "corpus/ingest/tale_stream_extract.py"
+      - "corpus/ingest/adapters/**"
+      - "corpus/ingest/otlp_to_sessions.py"
+      - "corpus/fixtures/tale_of_errors_sample/**"
+      - "corpus/fixtures/lab_sample/**"
+      - "tests/test_build_shards_tale_stream.py"
+      - "tests/test_tale_stream_extract.py"
+      - "tests/test_corpus_ingest.py"
+      - ".github/workflows/corpus-ingest.yml"
+
+jobs:
+  corpus-ingest:
+    name: corpus-ingest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ingest test deps (no torch / no Zenodo / no MPS)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyarrow numpy zstandard
+
+      - name: Integration + refusal tests (stream extract → build_shards)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest \
+            tests.test_build_shards_tale_stream \
+            tests.test_tale_stream_extract \
+            tests.test_corpus_ingest \
+            -v
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## corpus-ingest"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Check name** | \`corpus-ingest\` |"
+            echo "| **Outcome** | ${{ job.status }} |"
+            echo
+            echo "### Proven (when green)"
+            echo "- Synthetic \`.tar.zst\` → \`tale_stream_extract\` early stop → \`build_shards --max-spans\`"
+            echo "- Shard counts asserted; uncapped Tale without \`--max-spans\` refused"
+            echo "- \`--auroc\` / invent / uncapped flags refused"
+            echo
+            echo "### Not claimed"
+            echo "- Lab AUROC / invented val_bpb"
+            echo "- Zenodo download / MPS train / overnight agent"
+            echo
+            echo "\`prepare.py\` sacred. Help: \`python -m corpus.ingest.build_shards --help\`."
+          } >> "$GITHUB_STEP_SUMMARY"

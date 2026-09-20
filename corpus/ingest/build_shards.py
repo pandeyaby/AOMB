@@ -7,6 +7,10 @@ Output matches prepare.py:
 
 Also writes provenance JSON under
   ~/.cache/autoresearch/corpus-v1/provenance/
+
+Loud CLI refusals: ``--auroc`` / invent / ranking flags; uncapped
+``tale_of_errors`` without ``--max-spans``. Does **not** invent
+``val_bpb`` / AUROC. ``prepare.py`` is sacred — not edited here.
 """
 
 from __future__ import annotations
@@ -39,6 +43,79 @@ ADAPTERS: dict[str, Callable[[], SourceAdapter]] = {
     "lab_capture": LabCaptureAdapter,
     "byo": ByoAdapter,
 }
+
+# Exit codes shared with other ingest / score CLIs.
+EXIT_OK = 0
+EXIT_REFUSED_FLAG = 1
+EXIT_USAGE = 2
+
+_REFUSED_METRIC_FLAGS = frozenset(
+    {
+        "--auroc",
+        "--lab-auroc",
+        "--accuracy",
+        "--ranking",
+        "--publish",
+        "--claim",
+        "--val-bpb",
+        "--invent-val-bpb",
+        "--claim-val-bpb",
+        "--invent-metrics",
+        "--invent-auroc",
+        "--claim-auroc",
+    }
+)
+_REFUSED_UNCAP_FLAGS = frozenset(
+    {
+        "--uncapped",
+        "--full-decompress",
+        "--decompress-all",
+        "--download-all",
+    }
+)
+
+
+def _refuse_loud_flags(argv: list[str]) -> None:
+    """Fail loud on AUROC / invent / uncapped flags before argparse."""
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in _REFUSED_METRIC_FLAGS:
+            print(
+                f"ERROR: Refusing '{key}'.\n"
+                "  build_shards writes parquet shards for the *train* lane only.\n"
+                "  Never invents AUROC / val_bpb / published ranking accuracy.\n"
+                "  Lab claim_status stays not_published.\n"
+                "  Use --adapter NAME --input PATH [--max-spans N] ...",
+                file=sys.stderr,
+            )
+            raise SystemExit(EXIT_REFUSED_FLAG)
+        if key in _REFUSED_UNCAP_FLAGS:
+            print(
+                f"ERROR: Refusing '{key}'.\n"
+                "  Full Tale decompress / uncapped shard build is OUT OF SCOPE.\n"
+                "  For tale_of_errors pass --max-spans N (positive).\n"
+                "  Prefer corpus.ingest.tale_stream_extract for capped stream extract.",
+                file=sys.stderr,
+            )
+            raise SystemExit(EXIT_REFUSED_FLAG)
+
+
+def _refuse_uncapped_tale(adapter: str, max_spans: int) -> None:
+    """Tale of Errors CLI path requires an explicit positive --max-spans."""
+    if adapter != "tale_of_errors":
+        return
+    if max_spans > 0:
+        return
+    print(
+        "ERROR: Refusing uncapped tale_of_errors shard build.\n"
+        "  Pass --max-spans N (positive integer).\n"
+        "  Full Tale dumps are huge; silent uncapped ingest is OUT OF SCOPE.\n"
+        "  Stream-cap first: python -m corpus.ingest.tale_stream_extract --help\n"
+        "  No AUROC / invented val_bpb here. prepare.py is sacred.",
+        file=sys.stderr,
+    )
+    raise SystemExit(EXIT_USAGE)
+
 
 
 def write_parquet_shard(shard_index: int, docs: list[str], data_dir: str) -> str:
@@ -181,8 +258,17 @@ def build(
     return prov
 
 
-def main(argv: list[str] | None = None) -> None:
-    p = argparse.ArgumentParser(description="Build AOMB corpus shards from real OTLP")
+def main(argv: list[str] | None = None) -> int:
+    raw = list(sys.argv[1:] if argv is None else argv)
+    _refuse_loud_flags(raw)
+
+    p = argparse.ArgumentParser(
+        description="Build AOMB corpus shards from real OTLP",
+        epilog=(
+            "Honesty: no AUROC, no invented val_bpb. "
+            "tale_of_errors requires --max-spans. prepare.py is sacred."
+        ),
+    )
     p.add_argument(
         "--adapter",
         required=True,
@@ -203,20 +289,31 @@ def main(argv: list[str] | None = None) -> None:
         help=f"Also write pinned val shard_{VAL_SHARD:05d}.parquet",
     )
     p.add_argument("--data-dir", default=DATA_DIR)
-    p.add_argument("--max-spans", type=int, default=0, help="Cap spans (0=all)")
+    p.add_argument(
+        "--max-spans",
+        type=int,
+        default=0,
+        help="Cap spans (required >0 for tale_of_errors; 0=all for other adapters)",
+    )
     p.add_argument("--max-logs", type=int, default=0, help="Cap logs (0=all)")
     p.add_argument(
         "--no-meta",
         action="store_true",
         help="Omit # aomb_meta provenance lines from sessions",
     )
-    args = p.parse_args(argv)
+    args = p.parse_args(raw)
+    if args.max_spans < 0 or args.max_logs < 0:
+        print("ERROR: --max-spans / --max-logs must be >= 0", file=sys.stderr)
+        return EXIT_USAGE
+    _refuse_uncapped_tale(args.adapter, args.max_spans)
 
     print("=" * 60)
     print("AOMB corpus v1 — build shards (real telemetry)")
     print(f"  adapter: {args.adapter}")
     print(f"  input:   {args.input}")
     print(f"  output:  {args.data_dir}")
+    if args.adapter == "tale_of_errors":
+        print(f"  max_spans: {args.max_spans}")
     print("=" * 60)
     build(
         args.adapter,
@@ -230,7 +327,9 @@ def main(argv: list[str] | None = None) -> None:
         include_meta=not args.no_meta,
     )
     print("\nNext: uv run python prepare.py --num-shards <N>")
+    print("No val_bpb / AUROC invented here. prepare.py is sacred.")
+    return EXIT_OK
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
