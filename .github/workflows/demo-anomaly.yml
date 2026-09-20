@@ -1,0 +1,79 @@
+# demo_anomaly / anomaly-story — CI (torch-free dry-run + flag refusals)
+#
+# Unit tests + CLI smoke for exit codes, --auroc/--publish refusals,
+# tiny-fixture dry-run (no MPS / no invented AUROC).
+# prepare.py untouched. Lab stays claim_status=not_published.
+# CUDA gate stays skipped.
+
+name: demo-anomaly
+
+on:
+  push:
+    paths:
+      - "demo_anomaly.py"
+      - "tests/test_demo_anomaly.py"
+      - ".github/workflows/demo-anomaly.yml"
+  pull_request:
+    paths:
+      - "demo_anomaly.py"
+      - "tests/test_demo_anomaly.py"
+      - ".github/workflows/demo-anomaly.yml"
+
+jobs:
+  demo-anomaly:
+    name: demo-anomaly
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests (torch-free dry-run + refusals)
+        run: |
+          export PYTHONPATH="$PWD"
+          python -m unittest tests.test_demo_anomaly -v
+
+      - name: CLI smoke (dry-run + auroc refuse)
+        run: |
+          set -euo pipefail
+          python demo_anomaly.py --dry-run --per-class 1 --json \
+            >/tmp/demo-ok.out 2>/tmp/demo-ok.err
+          grep -qi not_published /tmp/demo-ok.out
+          grep -qi dry_run /tmp/demo-ok.out
+
+          python demo_anomaly.py --auroc --dry-run \
+            >/tmp/demo-auroc.out 2>/tmp/demo-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/demo-auroc.err
+          grep -qi not_published /tmp/demo-auroc.err
+
+          python demo_anomaly.py --publish --dry-run \
+            >/tmp/demo-pub.out 2>/tmp/demo-pub.err && exit 1 || test $? -eq 1
+          grep -qi publish /tmp/demo-pub.err
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## demo-anomaly"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Check name** | \`demo-anomaly\` |"
+            echo "| **Outcome** | ${{ job.status }} |"
+            echo
+            echo "### Proven (when green)"
+            echo "- \`--auroc\` / publish / ranking flags refused (exit 1)"
+            echo "- \`--dry-run\` tiny fixture → session metadata + \`claim_status=not_published\`"
+            echo "- Torch-free import path (no MPS / no invented BPB / AUROC)"
+            echo "- Exit codes: refuse=1, missing corpus=2, gap not obvious=3"
+            echo
+            echo "### Not claimed"
+            echo "- Lab AUROC (stays \`not_published\` — no invented AUROC)"
+            echo "- Full smoke train BPB gap (local / Mac path after prepare.py)"
+            echo "- CUDA (gate stays skipped)"
+            echo
+            echo "\`prepare.py\` sacred. Help: \`python demo_anomaly.py --help\`."
+          } >> "$GITHUB_STEP_SUMMARY"
