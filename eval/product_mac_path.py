@@ -6,12 +6,14 @@ Keep shell case arms in sync with REFUSED_METRIC_FLAGS.
 
 Product Mac path = Darwin + MPS train fitness (factual val_bpb only).
 Never invents AUROC / published ranking. CUDA gate stays skipped.
-prepare.py is sacred. CI uses --dry-run / --help-only / --tale-card-line (no MPS / no TIME_BUDGET).
+prepare.py is sacred. CI uses --dry-run / --help-only / --tale-card-line /
+--tale-overnight-dry-run (no MPS / no TIME_BUDGET / no agent_loop).
 """
 
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 # Session-scorer invent set + CUDA + invent-val_bpb flags.
 # Keep in sync with scripts/product_mac_smoke.sh.
@@ -39,10 +41,11 @@ REFUSED_METRIC_FLAGS = frozenset(
 # CI-safe modes: no Darwin/MPS/train required.
 DRY_RUN_FLAGS = frozenset({"--dry-run", "--help-only", "-h", "--help", "help"})
 TALE_CARD_LINE_FLAGS = frozenset({"--tale-card-line"})
+TALE_OVERNIGHT_DRY_RUN_FLAGS = frozenset({"--tale-overnight-dry-run"})
 
 EXIT_OK = 0
 EXIT_REFUSED_FLAG = 1
-EXIT_PLATFORM = 2  # not Darwin / MPS unavailable on real path
+EXIT_PLATFORM = 2  # not Darwin / MPS unavailable / missing Tale measured card
 
 
 def refuse_loud_flags(argv: list[str]) -> None:
@@ -93,10 +96,49 @@ def wants_tale_card_line(argv: list[str]) -> bool:
     return False
 
 
+def wants_tale_overnight_dry_run(argv: list[str]) -> bool:
+    """True when argv requests Tale overnight launch dry-run (CI-safe; no agent_loop)."""
+    for arg in argv:
+        key = arg.split("=", 1)[0]
+        if key in TALE_OVERNIGHT_DRY_RUN_FLAGS:
+            return True
+    return False
+
+
+def run_tale_overnight_dry_run(card_path: Path | None = None) -> int:
+    """Invoke eval.tale_overnight_launch --dry-run only (never --run / agent_loop).
+
+    Missing/malformed measured card → EXIT_PLATFORM (2), same honesty family as
+    the helper's --run card gate. Invent flags must already be refused by caller.
+    """
+    from eval.tale_overnight_launch import (
+        DEFAULT_CARD,
+        card_ok,
+        main as overnight_main,
+    )
+
+    card = Path(card_path) if card_path is not None else DEFAULT_CARD
+    ok, msg = card_ok(card)
+    if not ok:
+        print(
+            f"ERROR: {msg}\n"
+            "  product_mac --tale-overnight-dry-run requires a factual measured card.\n"
+            "  Never invents val_bpb / AUROC. No agent_loop started; no API spend.\n"
+            "  Helper --run would also exit 2 without this card.",
+            file=sys.stderr,
+        )
+        return EXIT_PLATFORM
+    # Dry-run only — never pass --run; never call start_agent_loop.
+    return overnight_main(["--dry-run", "--card", str(card)])
+
+
 def main(argv: list[str] | None = None) -> int:
-    """Thin CLI: refuse invent flags; dry-run/help/tale-card-line; else hint."""
+    """Thin CLI: refuse invent flags; dry-run/help/tale-card-line/overnight-dry-run; else hint."""
     args = list(sys.argv[1:] if argv is None else argv)
     refuse_loud_flags(args)
+
+    if wants_tale_overnight_dry_run(args):
+        return run_tale_overnight_dry_run()
 
     if wants_tale_card_line(args):
         from eval.public_wins_tale_line import DEFAULT_CARD, run as tale_run
@@ -119,7 +161,8 @@ def main(argv: list[str] | None = None) -> int:
                 "AOMB product Mac path honesty helper.\n"
                 "  Script: ./scripts/product_mac_smoke.sh\n"
                 "  Real: Darwin + MPS → factual val_bpb only (no AUROC / no CUDA).\n"
-                "  CI: --dry-run / --help-only / --tale-card-line (Linux OK; no MPS).\n"
+                "  CI: --dry-run / --help-only / --tale-card-line /\n"
+                "      --tale-overnight-dry-run (Linux OK; no MPS; no agent_loop).\n"
                 "  Refuses --auroc / --publish / --cuda / invent flags (exit 1).\n"
                 "  Lab claim_status stays not_published. prepare.py sacred.\n"
                 "  CUDA gate stays skipped. Platform fail on real path: exit 2.",

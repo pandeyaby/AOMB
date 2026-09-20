@@ -164,6 +164,7 @@ class TestProductMacShellParity(unittest.TestCase):
         self.assertIn("--dry-run", src)
         self.assertIn("--help-only", src)
         self.assertIn("--tale-card-line", src)
+        self.assertIn("--tale-overnight-dry-run", src)
 
     def test_prepare_py_not_edited_by_this_change(self):
         # Sanity: sacred file exists; smoke script invokes but must not rewrite it.
@@ -372,6 +373,107 @@ class TestProductMacTaleCardLine(unittest.TestCase):
                 main(["--tale-card-line", "--auroc"])
         self.assertEqual(ctx.exception.code, EXIT_REFUSED_FLAG)
 
+
+
+
+class TestProductMacTaleOvernightDryRun(unittest.TestCase):
+    def test_module_overnight_dry_run_ok(self):
+        from eval.product_mac_path import EXIT_OK, main
+        from eval.tale_overnight_launch import DEFAULT_CARD
+
+        if not DEFAULT_CARD.is_file():
+            self.skipTest("committed Tale measured card missing")
+        with mock.patch("eval.tale_overnight_launch.start_agent_loop") as start:
+            buf_out = io.StringIO()
+            buf_err = io.StringIO()
+            with mock.patch("sys.stdout", buf_out), mock.patch("sys.stderr", buf_err):
+                rc = main(["--tale-overnight-dry-run"])
+        self.assertEqual(rc, EXIT_OK)
+        blob = (buf_out.getvalue() + buf_err.getvalue()).lower()
+        self.assertIn("dry-run", blob)
+        self.assertIn("aomb_corpus=tale_of_errors", blob)
+        self.assertIn("no agent_loop", blob)
+        self.assertNotIn("starting agent_loop", blob)
+        start.assert_not_called()
+
+    def test_module_invent_refuse_exit_1(self):
+        from eval.product_mac_path import EXIT_REFUSED_FLAG, main
+
+        for flag in ("--auroc", "--publish", "--cuda"):
+            with self.subTest(flag=flag):
+                buf = io.StringIO()
+                with mock.patch("sys.stderr", buf):
+                    with self.assertRaises(SystemExit) as ctx:
+                        main(["--tale-overnight-dry-run", flag])
+                self.assertEqual(ctx.exception.code, EXIT_REFUSED_FLAG)
+                with mock.patch("eval.tale_overnight_launch.start_agent_loop") as start:
+                    with mock.patch("sys.stderr", io.StringIO()):
+                        with self.assertRaises(SystemExit):
+                            main([flag, "--tale-overnight-dry-run"])
+                    start.assert_not_called()
+
+    def test_module_missing_card_exit_2(self):
+        from eval.product_mac_path import EXIT_PLATFORM, run_tale_overnight_dry_run
+
+        with mock.patch("eval.tale_overnight_launch.start_agent_loop") as start:
+            buf = io.StringIO()
+            with mock.patch("sys.stderr", buf):
+                rc = run_tale_overnight_dry_run(Path("/no/such/measured_capped_200k.json"))
+        self.assertEqual(rc, EXIT_PLATFORM)
+        self.assertIn("missing", buf.getvalue().lower())
+        start.assert_not_called()
+
+    def test_module_never_calls_agent_loop(self):
+        from eval.product_mac_path import EXIT_OK, main
+        from eval.tale_overnight_launch import DEFAULT_CARD
+
+        if not DEFAULT_CARD.is_file():
+            self.skipTest("committed Tale measured card missing")
+        with mock.patch(
+            "eval.tale_overnight_launch.start_agent_loop",
+            side_effect=AssertionError("agent_loop must not start"),
+        ) as start:
+            with mock.patch("sys.stdout", io.StringIO()), mock.patch(
+                "sys.stderr", io.StringIO()
+            ):
+                rc = main(["--tale-overnight-dry-run"])
+        self.assertEqual(rc, EXIT_OK)
+        start.assert_not_called()
+
+    def test_shell_overnight_dry_run_ok(self):
+        from eval.product_mac_path import EXIT_OK
+
+        card = ROOT / "reports" / "tale-capped" / "measured_capped_200k.json"
+        if not card.is_file():
+            self.skipTest("committed Tale measured card missing")
+        proc = _run_script("--tale-overnight-dry-run")
+        self.assertEqual(proc.returncode, EXIT_OK, proc.stderr + proc.stdout)
+        blob = (proc.stdout + proc.stderr).lower()
+        self.assertIn("dry-run", blob)
+        self.assertIn("aomb_corpus=tale_of_errors", blob)
+        self.assertIn("no agent_loop", blob)
+        self.assertNotIn("starting agent_loop", blob)
+
+    def test_shell_invent_refuse_with_overnight(self):
+        from eval.product_mac_path import EXIT_REFUSED_FLAG
+
+        for flag in ("--auroc", "--publish", "--cuda"):
+            with self.subTest(flag=flag):
+                proc = _run_script("--tale-overnight-dry-run", flag)
+                self.assertEqual(proc.returncode, EXIT_REFUSED_FLAG, proc.stderr)
+                proc2 = _run_script(flag, "--tale-overnight-dry-run")
+                self.assertEqual(proc2.returncode, EXIT_REFUSED_FLAG)
+
+    def test_shell_missing_card_exit_2(self):
+        """Module path used by shell exits 2 when measured card is missing."""
+        from eval.product_mac_path import EXIT_PLATFORM, run_tale_overnight_dry_run
+
+        buf = io.StringIO()
+        with mock.patch("sys.stderr", buf):
+            with mock.patch("eval.tale_overnight_launch.start_agent_loop") as start:
+                rc = run_tale_overnight_dry_run(Path("/no/such/card.json"))
+        self.assertEqual(rc, EXIT_PLATFORM)
+        start.assert_not_called()
 
 
 if __name__ == "__main__":

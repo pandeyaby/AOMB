@@ -8,8 +8,10 @@
 # Honesty refusals (shared with eval.product_mac_path / session scorer / stranger):
 #   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent flags)
 #   EXIT_PLATFORM=2      (not Darwin / MPS unavailable on real path;
-#                        also missing/malformed Tale measured card on --tale-card-line)
-# CI (Linux OK): --dry-run / --help-only / --tale-card-line — no MPS / no full TIME_BUDGET.
+#                        also missing/malformed Tale measured card on --tale-card-line
+#                        / --tale-overnight-dry-run)
+# CI (Linux OK): --dry-run / --help-only / --tale-card-line / --tale-overnight-dry-run
+#                — no MPS / no full TIME_BUDGET / no agent_loop.
 #
 # Docs: docs/product-mac-path.md · docs/compute-paths.md · docs/crisp-val-bpb-baseline.md
 set -euo pipefail
@@ -54,6 +56,7 @@ Usage:
   ./scripts/product_mac_smoke.sh --dry-run       # CI: honesty + wiring (no MPS)
   ./scripts/product_mac_smoke.sh --help-only     # same as --help (exit 0)
   ./scripts/product_mac_smoke.sh --tale-card-line  # CI: factual Tale measured one-liner
+  ./scripts/product_mac_smoke.sh --tale-overnight-dry-run  # CI: overnight helper dry-run only
 
 Env (real path only):
   PRODUCT_MAC_SMOKE_SECONDS   wall-clock bound (default 60; 0 = full TIME_BUDGET)
@@ -65,10 +68,12 @@ Honesty: factual val_bpb on MPS only. Never invents AUROC / published ranking.
   Platform fail (not Darwin / no MPS): exit 2.
   --tale-card-line: prints factual Tale measured card line (train fitness only, not AUROC);
     missing/malformed card → unavailable (exit 2). Linux CI OK (no MPS).
+  --tale-overnight-dry-run: invokes eval.tale_overnight_launch --dry-run only
+    (never --run / never agent_loop / no API spend). Missing card → exit 2.
 USAGE
 }
 
-MODE="real"  # real | dry-run | help | tale-card-line
+MODE="real"  # real | dry-run | help | tale-card-line | tale-overnight-dry-run
 
 # ── Loud refusals (before platform / train) ──────────────────────────────────
 if [[ "${PRODUCT_MAC_ALLOW_CUDA:-}" == "1" ]] || [[ "${PRODUCT_MAC_FAKE_CUDA:-}" == "1" ]]; then
@@ -100,9 +105,13 @@ for arg in "$@"; do
     --tale-card-line)
       MODE="tale-card-line"
       ;;
+    --tale-overnight-dry-run)
+      MODE="tale-overnight-dry-run"
+      ;;
     *)
       die_refuse "Unknown arg '$arg'.
-  Use --dry-run / --help-only / --tale-card-line on CI, or no flags on Darwin + MPS.
+  Use --dry-run / --help-only / --tale-card-line / --tale-overnight-dry-run on CI,
+  or no flags on Darwin + MPS.
   See: ./scripts/product_mac_smoke.sh --help"
       ;;
   esac
@@ -135,6 +144,31 @@ if [[ "$MODE" == "tale-card-line" ]]; then
     exit 0
   fi
   # Propagate exit 1 (invent refuse from module) or exit 2 (unavailable card).
+  exit "$rc"
+fi
+
+if [[ "$MODE" == "tale-overnight-dry-run" ]]; then
+  banner "AOMB product Mac smoke — Tale overnight dry-run (CI; no MPS; no agent_loop)"
+  echo "Repo: $ROOT"
+  echo "Card: reports/tale-capped/measured_capped_200k.json"
+  echo "Honesty: dry-run only — never --run / never agent_loop / no API spend"
+  echo "  train fitness floor from measured card only — not AUROC"
+  echo
+  PYTHON="${PYTHON:-python3}"
+  set +e
+  if command -v uv >/dev/null 2>&1; then
+    uv run python -m eval.product_mac_path --tale-overnight-dry-run
+    rc=$?
+  else
+    PYTHONPATH="${PYTHONPATH:-$ROOT}" "$PYTHON" -m eval.product_mac_path --tale-overnight-dry-run
+    rc=$?
+  fi
+  set -e
+  if [[ "$rc" -eq 0 ]]; then
+    banner "Done (tale-overnight-dry-run)"
+    exit 0
+  fi
+  # Propagate exit 1 (invent refuse) or exit 2 (missing/malformed card).
   exit "$rc"
 fi
 
@@ -171,9 +205,10 @@ echo
 if [[ "$(uname -s)" != "Darwin" ]]; then
   die_platform "Not Darwin (detected: $(uname -s)).
   Product Mac path requires macOS + Apple Silicon MPS.
-  On Linux / Codespaces / CI use dry-run / tale-card-line or stranger verify instead:
+  On Linux / Codespaces / CI use dry-run / tale-card-line / overnight-dry-run or stranger:
     ./scripts/product_mac_smoke.sh --dry-run
     ./scripts/product_mac_smoke.sh --tale-card-line
+    ./scripts/product_mac_smoke.sh --tale-overnight-dry-run
     ./scripts/stranger_verify.sh
   See docs/stranger-verify.md · docs/compute-paths.md · docs/product-mac-path.md"
 fi
