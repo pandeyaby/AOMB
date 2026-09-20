@@ -7,8 +7,10 @@
 #
 # Honesty refusals (shared with eval.stranger_path / stranger_demo / session scorer):
 #   EXIT_REFUSED_FLAG=1  (--auroc / --publish / --cuda / invent / overnight)
-#   EXIT_PATH_ERROR=2    (missing/malformed Tale measured card on --tale-card-line)
+#   EXIT_PATH_ERROR=2    (missing/malformed Tale measured card on --tale-card-line
+#                        or --tale-overnight-dry-run)
 # CI-safe: --tale-card-line → factual Tale measured one-liner (no MPS).
+# CI-safe: --tale-overnight-dry-run → overnight helper dry-run only (no agent_loop).
 # NOT claimed: lab AUROC, production accuracy, MPS train, overnight agent.
 # prepare.py is sacred — never touched here. CUDA gate stays skipped.
 # No DIPTYCH harness contamination.
@@ -48,6 +50,7 @@ Usage:
   ./scripts/stranger_verify.sh
   STRANGER_FAST=0 ./scripts/stranger_verify.sh   # full ranking-card --with-model (CPU)
   ./scripts/stranger_verify.sh --tale-card-line  # factual Tale measured one-liner (CI)
+  ./scripts/stranger_verify.sh --tale-overnight-dry-run  # overnight helper dry-run (CI)
 
 Cite path defaults STRANGER_FAST=1 (baselines-only ε). Delegates to stranger_demo.sh.
 
@@ -57,6 +60,8 @@ Honesty: DIPTYCH full-8 + ranking-card harness smoke only.
   prepare.py sacred. Refused: --auroc / --publish / --cuda / invent flags.
   --tale-card-line: factual Tale measured card line (train fitness only, not AUROC);
     missing/malformed → unavailable (exit 2). Linux CI OK (no MPS).
+  --tale-overnight-dry-run: overnight helper dry-run only (never --run / agent_loop);
+    missing card → exit 2. Linux CI OK (no MPS / no API spend).
 USAGE
 }
 
@@ -71,6 +76,7 @@ fi
 # Keep case arm in sync with eval.stranger_path.REFUSED_METRIC_FLAGS (+ product).
 # Refuse before delegation so invent flags never reach the shared runner unnoticed.
 TALE_CARD_LINE=0
+TALE_OVERNIGHT_DRY_RUN=0
 for arg in "$@"; do
   key="${arg%%=*}"
   case "$key" in
@@ -89,6 +95,9 @@ for arg in "$@"; do
       ;;
     --tale-card-line)
       TALE_CARD_LINE=1
+      ;;
+    --tale-overnight-dry-run)
+      TALE_OVERNIGHT_DRY_RUN=1
       ;;
     -h|--help|help)
       usage
@@ -119,6 +128,32 @@ if [[ "$TALE_CARD_LINE" -eq 1 ]]; then
     banner "Done (tale-card-line)"
     exit 0
   fi
+  exit "$rc"
+fi
+
+# ── Optional Tale overnight dry-run (CI-safe; never --run / agent_loop) ───────
+if [[ "$TALE_OVERNIGHT_DRY_RUN" -eq 1 ]]; then
+  banner "AOMB stranger — Tale overnight dry-run (CI; no MPS; no agent_loop)"
+  echo "Repo: $ROOT"
+  echo "Card: reports/tale-capped/measured_capped_200k.json"
+  echo "Honesty: dry-run only — never --run / never agent_loop / no API spend"
+  echo "  train fitness floor from measured card only — not AUROC"
+  echo
+  PYTHON="${PYTHON:-python3}"
+  set +e
+  if command -v uv >/dev/null 2>&1; then
+    uv run python -m eval.stranger_path --tale-overnight-dry-run
+    rc=$?
+  else
+    PYTHONPATH="${PYTHONPATH:-$ROOT}" "$PYTHON" -m eval.stranger_path --tale-overnight-dry-run
+    rc=$?
+  fi
+  set -e
+  if [[ "$rc" -eq 0 ]]; then
+    banner "Done (tale-overnight-dry-run)"
+    exit 0
+  fi
+  # Propagate exit 1 (invent refuse) or exit 2 (missing/malformed card).
   exit "$rc"
 fi
 
