@@ -72,33 +72,7 @@ uv run python -m corpus.ingest.fetch_tale_of_errors \
 ./scripts/tale_capped_baseline.sh --fetch-key trace1_aa
 ```
 
-A single split piece is **not** a ready Jaeger tree. Full part reassembly + decompress remains **out of scope** under the disk cap above.
-
-### 1b. Streaming capped extract (preferred on ~315 Gi free)
-
-Do **not** `zstd -d` the full archive. Stream-decompress and stop at caps — writes a local `traces/` tree the `tale_of_errors` adapter can load (same discovery as CRISP):
-
-```bash
-# Prefer argparse help for flags:
-uv run python -m corpus.ingest.tale_stream_extract --help
-# or: ./scripts/tale_stream_capped_extract.sh --help
-
-# Directory of downloaded trace1_* pieces (or a .tar.zst) → capped out/traces/*.json
-uv run python -m corpus.ingest.tale_stream_extract \
-  --input ~/.cache/autoresearch/corpus-v1/tale_of_errors \
-  --out /tmp/aomb-tale-capped \
-  --prefix trace1_ \
-  --max-spans 200000 --max-files 500
-
-# Then shard from the capped tree:
-uv run python -m corpus.ingest.build_shards \
-  --adapter tale_of_errors \
-  --input /tmp/aomb-tale-capped \
-  --max-spans 200000 \
-  --num-train-shards 8 --write-val-shard
-```
-
-Refuses `--auroc`, uncapped / full decompress, and inventing `val_bpb`. Still **no measured Mac `val_bpb`** until you train.
+A single split piece is **not** a ready Jaeger tree. Full part reassembly + decompress remains **out of scope** under the disk cap above. Use an **already-local** assembled / extracted Jaeger JSON tree that fits, or stop after fetch documentation.
 
 ### 2. Shard with explicit `--max-spans`
 

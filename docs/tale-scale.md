@@ -75,21 +75,7 @@ uv run python -m corpus.ingest.fetch_tale_of_errors \
 
 `--download-all` pulls **~70+ GB compressed** and is **refused in CI**. Prefer selective `--download`.
 
-### 2. Assemble + decompress (or stream-capped extract)
-
-**Preferred on disks that cannot hold 300–500 GB free** (e.g. ~315 Gi): stream-decompress with caps — never materialize the full tree:
-
-```bash
-uv run python -m corpus.ingest.tale_stream_extract --help
-uv run python -m corpus.ingest.tale_stream_extract \
-  --input ~/.cache/autoresearch/corpus-v1/tale_of_errors \
-  --out /tmp/aomb-tale-capped --prefix trace1_ \
-  --max-spans 200000 --max-files 500
-# Point build_shards --input at /tmp/aomb-tale-capped (traces/*.json).
-# Wrapper: ./scripts/tale_stream_capped_extract.sh
-```
-
-Full assemble + decompress (only with hundreds of GB free):
+### 2. Assemble + decompress
 
 ```bash
 cd ~/.cache/autoresearch/corpus-v1/tale_of_errors
