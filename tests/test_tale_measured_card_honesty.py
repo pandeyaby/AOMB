@@ -132,5 +132,77 @@ class TestTaleBaselineDocsSyncOptional(unittest.TestCase):
         self.assertIn(card_footer, docs)
 
 
+
+class TestReadmeTaleMeasuredCite(unittest.TestCase):
+    """README train-lane Tale cite must track the measured card (SoT)."""
+
+    README_PATH = ROOT / "README.md"
+
+    def test_readme_cites_card_val_bpb_when_mentioned(self):
+        self.assertTrue(self.README_PATH.is_file())
+        readme = self.README_PATH.read_text(encoding="utf-8")
+        card = _load_card()
+        card_val = float(card["val_bpb"])
+        card_footer = f"{card_val:.6f}"
+        claim = card["claim_status"]
+
+        # Must no longer say capped Tale val_bpb is pending.
+        self.assertNotRegex(
+            readme,
+            r"capped[^\n]{0,80}val_bpb[^\n]{0,40}pending",
+            msg="README still marks capped Tale val_bpb as pending",
+        )
+        self.assertIn(card_footer, readme)
+        self.assertIn(claim, readme)
+        self.assertIn("reports/tale-capped/measured_capped_200k.json", readme)
+        self.assertIn("docs/tale-val-bpb-baseline.md", readme)
+        self.assertIn("docs/public-wins.md", readme)
+        self.assertIn("public_wins_tale_line", readme)
+
+        # Any numeric val_bpb near Tale capped cites must match the card.
+        tale_chunks = []
+        for marker in (
+            "Tale-scale (Uber Tale of Errors",
+            "Capped Tale measured",
+            "capped measured",
+            "Capped subset measured",
+        ):
+            if marker in readme:
+                i = readme.index(marker)
+                tale_chunks.append(readme[max(0, i - 40) : i + 500])
+        # Also scan the Three lanes table row mentioning Tale
+        if "Tale scale" in readme:
+            i = readme.index("Tale scale")
+            tale_chunks.append(readme[max(0, i - 80) : i + 400])
+        joined = "\n".join(tale_chunks)
+        self.assertTrue(tale_chunks, "expected Tale train-lane README sections")
+        nums = re.findall(r"val_bpb[=:]?\s*\*?\*?([0-9]+\.[0-9]+)", joined, re.I)
+        self.assertTrue(nums, f"expected numeric Tale val_bpb cites; chunks={joined[:200]!r}")
+        for raw in nums:
+            self.assertAlmostEqual(
+                float(raw),
+                card_val,
+                places=5,
+                msg=f"README Tale val_bpb {raw} != card {card_val}",
+            )
+
+    def test_readme_tale_cite_not_auroc_or_publish(self):
+        readme = self.README_PATH.read_text(encoding="utf-8")
+        # Window around the capped measured blurb
+        anchor = "Capped subset measured"
+        self.assertIn(anchor, readme)
+        i = readme.index(anchor)
+        window = readme[i : i + 700].lower()
+        self.assertIn("not auroc", window.replace("—", " ").replace("–", " "))
+        self.assertIn("measured_not_published", window)
+        self.assertIn("not", window)
+        # Must not invent published accuracy / AUROC for this cite.
+        self.assertNotRegex(window, r"auroc\s*=\s*0\.\d+")
+        self.assertNotIn("published accuracy claim", window.replace("not a published", "NOT_A_PUBLISHED"))
+        # Soft check: the disclaimer phrase is present
+        self.assertIn("train fitness only", window)
+
+
+
 if __name__ == "__main__":
     unittest.main()
