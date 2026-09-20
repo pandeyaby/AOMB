@@ -1,0 +1,17 @@
+{
+  "claim_status": "measured_not_published",
+  "corpus": "tale_of_errors",
+  "emitted_at": "2026-09-20T06:34:50Z",
+  "git_sha": "c9673fb87453d16fb6a1ea4a81b8a2417c2f9f2c",
+  "hardware": "mac_mps",
+  "log_path": "/tmp/aomb-tale-train.log",
+  "max_spans": 200000,
+  "sessions_total": 158,
+  "sessions_train": 143,
+  "sessions_val": 15,
+  "source_id": "uber-tale-of-errors",
+  "time_budget_s": 300,
+  "train_git_sha": "7083fc1be46d4c8ce7d8f725cffda93118e23e70",
+  "val_bpb": 1.37952,
+  "vocab_size": 2115
+}

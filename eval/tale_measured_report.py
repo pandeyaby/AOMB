@@ -88,6 +88,14 @@ def build_card(
     git_sha: Optional[str],
     log_path: str,
     corpus: str = DEFAULT_CORPUS,
+    sessions_total: Optional[int] = None,
+    sessions_train: Optional[int] = None,
+    sessions_val: Optional[int] = None,
+    vocab_size: Optional[int] = None,
+    hardware: Optional[str] = None,
+    time_budget_s: Optional[int] = None,
+    train_git_sha: Optional[str] = None,
+    extra: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     card: dict[str, Any] = {
         "val_bpb": val_bpb,
@@ -100,6 +108,24 @@ def build_card(
     }
     if git_sha:
         card["git_sha"] = git_sha
+    if train_git_sha:
+        card["train_git_sha"] = train_git_sha
+    if sessions_total is not None:
+        card["sessions_total"] = sessions_total
+    if sessions_train is not None:
+        card["sessions_train"] = sessions_train
+    if sessions_val is not None:
+        card["sessions_val"] = sessions_val
+    if vocab_size is not None:
+        card["vocab_size"] = vocab_size
+    if hardware:
+        card["hardware"] = hardware
+    if time_budget_s is not None:
+        card["time_budget_s"] = time_budget_s
+    if extra:
+        for k, v in extra.items():
+            if v is not None and k not in card:
+                card[k] = v
     return card
 
 
@@ -118,6 +144,13 @@ def emit_from_log(
     source_id: str,
     git_sha: Optional[str],
     filename: str = "measured.json",
+    sessions_total: Optional[int] = None,
+    sessions_train: Optional[int] = None,
+    sessions_val: Optional[int] = None,
+    vocab_size: Optional[int] = None,
+    hardware: Optional[str] = None,
+    time_budget_s: Optional[int] = None,
+    train_git_sha: Optional[str] = None,
 ) -> tuple[int, Path, dict[str, Any]]:
     """Parse log, write card. Returns (exit_code, card_path, card).
 
@@ -160,6 +193,13 @@ def emit_from_log(
         source_id=source_id,
         git_sha=git_sha,
         log_path=str(log_path),
+        sessions_total=sessions_total,
+        sessions_train=sessions_train,
+        sessions_val=sessions_val,
+        vocab_size=vocab_size,
+        hardware=hardware,
+        time_budget_s=time_budget_s,
+        train_git_sha=train_git_sha,
     )
     out_path = write_card(card, out_dir, filename=filename)
     print(f"wrote {out_path}")
@@ -205,6 +245,46 @@ def main(argv: Optional[list[str]] = None) -> int:
         help="Card filename inside out-dir (default: measured.json)",
     )
     parser.add_argument(
+        "--sessions-total",
+        type=int,
+        default=None,
+        help="Optional total session count metadata",
+    )
+    parser.add_argument(
+        "--sessions-train",
+        type=int,
+        default=None,
+        help="Optional train session count metadata",
+    )
+    parser.add_argument(
+        "--sessions-val",
+        type=int,
+        default=None,
+        help="Optional val session count metadata",
+    )
+    parser.add_argument(
+        "--vocab-size",
+        type=int,
+        default=None,
+        help="Optional tokenizer vocab size metadata",
+    )
+    parser.add_argument(
+        "--hardware",
+        default=None,
+        help="Optional hardware label (e.g. mac_mps)",
+    )
+    parser.add_argument(
+        "--time-budget-s",
+        type=int,
+        default=None,
+        help="Optional TIME_BUDGET seconds metadata",
+    )
+    parser.add_argument(
+        "--train-git-sha",
+        default=None,
+        help="Optional git tip used for the train run",
+    )
+    parser.add_argument(
         "--git-sha",
         default=None,
         help="Optional git sha (default: GIT_SHA or GITHUB_SHA env)",
@@ -219,6 +299,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         source_id=args.source_id,
         git_sha=git_sha,
         filename=args.filename,
+        sessions_total=args.sessions_total,
+        sessions_train=args.sessions_train,
+        sessions_val=args.sessions_val,
+        vocab_size=args.vocab_size,
+        hardware=args.hardware,
+        time_budget_s=args.time_budget_s,
+        train_git_sha=args.train_git_sha,
     )
     return code
 
