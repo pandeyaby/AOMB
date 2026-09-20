@@ -1,0 +1,64 @@
+# agent_loop best-val isolation — fixture unit tests (no MPS / no API / no Zenodo)
+#
+# Override / missing lane / refuse invent. prepare.py untouched.
+# No invented AUROC. CUDA gate stays skipped.
+
+name: agent-loop-best-val
+
+on:
+  push:
+    paths:
+      - "agent_loop.py"
+      - "best_val_bpb.py"
+      - "val_bpb_parse.py"
+      - "tests/test_best_val_bpb.py"
+      - ".github/workflows/agent-loop-best-val.yml"
+  pull_request:
+    paths:
+      - "agent_loop.py"
+      - "best_val_bpb.py"
+      - "val_bpb_parse.py"
+      - "tests/test_best_val_bpb.py"
+      - ".github/workflows/agent-loop-best-val.yml"
+
+jobs:
+  agent-loop-best-val:
+    name: agent-loop-best-val
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests (override / lane isolation / refuse invent)
+        run: |
+          export PYTHONPATH="$PWD"
+          # Import agent_loop without anthropic/openai SDKs installed.
+          python -m unittest tests.test_best_val_bpb -v
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## agent-loop-best-val"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Check name** | \`agent-loop-best-val\` |"
+            echo "| **Outcome** | ${{ job.status }} |"
+            echo
+            echo "### Proven (when green)"
+            echo "- \`AOMB_BEST_VAL_BPB\` override wins when sane"
+            echo "- \`AOMB_CORPUS\` / \`AOMB_SOURCE_ID\` isolate CRISP vs Tale vs synthetic"
+            echo "- Missing / malformed → \`inf\` (no invented floor)"
+            echo
+            echo "### Not claimed"
+            echo "- Lab AUROC / invented val_bpb"
+            echo "- MPS train / Zenodo / overnight agent spend"
+            echo "- CUDA (gate stays skipped)"
+            echo
+            echo "\`prepare.py\` sacred."
+          } >> "$GITHUB_STEP_SUMMARY"
