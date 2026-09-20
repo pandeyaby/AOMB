@@ -184,15 +184,15 @@ def get_recent_experiments(n: int = MAX_GIT_LOG_LINES) -> str:
 
 
 def get_best_val_bpb() -> float:
-    """Lowest in-lane val_bpb so far (or env override). Never invents a floor.
+    """Lowest in-lane val_bpb so far (or env override / Tale card). Never invents.
 
     Isolation: when ``AOMB_CORPUS`` / ``AOMB_SOURCE_ID`` is set, only commit
     subjects tagged with a matching ``[corpus=…]`` / ``[source_id=…]`` count.
     Untagged synthetic history cannot poison a CRISP/Tale overnight.
 
-    Override: ``AOMB_BEST_VAL_BPB`` still wins when set and sane.
-    Missing lane / malformed override → ``inf`` (start fresh) — no invented
-    CRISP/Tale/synthetic baseline.
+    Precedence: ``AOMB_BEST_VAL_BPB`` > Tale measured card (when Tale lane or
+    ``AOMB_BEST_VAL_FROM_CARD=1``) > in-lane git subjects > ``inf``.
+    Missing / malformed card or override → fall through; never invent a floor.
     """
     try:
         log_output = git("log", "--format=%s", "-200")
