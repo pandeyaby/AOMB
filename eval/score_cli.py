@@ -45,7 +45,8 @@ DISCLAIMER = (
 )
 
 # Loud refusals — session scorer prints BPB/surprise only (never AUROC).
-_REFUSED_METRIC_FLAGS = frozenset(
+# Keep in sync with scripts/byo_score.sh (same flags, same exit semantics).
+REFUSED_METRIC_FLAGS = frozenset(
     {
         "--auroc",
         "--lab-auroc",
@@ -58,20 +59,31 @@ _REFUSED_METRIC_FLAGS = frozenset(
         "--claim-auroc",
     }
 )
+_REFUSED_METRIC_FLAGS = REFUSED_METRIC_FLAGS  # back-compat alias
+
+# Exit codes shared with scripts/byo_score.sh (dry-run and real score paths).
+EXIT_REFUSED_FLAG = 1
+EXIT_PATH_ERROR = 2
 
 
 def _refuse_loud_flags(argv: list[str]) -> None:
-    """Fail loud on ranking / AUROC / publish flags before argparse."""
+    """Fail loud on ranking / AUROC / publish flags before argparse.
+
+    Raises SystemExit with code EXIT_REFUSED_FLAG (same as byo_score.sh).
+    Applies to --dry-run, --checkpoint, and --train-seconds paths alike.
+    """
     for arg in argv:
         key = arg.split("=", 1)[0]
-        if key in _REFUSED_METRIC_FLAGS:
-            raise SystemExit(
+        if key in REFUSED_METRIC_FLAGS:
+            print(
                 f"ERROR: Refusing '{key}'.\n"
                 "  Session scorer prints per-session BPB / surprise only.\n"
                 "  Never invents AUROC / published ranking accuracy.\n"
                 "  Lab claim_status stays not_published.\n"
-                "  Use --dry-run, --checkpoint PATH, or --train-seconds N."
+                "  Use --dry-run, --checkpoint PATH, or --train-seconds N.",
+                file=sys.stderr,
             )
+            raise SystemExit(EXIT_REFUSED_FLAG)
 
 
 def validate_runtime_paths(
