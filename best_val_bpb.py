@@ -364,6 +364,89 @@ def resolve_lane_from_environ(
     return corpus, source_id
 
 
+# Source tags for resolve_best_val_bpb_with_source (never invent a label).
+SOURCE_ENV = "env"
+SOURCE_MEASURED_CARD = "measured_card"
+SOURCE_GIT = "git"
+SOURCE_MISSING = "missing"
+
+ALLOWED_BEST_VAL_SOURCES = frozenset(
+    {SOURCE_ENV, SOURCE_MEASURED_CARD, SOURCE_GIT, SOURCE_MISSING}
+)
+
+
+def resolve_best_val_bpb_with_source(
+    subjects: list[str] | tuple[str, ...] | None = None,
+    *,
+    environ: Mapping[str, str] | None = None,
+    corpus: str | None = None,
+    source_id: str | None = None,
+    override: str | float | None = ...,  # type: ignore[assignment]
+    card_path: Path | str | None = None,
+    cache_root: Path | str | None = None,
+    home: Path | str | None = None,
+) -> tuple[float, str]:
+    """Resolve best-val and the factual source tag.
+
+    Returns ``(value, source)`` where ``source`` is one of::
+
+      - ``env`` — sane ``AOMB_BEST_VAL_BPB`` / explicit override
+      - ``measured_card`` — factual card floor + active cache_lane
+      - ``git`` — min in-lane commit subject ``val_bpb=``
+      - ``missing`` — nothing factual → ``float("inf")``
+
+    Never invents a number or a source tag. Measured card without an active
+    cache_lane is treated as missing card (fall through to git / missing).
+    """
+    env = os.environ if environ is None else environ
+
+    if override is ...:
+        override_raw: str | float | None = env.get("AOMB_BEST_VAL_BPB")
+    else:
+        override_raw = override
+
+    if isinstance(override_raw, (int, float)) and not isinstance(override_raw, bool):
+        ov = float(override_raw)
+        if math.isfinite(ov) and 0.0 <= ov <= _MAX_SANE_VAL_BPB:
+            return ov, SOURCE_ENV
+        # Nonsense numeric override → refuse invent (fall through)
+    else:
+        ov = parse_best_val_override(
+            None if override_raw is None else str(override_raw)
+        )
+        if ov is not None:
+            return ov, SOURCE_ENV
+
+    if corpus is None and source_id is None:
+        corpus, source_id = resolve_lane_from_environ(env)
+
+    if card_floor_enabled(env, corpus=corpus, source_id=source_id):
+        path = resolve_measured_card_path(env, card_path=card_path)
+        card_val = parse_val_bpb_from_measured_card(path)
+        if card_val is not None:
+            ready, lane_msg = cache_lane_ready_for_card_floor(
+                env, cache_root=cache_root, home=home
+            )
+            if ready:
+                return card_val, SOURCE_MEASURED_CARD
+            # Card present but cache lane missing/ambiguous → same as missing card.
+            print(
+                f"best_val_bpb: refusing measured-card floor ({lane_msg}); "
+                "never invent val_bpb — falling through to git / inf",
+                file=sys.stderr,
+            )
+        # missing/malformed card or refused lane → fall through (may still be inf)
+
+    git_best = best_val_from_commit_subjects(
+        list(subjects or ()),
+        corpus=corpus,
+        source_id=source_id,
+    )
+    if math.isfinite(git_best):
+        return git_best, SOURCE_GIT
+    return float("inf"), SOURCE_MISSING
+
+
 def resolve_best_val_bpb(
     subjects: list[str] | tuple[str, ...] | None = None,
     *,
@@ -383,50 +466,29 @@ def resolve_best_val_bpb(
       3. Min of in-lane commit subjects
       4. ``float("inf")`` — never invent a floor
     """
-    env = os.environ if environ is None else environ
-
-    if override is ...:
-        override_raw: str | float | None = env.get("AOMB_BEST_VAL_BPB")
-    else:
-        override_raw = override
-
-    if isinstance(override_raw, (int, float)) and not isinstance(override_raw, bool):
-        ov = float(override_raw)
-        if math.isfinite(ov) and 0.0 <= ov <= _MAX_SANE_VAL_BPB:
-            return ov
-        # Nonsense numeric override → refuse invent (fall through)
-    else:
-        ov = parse_best_val_override(
-            None if override_raw is None else str(override_raw)
-        )
-        if ov is not None:
-            return ov
-
-    if corpus is None and source_id is None:
-        corpus, source_id = resolve_lane_from_environ(env)
-
-    if card_floor_enabled(env, corpus=corpus, source_id=source_id):
-        path = resolve_measured_card_path(env, card_path=card_path)
-        card_val = parse_val_bpb_from_measured_card(path)
-        if card_val is not None:
-            ready, lane_msg = cache_lane_ready_for_card_floor(
-                env, cache_root=cache_root, home=home
-            )
-            if ready:
-                return card_val
-            # Card present but cache lane missing/ambiguous → same as missing card.
-            print(
-                f"best_val_bpb: refusing measured-card floor ({lane_msg}); "
-                "never invent val_bpb — falling through to git / inf",
-                file=sys.stderr,
-            )
-        # missing/malformed card or refused lane → fall through (may still be inf)
-
-    return best_val_from_commit_subjects(
-        list(subjects or ()),
+    value, _source = resolve_best_val_bpb_with_source(
+        subjects,
+        environ=environ,
         corpus=corpus,
         source_id=source_id,
+        override=override,
+        card_path=card_path,
+        cache_root=cache_root,
+        home=home,
     )
+    return value
+
+
+def format_best_val_display(value: float, source: str) -> str:
+    """Two-line dry-run display: resolved value + source tag (never invent)."""
+    if source not in ALLOWED_BEST_VAL_SOURCES:
+        source = SOURCE_MISSING
+    if math.isfinite(value):
+        val_s = f"{value}"
+    else:
+        val_s = "inf"
+        source = SOURCE_MISSING
+    return f"  best_val: {val_s}\n  best_val_source: {source}"
 
 
 def format_lane_commit_tags(
