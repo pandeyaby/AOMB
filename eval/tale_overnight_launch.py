@@ -6,7 +6,7 @@ Documents / sets lane env for agent_loop breeding on capped Tale:
   AOMB_BEST_VAL_FROM_CARD=1
 
 Default ``--dry-run`` prints the plan and exits 0 (no agent_loop, no APIs).
-``--run`` requires the measured card + Darwin/MPS; never invents a floor.
+``--run`` requires the measured card + Darwin/MPS + active cache_lane data+tokenizer; never invents a floor.
 
 Never invents AUROC / val_bpb. prepare.py sacred. No workflow spend in CI.
 """
@@ -31,7 +31,7 @@ from eval.public_wins_tale_line import (  # noqa: E402
 )
 
 EXIT_OK = 0
-EXIT_PLATFORM = 2  # missing card / not Darwin+MPS on --run (same family as path errors)
+EXIT_PLATFORM = 2  # missing card / not Darwin+MPS / cache lane unusable on --run
 
 DEFAULT_CORPUS = "tale_of_errors"
 DEFAULT_SOURCE_ID = "tale_capped_200k"
@@ -93,11 +93,80 @@ def darwin_mps_ok() -> tuple[bool, str]:
     return True, "Darwin + MPS available"
 
 
+def resolve_cache_root(
+    *,
+    cache_root: Path | None = None,
+    home: Path | None = None,
+) -> Path:
+    """Cache root for lane status (tests may pass --cache-root / --home)."""
+    from corpus.ingest.cache_lane import default_cache_root
+
+    if cache_root is not None:
+        return Path(cache_root).expanduser().resolve()
+    return default_cache_root(Path(home).expanduser() if home is not None else None)
+
+
+def assess_cache_lane(cache_root: Path) -> tuple[bool, str, list[str]]:
+    """Return (ready_for_run, summary, detail_lines) from cache_lane.status.
+
+    ready_for_run requires active data+tokenizer dirs. Missing / partial /
+    ambiguous lanes: dry-run still OK (loud warning); --run must refuse
+    (EXIT_PLATFORM) — never invent a floor / never start agent_loop.
+    """
+    from corpus.ingest.cache_lane import status
+
+    rep = status(cache_root)
+    lines = [
+        f"cache_lane: root={rep.cache_root}",
+        (
+            f"  active: data={'yes' if rep.active_data else 'no'} "
+            f"tokenizer={'yes' if rep.active_tokenizer else 'no'}"
+        ),
+    ]
+    if rep.quarantines:
+        lines.append("  quarantined:")
+        for dname, tname in rep.quarantines:
+            tok = tname if tname else "(tokenizer missing)"
+            lines.append(f"    {dname}  <->  {tok}")
+    else:
+        lines.append("  quarantined: (none)")
+
+    if rep.active_data and rep.active_tokenizer:
+        summary = "active data+tokenizer present (lane ready for --run)"
+        lines.append(f"  verdict: {summary}")
+        return True, summary, lines
+
+    if rep.active_data ^ rep.active_tokenizer:
+        summary = (
+            "ambiguous / partial active lane "
+            f"(data={'yes' if rep.active_data else 'no'}, "
+            f"tokenizer={'yes' if rep.active_tokenizer else 'no'})"
+        )
+        lines.append(f"  WARNING: {summary}")
+        lines.append(
+            "  restore a matching quarantined pair or refuse --run "
+            "(never invent floor / never start agent_loop)"
+        )
+        return False, summary, lines
+
+    if rep.quarantines:
+        summary = "no active data dir — quarantined lanes present; restore before --run"
+    else:
+        summary = "no active data dir and no quarantined lanes"
+    lines.append(f"  WARNING: {summary}")
+    lines.append(
+        "  --run would exit 2 (never invent floor / never start agent_loop)"
+    )
+    return False, summary, lines
+
+
+
 def format_dry_run(
     env: dict[str, str],
     *,
     card_path: Path,
     card_status: str,
+    cache_lines: list[str] | None = None,
 ) -> str:
     lines = [
         "tale_overnight_launch: dry-run (no agent_loop, no APIs)",
@@ -107,10 +176,16 @@ def format_dry_run(
         f"  would set AOMB_BEST_VAL_CARD={env['AOMB_BEST_VAL_CARD']}",
         f"  measured card: {card_path}",
         f"  card status: {card_status}",
-        "  honesty: train fitness floor from card only — never invent AUROC / val_bpb",
-        "  next: ./scripts/tale_overnight_launch.sh --run   # Darwin+MPS + card required",
-        "  agent: python agent_loop.py   # not started in dry-run",
     ]
+    if cache_lines:
+        lines.extend(cache_lines)
+    lines.extend(
+        [
+            "  honesty: train fitness floor from card only — never invent AUROC / val_bpb",
+            "  next: ./scripts/tale_overnight_launch.sh --run   # Darwin+MPS + card + active cache lane",
+            "  agent: python agent_loop.py   # not started in dry-run",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -150,6 +225,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_SOURCE_ID,
         help=f"AOMB_SOURCE_ID value (default: {DEFAULT_SOURCE_ID})",
     )
+    p.add_argument(
+        "--cache-root",
+        type=Path,
+        default=None,
+        help="Override ~/.cache/autoresearch for cache_lane status (tests)",
+    )
+    p.add_argument(
+        "--home",
+        type=Path,
+        default=None,
+        help="Override HOME for default cache_lane root (tests)",
+    )
     return p
 
 
@@ -177,10 +264,19 @@ def main(argv: list[str] | None = None) -> int:
         card_path=Path(args.card),
     )
     ok, card_msg = card_ok(Path(args.card))
+    cache_root = resolve_cache_root(cache_root=args.cache_root, home=args.home)
+    lane_ready, lane_summary, cache_lines = assess_cache_lane(cache_root)
 
     if do_dry and not do_run:
         status = card_msg if ok else f"unavailable ({card_msg}) — --run would exit 2"
-        print(format_dry_run(env, card_path=Path(args.card), card_status=status))
+        print(
+            format_dry_run(
+                env,
+                card_path=Path(args.card),
+                card_status=status,
+                cache_lines=cache_lines,
+            )
+        )
         return EXIT_OK
 
     # --run path
@@ -189,6 +285,17 @@ def main(argv: list[str] | None = None) -> int:
             f"ERROR: {card_msg}\n"
             "  Cannot start overnight without a factual measured card floor.\n"
             "  Never invents val_bpb. Emit card via eval.tale_measured_report first.",
+            file=sys.stderr,
+        )
+        return EXIT_PLATFORM
+
+    if not lane_ready:
+        print(
+            f"ERROR: cache_lane not ready: {lane_summary}\n"
+            + "\n".join(cache_lines)
+            + "\n  Refuse --run without an active data+tokenizer lane.\n"
+            "  Restore via: python -m corpus.ingest.cache_lane restore --lane tale\n"
+            "  Never invents floor; no agent_loop started; no API spend.",
             file=sys.stderr,
         )
         return EXIT_PLATFORM
@@ -203,7 +310,10 @@ def main(argv: list[str] | None = None) -> int:
         )
         return EXIT_PLATFORM
 
-    print(f"tale_overnight_launch: starting agent_loop with card floor:\n  {card_msg}")
+    print(
+        f"tale_overnight_launch: starting agent_loop with card floor:\n  {card_msg}\n"
+        f"  cache_lane: {lane_summary}"
+    )
     for k, v in env.items():
         os.environ[k] = v
     return start_agent_loop()
