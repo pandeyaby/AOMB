@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import sys
 import tempfile
 import unittest
@@ -188,11 +189,18 @@ class TestCliTaleOvernightDryRun(unittest.TestCase):
             with mock.patch("sys.stdout", buf_out), mock.patch("sys.stderr", buf_err):
                 code = cli(["--tale-overnight-dry-run"])
         self.assertEqual(code, EXIT_OK)
-        blob = (buf_out.getvalue() + buf_err.getvalue()).lower()
+        out = buf_out.getvalue()
+        blob = (out + buf_err.getvalue()).lower()
         self.assertIn("dry-run", blob)
         self.assertIn("aomb_corpus=tale_of_errors", blob)
         self.assertIn("no agent_loop", blob)
         self.assertNotIn("starting agent_loop", blob)
+        # PR #79: overnight dry-run must surface best_val + source (never invent).
+        self.assertIn("best_val:", out)
+        self.assertIn("best_val_source:", out)
+        m = re.search(r"best_val_source:\s*(\S+)", out)
+        self.assertIsNotNone(m, out)
+        self.assertIn(m.group(1), {"env", "measured_card", "git", "missing"})
         start.assert_not_called()
 
     def test_cli_invent_refuse_with_overnight(self):
