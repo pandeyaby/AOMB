@@ -7,7 +7,8 @@ module hardens that in code.
 Precedence (first sane wins)::
 
   1. Env / explicit override ``AOMB_BEST_VAL_BPB``
-  2. Tale measured card (when enabled) — factual ``val_bpb`` only
+  2. Tale measured card (when enabled + cache_lane active data/tokenizer) —
+     factual ``val_bpb`` only; missing/ambiguous cache → treat card as unavailable
   3. Min of in-lane git/log commit subjects
   4. ``float("inf")`` — never invent a floor
 
@@ -150,6 +151,71 @@ def _truthy_env(raw: str | None) -> bool:
     if raw is None:
         return False
     return raw.strip().lower() in {"1", "true", "yes", "on", "y"}
+
+
+def resolve_autoresearch_cache_root(
+    environ: Mapping[str, str] | None = None,
+    *,
+    cache_root: Path | str | None = None,
+    home: Path | str | None = None,
+) -> Path:
+    """Resolve ``~/.cache/autoresearch`` (tests may pass cache_root / HOME)."""
+    if cache_root is not None:
+        return Path(cache_root).expanduser().resolve()
+    env = os.environ if environ is None else environ
+    raw = (env.get("AOMB_CACHE_ROOT") or "").strip()
+    if raw:
+        return Path(raw).expanduser().resolve()
+    home_path: Path | None
+    if home is not None:
+        home_path = Path(home).expanduser()
+    else:
+        home_raw = (env.get("AOMB_CACHE_HOME") or env.get("HOME") or "").strip()
+        home_path = Path(home_raw).expanduser() if home_raw else None
+    try:
+        from corpus.ingest.cache_lane import default_cache_root
+
+        return default_cache_root(home_path)
+    except Exception:
+        base = home_path if home_path is not None else Path.home()
+        return (base / ".cache" / "autoresearch").resolve()
+
+
+def cache_lane_ready_for_card_floor(
+    environ: Mapping[str, str] | None = None,
+    *,
+    cache_root: Path | str | None = None,
+    home: Path | str | None = None,
+) -> tuple[bool, str]:
+    """True when active autoresearch data+tokenizer dirs exist.
+
+    Import-safe: uses ``corpus.ingest.cache_lane.status`` when available.
+    Missing / partial / ambiguous lane → False (never invent a card floor).
+    """
+    root = resolve_autoresearch_cache_root(
+        environ, cache_root=cache_root, home=home
+    )
+    try:
+        from corpus.ingest.cache_lane import status
+    except Exception as exc:  # noqa: BLE001 — import-safe refuse
+        return False, f"cache_lane import unavailable ({exc}); refuse card floor"
+
+    try:
+        rep = status(root)
+    except Exception as exc:  # noqa: BLE001
+        return False, f"cache_lane status failed ({exc}); refuse card floor"
+
+    if rep.active_data and rep.active_tokenizer:
+        return True, f"active data+tokenizer under {root}"
+    if rep.active_data ^ rep.active_tokenizer:
+        return (
+            False,
+            "ambiguous/partial cache_lane "
+            f"(data={'yes' if rep.active_data else 'no'}, "
+            f"tokenizer={'yes' if rep.active_tokenizer else 'no'}) under {root}",
+        )
+    return False, f"no active data dir under {root}"
+
 
 
 def card_floor_enabled(
@@ -306,12 +372,14 @@ def resolve_best_val_bpb(
     source_id: str | None = None,
     override: str | float | None = ...,  # type: ignore[assignment]
     card_path: Path | str | None = None,
+    cache_root: Path | str | None = None,
+    home: Path | str | None = None,
 ) -> float:
     """Resolve best-val for agent_loop.
 
     Priority:
       1. Explicit / env override ``AOMB_BEST_VAL_BPB`` (when sane)
-      2. Tale measured card (when enabled + factual)
+      2. Tale measured card (when enabled + factual + cache_lane active)
       3. Min of in-lane commit subjects
       4. ``float("inf")`` — never invent a floor
     """
@@ -341,8 +409,18 @@ def resolve_best_val_bpb(
         path = resolve_measured_card_path(env, card_path=card_path)
         card_val = parse_val_bpb_from_measured_card(path)
         if card_val is not None:
-            return card_val
-        # missing/malformed card → fall through (may still be inf)
+            ready, lane_msg = cache_lane_ready_for_card_floor(
+                env, cache_root=cache_root, home=home
+            )
+            if ready:
+                return card_val
+            # Card present but cache lane missing/ambiguous → same as missing card.
+            print(
+                f"best_val_bpb: refusing measured-card floor ({lane_msg}); "
+                "never invent val_bpb — falling through to git / inf",
+                file=sys.stderr,
+            )
+        # missing/malformed card or refused lane → fall through (may still be inf)
 
     return best_val_from_commit_subjects(
         list(subjects or ()),

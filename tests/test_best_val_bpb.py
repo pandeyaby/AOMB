@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT))
 from best_val_bpb import (  # noqa: E402
     EXIT_REFUSED_FLAG,
     best_val_from_commit_subjects,
+    cache_lane_ready_for_card_floor,
     card_floor_enabled,
     commit_matches_lane,
     format_lane_commit_tags,
@@ -386,13 +387,17 @@ class TestMeasuredCardFloor(unittest.TestCase):
                 claim_status="measured_not_published",
                 val_bpb=1.37952,
             )
+            cache = Path(tmp) / "cache"
+            cache.mkdir()
+            (cache / "data").mkdir()
+            (cache / "tokenizer").mkdir()
             env = {"AOMB_CORPUS": "tale_of_errors"}
             # Git subject would be worse/better — card wins when enabled
             subjects = [
                 "[val_bpb=0.5120] [corpus=tale] [source_id=uber-tale-of-errors]"
             ]
             best = resolve_best_val_bpb(
-                subjects, environ=env, card_path=card
+                subjects, environ=env, card_path=card, cache_root=cache
             )
             self.assertAlmostEqual(best, 1.37952, places=5)
             self.assertTrue(card_floor_enabled(env))
@@ -427,11 +432,17 @@ class TestMeasuredCardFloor(unittest.TestCase):
                 claim_status="measured_not_published",
                 val_bpb=1.37952,
             )
+            cache = Path(tmp) / "cache"
+            cache.mkdir()
+            (cache / "data").mkdir()
+            (cache / "tokenizer").mkdir()
             env = {
                 "AOMB_CORPUS": "tale_of_errors",
                 "AOMB_BEST_VAL_BPB": "1.2000",
             }
-            best = resolve_best_val_bpb([], environ=env, card_path=card)
+            best = resolve_best_val_bpb(
+                [], environ=env, card_path=card, cache_root=cache
+            )
             self.assertAlmostEqual(best, 1.2000, places=4)
 
     def test_explicit_from_card_flag_without_tale_corpus(self):
@@ -443,8 +454,14 @@ class TestMeasuredCardFloor(unittest.TestCase):
                 claim_status="measured_not_published",
                 val_bpb=1.37952,
             )
+            cache = Path(tmp) / "cache"
+            cache.mkdir()
+            (cache / "data").mkdir()
+            (cache / "tokenizer").mkdir()
             env = {"AOMB_BEST_VAL_FROM_CARD": "1"}
-            best = resolve_best_val_bpb([], environ=env, card_path=card)
+            best = resolve_best_val_bpb(
+                [], environ=env, card_path=card, cache_root=cache
+            )
             self.assertAlmostEqual(best, 1.37952, places=5)
 
     def test_crisp_corpus_does_not_read_card_by_default(self):
@@ -485,6 +502,124 @@ class TestHonestyNoInventedFloorInModule(unittest.TestCase):
         self.assertNotRegex(src, r"return\s+0\.4309")
         self.assertNotRegex(src, r"return\s+0\.458756")
         self.assertNotRegex(src, r"return\s+0\.3682")
+
+
+
+class TestCardFloorCacheLaneGate(unittest.TestCase):
+    """Measured-card floor requires active cache_lane data+tokenizer."""
+
+    def _home_cache(self):
+        import tempfile
+
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        home = Path(td.name)
+        cache = home / ".cache" / "autoresearch"
+        cache.mkdir(parents=True)
+        return home, cache
+
+    def test_ready_when_active(self):
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()
+        (cache / "tokenizer").mkdir()
+        ok, msg = cache_lane_ready_for_card_floor(home=home)
+        self.assertTrue(ok, msg)
+        self.assertIn("active", msg.lower())
+
+    def test_not_ready_when_missing(self):
+        home, cache = self._home_cache()
+        ok, msg = cache_lane_ready_for_card_floor(cache_root=cache)
+        self.assertFalse(ok)
+        self.assertIn("no active data", msg.lower())
+
+    def test_card_plus_active_uses_card(self):
+        import tempfile
+
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()
+        (cache / "tokenizer").mkdir()
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {"AOMB_BEST_VAL_FROM_CARD": "1"}
+            best = resolve_best_val_bpb(
+                [], environ=env, card_path=card, cache_root=cache
+            )
+            self.assertAlmostEqual(best, 1.37952, places=5)
+
+    def test_card_plus_missing_data_is_inf(self):
+        import tempfile
+
+        home, cache = self._home_cache()
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {"AOMB_BEST_VAL_FROM_CARD": "1"}
+            best = resolve_best_val_bpb(
+                [], environ=env, card_path=card, home=home
+            )
+            self.assertTrue(math.isinf(best))
+
+    def test_card_plus_missing_falls_through_to_git(self):
+        import tempfile
+
+        home, cache = self._home_cache()
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {"AOMB_CORPUS": "tale_of_errors"}
+            subjects = [
+                "[val_bpb=0.5120] [corpus=tale] [source_id=uber-tale-of-errors]"
+            ]
+            best = resolve_best_val_bpb(
+                subjects, environ=env, card_path=card, cache_root=cache
+            )
+            self.assertAlmostEqual(best, 0.5120, places=4)
+
+    def test_env_override_beats_missing_lane(self):
+        import tempfile
+
+        home, cache = self._home_cache()
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {
+                "AOMB_BEST_VAL_FROM_CARD": "1",
+                "AOMB_BEST_VAL_BPB": "1.2000",
+            }
+            best = resolve_best_val_bpb(
+                [], environ=env, card_path=card, home=home
+            )
+            self.assertAlmostEqual(best, 1.2000, places=4)
+
+    def test_partial_lane_refuses_card(self):
+        import tempfile
+
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()  # tokenizer missing → ambiguous
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            env = {"AOMB_BEST_VAL_FROM_CARD": "1"}
+            best = resolve_best_val_bpb(
+                [], environ=env, card_path=card, cache_root=cache
+            )
+            self.assertTrue(math.isinf(best))
 
 
 if __name__ == "__main__":
