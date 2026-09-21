@@ -17,6 +17,10 @@ sys.path.insert(0, str(ROOT))
 
 from best_val_bpb import (  # noqa: E402
     EXIT_REFUSED_FLAG,
+    SOURCE_ENV,
+    SOURCE_GIT,
+    SOURCE_MEASURED_CARD,
+    SOURCE_MISSING,
     best_val_from_commit_subjects,
     cache_lane_ready_for_card_floor,
     card_floor_enabled,
@@ -28,6 +32,7 @@ from best_val_bpb import (  # noqa: E402
     parse_commit_lane_tags,
     parse_val_bpb_from_measured_card,
     resolve_best_val_bpb,
+    resolve_best_val_bpb_with_source,
 )
 
 
@@ -620,6 +625,95 @@ class TestCardFloorCacheLaneGate(unittest.TestCase):
                 [], environ=env, card_path=card, cache_root=cache
             )
             self.assertTrue(math.isinf(best))
+
+
+class TestResolveBestValWithSource(unittest.TestCase):
+    """(value, source_tag) helper — fixtures for env / measured_card / git / missing."""
+
+    def _home_cache(self):
+        import tempfile
+
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        home = Path(td.name)
+        cache = home / ".cache" / "autoresearch"
+        cache.mkdir(parents=True)
+        return home, cache
+
+    def test_source_env(self):
+        value, source = resolve_best_val_bpb_with_source(
+            [],
+            environ={"AOMB_BEST_VAL_BPB": "1.2000"},
+        )
+        self.assertAlmostEqual(value, 1.2000, places=4)
+        self.assertEqual(source, SOURCE_ENV)
+
+    def test_source_measured_card(self):
+        import tempfile
+
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()
+        (cache / "tokenizer").mkdir()
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            value, source = resolve_best_val_bpb_with_source(
+                [],
+                environ={"AOMB_BEST_VAL_FROM_CARD": "1"},
+                card_path=card,
+                cache_root=cache,
+            )
+        self.assertAlmostEqual(value, 1.37952, places=5)
+        self.assertEqual(source, SOURCE_MEASURED_CARD)
+
+    def test_source_git(self):
+        home, cache = self._home_cache()
+        subjects = [
+            "[val_bpb=0.5120] [corpus=tale] [source_id=uber-tale-of-errors]"
+        ]
+        value, source = resolve_best_val_bpb_with_source(
+            subjects,
+            environ={"AOMB_CORPUS": "tale_of_errors"},
+            card_path=Path("/no/such/measured_card.json"),
+            cache_root=cache,
+        )
+        self.assertAlmostEqual(value, 0.5120, places=4)
+        self.assertEqual(source, SOURCE_GIT)
+
+    def test_source_missing(self):
+        home, cache = self._home_cache()
+        value, source = resolve_best_val_bpb_with_source(
+            [],
+            environ={"AOMB_CORPUS": "tale_of_errors"},
+            card_path=Path("/no/such/measured_card.json"),
+            cache_root=cache,
+        )
+        self.assertTrue(math.isinf(value))
+        self.assertEqual(source, SOURCE_MISSING)
+
+    def test_card_without_cache_lane_is_not_measured_card(self):
+        """PR #78 gate: inactive cache_lane → never tag measured_card."""
+        import tempfile
+
+        home, cache = self._home_cache()
+        with tempfile.TemporaryDirectory() as tmp:
+            card = _write_card(
+                Path(tmp) / "measured.json",
+                claim_status="measured_not_published",
+                val_bpb=1.37952,
+            )
+            value, source = resolve_best_val_bpb_with_source(
+                [],
+                environ={"AOMB_BEST_VAL_FROM_CARD": "1"},
+                card_path=card,
+                cache_root=cache,
+            )
+        self.assertTrue(math.isinf(value))
+        self.assertEqual(source, SOURCE_MISSING)
+        self.assertNotEqual(source, SOURCE_MEASURED_CARD)
 
 
 if __name__ == "__main__":

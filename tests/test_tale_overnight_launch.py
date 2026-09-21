@@ -23,8 +23,16 @@ from eval.tale_overnight_launch import (  # noqa: E402
     EXIT_REFUSED_FLAG,
     assess_cache_lane,
     card_ok,
+    format_dry_run,
     main,
     planned_env,
+    resolve_dry_run_best_val,
+)
+from best_val_bpb import (  # noqa: E402
+    SOURCE_ENV,
+    SOURCE_GIT,
+    SOURCE_MEASURED_CARD,
+    SOURCE_MISSING,
 )
 
 
@@ -83,21 +91,13 @@ class TestCli(unittest.TestCase):
         code = main(["--run", "--card", "/no/such/measured.json"])
         self.assertEqual(code, EXIT_PLATFORM)
 
-    def test_run_refused_when_not_darwin(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            path = _write_card(Path(tmp) / "c.json", **GOOD)
-            with mock.patch(
-                "eval.tale_overnight_launch.darwin_mps_ok",
-                return_value=(False, "not Darwin (detected: Linux)"),
-            ):
-                with mock.patch("eval.tale_overnight_launch.start_agent_loop") as start:
-                    code = main(["--run", "--card", str(path)])
-        self.assertEqual(code, EXIT_PLATFORM)
-        start.assert_not_called()
-
     def test_run_starts_agent_when_platform_ok(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = _write_card(Path(tmp) / "c.json", **GOOD)
+            cache = Path(tmp) / "cache"
+            cache.mkdir()
+            (cache / "data").mkdir()
+            (cache / "tokenizer").mkdir()
             with mock.patch(
                 "eval.tale_overnight_launch.darwin_mps_ok",
                 return_value=(True, "Darwin + MPS available"),
@@ -106,9 +106,29 @@ class TestCli(unittest.TestCase):
                     "eval.tale_overnight_launch.start_agent_loop",
                     return_value=0,
                 ) as start:
-                    code = main(["--run", "--card", str(path)])
+                    code = main(
+                        ["--run", "--card", str(path), "--cache-root", str(cache)]
+                    )
         self.assertEqual(code, EXIT_OK)
         start.assert_called_once_with()
+
+    def test_run_refused_when_not_darwin(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = _write_card(Path(tmp) / "c.json", **GOOD)
+            cache = Path(tmp) / "cache"
+            cache.mkdir()
+            (cache / "data").mkdir()
+            (cache / "tokenizer").mkdir()
+            with mock.patch(
+                "eval.tale_overnight_launch.darwin_mps_ok",
+                return_value=(False, "not Darwin (detected: Linux)"),
+            ):
+                with mock.patch("eval.tale_overnight_launch.start_agent_loop") as start:
+                    code = main(
+                        ["--run", "--card", str(path), "--cache-root", str(cache)]
+                    )
+        self.assertEqual(code, EXIT_PLATFORM)
+        start.assert_not_called()
 
     def test_shell_dry_run(self):
         script = ROOT / "scripts" / "tale_overnight_launch.sh"
@@ -259,6 +279,140 @@ class TestCacheLaneGate(unittest.TestCase):
                         EXIT_REFUSED_FLAG,
                     )
                     start.assert_not_called()
+
+
+class TestDryRunBestValSource(unittest.TestCase):
+    """Dry-run prints resolved best_val + source tag (never invents)."""
+
+    def _home_cache(self):
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        home = Path(td.name)
+        cache = home / ".cache" / "autoresearch"
+        cache.mkdir(parents=True)
+        return home, cache
+
+    def _good_card(self) -> Path:
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        return _write_card(Path(td.name) / "measured.json", **GOOD)
+
+    def test_helper_source_env(self):
+        home, cache = self._home_cache()
+        card = self._good_card()
+        env = planned_env(card_path=card)
+        env["AOMB_BEST_VAL_BPB"] = "1.2000"
+        value, source = resolve_dry_run_best_val(
+            env, card_path=card, cache_root=cache, subjects=[]
+        )
+        self.assertAlmostEqual(value, 1.2000, places=4)
+        self.assertEqual(source, SOURCE_ENV)
+
+    def test_helper_source_measured_card(self):
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()
+        (cache / "tokenizer").mkdir()
+        card = self._good_card()
+        env = planned_env(card_path=card)
+        value, source = resolve_dry_run_best_val(
+            env, card_path=card, cache_root=cache, subjects=[]
+        )
+        self.assertAlmostEqual(value, 1.37952, places=5)
+        self.assertEqual(source, SOURCE_MEASURED_CARD)
+
+    def test_helper_source_git(self):
+        home, cache = self._home_cache()
+        card = Path("/no/such/measured.json")
+        env = planned_env(card_path=card)
+        subjects = [
+            "[val_bpb=0.5120] [corpus=tale] [source_id=uber-tale-of-errors]"
+        ]
+        value, source = resolve_dry_run_best_val(
+            env, card_path=card, cache_root=cache, subjects=subjects
+        )
+        self.assertAlmostEqual(value, 0.5120, places=4)
+        self.assertEqual(source, SOURCE_GIT)
+
+    def test_helper_source_missing(self):
+        home, cache = self._home_cache()
+        card = Path("/no/such/measured.json")
+        env = planned_env(card_path=card)
+        value, source = resolve_dry_run_best_val(
+            env, card_path=card, cache_root=cache, subjects=[]
+        )
+        self.assertTrue(__import__("math").isinf(value))
+        self.assertEqual(source, SOURCE_MISSING)
+
+    def test_card_inactive_lane_not_measured_card(self):
+        """PR #78: measured_card only when cache_lane active."""
+        home, cache = self._home_cache()
+        card = self._good_card()
+        env = planned_env(card_path=card)
+        value, source = resolve_dry_run_best_val(
+            env, card_path=card, cache_root=cache, subjects=[]
+        )
+        self.assertTrue(__import__("math").isinf(value))
+        self.assertEqual(source, SOURCE_MISSING)
+
+    def test_dry_run_prints_missing_inf(self):
+        home, cache = self._home_cache()
+        buf = __import__("io").StringIO()
+        with mock.patch("sys.stdout", buf):
+            with mock.patch(
+                "eval.tale_overnight_launch.load_git_commit_subjects",
+                return_value=[],
+            ):
+                code = main(
+                    [
+                        "--dry-run",
+                        "--card",
+                        "/no/such/measured.json",
+                        "--cache-root",
+                        str(cache),
+                    ]
+                )
+        self.assertEqual(code, EXIT_OK)
+        out = buf.getvalue()
+        self.assertIn("best_val: inf", out)
+        self.assertIn("best_val_source: missing", out)
+        self.assertNotIn("starting agent_loop", out.lower())
+
+    def test_dry_run_prints_measured_card_when_lane_active(self):
+        home, cache = self._home_cache()
+        (cache / "data").mkdir()
+        (cache / "tokenizer").mkdir()
+        card = self._good_card()
+        buf = __import__("io").StringIO()
+        with mock.patch("sys.stdout", buf):
+            with mock.patch(
+                "eval.tale_overnight_launch.load_git_commit_subjects",
+                return_value=[],
+            ):
+                code = main(
+                    [
+                        "--dry-run",
+                        "--card",
+                        str(card),
+                        "--cache-root",
+                        str(cache),
+                    ]
+                )
+        self.assertEqual(code, EXIT_OK)
+        out = buf.getvalue()
+        self.assertIn("best_val: 1.37952", out)
+        self.assertIn("best_val_source: measured_card", out)
+
+    def test_format_dry_run_includes_source(self):
+        env = planned_env()
+        text = format_dry_run(
+            env,
+            card_path=Path("/x.json"),
+            card_status="ok",
+            best_val=float("inf"),
+            best_val_source=SOURCE_MISSING,
+        )
+        self.assertIn("best_val: inf", text)
+        self.assertIn("best_val_source: missing", text)
 
 
 if __name__ == "__main__":

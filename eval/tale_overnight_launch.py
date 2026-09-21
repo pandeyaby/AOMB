@@ -14,8 +14,10 @@ Never invents AUROC / val_bpb. prepare.py sacred. No workflow spend in CI.
 from __future__ import annotations
 
 import argparse
+import math
 import os
 import platform
+import subprocess
 import sys
 from pathlib import Path
 
@@ -28,6 +30,11 @@ from eval.public_wins_tale_line import (  # noqa: E402
     DEFAULT_CARD,
     factual_line_from_card,
     load_measured_card,
+)
+from best_val_bpb import (  # noqa: E402
+    SOURCE_MISSING,
+    format_best_val_display,
+    resolve_best_val_bpb_with_source,
 )
 
 EXIT_OK = 0
@@ -161,12 +168,64 @@ def assess_cache_lane(cache_root: Path) -> tuple[bool, str, list[str]]:
 
 
 
+def load_git_commit_subjects(limit: int = 200) -> list[str]:
+    """Read recent git commit subjects for best_val resolution (soft-fail → [])."""
+    try:
+        proc = subprocess.run(
+            ["git", "log", "--format=%s", f"-{limit}"],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return []
+    if proc.returncode != 0 or not proc.stdout:
+        return []
+    return proc.stdout.splitlines()
+
+
+def resolve_dry_run_best_val(
+    env: dict[str, str],
+    *,
+    card_path: Path,
+    cache_root: Path | None = None,
+    home: Path | None = None,
+    subjects: list[str] | None = None,
+) -> tuple[float, str]:
+    """Resolve dry-run best_val + source tag via best_val_bpb (never invent).
+
+    Uses planned overnight env, plus any real ``AOMB_BEST_VAL_BPB`` override.
+    ``measured_card`` only when cache_lane is active (PR #78 gate); otherwise
+    fall through to git / missing+inf.
+    """
+    resolve_env = dict(env)
+    # Runtime override still wins if operator already exported it.
+    if not (resolve_env.get("AOMB_BEST_VAL_BPB") or "").strip():
+        real = (os.environ.get("AOMB_BEST_VAL_BPB") or "").strip()
+        if real:
+            resolve_env["AOMB_BEST_VAL_BPB"] = real
+
+    if subjects is None:
+        subjects = load_git_commit_subjects()
+
+    return resolve_best_val_bpb_with_source(
+        subjects,
+        environ=resolve_env,
+        card_path=card_path,
+        cache_root=cache_root,
+        home=home,
+    )
+
+
 def format_dry_run(
     env: dict[str, str],
     *,
     card_path: Path,
     card_status: str,
     cache_lines: list[str] | None = None,
+    best_val: float | None = None,
+    best_val_source: str | None = None,
 ) -> str:
     lines = [
         "tale_overnight_launch: dry-run (no agent_loop, no APIs)",
@@ -177,6 +236,13 @@ def format_dry_run(
         f"  measured card: {card_path}",
         f"  card status: {card_status}",
     ]
+    if best_val is None or best_val_source is None:
+        bv, src = float("inf"), SOURCE_MISSING
+    else:
+        bv, src = best_val, best_val_source
+        if not math.isfinite(bv):
+            bv, src = float("inf"), SOURCE_MISSING
+    lines.extend(format_best_val_display(bv, src).splitlines())
     if cache_lines:
         lines.extend(cache_lines)
     lines.extend(
@@ -269,12 +335,20 @@ def main(argv: list[str] | None = None) -> int:
 
     if do_dry and not do_run:
         status = card_msg if ok else f"unavailable ({card_msg}) — --run would exit 2"
+        best_val, best_src = resolve_dry_run_best_val(
+            env,
+            card_path=Path(args.card),
+            cache_root=args.cache_root,
+            home=args.home,
+        )
         print(
             format_dry_run(
                 env,
                 card_path=Path(args.card),
                 card_status=status,
                 cache_lines=cache_lines,
+                best_val=best_val,
+                best_val_source=best_src,
             )
         )
         return EXIT_OK
