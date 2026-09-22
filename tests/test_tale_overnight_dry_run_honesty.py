@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import io
 import os
+import re
 import subprocess
 import sys
 import unittest
@@ -54,6 +55,7 @@ def _blob(proc: subprocess.CompletedProcess[str]) -> str:
 
 def _assert_dry_run_success(test: unittest.TestCase, proc: subprocess.CompletedProcess[str]) -> None:
     test.assertEqual(proc.returncode, 0, _blob(proc))
+    out = proc.stdout or ""
     low = _blob(proc).lower()
     test.assertIn("dry-run", low)
     test.assertIn("aomb_corpus=tale_of_errors", low)
@@ -63,6 +65,12 @@ def _assert_dry_run_success(test: unittest.TestCase, proc: subprocess.CompletedP
     for marker in STARTED_MARKERS:
         test.assertNotIn(marker, low)
     test.assertNotIn("starting agent_loop", low)
+    # PR #79: every entrypoint must pass through best_val + source (never invent).
+    test.assertIn("best_val:", out)
+    test.assertIn("best_val_source:", out)
+    m = re.search(r"best_val_source:\s*(\S+)", out)
+    test.assertIsNotNone(m, out)
+    test.assertIn(m.group(1), {"env", "measured_card", "git", "missing"})
 
 
 class TestCrossEntrypointSubprocessDryRun(unittest.TestCase):

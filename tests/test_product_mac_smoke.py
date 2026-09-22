@@ -389,11 +389,18 @@ class TestProductMacTaleOvernightDryRun(unittest.TestCase):
             with mock.patch("sys.stdout", buf_out), mock.patch("sys.stderr", buf_err):
                 rc = main(["--tale-overnight-dry-run"])
         self.assertEqual(rc, EXIT_OK)
-        blob = (buf_out.getvalue() + buf_err.getvalue()).lower()
+        out = buf_out.getvalue()
+        blob = (out + buf_err.getvalue()).lower()
         self.assertIn("dry-run", blob)
         self.assertIn("aomb_corpus=tale_of_errors", blob)
         self.assertIn("no agent_loop", blob)
         self.assertNotIn("starting agent_loop", blob)
+        # PR #79: overnight dry-run must surface best_val + source (never invent).
+        self.assertIn("best_val:", out)
+        self.assertIn("best_val_source:", out)
+        m = re.search(r"best_val_source:\s*(\S+)", out)
+        self.assertIsNotNone(m, out)
+        self.assertIn(m.group(1), {"env", "measured_card", "git", "missing"})
         start.assert_not_called()
 
     def test_module_invent_refuse_exit_1(self):
@@ -448,11 +455,18 @@ class TestProductMacTaleOvernightDryRun(unittest.TestCase):
             self.skipTest("committed Tale measured card missing")
         proc = _run_script("--tale-overnight-dry-run")
         self.assertEqual(proc.returncode, EXIT_OK, proc.stderr + proc.stdout)
-        blob = (proc.stdout + proc.stderr).lower()
+        out = proc.stdout or ""
+        blob = (out + (proc.stderr or "")).lower()
         self.assertIn("dry-run", blob)
         self.assertIn("aomb_corpus=tale_of_errors", blob)
         self.assertIn("no agent_loop", blob)
         self.assertNotIn("starting agent_loop", blob)
+        # PR #79: shell path must pass through helper best_val + source lines.
+        self.assertIn("best_val:", out)
+        self.assertIn("best_val_source:", out)
+        m = re.search(r"best_val_source:\s*(\S+)", out)
+        self.assertIsNotNone(m, out)
+        self.assertIn(m.group(1), {"env", "measured_card", "git", "missing"})
 
     def test_shell_invent_refuse_with_overnight(self):
         from eval.product_mac_path import EXIT_REFUSED_FLAG
