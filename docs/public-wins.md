@@ -111,9 +111,9 @@ Prints `val_bpb` + `claim_status` + `max_spans` with an explicit **train fitness
 - **Contributing as a stranger:** [`contributing-stranger.md`](contributing-stranger.md)
 - **Org trust (optional):** [`SECURITY.md`](../SECURITY.md) · [`SUPPORT.md`](../SUPPORT.md) · [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) · [`CITATION.cff`](../CITATION.cff) · [`NOTICE`](../NOTICE) · [`CONTRIBUTING.md`](../CONTRIBUTING.md) · review ownership via [`.github/CODEOWNERS`](../.github/CODEOWNERS) (`@pandeyaby`)
 - **License:** [`LICENSE`](../LICENSE)
-- README blurb: [Public wins](../README.md#public-wins-what-an-outsider-can-verify-today)
+- README blurb: [Claims & reproducibility](../README.md#claims--reproducibility)
 - Compute honesty: [`compute-paths.md`](compute-paths.md) · Mac product bridge: [`product-mac-path.md`](product-mac-path.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
-- Three lanes: README · [`corpus-v1.md`](corpus-v1.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) · [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md)
+- Three lanes: README *Claims & reproducibility* · [`corpus-v1.md`](corpus-v1.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) · [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md)
 - Lab lane: [`lab/`](lab/) (`not_published` by default) · publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md)
 - BYO session BPB (not AUROC): [`byo-and-scorer.md`](byo-and-scorer.md) · `./scripts/byo_score.sh`
 - Tale-scale train path (no AUROC; fixture smoke only in-repo): [`tale-scale.md`](tale-scale.md) · `./scripts/tale_scale_smoke.sh`

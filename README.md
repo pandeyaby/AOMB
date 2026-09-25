@@ -1,206 +1,79 @@
-# Autonomous Observability Model Breeder (AOMB)
+# AOMB — Autonomous Observability Model Breeder
 
-[![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml)
-[![stranger-demo](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml)
+**An AI research agent that improves a small language model for your telemetry while you sleep.**
+
 [![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml)
-[![public-ranking-card-v1](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/public-ranking-card-v1.yml)
+[![stranger-demo](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml)
+[![diptych-adapter-gate](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Open in Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-black?logo=github)](https://codespaces.new/pandeyaby/AOMB)
 
-![Traces → small next-token ILM → anomaly via surprise; Apple Silicon research loop](docs/assets/aomb-readme-hero.png)
+![Traces → small next-token Infrastructure Language Model → anomaly via surprise; Apple Silicon research loop](docs/assets/aomb-readme-hero.png)
 
-> *"Frontier AI research used to require meat computers. Now it runs overnight on your MacBook."*
+AOMB trains an **Infrastructure Language Model (ILM)**: a small GPT that learns to predict the next token of observability telemetry (traces, logs, network and APM events). A model that predicts *normal* traffic well is surprised by *abnormal* traffic, so the surprise score (bits-per-byte) is an anomaly signal. That means no rules, no thresholds, and no labels.
 
-**AOMB** breeds an **Infrastructure Language Model (ILM)** — next-token prediction on observability telemetry. Lower **`val_bpb`** = better grasp of *normal* = surprise becomes the anomaly signal.
+The model isn't tuned by hand. An LLM agent (Claude) runs the research loop overnight on a Mac. It proposes a change to `train.py`, trains for 5 minutes on Apple Silicon, keeps the change if validation loss improved and reverts it if not. It repeats this dozens of times, and every improvement becomes a git commit. In the morning you get a report and a better model.
 
-Companion (not the same product): **[DIPTYCH](https://github.com/pandeyaby/DIPTYCH)** grades **2-safety / calibration** on **paired** probes. AOMB emits fixtures; DIPTYCH grades. Do not merge the products. Do not fork DIPTYCH harness/product code into this repo beyond the existing adapter emit path.
+It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch), via [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
 
-Write-up: [I Let an AI Improve Itself Overnight…](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212)
-
-> **Verify in 60s** — [![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) · [Open in Codespaces](https://codespaces.new/pandeyaby/AOMB) · [Example green run](https://github.com/pandeyaby/AOMB/actions/runs/35471119285)
-
-Share / paste for outsiders: [`docs/share-snip.md`](docs/share-snip.md).
-
-### Public wins (what an outsider can verify today)
-
-Index + honesty: **[`docs/public-wins.md`](docs/public-wins.md)** · cheatsheet: [`docs/stranger-60s.md`](docs/stranger-60s.md).  
-**Contributing as a stranger:** [`docs/contributing-stranger.md`](docs/contributing-stranger.md).  
-**Security:** [`SECURITY.md`](SECURITY.md) — defensive scope + report path.  
-**Support:** [`SUPPORT.md`](SUPPORT.md) — verify · vulns · PRs (no invented AUROC / CUDA; `prepare.py` sacred).  
-**Conduct:** [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) — no harassment; no pressure to invent AUROC / metrics.  
-**Cite:** [`CITATION.cff`](CITATION.cff) — GitHub URL + date accessed (no paper DOI yet; companion [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) is separate).
-
-| Path | How | Proves | Does **not** prove |
-|------|-----|--------|---------------------|
-| **Clone demo** | `./scripts/stranger_demo.sh` ([§ Stranger demo](#stranger-demo-linux--ci--no-mps-no-api-keys)) | Full-8 + `gate_axis_mutate`; ranking-card harness smoke (CPU) | Lab AUROC, production accuracy, MPS train, overnight agent |
-| **Cite Action badge** | Green [`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) ([§ Cite without cloning](#cite-without-cloning-stranger-verify)) | Same gates via Actions / Codespaces — no local Mac | Same limits — **no invented AUROC** |
-
-Both paths are honest harness / fixture smoke. Lab AUROC stays **`not_published`**. No CUDA claim yet.  
-Compute honesty (CPU stranger vs MPS product train; future CUDA = checklist only): [`docs/compute-paths.md`](docs/compute-paths.md).  
-On a Mac already? Stranger CPU ≠ product MPS — short bridge: [`docs/product-mac-path.md`](docs/product-mac-path.md) (`./scripts/product_mac_smoke.sh`).
-
-**Understand the product (~30 min):** train fitness surprise → score a session → higher BPB ≈ more anomalous — [`docs/anomaly-story.md`](docs/anomaly-story.md) · `uv run python demo_anomaly.py`. Gates above prove harness smoke; the story doc is how `val_bpb` *is* the anomaly signal (no invented AUROC).
+> **Status: research prototype.** Training results on public real-world traces are measured and reproducible (below). Anomaly-detection *accuracy* (AUROC on labeled incidents) is **not yet published**. See [Claims & reproducibility](#claims--reproducibility).
 
 ---
 
-## Stranger demo (Linux / CI — no MPS, no API keys)
+## Results so far
 
-Just cloned? Prove the public gates without Apple Silicon or Anthropic/OpenAI keys:
+All numbers are `val_bpb` (validation bits-per-byte, **lower is better**). This measures how well the model predicts held-out telemetry. Numbers from different datasets are **not comparable** with each other.
+
+| Dataset | Setup | `val_bpb` | Details |
+|---------|-------|-----------|---------|
+| **Uber CRISP** (real Jaeger traces, 200k spans) | Single 5-min run → **20 overnight agent experiments** | 0.4588 → **0.4309** (−6.1%) | [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) |
+| **Uber CRISP** (500k spans) | Single 5-min run, no agent | **0.4078** | [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) |
+| **Uber Tale of Errors** (200k-span capped subset) | Single 5-min run | **1.3795** | [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) |
+| Synthetic smoke corpus (first release) | 120 overnight experiments | 0.4372 → 0.3682 (−15.8%) | Legacy; used in the original write-up |
+
+The first release was trained on a synthetic corpus, and that's where the 15.8% improvement quoted in the [original write-up](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212) comes from. The project has since moved to public, real-world traces from Uber (CRISP and Tale of Errors).
+
+**Does surprise actually find anomalies?** Run `uv run python demo_anomaly.py`. It trains briefly, then scores held-out sessions, and anomalous and cascade-failure sessions score higher bits-per-byte than normal ones. The walkthrough is in [`docs/anomaly-story.md`](docs/anomaly-story.md). Labeled lab evaluation is in progress in [`docs/lab/`](docs/lab/).
+
+---
+
+## Try it
+
+### In 60 seconds, with no Mac and no API keys
+
+Click **[Open in Codespaces](https://codespaces.new/pandeyaby/AOMB)**, or run it on any Linux or macOS machine:
 
 ```bash
-uv sync                          # or: pip install pyarrow numpy rustbpe tiktoken
-                                 # + CPU torch for full card: pip install torch --index-url https://download.pytorch.org/whl/cpu
-./scripts/stranger_demo.sh       # full-8 + gate_axis_mutate, then ranking-card harness smoke
-# faster subset (baselines ε only):  STRANGER_FAST=1 ./scripts/stranger_demo.sh
-```
-
-**Honest:** public ranking card = **`published_fixture_card` / harness smoke** (tiny-n synthetic). Lab AUROC stays **`not_published`** — no invented AUROC. CRISP **`val_bpb`** = train fitness only. Overnight agent / MPS product train = Mac path below — **not** this script.
-
-Prefer a linkable green check without cloning? → [Cite without cloning](#cite-without-cloning-stranger-verify) (`stranger-verify` badge / Codespaces).  
-Details + what still needs MPS: [`docs/stranger-demo.md`](docs/stranger-demo.md) · pair doc: [`docs/stranger-verify.md`](docs/stranger-verify.md).
-
----
-
-## Three lanes (do not mix numbers)
-
-| Lane | What it is | Honest claim |
-|------|------------|--------------|
-| **1. Train — Uber CRISP** (+ Tale scale) | Real public Jaeger traces | Factual **`val_bpb` only** — no incident labels → **not** ranking accuracy · Tale: [`docs/tale-scale.md`](docs/tale-scale.md) · capped measured **`val_bpb=1.379520`** (`claim_status=measured_not_published`; train fitness only, **not** AUROC; not 1:1 vs CRISP) — [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · [`docs/public-wins.md`](docs/public-wins.md) · `./scripts/public_wins_tale_line.sh` |
-| **2. Lab — private** | Docker stack + faults (optional redacted pack) | Ranking evidence under [`docs/lab/`](docs/lab/) — default **`not_published`** |
-| **3. Public fixture card** | Tiny synthetic pack + CI | **`published_fixture_card`** = **harness smoke** that beat baselines — **not** lab / production ranking |
-
-Details: [`docs/public-wins.md`](docs/public-wins.md) · [`docs/stranger-60s.md`](docs/stranger-60s.md) · [`docs/anomaly-story.md`](docs/anomaly-story.md) · [`docs/corpus-v1.md`](docs/corpus-v1.md) · [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) · [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · [`docs/lab/`](docs/lab/) · [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) · [`docs/stranger-demo.md`](docs/stranger-demo.md) · [`docs/stranger-verify.md`](docs/stranger-verify.md) · [`docs/compute-paths.md`](docs/compute-paths.md).
-
----
-
-## One commands
-
-```bash
+git clone https://github.com/pandeyaby/AOMB.git && cd AOMB
 uv sync
-
-# Stranger path (no MPS / no keys) — preferred first run off Mac
-./scripts/stranger_demo.sh
-
-# Or individually:
-./scripts/run_diptych_full8.sh              # DIPTYCH full-8 + gate_axis_mutate
-./scripts/run_public_ranking_card_v1.sh     # harness smoke (CPU torch OK)
-
-# Smoke train (synthetic corpus — CI/dev only, not the product train story)
-uv run python generate_observability_corpus.py
-uv run python prepare.py --num-shards 20
-# 60s train smoke — see Quickstart below
+STRANGER_FAST=1 ./scripts/stranger_demo.sh
 ```
 
-**Product train (Uber CRISP):** see [Train on Uber CRISP](#train-on-uber-crisp).  
-**`aomb=green`** in coverage requires **`gate_axis_mutate`** (CI asserts `axis_power=true` on all 8 operators).
+This runs the public test gates on CPU: the fixture pipeline, the scoring harness, and the DIPTYCH probe checks. It proves the code works end to end. It does **not** train a production model. The same checks run in CI on every push ([`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml)). More detail: [`docs/stranger-demo.md`](docs/stranger-demo.md).
 
----
-
-## How the pieces fit
-
-```
-breed / score loop  →  fixtures  →  DIPTYCH paired probes (grade 2-safety)
-     (AOMB emit)                        (companion — calibration claims)
-```
-
-![AOMB breed/score → fixtures → DIPTYCH paired probes](docs/images/aomb-diptych-architecture.svg)
-
-Paper / IEEE copy: [`docs/images/`](docs/images/) · mermaid source [`docs/diagrams/aomb-diptych-architecture.mmd`](docs/diagrams/aomb-diptych-architecture.mmd) · adapter notes [`docs/paired-probes/`](docs/paired-probes/).
-
----
-
-## Quickstart
+### See the anomaly signal (~5 minutes, CPU is fine)
 
 ```bash
-# Requirements: macOS + Apple Silicon, Python 3.10+, uv
-# Optional for real corpus: Docker (lab), ~2.3GB disk+net for Uber CRISP fetch
+uv run python generate_observability_corpus.py   # small synthetic corpus
+uv run python prepare.py --num-shards 20         # tokenizer + shards
+uv run python demo_anomaly.py                    # train briefly, score normal vs anomalous sessions
+```
 
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv sync
+### Run the overnight agent (Apple Silicon Mac)
 
-# Prefer real Uber CRISP for training (Three lanes). Smoke path:
-uv run python generate_observability_corpus.py   # SMOKE / CI ONLY
-uv run python prepare.py --num-shards 20         # sacred — do not edit
+```bash
+./scripts/product_mac_smoke.sh     # check that MPS training works (no keys needed)
 
-# 60-second train smoke
-uv run python -c "
-import signal, sys
-signal.signal(signal.SIGALRM, lambda s,f: sys.exit(0))
-signal.alarm(60)
-exec(open('train.py').read())
-" 2>&1 | tail -5
-
-# Anomaly story — look for anomalous/cascade mean_bpb >> normal
-# (same family as val_bpb — docs/anomaly-story.md)
-uv run python demo_anomaly.py
-
-# Overnight agent + morning report
+export AOMB_ANTHROPIC_API_KEYS=sk-ant-...
 caffeinate -i uv run python agent_loop.py >> logs/agent_loop.log 2>&1 &
+
+# next morning
 uv run python morning_report.py --plot
 ```
 
 ---
 
-### Train on Uber CRISP
-
-```bash
-uv run python -m corpus.ingest.fetch_crisp                 # or --download (~2.33 GB, not CI)
-uv run python -m corpus.ingest.build_shards \
-  --adapter crisp_zenodo \
-  --input ~/.cache/autoresearch/corpus-v1/crisp/extracted \
-  --num-train-shards 8 --write-val-shard
-uv run python prepare.py --num-shards 8
-uv run python train.py
-```
-
-Current factual CRISP `val_bpb` (training fitness, **not** accuracy): **0.407753** (500k spans) · overnight 200k best **0.4309**. Tables: [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md).
-
-### Tale-scale (Uber Tale of Errors — train lane)
-
-Flagship-scale public-real path (CC BY 4.0; hundreds of GB). **Train fitness only** — no incident labels → **no AUROC**. Fixture smoke (no Zenodo pull): `./scripts/tale_scale_smoke.sh`. Docs: [`docs/tale-scale.md`](docs/tale-scale.md).  
-**Capped subset measured** (disk-safe Mac run; `max_spans=200000`): factual **`val_bpb=1.379520`** with `claim_status=measured_not_published` — **train fitness only**, not AUROC, not a published accuracy claim, and **not** 1:1 comparable to CRISP. Card: [`reports/tale-capped/measured_capped_200k.json`](reports/tale-capped/measured_capped_200k.json) · write-up: [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · public-wins: [`docs/public-wins.md`](docs/public-wins.md) · one-liner: `./scripts/public_wins_tale_line.sh` (or `./scripts/stranger_demo.sh --tale-card-line`).
-
-### Lab capture (labeled, unpublished by default)
-
-```bash
-cd lab && docker compose up -d --build && ./scripts/run_capture_session.sh && cd ..
-```
-
-Private captures stay local. Redacted pack: [`corpus/fixtures/lab_public_pack_v0/`](corpus/fixtures/lab_public_pack_v0/) (`claim_status=not_published`). Lab ranking numbers stay in [`docs/lab/`](docs/lab/) — **not** README heroes.
-
-### Public ranking card (harness smoke)
-
-```bash
-./scripts/run_public_ranking_card_v1.sh
-```
-
-Synthetic fixture only. Soft status: **`published_fixture_card` / harness smoke** — not production AUROC, not a lab ranking claim. Lab lane stays **`not_published`**. See the card doc. Do not put fixture AUROC on the README hero.
-
-### DIPTYCH paired probes (hyperproperty grading)
-
-[DIPTYCH](https://github.com/pandeyaby/DIPTYCH) grades **calibration** as 2-safety hyperproperties: not one run, but a coupled pair that shares all exogenous inputs except one controlled perturbation. AOMB’s full-8 adapters are already merged (`diptych_schema=0.2`); this repo emits the product probes that DIPTYCH grades.
-
-```bash
-./scripts/run_diptych_full8.sh
-```
-
-All 8 operators × conforming/violating under `diptych-probes/` (`diptych_schema=0.2`). Coverage: `coverage/matrix.json`. Docs: [`docs/paired-probes/`](docs/paired-probes/).
-
-**Adapter CI is required.** `.github/workflows/diptych-adapter-gate.yml` must stay green (runs on every push to `main`). Cells turn `aomb=green` only when twin contrast **and** `gate_axis_mutate` (power-on-axis) both pass — cosmetic verdict flips / SARIF renames / AUROC injects do not count. **Not** lab AUROC; **not** a public ranking claim. Calibration grading belongs to [DIPTYCH](https://github.com/pandeyaby/DIPTYCH).
-
-Architecture (pieces fit): ![AOMB breed/score → fixtures → DIPTYCH](docs/images/aomb-diptych-architecture.svg)
-
-Calibration path: ![Breed/score → public fixture card → DIPTYCH probes](docs/images/aomb-calibration-pipeline.svg)
-
-### BYO / Tale-scale / synthetic smoke
-
-- BYO dumps: [`docs/byo-and-scorer.md`](docs/byo-and-scorer.md) — scoring ≠ published accuracy.
-- One-command: `./scripts/byo_score.sh /path/to/dump` (session BPB only; lab stays `not_published`).
-- Tale-scale (public-real train lane, not AUROC): [`docs/tale-scale.md`](docs/tale-scale.md) · `./scripts/tale_scale_smoke.sh`
-- Capped Tale measured `val_bpb=1.379520` (`measured_not_published`; train fitness only, not AUROC): [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · [`docs/public-wins.md`](docs/public-wins.md) · `./scripts/public_wins_tale_line.sh`
-- `generate_observability_corpus.py` = smoke / CI only — **not** the flagship train story.
-
----
-
-## How It Works
+## How it works
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -209,7 +82,7 @@ Calibration path: ![Breed/score → public fixture card → DIPTYCH probes](docs
 │  program.md + train.py + git log                        │
 │         │                                               │
 │         ▼                                               │
-│   claude --print ──► proposed train.py                  │
+│   Claude ──► proposed train.py                          │
 │         │                                               │
 │         ▼                                               │
 │   uv run train.py  (5 minutes, MPS)                     │
@@ -222,235 +95,160 @@ Calibration path: ![Breed/score → public fixture card → DIPTYCH probes](docs
 └─────────────────────────────────────────────────────────┘
 ```
 
-**Three files. That's the whole system.**
+Three files define the system:
 
-| File | Who touches it | What it is |
-|------|---------------|------------|
-| `prepare.py` | Nobody | Data pipeline, tokenizer, `evaluate_bpb` — sacred, never modified |
-| `train.py` | The Claude agent | Model architecture + training loop — the only thing that changes |
-| `program.md` | You (rarely) | Research constitution — domain context, experiment queue, constraints |
+| File | Who changes it | What it is |
+|------|----------------|------------|
+| `prepare.py` | Nobody (frozen) | Data pipeline, tokenizer, and the `evaluate_bpb` metric. It's frozen so scores stay comparable across experiments |
+| `train.py` | The agent | Model architecture and training loop. This is the only file the agent edits |
+| `program.md` | You, rarely | The agent's research brief: domain context, experiment ideas, constraints |
 
-The agent loop (`agent_loop.py`) drives the cycle automatically. You set it and forget it.
-
-A domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch) —
-adapted for Apple Silicon by [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
-
----
-
-## The Idea
-
-Monitoring tools today are rule-based and threshold-driven. Someone decided `latency_ms > 500` means alert.
-The on-call engineer gets paged 847 times a week. 803 are noise.
-
-AOMB takes the language model approach: **train a model to predict what comes next in your telemetry stream.**
-A model that predicts well has learned what *normal* looks like. Anomalies are sequences the model finds surprising.
-No rules. No labels. No thresholds. Just next-token prediction — and the anomaly detection is a free consequence.
-
-The training objective (`val_bpb` — validation bits-per-byte) *is* the anomaly detection capability.
-Lower val_bpb = model understands your infrastructure's language = better anomaly detector.
-
-**30-minute clone path:** [`docs/anomaly-story.md`](docs/anomaly-story.md) → `uv run python demo_anomaly.py` (look for anomalous/cascade `mean_bpb` ≫ normal).
-
-An ILM trained on your own telemetry has an anomaly detector no vendor can replicate — because the model learned the statistical fingerprint of that specific environment.
-
----
-
-## The Training Data (legacy synthetic smoke path)
-
-> Prefer **Uber CRISP** (Three lanes). The shards below are what `generate_observability_corpus.py` produces for smoke/CI.
-
-21 parquet shards (~22 MB) in `~/.cache/autoresearch/data/`.
-Each row is a coherent session of 8–60 correlated events across telemetry sources:
-
-```
-[ts=2026-03-08T18:00:00Z] [src=APMTracer] [svc=payment-gateway] latency_ms=420 error=timeout trace_id=a3f9 http_status=500 drift_score=0.87
-[ts=2026-03-08T18:00:01Z] [src=NetIntel] path=internet→aws-us-east-1 latency_ms=3200 packet_loss=0.123 bgp_changes=3
-[ts=2026-03-08T18:00:01Z] [src=LogStream] level=CRITICAL svc=auth msg=circuit_breaker_open latency_ms=28500 pagerduty=triggered
-```
-
-**Statistical properties:** ~91% normal, ~6% anomalous, ~3% cascade failures.
-BPE vocab of 8,192 tokens — field names like `latency_ms=`, `trace_id=` become single tokens.
-
----
-
-## Visualize the Corpus
-
-```bash
-uv run python visualize_corpus.py            # report + corpus_overview.png
-uv run python visualize_corpus.py --no-plot  # terminal-only
-uv run python visualize_corpus.py --samples  # normal / anomalous / cascade
-```
-
----
-
-## The Model Architecture
-
-Not vanilla nanoGPT. Built-in from day one:
-
-| Component | What it does |
-|-----------|-------------|
-| **RoPE** | Rotary position embeddings — relative position |
-| **GQA** | Grouped Query Attention — memory efficient |
-| **Sliding window** | `WINDOW_PATTERN="L"` — per-layer full or half-context |
-| **MuonAdamW** | Muon for matrices, AdamW for embeddings |
-| **Value Embeddings** | ResFormer-style residual on alternating layers |
-| **Logit softcapping** | `tanh(x/15)×15` |
-| **RMSNorm** | Everywhere, no bias |
-
-**What the agent explores:** `DEPTH`, `ASPECT_RATIO`, `HEAD_DIM`, `WINDOW_PATTERN`, 4-way LRs, warmup/warmdown, `TOTAL_BATCH_SIZE` — see top of `train.py`.
-
----
-
-## Results (where the numbers live)
-
-- **CRISP `val_bpb` (train fitness):** [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md)
-- **Public fixture card (harness smoke):** [`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md) · `reports/public-ranking-card-v1/CARD.md` — clone→CI smoke only; **no AUROC hero**
-- **Lab ranking (private / redacted pack):** [`docs/lab/`](docs/lab/) — `not_published` by default
-- **DIPTYCH calibration grading:** [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH) · local emit path [`docs/paired-probes/`](docs/paired-probes/) — adapter CI + `gate_axis_mutate` required
-
-No AUROC heroes on this README. Legacy synthetic overnight `val_bpb` history stays in git / morning reports — not the product headline.
-
----
-
-## val_bpb — The Only Metric That Matters (train lane)
+### Why `val_bpb` is the anomaly detector
 
 ```
 val_bpb = total_nats / (log(2) × total_bytes)
 ```
 
-Bits-per-byte is vocabulary-independent within a fixed tokenizer/corpus.
-**Do not treat scores from different corpora as interchangeable** (e.g. CRISP-500k **0.407753** vs overnight 200k **0.4309** vs synthetic **0.3682**).
+Minimizing `val_bpb` minimizes the gap between the model's predictions and the real distribution of normal telemetry. The *same* quantity computed on a new session is its surprise score. So a lower training `val_bpb` means a sharper sense of normal, and a better anomaly signal. There's no separate detection head and no labels.
 
-| val_bpb | What it means |
-|---------|---------------|
-| > 4.0 | Model barely beats random — hasn't learned field structure yet |
-| 1.5 – 4.0 | Early convergence — learning token distributions |
-| 0.8 – 1.5 | Good — model understands normal telemetry patterns |
-| 0.4 – 0.8 | Strong — implicit anomaly detector, approaching production use |
-| **0.407753** | **← CRISP-500k `TIME_BUDGET`; factual training metric only — not a public accuracy claim** |
-| **0.4309** | **← CRISP overnight best on 200k subset; README fact only — not a public accuracy claim** |
-| 0.458756 | ← CRISP pre-overnight 200k floor |
-| **0.3682** | **← synthetic smoke-era best; separate table — not comparable to CRISP** |
-| < 0.35 | Excellent — deploy as zero-shot anomaly scorer |
+### The model
 
-Minimizing val_bpb = minimizing KL(P_data ‖ P_model). Surprise on anomalous sequences is free.
-**The training objective IS the anomaly detection capability. No separate head. No labels.**
+It isn't vanilla nanoGPT. The baseline the agent starts from includes:
 
-See [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) for the ranking protocol (separate lane).
+| Component | Purpose |
+|-----------|---------|
+| RoPE | Rotary (relative) position embeddings |
+| Grouped Query Attention | Memory-efficient attention |
+| Sliding-window pattern | Full or half context per layer |
+| Muon + AdamW | Muon for matrices, AdamW for embeddings |
+| Value embeddings | ResFormer-style residual on alternating layers |
+| Logit softcapping | `tanh(x/15)×15` |
+| RMSNorm | Everywhere, no bias |
+
+The agent explores depth, width, head size, attention windows, learning rates, schedules, batch size, and loss functions. Focal loss was an early breakthrough. See the top of `train.py`.
 
 ---
 
-## Observability Sources in the Corpus
+## Train on real data
 
-| Source | Signal type |
-|--------|-------------|
-| **APMTracer** | APM traces, latency, error rates, GPU/AI agent cost drift |
-| **NetIntel** | Network path quality, BGP stability, DNS, packet loss |
-| **LogStream** | Structured logs, SIEM alerts, security events |
-| **OpenTelemetry** | Distributed trace spans, service dependency chains |
-| **WANController** | Branch WAN link health, QoS violations, bandwidth utilization |
-| **APMTracer-BizTxn** | End-to-end business transaction health snapshots |
+### Uber CRISP (recommended)
 
----
-
-## Morning Report
+Public Jaeger traces from Uber's CRISP dataset (~2.3 GB download).
 
 ```bash
-uv run python morning_report.py --plot
+uv run python -m corpus.ingest.fetch_crisp --download
+uv run python -m corpus.ingest.build_shards \
+  --adapter crisp_zenodo \
+  --input ~/.cache/autoresearch/corpus-v1/crisp/extracted \
+  --num-train-shards 8 --write-val-shard
+uv run python prepare.py --num-shards 8
+uv run python train.py
 ```
 
-Generates `overnight_progress.png` alongside the terminal report (experiments, best `val_bpb`, restore SHA).
+### Tale-scale (Uber Tale of Errors — train lane)
+
+Much larger public dataset (CC BY 4.0, hundreds of GB), streamed and capped so it fits on a laptop. To try it on a fixture without downloading: `./scripts/tale_scale_smoke.sh`. Docs: [`docs/tale-scale.md`](docs/tale-scale.md).
+
+**Capped subset measured** (Mac run, `max_spans=200000`): **`val_bpb=1.379520`**, `claim_status=measured_not_published`. This is train fitness only, not AUROC, and not a published accuracy claim. It isn't directly comparable to CRISP. Card: [`reports/tale-capped/measured_capped_200k.json`](reports/tale-capped/measured_capped_200k.json) · write-up: [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · summary: [`docs/public-wins.md`](docs/public-wins.md) · one-liner: `./scripts/public_wins_tale_line.sh`.
+
+### Your own telemetry
+
+Point the scorer at an OTLP JSONL, Jaeger, or parquet dump and get per-session surprise scores:
+
+```bash
+./scripts/byo_score.sh /path/to/dump            # dry run: parse + validate
+./scripts/byo_score.sh /path/to/dump --train-seconds 120
+```
+
+See [`docs/byo-and-scorer.md`](docs/byo-and-scorer.md).
 
 ---
 
-## The Agent Loop
+## Configuration
+
+**Agent loop:** set `MAX_EXPERIMENTS`, `CLAUDE_TIMEOUT`, `TRAIN_TIMEOUT` and `CLAUDE_MODEL` at the top of `agent_loop.py`. Environment variables:
 
 ```bash
-caffeinate -i uv run python agent_loop.py >> logs/agent_loop.log 2>&1 &
-tail -f logs/agent_loop.log
-kill $(cat logs/agent_loop.pid)
-```
-
-Config (top of `agent_loop.py`): `MAX_EXPERIMENTS`, `CLAUDE_TIMEOUT`, `TRAIN_TIMEOUT`, `CLAUDE_MODEL`.
-
-```bash
-AOMB_ANTHROPIC_API_KEYS=sk-ant-...   # comma-separated
-AOMB_OPENAI_API_KEYS=sk-proj-...     # optional fallback
+AOMB_ANTHROPIC_API_KEYS=sk-ant-...   # comma-separated; falls back to the Claude Code CLI if unset
+AOMB_OPENAI_API_KEYS=sk-proj-...     # optional fallback provider
 AOMB_CLAUDE_MODELS=sonnet            # or: opus, haiku, gpt-4o-mini
 ```
 
-Every improvement is a git commit. Every 10 successes, results push to GitHub.
+Every improvement is a git commit. Results are pushed every 10 successes. To stop: `kill $(cat logs/agent_loop.pid)`.
 
----
-
-## Scheduled Morning Report
+**Scheduled morning report (launchd):**
 
 ```bash
-AOMB_DIR="$(pwd)"
-sed "s|AOMB_DIR|${AOMB_DIR}|g" com.aomb.morning-report.plist.template \
+sed "s|AOMB_DIR|$(pwd)|g" com.aomb.morning-report.plist.template \
   > ~/Library/LaunchAgents/com.aomb.morning-report.plist
 launchctl load ~/Library/LaunchAgents/com.aomb.morning-report.plist
 ```
 
-> Generated `.plist` lives in `~/Library/LaunchAgents/` and is gitignored.
+---
+
+## Claims & reproducibility
+
+This project keeps three kinds of evidence separate and never mixes their numbers:
+
+| Lane | Data | What it can claim |
+|------|------|-------------------|
+| **1. Train** | Public real traces (Uber CRISP, Tale scale) | `val_bpb` training fitness only. These datasets have no incident labels, so no detection accuracy |
+| **2. Lab** | Private Docker microservice stack with injected faults | Ranking accuracy (AUROC). **Not published yet**, see [`docs/lab/`](docs/lab/) and [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) |
+| **3. Public fixture card** | Tiny synthetic pack, runs in CI | Proves the scoring harness works and beats trivial baselines. Not a real-world accuracy claim ([`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md)) |
+
+**What CI proves** ([`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml), [`stranger-demo`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml)): the ingest → shard → score pipeline and the fixture ranking card run end to end on CPU, and the DIPTYCH probes pass. **What it doesn't prove:** production accuracy, MPS training, or the overnight agent, which needs a Mac and API keys. Compute details: [`docs/compute-paths.md`](docs/compute-paths.md) (Apple MPS is the product path; there's no CUDA claim yet).
+
+Index of everything an outsider can check: [`docs/public-wins.md`](docs/public-wins.md) · 60-second cheatsheet: [`docs/stranger-60s.md`](docs/stranger-60s.md).
+
+### Companion: DIPTYCH
+
+[DIPTYCH](https://github.com/pandeyaby/DIPTYCH) is a separate project that grades model *calibration* with paired probes: two runs that share every input except one controlled perturbation. AOMB emits probes for all 8 DIPTYCH operators (`./scripts/run_diptych_full8.sh`, output in `diptych-probes/`), and the [`diptych-adapter-gate`](https://github.com/pandeyaby/AOMB/actions/workflows/diptych-adapter-gate.yml) workflow checks them on every push. Details: [`docs/paired-probes/`](docs/paired-probes/).
+
+![AOMB breed/score → fixtures → DIPTYCH paired probes](docs/images/aomb-diptych-architecture.svg)
 
 ---
 
-## Repository Lineage
+## Repository layout
 
 ```
-karpathy/autoresearch          (original — H100, NVIDIA)
-       │
-       └── miolini/autoresearch-macos   (macOS/MPS port)
-       │          │
-       │          └── trevin-creator/autoresearch-mlx  (MLX native)
-       │
-       └── pandeyaby/AOMB  ← you are here
-                   Domain: enterprise observability telemetry
-                   Loop:   Fully autonomous (agent_loop.py)
-                   Goal:   Minimize val_bpb → maximize implicit anomaly detection
-                   Companion grading: DIPTYCH (paired probes / 2-safety)
+agent_loop.py        overnight research agent (Claude proposes, train.py runs, git keeps winners)
+train.py             model + training loop — the file the agent edits
+prepare.py           frozen data pipeline, tokenizer, and val_bpb metric
+program.md           research brief given to the agent
+morning_report.py    overnight summary + progress plot
+demo_anomaly.py      train briefly, then score normal vs anomalous sessions
+score_session.py     score a telemetry dump (used by scripts/byo_score.sh)
+corpus/ingest/       dataset fetchers + adapters (CRISP, Tale of Errors, OTLP, BYO)
+eval/                ranking card, scoring CLI, DIPTYCH emitters
+lab/                 Docker fault-injection lab for labeled evaluation
+scripts/             one-command entry points (demo, verify, Mac smoke, Tale pipeline)
+docs/                design notes, baselines, and reproducibility docs
+tests/               pytest suite (run: uv run pytest)
 ```
 
 ---
 
 ## Requirements
 
-**Stranger / CI path (Linux OK):** Python 3.10+, `uv` or pip — see [`docs/stranger-demo.md`](docs/stranger-demo.md). No MPS. No API keys. CPU only — see [`docs/compute-paths.md`](docs/compute-paths.md).
+- **Demo and CI path:** Linux or macOS, Python 3.10+, [`uv`](https://docs.astral.sh/uv/). CPU only, no API keys.
+- **Overnight agent:** a Mac with Apple Silicon (M1 or later), an Anthropic API key or the Claude Code CLI, and ~500 MB of disk (more for the CRISP and Tale datasets). Bridge from CPU to MPS: [`docs/product-mac-path.md`](docs/product-mac-path.md).
 
-**Overnight research loop (Mac):**
+## Contributing
 
-- macOS with Apple Silicon (M1/M2/M3/M4) — product breed / `TIME_BUDGET` train is **MPS**, not a CUDA claim ([`docs/compute-paths.md`](docs/compute-paths.md))
-- Bridge from stranger CPU → MPS `val_bpb` smoke (no keys, no AUROC): [`docs/product-mac-path.md`](docs/product-mac-path.md) · `./scripts/product_mac_smoke.sh`
-- Python 3.10+
-- `uv` package manager
-- An Anthropic API key (`AOMB_ANTHROPIC_API_KEYS`) — or Claude Code CLI fallback
-- ~500 MB disk for corpus + tokenizer (more for CRISP download)
+Issues and PRs are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/contributing-stranger.md`](docs/contributing-stranger.md). Run `uv run pytest` before opening a PR. Please don't modify `prepare.py`, because it's the fixed measuring stick, and don't add accuracy numbers that the harness didn't produce.
 
----
+Security: [`SECURITY.md`](SECURITY.md) · Support: [`SUPPORT.md`](SUPPORT.md) · Code of conduct: [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
 
-## Cite without cloning (stranger verify)
+## Lineage
 
-Outsiders can cite a green **`stranger-verify`** check without a local clone or Apple MPS:
+```
+karpathy/autoresearch            original (H100 / NVIDIA)
+└── miolini/autoresearch-macos   macOS / MPS port
+    └── pandeyaby/AOMB           observability telemetry + fully autonomous overnight loop
+```
 
-- **Open in Codespaces (one click):** [codespaces.new/pandeyaby/AOMB](https://codespaces.new/pandeyaby/AOMB) → `STRANGER_FAST=1 ./scripts/stranger_verify.sh`
-- **Run workflow (one click):** [stranger-verify → Run workflow](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml) (`workflow_dispatch`; optional `full_model=true` = CPU card smoke)
-- **Badge / past runs:** share a successful Actions run URL from the same workflow page
-- **Example green cite (main):** 2026-09-19 · `7abdfd5` · [run 35471119285](https://github.com/pandeyaby/AOMB/actions/runs/35471119285) — **example** only; badge/workflow remains canonical ([`docs/public-wins.md`](docs/public-wins.md))
-- **One-pager:** [`docs/stranger-verify.md`](docs/stranger-verify.md) · **60s:** [`docs/stranger-60s.md`](docs/stranger-60s.md) · full list: [`docs/public-wins.md`](docs/public-wins.md)
+## Citation & license
 
-**Proves:** DIPTYCH full-8 + `gate_axis_mutate`, plus ranking-card baselines ε (optional CPU `--with-model` via dispatch). **Does not prove:** lab AUROC (`not_published`), production accuracy, MPS train, overnight agent. Tiny-n fixture limits apply — no invented AUROC.
+If you use AOMB, please cite it via [`CITATION.cff`](CITATION.cff) (GitHub's "Cite this repository" button).
 
-Already cloning? Prefer the fuller local entry: [Stranger demo](#stranger-demo-linux--ci--no-mps-no-api-keys) (`./scripts/stranger_demo.sh`).  
-`stranger_verify.sh` defaults to `STRANGER_FAST=1` and **delegates** to `stranger_demo.sh` when present — same honesty limits either way.
-
----
-
-## License
-
-MIT — see [`LICENSE`](LICENSE). Upstream attributions (org / redistribution clarity): [`NOTICE`](NOTICE).
-
-Builds on [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) (MIT)
-which builds on [karpathy/autoresearch](https://github.com/karpathy/autoresearch) (MIT).
-
-*Authored by Abhinav Pandey*
+MIT. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) for upstream attributions. Built by [Abhinav Pandey](https://github.com/pandeyaby).

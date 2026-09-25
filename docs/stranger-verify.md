@@ -26,7 +26,7 @@ Runs on **Linux** (GitHub Actions / Codespaces). **No Apple MPS. No API keys. No
 - **MPS product train** / Uber CRISP overnight `val_bpb` as ranking accuracy.
 - **Overnight `agent_loop`** (needs keys; usually Mac).
 
-Honesty parent docs: [`public-ranking-card-v1.md`](public-ranking-card-v1.md) · README three lanes · [`lab/`](lab/) · [`stranger-demo.md`](stranger-demo.md).
+Honesty parent docs: [`public-ranking-card-v1.md`](public-ranking-card-v1.md) · README *Claims & reproducibility* · [`lab/`](lab/) · [`stranger-demo.md`](stranger-demo.md).
 
 ---
 

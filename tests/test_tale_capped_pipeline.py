@@ -354,11 +354,14 @@ class TestTaleCappedPipeline(unittest.TestCase):
 
     def test_shell_wrapper_refuses_train_on_linux_and_dry_run(self):
         self.assertTrue(SCRIPT.is_file())
+        # Force the CI refusal path so this also holds on a Darwin dev box
+        # (where --train is otherwise allowed and would launch a real train).
         bad_train = subprocess.run(
             ["bash", str(SCRIPT), "--fixture", "--max-spans", "5", "--train"],
             cwd=str(ROOT),
             capture_output=True,
             text=True,
+            env={**os.environ, "CI": "true"},
         )
         self.assertNotEqual(bad_train.returncode, 0)
         self.assertIn("train", (bad_train.stderr + bad_train.stdout).lower())
