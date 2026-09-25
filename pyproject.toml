@@ -1,7 +1,7 @@
 [project]
-name = "autoresearch"
+name = "aomb"
 version = "0.1.0"
-description = "Autonomous pretraining research swarm"
+description = "Autonomous Observability Model Breeder — an AI agent that trains a small language model on observability telemetry overnight; surprise becomes the anomaly signal"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -16,4 +16,7 @@ dependencies = [
     "zstandard>=0.25.0",
 ]
 
-
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]

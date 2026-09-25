@@ -6,7 +6,7 @@ Recorded `val_bpb` on **CRISP subsets** for README / internal factual documentat
 > Factual documentation only (`claim_status=not_published`). Claim language stays gated until the checklist in [`docs/public-accuracy-eval.md`](public-accuracy-eval.md) passes ([PR #6](https://github.com/pandeyaby/AOMB/pull/6)).
 
 > **Do not 1:1 compare** CRISP numbers to the synthetic / smoke-era best of **0.3682**.
-> Different data, tokenizer, and scale. See README: *Empirical Results — Synthetic / smoke-era (legacy)*.
+> Different data, tokenizer, and scale. See README: *Results so far*.
 >
 > Keep CRISP-500k `TIME_BUDGET` **0.407753** separate from overnight 200k-subset **0.4309** (different span scale). Do not blend lanes.
 

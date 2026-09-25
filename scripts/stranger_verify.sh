@@ -248,6 +248,6 @@ echo "  • Lab ranking AUROC (stays not_published — no invented AUROC)"
 echo "  • Production / field accuracy — fixture card is tiny-n synthetic harness smoke only"
 echo "  • CUDA (gate stays skipped)"
 echo
-echo "Honesty: docs/stranger-verify.md · docs/stranger-demo.md · docs/public-ranking-card-v1.md · README three lanes"
+echo "Honesty: docs/stranger-verify.md · docs/stranger-demo.md · docs/public-ranking-card-v1.md · README *Claims & reproducibility*"
 echo "Understand the thesis (~30 min): docs/anomaly-story.md → uv run python demo_anomaly.py"
 echo "${GRN}Stranger verify PASS${RST}"

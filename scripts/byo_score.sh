@@ -146,4 +146,5 @@ fi
 
 # Thin wrap → score_session → eval.score_cli (prepare.evaluate_bpb untouched).
 # exec preserves score_cli exit codes (2 = path error, 1 = refused flag).
-exec "${RUN[@]}" -m score_session --input "$DUMP" "${EXTRA[@]}" "$@"
+# ${EXTRA[@]+...} guard: macOS bash 3.2 treats an empty array as unbound under set -u.
+exec "${RUN[@]}" -m score_session --input "$DUMP" ${EXTRA[@]+"${EXTRA[@]}"} "$@"

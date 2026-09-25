@@ -75,4 +75,4 @@ Not required for the 30-minute bar:
 - Script: [`demo_anomaly.py`](../demo_anomaly.py)
 - Stranger gates (no story required): [`stranger-demo.md`](stranger-demo.md) · `./scripts/stranger_demo.sh`
 - Outsider index: [`public-wins.md`](public-wins.md)
-- Idea / metric table: README → *The Idea* · *val_bpb — The Only Metric That Matters*
+- Idea / metric table: README → *How it works* · *Why `val_bpb` is the anomaly detector*

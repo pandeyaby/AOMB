@@ -255,7 +255,7 @@ echo "  • Production / field accuracy — fixture card is tiny-n synthetic har
 echo "  • CRISP val_bpb as ranking accuracy (train fitness only when cited)"
 echo "  • CUDA (gate stays skipped)"
 echo
-echo "Honesty: docs/stranger-demo.md · docs/stranger-verify.md · docs/public-ranking-card-v1.md · README three lanes"
+echo "Honesty: docs/stranger-demo.md · docs/stranger-verify.md · docs/public-ranking-card-v1.md · README *Claims & reproducibility*"
 echo "Cite without cloning: green stranger-verify Actions badge (docs/stranger-verify.md)"
 echo "Understand the thesis (~30 min): docs/anomaly-story.md → uv run python demo_anomaly.py"
 echo "${GRN}Stranger demo PASS${RST}"
