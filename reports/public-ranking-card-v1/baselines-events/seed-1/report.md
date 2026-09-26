@@ -8,11 +8,11 @@ Scaffolding / measurement report only. Do not cite as a public accuracy claim un
 
 | Field | Value |
 |-------|-------|
-| Generated (UTC) | 2026-09-18T15:28:33Z |
+| Generated (UTC) | 2026-09-25T12:14:52Z |
 | Seed | 1 |
 | Score method | event_count_baseline |
-| Git HEAD | `dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7` |
-| train.py SHA | `fd4cbb674fd2eb29b977355de6467c5d0ae6f9ae` |
+| Git HEAD | `9900d447dfd9f775cc3e2ceb6f2b78b913036ef1` |
+| train.py SHA | `bc736cfeb17e6f190d143d0193e7397f4de70766` |
 | prepare.py SHA | `b71a0d440d5bb05af85fba6b575b7a245af38a7a` |
 | Corpus capture_id | public_ranking_card_v1 |
 | Corpus content SHA-256 | `49403cb3dd005e7e5af1de510ba3f5ed6e83df566e9ba3d46b4baed66367cfc5` |

@@ -208,25 +208,23 @@ def make_text_dataloader(
         yield inputs, targets, epoch
 
 
-def train_then_score_fixture(
-    train_sessions: Sequence[LabeledSession],
-    eval_sessions: Sequence[LabeledSession],
+def train_fixture_lm(
+    train_texts: Sequence[str],
     *,
     seed: int,
     train_seconds: float,
-) -> tuple[list[float], dict[str, Any]]:
+) -> tuple[Any, FixtureTokenizer, Any, dict[str, Any]]:
     """
-    Short GPT train on fixture train-split texts, then session BPB on eval sessions.
+    Fit a BPE tokenizer and a short GPT on ``train_texts`` only.
 
-    Uses train.py GPT + hyperparams via demo_anomaly loaders, but replaces the
-    prepare.make_dataloader("train") path with an in-memory fixture dataloader.
+    Returns (model, tokenizer, token_bytes on device, info). Shared by the
+    public ranking card and the in-domain lab eval (eval.in_domain).
     """
     import time
 
     import torch
 
     import demo_anomaly as demo
-    from eval.score import session_bpb_texts
 
     prepare = demo._load_prepare()
     train_ns = demo._load_train_symbols(prepare)
@@ -248,12 +246,6 @@ def train_then_score_fixture(
     WARMDOWN_RATIO = train_ns["WARMDOWN_RATIO"]
     FINAL_LR_FRAC = train_ns["FINAL_LR_FRAC"]
 
-    train_texts = [s.text for s in train_sessions if int(s.binary or 0) == 0]
-    if not train_texts:
-        # Fallback: all train-split texts (should not happen on the public card)
-        train_texts = [s.text for s in train_sessions]
-    n_train_normal = sum(1 for s in train_sessions if int(s.binary or 0) == 0)
-    n_train_pos_skipped = sum(1 for s in train_sessions if int(s.binary or 0) == 1)
     tokenizer, token_bytes_cpu = train_fixture_tokenizer(train_texts)
     token_bytes = token_bytes_cpu.to(demo.DEVICE)
 
@@ -348,27 +340,63 @@ def train_then_score_fixture(
             break
 
     demo._sync(demo.DEVICE.type)
+    model.eval()
+    info = {
+        "num_steps": step,
+        "device": demo.DEVICE.type,
+        "vocab_size": vocab_size,
+        "max_seq_len": max_seq_len,
+        "grad_accum_steps": grad_accum_steps,
+        "device_batch_size": device_batch_size,
+    }
+    return model, tokenizer, token_bytes, info
+
+
+def train_then_score_fixture(
+    train_sessions: Sequence[LabeledSession],
+    eval_sessions: Sequence[LabeledSession],
+    *,
+    seed: int,
+    train_seconds: float,
+) -> tuple[list[float], dict[str, Any]]:
+    """
+    Short GPT train on fixture train-split texts, then session BPB on eval sessions.
+
+    Uses train.py GPT + hyperparams via demo_anomaly loaders, but replaces the
+    prepare.make_dataloader("train") path with an in-memory fixture dataloader.
+    """
+    from eval.score import session_bpb_texts
+
+    train_texts = [s.text for s in train_sessions if int(s.binary or 0) == 0]
+    if not train_texts:
+        # Fallback: all train-split texts (should not happen on the public card)
+        train_texts = [s.text for s in train_sessions]
+    n_train_normal = sum(1 for s in train_sessions if int(s.binary or 0) == 0)
+    n_train_pos_skipped = sum(1 for s in train_sessions if int(s.binary or 0) == 1)
+    model, tokenizer, token_bytes, info = train_fixture_lm(
+        train_texts, seed=seed, train_seconds=train_seconds
+    )
     scores = session_bpb_texts(
         model,
         tokenizer,
         token_bytes,
         [s.text for s in eval_sessions],
-        max_seq_len,
+        info["max_seq_len"],
     )
     train_meta = {
         "mode": "fixture_train_then_score",
         "train_corpus": "fixture_train_split_normals_only",
         "train_seconds": train_seconds,
-        "num_steps": step,
-        "device": demo.DEVICE.type,
+        "num_steps": info["num_steps"],
+        "device": info["device"],
         "n_train_sessions_listed": len(train_sessions),
         "n_train_normal_texts": n_train_normal,
         "n_train_positive_excluded_from_lm": n_train_pos_skipped,
         "n_eval_sessions": len(eval_sessions),
-        "vocab_size": vocab_size,
-        "max_seq_len": max_seq_len,
-        "grad_accum_steps": grad_accum_steps,
-        "device_batch_size": device_batch_size,
+        "vocab_size": info["vocab_size"],
+        "max_seq_len": info["max_seq_len"],
+        "grad_accum_steps": info["grad_accum_steps"],
+        "device_batch_size": info["device_batch_size"],
         "note": (
             "LM trained on public fixture train-split NORMAL session texts only "
             "(positives in the train split are excluded from the LM objective so "

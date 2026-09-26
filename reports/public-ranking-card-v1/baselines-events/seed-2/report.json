@@ -2,12 +2,12 @@
   "protocol": "docs/public-accuracy-eval.md",
   "claim_status": "not_published",
   "disclaimer": "Scaffolding / measurement report only. Do not cite as a public accuracy claim until the protocol checklist passes. Do not cite CRISP val_bpb=0.458756 or synthetic 0.3682 as public accuracy.",
-  "generated_at": "2026-09-18T15:28:34Z",
+  "generated_at": "2026-09-25T12:14:52Z",
   "seed": 2,
   "score_method": "event_count_baseline",
   "git": {
-    "head": "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
-    "train_py": "fd4cbb674fd2eb29b977355de6467c5d0ae6f9ae",
+    "head": "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "train_py": "bc736cfeb17e6f190d143d0193e7397f4de70766",
     "prepare_py": "b71a0d440d5bb05af85fba6b575b7a245af38a7a"
   },
   "corpus": {
@@ -137,10 +137,10 @@
     }
   },
   "hardware": {
-    "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
-    "python": "3.12.3",
-    "machine": "x86_64",
-    "device": "cpu"
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.10.19",
+    "machine": "arm64",
+    "device": "mps"
   },
   "train": {},
   "metrics": {
@@ -161,13 +161,13 @@
       "n_draws": 64,
       "seed": 2,
       "auroc": {
-        "mean": 0.4877507716049383,
+        "mean": 0.4877507716049382,
         "std": 0.10079749995822054,
         "n": 64
       },
       "pr_auc": {
         "mean": 0.5326053597599938,
-        "std": 0.07782327590799948,
+        "std": 0.0778232759079995,
         "n": 64
       },
       "precision_at_k": {
@@ -177,8 +177,8 @@
           "n": 64
         },
         "10": {
-          "mean": 0.4703125,
-          "std": 0.11502889561061092,
+          "mean": 0.47031249999999974,
+          "std": 0.11502889561061096,
           "n": 64
         }
       }
@@ -191,7 +191,7 @@
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 649,
+      "n_chars": 536,
       "score": 3.0
     },
     {
@@ -199,7 +199,7 @@
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 995,
+      "n_chars": 882,
       "score": 5.0
     },
     {
@@ -207,7 +207,7 @@
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 651,
+      "n_chars": 538,
       "score": 3.0
     },
     {
@@ -215,7 +215,7 @@
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 1183,
+      "n_chars": 1070,
       "score": 6.0
     },
     {
@@ -223,7 +223,7 @@
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 649,
+      "n_chars": 536,
       "score": 3.0
     },
     {
@@ -231,7 +231,7 @@
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 1181,
+      "n_chars": 1068,
       "score": 6.0
     },
     {
@@ -239,7 +239,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 477,
+      "n_chars": 362,
       "score": 2.0
     },
     {
@@ -247,7 +247,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 794,
+      "n_chars": 679,
       "score": 4.0
     },
     {
@@ -255,7 +255,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 1005,
+      "n_chars": 890,
       "score": 5.0
     },
     {
@@ -263,7 +263,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 477,
+      "n_chars": 362,
       "score": 2.0
     },
     {
@@ -271,7 +271,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 794,
+      "n_chars": 679,
       "score": 4.0
     },
     {
@@ -279,7 +279,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 1182,
+      "n_chars": 1067,
       "score": 6.0
     },
     {
@@ -287,7 +287,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 793,
+      "n_chars": 678,
       "score": 4.0
     },
     {
@@ -295,7 +295,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 477,
+      "n_chars": 362,
       "score": 2.0
     },
     {
@@ -303,7 +303,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 1005,
+      "n_chars": 890,
       "score": 5.0
     },
     {
@@ -311,7 +311,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 794,
+      "n_chars": 679,
       "score": 4.0
     },
     {
@@ -319,7 +319,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 477,
+      "n_chars": 362,
       "score": 2.0
     },
     {
@@ -327,7 +327,7 @@
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 1005,
+      "n_chars": 890,
       "score": 5.0
     },
     {
@@ -335,7 +335,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 973,
+      "n_chars": 878,
       "score": 5.0
     },
     {
@@ -343,7 +343,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 609,
+      "n_chars": 514,
       "score": 3.0
     },
     {
@@ -351,7 +351,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 791,
+      "n_chars": 696,
       "score": 4.0
     },
     {
@@ -359,7 +359,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 419,
+      "n_chars": 324,
       "score": 2.0
     },
     {
@@ -367,7 +367,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 609,
+      "n_chars": 514,
       "score": 3.0
     },
     {
@@ -375,7 +375,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 1154,
+      "n_chars": 1059,
       "score": 6.0
     },
     {
@@ -383,7 +383,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 418,
+      "n_chars": 323,
       "score": 2.0
     },
     {
@@ -391,7 +391,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 608,
+      "n_chars": 513,
       "score": 3.0
     },
     {
@@ -399,7 +399,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 418,
+      "n_chars": 323,
       "score": 2.0
     },
     {
@@ -407,7 +407,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 790,
+      "n_chars": 695,
       "score": 4.0
     },
     {
@@ -415,7 +415,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 608,
+      "n_chars": 513,
       "score": 3.0
     },
     {
@@ -423,7 +423,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 418,
+      "n_chars": 323,
       "score": 2.0
     },
     {
@@ -431,7 +431,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 972,
+      "n_chars": 877,
       "score": 5.0
     },
     {
@@ -439,7 +439,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 608,
+      "n_chars": 513,
       "score": 3.0
     },
     {
@@ -447,7 +447,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 790,
+      "n_chars": 695,
       "score": 4.0
     },
     {
@@ -455,7 +455,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 418,
+      "n_chars": 323,
       "score": 2.0
     },
     {
@@ -463,7 +463,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 609,
+      "n_chars": 514,
       "score": 3.0
     },
     {
@@ -471,7 +471,7 @@
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 1155,
+      "n_chars": 1060,
       "score": 6.0
     }
   ]

@@ -12,11 +12,11 @@
   ],
   "score_method": "event_count_baseline",
   "git_heads": [
-    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
-    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
-    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
-    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
-    "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7"
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1"
   ],
   "metrics_mean_std": {
     "auroc": {
@@ -95,8 +95,9 @@
     }
   ],
   "card_id": "public_ranking_card_v1",
-  "claim_reason": "Fixture-only model mean AUROC 1.000000 beats length 0.700617 and events 0.601852 on the frozen synthetic eval split. Status = published fixture card / harness smoke only \u2014 NOT production AUROC, NOT general public accuracy, NOT lab pool.",
+  "claim_reason": "Fixture-only model mean AUROC 1.000000 beats length 0.663580 and events 0.601852 on the frozen synthetic eval split. Status = published fixture card / harness smoke only \u2014 NOT production AUROC, NOT general public accuracy, NOT lab pool, NOT a README hero.",
   "fixture_content_sha256": "49403cb3dd005e7e5af1de510ba3f5ed6e83df566e9ba3d46b4baed66367cfc5",
+  "fixture_name": "public_ranking_card_v1",
   "epsilon": 1e-06,
   "baseline": "events",
   "session_split": "eval",

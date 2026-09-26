@@ -59,6 +59,22 @@ hand-rotate `_active` while the collector is up.
 ./scripts/inject_faults.sh kill_postgres
 ./scripts/inject_faults.sh restore_deps
 ./scripts/inject_faults.sh none
+
+# "Rule-proof" faults: every request still 200, latency ~normal
+./scripts/inject_faults.sh silent_fallback   # new WARN log line
+./scripts/inject_faults.sh skip_cache        # checkout skips Redis (span disappears)
+./scripts/inject_faults.sh retry_storm       # each DB ping runs 3×
+./scripts/inject_faults.sh db_failover       # checkout logs db=replica instead of db=ok
+```
+
+Faults are applied by recreating the `api` container with `FAULT_MODE` in its
+environment, so every gunicorn worker sees them. (Before 2026-09-25 the compose
+file hardcoded `FAULT_MODE: none`, and faults only reached one of two workers.)
+
+Pool several captures for evaluation:
+
+```bash
+python3 scripts/pool_captures.py captures/pooled-<id> captures/<a> captures/<b> ...
 ```
 
 Window labels (`normal` / `incident`) come from **capture metadata** in

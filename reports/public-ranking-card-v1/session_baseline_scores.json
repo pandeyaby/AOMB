@@ -1,0 +1,341 @@
+{
+  "card_id": "public_ranking_card_v1",
+  "claim_status": "not_published",
+  "disclaimer": "Per-session length/events baselines from a committed local fixture. Not a published ranking claim and not lab-pool accuracy. Harness ranking aggregates (when run) are computed from these real scores \u2014 never invented.",
+  "fixture": "corpus/fixtures/public_ranking_card_v1",
+  "fixture_content_sha256": "49403cb3dd005e7e5af1de510ba3f5ed6e83df566e9ba3d46b4baed66367cfc5",
+  "capture_id": "public_ranking_card_v1",
+  "session_split": {
+    "split_role": "eval",
+    "split_id": "public_ranking_card_v1_split_v3",
+    "n_train": 36,
+    "n_eval": 36
+  },
+  "n_sessions": 36,
+  "sessions": [
+    {
+      "session_id": "public_ranking_card_v1:0:6",
+      "label": "cascade",
+      "binary": 1,
+      "n_chars": 536,
+      "n_events": 3,
+      "score_length": 536.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:7",
+      "label": "cascade",
+      "binary": 1,
+      "n_chars": 882,
+      "n_events": 5,
+      "score_length": 882.0,
+      "score_events": 5.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:8",
+      "label": "cascade",
+      "binary": 1,
+      "n_chars": 538,
+      "n_events": 3,
+      "score_length": 538.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:9",
+      "label": "cascade",
+      "binary": 1,
+      "n_chars": 1070,
+      "n_events": 6,
+      "score_length": 1070.0,
+      "score_events": 6.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:10",
+      "label": "cascade",
+      "binary": 1,
+      "n_chars": 536,
+      "n_events": 3,
+      "score_length": 536.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:11",
+      "label": "cascade",
+      "binary": 1,
+      "n_chars": 1068,
+      "n_events": 6,
+      "score_length": 1068.0,
+      "score_events": 6.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:24",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 362,
+      "n_events": 2,
+      "score_length": 362.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:25",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 679,
+      "n_events": 4,
+      "score_length": 679.0,
+      "score_events": 4.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:26",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 890,
+      "n_events": 5,
+      "score_length": 890.0,
+      "score_events": 5.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:27",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 362,
+      "n_events": 2,
+      "score_length": 362.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:28",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 679,
+      "n_events": 4,
+      "score_length": 679.0,
+      "score_events": 4.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:29",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 1067,
+      "n_events": 6,
+      "score_length": 1067.0,
+      "score_events": 6.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:30",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 678,
+      "n_events": 4,
+      "score_length": 678.0,
+      "score_events": 4.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:31",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 362,
+      "n_events": 2,
+      "score_length": 362.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:32",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 890,
+      "n_events": 5,
+      "score_length": 890.0,
+      "score_events": 5.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:33",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 679,
+      "n_events": 4,
+      "score_length": 679.0,
+      "score_events": 4.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:34",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 362,
+      "n_events": 2,
+      "score_length": 362.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:35",
+      "label": "incident",
+      "binary": 1,
+      "n_chars": 890,
+      "n_events": 5,
+      "score_length": 890.0,
+      "score_events": 5.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:54",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 878,
+      "n_events": 5,
+      "score_length": 878.0,
+      "score_events": 5.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:55",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 514,
+      "n_events": 3,
+      "score_length": 514.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:56",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 696,
+      "n_events": 4,
+      "score_length": 696.0,
+      "score_events": 4.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:57",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 324,
+      "n_events": 2,
+      "score_length": 324.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:58",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 514,
+      "n_events": 3,
+      "score_length": 514.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:59",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 1059,
+      "n_events": 6,
+      "score_length": 1059.0,
+      "score_events": 6.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:60",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 323,
+      "n_events": 2,
+      "score_length": 323.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:61",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 513,
+      "n_events": 3,
+      "score_length": 513.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:62",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 323,
+      "n_events": 2,
+      "score_length": 323.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:63",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 695,
+      "n_events": 4,
+      "score_length": 695.0,
+      "score_events": 4.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:64",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 513,
+      "n_events": 3,
+      "score_length": 513.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:65",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 323,
+      "n_events": 2,
+      "score_length": 323.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:66",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 877,
+      "n_events": 5,
+      "score_length": 877.0,
+      "score_events": 5.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:67",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 513,
+      "n_events": 3,
+      "score_length": 513.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:68",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 695,
+      "n_events": 4,
+      "score_length": 695.0,
+      "score_events": 4.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:69",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 323,
+      "n_events": 2,
+      "score_length": 323.0,
+      "score_events": 2.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:70",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 514,
+      "n_events": 3,
+      "score_length": 514.0,
+      "score_events": 3.0
+    },
+    {
+      "session_id": "public_ranking_card_v1:0:71",
+      "label": "normal",
+      "binary": 0,
+      "n_chars": 1060,
+      "n_events": 6,
+      "score_length": 1060.0,
+      "score_events": 6.0
+    }
+  ]
+}

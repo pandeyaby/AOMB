@@ -2,12 +2,12 @@
   "protocol": "docs/public-accuracy-eval.md",
   "claim_status": "not_published",
   "disclaimer": "Scaffolding / measurement report only. Do not cite as a public accuracy claim until the protocol checklist passes. Do not cite CRISP val_bpb=0.458756 or synthetic 0.3682 as public accuracy.",
-  "generated_at": "2026-09-18T15:34:47Z",
+  "generated_at": "2026-09-25T12:08:56Z",
   "seed": 0,
   "score_method": "session_bpb_fixture_train_then_score",
   "git": {
-    "head": "dd081ed3edec2bfb820f6ffc7848d7a6c6402cd7",
-    "train_py": "fd4cbb674fd2eb29b977355de6467c5d0ae6f9ae",
+    "head": "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "train_py": "bc736cfeb17e6f190d143d0193e7397f4de70766",
     "prepare_py": "b71a0d440d5bb05af85fba6b575b7a245af38a7a"
   },
   "corpus": {
@@ -137,25 +137,25 @@
     }
   },
   "hardware": {
-    "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
-    "python": "3.12.3",
-    "machine": "x86_64",
-    "device": "cpu"
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.10.19",
+    "machine": "arm64",
+    "device": "mps"
   },
   "train": {
     "mode": "fixture_train_then_score",
     "train_corpus": "fixture_train_split_normals_only",
     "train_seconds": 45.0,
-    "num_steps": 268,
-    "device": "cpu",
+    "num_steps": 113,
+    "device": "mps",
     "n_train_sessions_listed": 36,
     "n_train_normal_texts": 18,
     "n_train_positive_excluded_from_lm": 18,
     "n_eval_sessions": 36,
-    "vocab_size": 462,
+    "vocab_size": 418,
     "max_seq_len": 256,
-    "grad_accum_steps": 4,
-    "device_batch_size": 2,
+    "grad_accum_steps": 16,
+    "device_batch_size": 8,
     "note": "LM trained on public fixture train-split NORMAL session texts only (positives in the train split are excluded from the LM objective so held-out incident/cascade remain surprising). No CRISP / prepare data download. prepare.evaluate_bpb untouched. Scores are session BPB on held-out eval-split sessions."
   },
   "metrics": {
@@ -169,26 +169,26 @@
       "10": 1.0
     },
     "score_mean_by_label": {
-      "0": 0.48707233748406076,
-      "1": 5.819504555180378
+      "0": 0.5963474599628887,
+      "1": 6.138942612929574
     },
     "random_baseline": {
       "n_draws": 64,
       "seed": 0,
       "auroc": {
         "mean": 0.48736496913580246,
-        "std": 0.10130289110470671,
+        "std": 0.1013028911047067,
         "n": 64
       },
       "pr_auc": {
-        "mean": 0.5295264637541294,
+        "mean": 0.5295264637541295,
         "std": 0.07523727861119449,
         "n": 64
       },
       "precision_at_k": {
         "3": {
-          "mean": 0.4427083333333333,
-          "std": 0.23044078229475964,
+          "mean": 0.44270833333333326,
+          "std": 0.23044078229475967,
           "n": 64
         },
         "10": {
@@ -206,288 +206,288 @@
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 649,
-      "score": 5.033530892955797
+      "n_chars": 536,
+      "score": 5.3893520914790205
     },
     {
       "session_id": "public_ranking_card_v1:0:7",
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 995,
-      "score": 5.5824470380719315
+      "n_chars": 882,
+      "score": 5.826001666558758
     },
     {
       "session_id": "public_ranking_card_v1:0:8",
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 651,
-      "score": 5.0999190648711314
+      "n_chars": 538,
+      "score": 5.337311499783806
     },
     {
       "session_id": "public_ranking_card_v1:0:9",
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 1183,
-      "score": 5.590337140928092
+      "n_chars": 1070,
+      "score": 5.600765812020531
     },
     {
       "session_id": "public_ranking_card_v1:0:10",
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 649,
-      "score": 5.189478812119445
+      "n_chars": 536,
+      "score": 5.3590508635269085
     },
     {
       "session_id": "public_ranking_card_v1:0:11",
       "label": "cascade",
       "binary": 1,
       "fault": "kill_redis",
-      "n_chars": 1181,
-      "score": 5.6173280541263875
+      "n_chars": 1068,
+      "score": 5.513940453424257
     },
     {
       "session_id": "public_ranking_card_v1:0:24",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 477,
-      "score": 5.7622423246199395
+      "n_chars": 362,
+      "score": 6.469918334760995
     },
     {
       "session_id": "public_ranking_card_v1:0:25",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 794,
-      "score": 6.323831953019745
+      "n_chars": 679,
+      "score": 6.633946480602358
     },
     {
       "session_id": "public_ranking_card_v1:0:26",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 1005,
-      "score": 6.202318404091427
+      "n_chars": 890,
+      "score": 6.373967758902795
     },
     {
       "session_id": "public_ranking_card_v1:0:27",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 477,
-      "score": 5.76629729045921
+      "n_chars": 362,
+      "score": 6.510305471048613
     },
     {
       "session_id": "public_ranking_card_v1:0:28",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 794,
-      "score": 6.241621965512677
+      "n_chars": 679,
+      "score": 6.619771292612332
     },
     {
       "session_id": "public_ranking_card_v1:0:29",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 1182,
-      "score": 6.046495336995957
+      "n_chars": 1067,
+      "score": 6.1740803579561145
     },
     {
       "session_id": "public_ranking_card_v1:0:30",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 793,
-      "score": 6.251409866533579
+      "n_chars": 678,
+      "score": 6.51087537173497
     },
     {
       "session_id": "public_ranking_card_v1:0:31",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 477,
-      "score": 5.804761316326563
+      "n_chars": 362,
+      "score": 6.505673577284752
     },
     {
       "session_id": "public_ranking_card_v1:0:32",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 1005,
-      "score": 6.066688640302009
+      "n_chars": 890,
+      "score": 6.194295744396017
     },
     {
       "session_id": "public_ranking_card_v1:0:33",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 794,
-      "score": 6.298991759706757
+      "n_chars": 679,
+      "score": 6.619094863316996
     },
     {
       "session_id": "public_ranking_card_v1:0:34",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 477,
-      "score": 5.811910210394287
+      "n_chars": 362,
+      "score": 6.4823443226316515
     },
     {
       "session_id": "public_ranking_card_v1:0:35",
       "label": "incident",
       "binary": 1,
       "fault": "api_latency",
-      "n_chars": 1005,
-      "score": 6.061471922211885
+      "n_chars": 890,
+      "score": 6.380271070691463
     },
     {
       "session_id": "public_ranking_card_v1:0:54",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 973,
-      "score": 0.490643090646431
+      "n_chars": 878,
+      "score": 0.5402714236415508
     },
     {
       "session_id": "public_ranking_card_v1:0:55",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 609,
-      "score": 0.44656935824632354
+      "n_chars": 514,
+      "score": 0.4770894777541517
     },
     {
       "session_id": "public_ranking_card_v1:0:56",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 791,
-      "score": 0.4066975316906284
+      "n_chars": 696,
+      "score": 0.4282880079884849
     },
     {
       "session_id": "public_ranking_card_v1:0:57",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 419,
-      "score": 0.26267676840975457
+      "n_chars": 324,
+      "score": 0.392471373504668
     },
     {
       "session_id": "public_ranking_card_v1:0:58",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 609,
-      "score": 0.35521748777886764
+      "n_chars": 514,
+      "score": 0.4483322011527668
     },
     {
       "session_id": "public_ranking_card_v1:0:59",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 1154,
-      "score": 0.606771502877157
+      "n_chars": 1059,
+      "score": 0.6767313062971504
     },
     {
       "session_id": "public_ranking_card_v1:0:60",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 418,
-      "score": 0.3358679701219857
+      "n_chars": 323,
+      "score": 0.442103649972116
     },
     {
       "session_id": "public_ranking_card_v1:0:61",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 608,
-      "score": 0.399606251345843
+      "n_chars": 513,
+      "score": 0.5140180993914693
     },
     {
       "session_id": "public_ranking_card_v1:0:62",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 418,
-      "score": 0.37388858454420826
+      "n_chars": 323,
+      "score": 0.4506848324250834
     },
     {
       "session_id": "public_ranking_card_v1:0:63",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 790,
-      "score": 0.5431052932330648
+      "n_chars": 695,
+      "score": 0.7004212535064805
     },
     {
       "session_id": "public_ranking_card_v1:0:64",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 608,
-      "score": 0.5642035326981162
+      "n_chars": 513,
+      "score": 0.7093019065358731
     },
     {
       "session_id": "public_ranking_card_v1:0:65",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 418,
-      "score": 0.4782741605194304
+      "n_chars": 323,
+      "score": 0.5809814615366078
     },
     {
       "session_id": "public_ranking_card_v1:0:66",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 972,
-      "score": 0.6962678354347598
+      "n_chars": 877,
+      "score": 0.8115223613138666
     },
     {
       "session_id": "public_ranking_card_v1:0:67",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 608,
-      "score": 0.45344073140827956
+      "n_chars": 513,
+      "score": 0.6882527856248463
     },
     {
       "session_id": "public_ranking_card_v1:0:68",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 790,
-      "score": 0.46095064908172056
+      "n_chars": 695,
+      "score": 0.5678390073887583
     },
     {
       "session_id": "public_ranking_card_v1:0:69",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 418,
-      "score": 0.5311679004189485
+      "n_chars": 323,
+      "score": 0.5916914037105409
     },
     {
       "session_id": "public_ranking_card_v1:0:70",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 609,
-      "score": 0.6093104691207
+      "n_chars": 514,
+      "score": 0.7413190720260516
     },
     {
       "session_id": "public_ranking_card_v1:0:71",
       "label": "normal",
       "binary": 0,
       "fault": "",
-      "n_chars": 1155,
-      "score": 0.7526429571368749
+      "n_chars": 1060,
+      "score": 0.97293465556153
     }
   ]
 }

@@ -46,6 +46,17 @@ class TestLabSampleLabels(unittest.TestCase):
         self.assertIn(1, y_true)
         self.assertEqual(set(s.label for s in kept), {"normal", "incident"})
 
+    def test_scored_text_carries_no_label_leak(self):
+        """window=/fault= meta must not reach session BPB or length baselines."""
+        from eval.labels import load_lab_sessions
+
+        sessions, _meta = load_lab_sessions(ROOT / "corpus" / "fixtures" / "lab_sample")
+        for s in sessions:
+            self.assertNotIn("aomb_meta", s.text)
+            self.assertNotIn("window=", s.text)
+            self.assertNotIn("fault=", s.text)
+            self.assertEqual(s.n_chars, len(s.text))
+
 
 class TestOTelProtoJsonTimestampLabels(unittest.TestCase):
     """Regression: real lab captures use OTel ProtoJSON string nanos, not RFC3339."""
@@ -410,6 +421,38 @@ class TestScoreResolve(unittest.TestCase):
             )
             self.assertEqual(method2, "precomputed")
             self.assertEqual(scores2, [0.1, 0.9])
+
+
+class TestLabBreakdown(unittest.TestCase):
+    def test_within_capture_auroc_from_seed_reports(self):
+        from eval.lab_breakdown import breakdown, render_markdown, session_capture_ids
+        from eval.labels import load_lab_sessions
+
+        fixture = ROOT / "corpus" / "fixtures" / "lab_sample"
+        sessions, _ = load_lab_sessions(fixture)
+        cap_of = session_capture_ids(fixture)
+        self.assertEqual(set(cap_of.values()), {"fixture-demo"})
+        self.assertEqual(len(cap_of), len(sessions))
+
+        with tempfile.TemporaryDirectory() as tmp:
+            for seed in (0, 1):
+                d = Path(tmp) / f"seed-{seed}"
+                d.mkdir()
+                rows = [
+                    {
+                        "session_id": s.session_id,
+                        "binary": s.binary,
+                        "score": float(s.binary) + 0.1 * seed,
+                    }
+                    for s in sessions
+                ]
+                (d / "report.json").write_text(json.dumps({"sessions": rows}))
+            result = breakdown(fixture, sorted(Path(tmp).glob("seed-*/report.json")))
+
+        cap = result["per_capture"]["fixture-demo"]
+        self.assertEqual(result["n_seeds"], 2)
+        self.assertEqual(cap["auroc"]["mean"], 1.0)
+        self.assertIn("api_latency", render_markdown(result, fixture))
 
 
 if __name__ == "__main__":

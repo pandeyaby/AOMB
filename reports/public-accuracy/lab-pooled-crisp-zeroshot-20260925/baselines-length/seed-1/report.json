@@ -1,0 +1,205 @@
+{
+  "protocol": "docs/public-accuracy-eval.md",
+  "claim_status": "not_published",
+  "disclaimer": "Scaffolding / measurement report only. Do not cite as a public accuracy claim until the protocol checklist passes. Do not cite CRISP val_bpb=0.458756 or synthetic 0.3682 as public accuracy.",
+  "generated_at": "2026-09-25T11:34:58Z",
+  "seed": 1,
+  "score_method": "length_baseline",
+  "git": {
+    "head": "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "train_py": "bc736cfeb17e6f190d143d0193e7397f4de70766",
+    "prepare_py": "b71a0d440d5bb05af85fba6b575b7a245af38a7a"
+  },
+  "corpus": {
+    "capture_dir": "lab/captures/pooled-20260918",
+    "capture_id": "pooled-20260918",
+    "source_id": "lab-aomb-stack-pooled",
+    "source_kind": "lab_capture",
+    "corpus_version": "v1",
+    "license": "Apache-2.0",
+    "windows": [
+      {
+        "label": "normal",
+        "binary": 0,
+        "start": "2026-09-11T18:33:01Z",
+        "end": "2026-09-11T18:33:13Z",
+        "fault": "",
+        "notes": "Steady load, FAULT_MODE=none [from 20260911T183259Z]"
+      },
+      {
+        "label": "incident",
+        "binary": 1,
+        "start": "2026-09-11T18:33:14Z",
+        "end": "2026-09-11T18:34:02Z",
+        "fault": "latency",
+        "notes": "Fault injection active via inject_faults.sh [from 20260911T183259Z]"
+      },
+      {
+        "label": "normal",
+        "binary": 0,
+        "start": "2026-09-18T05:23:24Z",
+        "end": "2026-09-18T05:23:38Z",
+        "fault": "",
+        "notes": "Steady load, FAULT_MODE=none [from 20260918T052312Z-latency]"
+      },
+      {
+        "label": "incident",
+        "binary": 1,
+        "start": "2026-09-18T05:23:42Z",
+        "end": "2026-09-18T05:25:04Z",
+        "fault": "latency",
+        "notes": "Fault injection active via inject_faults.sh [from 20260918T052312Z-latency]"
+      },
+      {
+        "label": "normal",
+        "binary": 0,
+        "start": "2026-09-18T05:25:13Z",
+        "end": "2026-09-18T05:25:29Z",
+        "fault": "",
+        "notes": "Steady load, FAULT_MODE=none [from 20260918T052510Z-errors]"
+      },
+      {
+        "label": "incident",
+        "binary": 1,
+        "start": "2026-09-18T05:25:32Z",
+        "end": "2026-09-18T05:25:46Z",
+        "fault": "errors",
+        "notes": "Fault injection active via inject_faults.sh [from 20260918T052510Z-errors]"
+      },
+      {
+        "label": "normal",
+        "binary": 0,
+        "start": "2026-09-18T05:25:55Z",
+        "end": "2026-09-18T05:26:11Z",
+        "fault": "",
+        "notes": "Steady load, FAULT_MODE=none [from 20260918T052553Z-both]"
+      },
+      {
+        "label": "incident",
+        "binary": 1,
+        "start": "2026-09-18T05:26:14Z",
+        "end": "2026-09-18T05:27:43Z",
+        "fault": "both",
+        "notes": "Fault injection active via inject_faults.sh [from 20260918T052553Z-both]"
+      },
+      {
+        "label": "normal",
+        "binary": 0,
+        "start": "2026-09-18T05:27:52Z",
+        "end": "2026-09-18T05:28:08Z",
+        "fault": "",
+        "notes": "Steady load, FAULT_MODE=none [from 20260918T052749Z-kill_redis]"
+      },
+      {
+        "label": "incident",
+        "binary": 1,
+        "start": "2026-09-18T05:28:12Z",
+        "end": "2026-09-18T05:28:25Z",
+        "fault": "kill_redis",
+        "notes": "Fault injection active via inject_faults.sh [from 20260918T052749Z-kill_redis]"
+      }
+    ],
+    "content_sha256": "effb9a3a70075d7e0681c3de6d4a9e236de8677b14dba3acd851a945b18e53f5",
+    "session_count": 2907,
+    "n_scorable": 2900,
+    "n_excluded": 7,
+    "label_counts": {
+      "normal": 1456,
+      "incident": 1444,
+      "unknown": 7
+    },
+    "n_events_missing_timestamp": 0
+  },
+  "hardware": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.10.19",
+    "machine": "arm64",
+    "device": "mps"
+  },
+  "train": {},
+  "metrics": {
+    "n": 2900,
+    "n_positive": 1444,
+    "n_negative": 1456,
+    "auroc": 0.5433959868040547,
+    "pr_auc": 0.5275829718030096,
+    "precision_at_k": {
+      "10": 0.0,
+      "290": 0.696551724137931
+    },
+    "score_mean_by_label": {
+      "0": 597.3385989010989,
+      "1": 570.1239612188366
+    },
+    "random_baseline": {
+      "n_draws": 64,
+      "seed": 1,
+      "auroc": {
+        "mean": 0.5001767866179875,
+        "std": 0.010336951678709369,
+        "n": 64
+      },
+      "pr_auc": {
+        "mean": 0.49924633169508903,
+        "std": 0.008299585689035228,
+        "n": 64
+      },
+      "precision_at_k": {
+        "10": {
+          "mean": 0.5125,
+          "std": 0.14638501094228,
+          "n": 64
+        },
+        "290": {
+          "mean": 0.4995150862068966,
+          "std": 0.025383212762342497,
+          "n": 64
+        }
+      }
+    }
+  },
+  "notes": "Fixture/length baselines are for harness verification only. They are not a public accuracy claim.",
+  "sessions": [
+    {
+      "session_id": "pooled-20260918:0:0",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 401,
+      "score": 401.0
+    },
+    {
+      "session_id": "pooled-20260918:0:1",
+      "label": "incident",
+      "binary": 1,
+      "fault": "kill_redis",
+      "n_chars": 1062,
+      "score": 1062.0
+    },
+    {
+      "session_id": "pooled-20260918:0:2",
+      "label": "incident",
+      "binary": 1,
+      "fault": "latency",
+      "n_chars": 399,
+      "score": 399.0
+    },
+    {
+      "session_id": "pooled-20260918:0:3",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 401,
+      "score": 401.0
+    },
+    {
+      "session_id": "pooled-20260918:0:4",
+      "label": "normal",
+      "binary": 0,
+      "fault": "",
+      "n_chars": 399,
+      "score": 399.0
+    }
+  ],
+  "sessions_truncated": true
+}

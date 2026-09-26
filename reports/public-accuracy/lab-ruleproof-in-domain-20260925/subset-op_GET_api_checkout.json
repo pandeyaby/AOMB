@@ -1,0 +1,187 @@
+{
+  "marker": "op=GET_/api/checkout",
+  "n": 244,
+  "n_incident": 160,
+  "methods": {
+    "length": {
+      "kind": "baseline",
+      "auroc": 0.75,
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 1.0,
+        "20260925v2-retry_storm": 1.0,
+        "20260925v2-silent_fallback": 1.0,
+        "20260925v2-skip_cache": 0.0
+      }
+    },
+    "error_lines": {
+      "kind": "baseline",
+      "auroc": 0.5,
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.5,
+        "20260925v2-retry_storm": 0.5,
+        "20260925v2-silent_fallback": 0.5,
+        "20260925v2-skip_cache": 0.5
+      }
+    },
+    "duration_z": {
+      "kind": "baseline",
+      "auroc": 0.6007440476190476,
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.6625,
+        "20260925v2-retry_storm": 1.0,
+        "20260925v2-silent_fallback": 0.45476190476190476,
+        "20260925v2-skip_cache": 0.21726190476190477
+      }
+    },
+    "rule": {
+      "kind": "baseline",
+      "auroc": 0.6007440476190476,
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.6625,
+        "20260925v2-retry_storm": 1.0,
+        "20260925v2-silent_fallback": 0.45476190476190476,
+        "20260925v2-skip_cache": 0.21726190476190477
+      }
+    },
+    "novelty": {
+      "kind": "baseline",
+      "auroc": 0.875,
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.5,
+        "20260925v2-retry_storm": 1.0,
+        "20260925v2-silent_fallback": 1.0,
+        "20260925v2-skip_cache": 1.0
+      }
+    },
+    "heuristic": {
+      "kind": "baseline",
+      "auroc": 0.8902901785714286,
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.6625,
+        "20260925v2-retry_storm": 1.0,
+        "20260925v2-silent_fallback": 1.0,
+        "20260925v2-skip_cache": 1.0
+      }
+    },
+    "bpb_mean": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.7130803571428572,
+        "std": 0.00887281075286625,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.6790476190476189,
+          "std": 0.027812336778802082,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.8342857142857143,
+          "std": 0.032268273839773945,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 0.9997619047619046,
+          "std": 0.000532397137499948,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.2571428571428571,
+          "std": 0.05329957477505625,
+          "n": 5
+        }
+      }
+    },
+    "bpb_content": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.6605059523809523,
+        "std": 0.03499502034749108,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.9188095238095239,
+          "std": 0.034773318413251667,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.6119047619047618,
+          "std": 0.08057510123341771,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.1080952380952381,
+          "std": 0.042603415595561855,
+          "n": 5
+        }
+      }
+    },
+    "bpb_max_event": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.6804315476190476,
+        "std": 0.04955002422775192,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.47023809523809523,
+          "std": 0.1868459871190557,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.3723809523809523,
+          "std": 0.10639753995246558,
+          "n": 5
+        }
+      }
+    },
+    "bpb_top10": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.6313988095238096,
+        "std": 0.06126126362113147,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.7121428571428571,
+          "std": 0.15571455875904416,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.6680952380952381,
+          "std": 0.11507478097054757,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 0.9754761904761905,
+          "std": 0.033772615669518384,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.155,
+          "std": 0.0665144946950298,
+          "n": 5
+        }
+      }
+    }
+  }
+}

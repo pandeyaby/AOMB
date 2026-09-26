@@ -5,7 +5,7 @@
 **claim_status:** `published_fixture_card` only when model mean AUROC beats length+events on the frozen eval split — see [`reports/public-ranking-card-v1/CARD.md`](../reports/public-ranking-card-v1/CARD.md).
 
 > **Honest framing:** harness smoke only. Lab ranking stays **`not_published`**. **No AUROC hero** on README or marketing.  
-> Do **not** promote private lab-pool AUROC (incl. 0.766 — stays in `docs/lab/`).  
+> Do **not** copy the lab-pool AUROC onto this card — that result lives in [`docs/lab/ranking-validation.md`](lab/ranking-validation.md).  
 > Do **not** cite CRISP / synthetic `val_bpb` as ranking accuracy.  
 > Do **not** market fixture AUROC as production / general public accuracy.  
 > Calibration grading for paired probes lives in [DIPTYCH](https://github.com/pandeyaby/DIPTYCH) — separate from this card.
