@@ -10,7 +10,7 @@ Public-safe labeled sessions derived from local lab captures.
 | Private `lab/captures/` | Raw captures — stay on the operator machine |
 | `public_ranking_card_v1` | Synthetic CI/harness card — different lane |
 
-**claim_status=`not_published`.** Do not market AUROC from this pack on the README hero until Abhinav greenlights a ranking run write-up. Never paste private pooled-lab AUROC (e.g. 0.766) here as a public claim.
+**claim_status=`not_published`.** This redacted pack is a sample, not the eval corpus. The published lab result (pooled captures, zero-shot) is in [`ranking-validation.md`](ranking-validation.md). Don't paste that AUROC here as if this pack produced it.
 
 ## Redaction
 

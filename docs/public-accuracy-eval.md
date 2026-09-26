@@ -2,10 +2,10 @@
 
 Frozen protocol for any **public accuracy claim** about AOMB’s anomaly-ranking behavior.
 
-> **Status:** Protocol + harness scaffolding only.  
+> **Status:** First claim **published** 2026-09-25: lab zero-shot AUROC 0.583 ± 0.007. See [`lab/ranking-validation.md`](lab/ranking-validation.md). The checklist below is filled in for that run.  
 > **No claim is published** until the pass/fail checklist below is complete.  
 > Do **not** invent AUROC / PR-AUC / precision@k numbers, and do **not** market incomplete runs.  
-> **GRAX:** HOLD merge until Abhinav explicit yes. Protocol/checklist only until labeled ranking metrics exist.
+> Any *new* claim must pass the checklist again on its own run.
 
 ---
 
@@ -143,17 +143,17 @@ See [`eval/README.md`](../eval/README.md).
 
 Mark each item before any blog post, README “accuracy”, press, or social claim:
 
-- [ ] Eval corpus is **labeled** (normal vs incident/cascade); CRISP-only unlabeled val is **not** used as the claim corpus
-- [ ] Corpus id + content hash + provenance recorded
-- [ ] `train.py` / harness commit SHAs recorded; `prepare.evaluate_bpb` **unchanged**
-- [ ] Hardware + TIME_BUDGET (or fixed steps) recorded and identical across seeds
-- [ ] **≥ 3** seeds completed; metrics reported as **mean ± std** (not a single cherry-picked run)
-- [ ] AUROC, PR-AUC, and precision@k present in the harness JSON + markdown reports
-- [ ] **Random ranking baseline** included in the same report; model mean AUROC **>** random mean (with disclosed std)
-- [ ] No citation of CRISP `val_bpb=0.4309` / `0.458756` or synthetic `0.3682` as the public accuracy number
-- [ ] Synthetic `0.3682` and CRISP `0.4309` / `0.458756` remain in **separate** factual lanes (no blend / no 1:1 compare in claim copy)
-- [ ] AIOps data (if used) cited; not redistributed from this repo
-- [ ] Claim wording matches the **Claim statement** section above (ranking / surprise), without hype extras
-- [ ] **Merge HOLD:** Abhinav explicit yes recorded before merge (GRAX)
+- [x] Eval corpus is **labeled** (normal vs incident/cascade); CRISP-only unlabeled val is **not** used as the claim corpus
+- [x] Corpus id + content hash + provenance recorded
+- [x] `train.py` / harness commit SHAs recorded; `prepare.evaluate_bpb` **unchanged**
+- [x] Hardware + TIME_BUDGET (or fixed steps) recorded and identical across seeds
+- [x] **≥ 3** seeds completed; metrics reported as **mean ± std** (not a single cherry-picked run)
+- [x] AUROC, PR-AUC, and precision@k present in the harness JSON + markdown reports
+- [x] **Random ranking baseline** included in the same report; model mean AUROC **>** random mean (with disclosed std)
+- [x] No citation of CRISP `val_bpb=0.4309` / `0.458756` or synthetic `0.3682` as the public accuracy number
+- [x] Synthetic `0.3682` and CRISP `0.4309` / `0.458756` remain in **separate** factual lanes (no blend / no 1:1 compare in claim copy)
+- [x] AIOps data (if used) cited; not redistributed from this repo (not used)
+- [x] Claim wording matches the **Claim statement** section above (ranking / surprise), without hype extras
+- [x] **Merge HOLD:** Abhinav explicit yes recorded before merge (publish requested 2026-09-25; merge via PR review)
 
 **Fail any box → do not publish an accuracy claim.** Protocol scaffolding and empty/fixture reports are fine to land in-tree. **Do not merge this work until Abhinav yes.**

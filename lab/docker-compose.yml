@@ -50,9 +50,12 @@ services:
       OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
       DATABASE_URL: postgresql://aomb:aomb@postgres:5432/aomb
       REDIS_URL: redis://redis:6379/0
-      FAULT_MODE: none
-      FAULT_LATENCY_MS: "0"
-      FAULT_ERROR_RATE: "0"
+      # Read from the shell so inject_faults.sh's recreate reaches every gunicorn
+      # worker. (The /admin/fault runtime switch only flips the one worker that
+      # serves it — with -w 2 that left faults active on ~half of requests.)
+      FAULT_MODE: ${FAULT_MODE:-none}
+      FAULT_LATENCY_MS: ${FAULT_LATENCY_MS:-0}
+      FAULT_ERROR_RATE: ${FAULT_ERROR_RATE:-0}
     depends_on:
       postgres:
         condition: service_healthy

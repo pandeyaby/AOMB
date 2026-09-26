@@ -6,13 +6,14 @@
 
 > ## Limitations (read first)
 >
-> - **n_eval = 36** labeled sessions on a **synthetic** fixture — harness smoke, not a field study.
+> - **n_eval = 36** labeled sessions on a **committed local fixture** — harness smoke, not a field study.
 > - **High / perfect AUROC on this toy pack ≠ general public accuracy** and ≠ production AUROC.
-> - Text patterns are stylized (catalog_ok vs checkout_failed / redis_unavailable); separation can be easy.
-> - **Not** private lab-pool AUROC (incl. 0.766). **Not** CRISP `val_bpb`. **Not** a support/SLO metric.
-> - Train corpus = fixture train-split **normal** texts only (no CRISP / prepare shards).
+> - Text patterns may be stylized; separation can be easy.
+> - **Not** the lab-pool AUROC (`docs/lab/ranking-validation.md`). **Not** CRISP `val_bpb`. **Not** a support/SLO metric.
+> - **Not** a README AUROC hero. Metrics below are computed from real local fixture scores.
+> - Train corpus (model path) = fixture train-split **normal** texts only (no CRISP / prepare shards).
 
-**Claim gate:** Fixture-only model mean AUROC 1.000000 beats length 0.700617 and events 0.601852 on the frozen synthetic eval split. Status = published fixture card / harness smoke only — NOT production AUROC, NOT general public accuracy, NOT lab pool.
+**Claim gate:** Fixture-only model mean AUROC 1.000000 beats length 0.663580 and events 0.601852 on the frozen synthetic eval split. Status = published fixture card / harness smoke only — NOT production AUROC, NOT general public accuracy, NOT lab pool, NOT a README hero.
 
 ## Identity
 
@@ -29,7 +30,7 @@
 
 | Method | AUROC mean | AUROC std | PR-AUC mean | PR-AUC std |
 |--------|------------|-----------|-------------|------------|
-| length | 0.700617 | 0.000000 | 0.732859 | 0.000000 |
+| length | 0.663580 | 0.000000 | 0.705060 | 0.000000 |
 | events | 0.601852 | 0.000000 | 0.574747 | 0.000000 |
 
 Random ranking baseline is included inside each per-seed `report.json`.
@@ -40,12 +41,13 @@ Random ranking baseline is included inside each per-seed `report.json`.
 |--------|------------|-----------|-------------|------------|
 | session BPB (fixture train→eval) | 1.000000 | 0.000000 | 1.000000 | 0.000000 |
 
-If AUROC is ~1.0 on this synthetic pack, treat it as **toy separation / harness smoke**, not a marketable production accuracy number.
+If AUROC is ~1.0 on this synthetic pack, treat it as **toy separation / harness smoke**, not a marketable production accuracy number or README hero.
 
 ## Explicit non-claims
 
 - Not general public accuracy or production AUROC.
-- Not the private lab pool (including any lab-pool AUROC such as 0.766).
+- Not a README / marketing AUROC hero.
+- Not the lab pool (see docs/lab/ranking-validation.md for that result).
 - Not CRISP / synthetic `val_bpb`.
 - Not a production support or incident-response SLO metric.
 - `prepare.evaluate_bpb` is sacred and unused by this harness path.
@@ -53,4 +55,5 @@ If AUROC is ~1.0 on this synthetic pack, treat it as **toy separation / harness 
 ## Lane reminders
 
 - Private lab pool metrics stay in `docs/lab/` (`not_published` lane).
-- `published_fixture_card` = fixture harness smoke that beat baselines — still not production.
+- `published_fixture_card` = fixture harness smoke that beat baselines — still not production / not README hero.
+- Per-session length/events baselines: `session_baseline_scores.json` (always `not_published`).

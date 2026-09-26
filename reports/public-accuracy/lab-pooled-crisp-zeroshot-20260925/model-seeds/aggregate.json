@@ -1,0 +1,97 @@
+{
+  "protocol": "docs/public-accuracy-eval.md",
+  "claim_status": "not_published",
+  "disclaimer": "Multi-seed aggregate only. Public claim language forbidden until docs/public-accuracy-eval.md checklist passes.",
+  "n_seeds": 5,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "score_method": "session_bpb_train_then_score",
+  "git_heads": [
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1",
+    "9900d447dfd9f775cc3e2ceb6f2b78b913036ef1"
+  ],
+  "metrics_mean_std": {
+    "auroc": {
+      "mean": 0.5825648382088826,
+      "std": 0.00695657823981241,
+      "n": 5
+    },
+    "pr_auc": {
+      "mean": 0.6314938584665153,
+      "std": 0.00861811087964762,
+      "n": 5
+    },
+    "precision_at_k": {
+      "10": {
+        "mean": 0.9,
+        "std": 0.0,
+        "n": 5
+      },
+      "290": {
+        "mean": 0.8965517241379309,
+        "std": 0.03343227487873328,
+        "n": 5
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "auroc": 0.588753957261575,
+      "pr_auc": 0.6411076816029095,
+      "precision_at_k": {
+        "10": 0.9,
+        "290": 0.9413793103448276
+      },
+      "path": "reports/public-accuracy/lab-pooled-crisp-zeroshot-20260925/model-seeds/seed-0/report.json"
+    },
+    {
+      "seed": 1,
+      "auroc": 0.5883377789108398,
+      "pr_auc": 0.6340481330387739,
+      "precision_at_k": {
+        "10": 0.9,
+        "290": 0.8724137931034482
+      },
+      "path": "reports/public-accuracy/lab-pooled-crisp-zeroshot-20260925/model-seeds/seed-1/report.json"
+    },
+    {
+      "seed": 2,
+      "auroc": 0.5823790561931144,
+      "pr_auc": 0.6311877095709507,
+      "precision_at_k": {
+        "10": 0.9,
+        "290": 0.8931034482758621
+      },
+      "path": "reports/public-accuracy/lab-pooled-crisp-zeroshot-20260925/model-seeds/seed-2/report.json"
+    },
+    {
+      "seed": 3,
+      "auroc": 0.5715498576907857,
+      "pr_auc": 0.6175725528816398,
+      "precision_at_k": {
+        "10": 0.9,
+        "290": 0.8586206896551725
+      },
+      "path": "reports/public-accuracy/lab-pooled-crisp-zeroshot-20260925/model-seeds/seed-3/report.json"
+    },
+    {
+      "seed": 4,
+      "auroc": 0.5818035409880977,
+      "pr_auc": 0.6335532152383024,
+      "precision_at_k": {
+        "10": 0.9,
+        "290": 0.9172413793103448
+      },
+      "path": "reports/public-accuracy/lab-pooled-crisp-zeroshot-20260925/model-seeds/seed-4/report.json"
+    }
+  ]
+}

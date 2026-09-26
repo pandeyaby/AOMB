@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Induce faults on the running lab API.
 # Modes: none | latency | errors | both | kill_redis | kill_postgres | restore_deps
+#        silent_fallback | skip_cache | retry_storm | db_failover   (rule-proof: 200s, normal latency)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -10,7 +11,7 @@ LATENCY_MS="${LATENCY_MS:-800}"
 ERROR_RATE="${ERROR_RATE:-0.5}"
 
 case "$MODE" in
-  none|latency|errors|both)
+  none|latency|errors|both|silent_fallback|skip_cache|retry_storm|db_failover)
     echo "Setting FAULT_MODE=$MODE on api (recreate)"
     FAULT_MODE="$MODE" FAULT_LATENCY_MS="$LATENCY_MS" FAULT_ERROR_RATE="$ERROR_RATE" \
       docker compose up -d --no-deps --force-recreate api
@@ -40,7 +41,7 @@ case "$MODE" in
     echo
     ;;
   *)
-    echo "Usage: $0 {none|latency|errors|both|kill_redis|kill_postgres|restore_deps}"
+    echo "Usage: $0 {none|latency|errors|both|silent_fallback|skip_cache|retry_storm|db_failover|kill_redis|kill_postgres|restore_deps}"
     exit 1
     ;;
 esac

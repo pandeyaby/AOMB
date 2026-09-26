@@ -9,7 +9,7 @@
 - **Synthetic** stylized sessions — not customer / production telemetry.
 - Eval set size is **n=36** held-out labeled sessions (72 total; balanced frozen train/eval).
 - **High / perfect AUROC on this pack is toy separation / harness smoke**, not general public accuracy and not production AUROC.
-- **Not** private lab-pool AUROC (incl. 0.766). **Not** CRISP `val_bpb`. **Not** a support/SLO metric.
+- **Not** the lab-pool AUROC (`docs/lab/ranking-validation.md`). **Not** CRISP `val_bpb`. **Not** a support/SLO metric.
 
 ## What this is
 

@@ -3,8 +3,16 @@ AOMB lab API — small multi-dependency service with OpenTelemetry.
 
 Emits real spans/logs to the collector. Faults are controlled via env:
   FAULT_MODE=none|latency|errors|both
+             |silent_fallback|skip_cache|retry_storm|db_failover
   FAULT_LATENCY_MS=500
   FAULT_ERROR_RATE=0.3
+
+The last four are "rule-proof" faults: every request still returns 200 with
+normal-ish latency, so status/latency alerts stay quiet, but behaviour changes:
+  silent_fallback  a new WARN log (pricing served from a static fallback table)
+  skip_cache       checkout stops calling Redis (a span disappears)
+  retry_storm      every DB ping is retried twice more (extra spans, same result)
+  db_failover      checkout reports db=replica instead of db=ok (value drift)
 """
 
 from __future__ import annotations
@@ -104,15 +112,17 @@ def create_app() -> Flask:
     def db_ping() -> str:
         if psycopg2 is None:
             return "psycopg2-missing"
-        with span("db.ping"):
-            conn = psycopg2.connect(DATABASE_URL)
-            try:
-                with conn.cursor() as cur:
-                    cur.execute("SELECT 1")
-                    cur.fetchone()
-            finally:
-                conn.close()
-        return "ok"
+        attempts = 3 if _fault_mode() == "retry_storm" else 1
+        for _ in range(attempts):
+            with span("db.ping"):
+                conn = psycopg2.connect(DATABASE_URL)
+                try:
+                    with conn.cursor() as cur:
+                        cur.execute("SELECT 1")
+                        cur.fetchone()
+                finally:
+                    conn.close()
+        return "replica" if _fault_mode() == "db_failover" else "ok"
 
     def cache_incr(key: str = "aomb:hits") -> int:
         if redis_lib is None:
@@ -120,6 +130,8 @@ def create_app() -> Flask:
         with span("cache.incr"):
             r = redis_lib.from_url(REDIS_URL)
             return int(r.incr(key))
+
+    last_hits = [0]  # skip_cache: report the last value instead of calling Redis
 
     @app.get("/health")
     def health():
@@ -132,7 +144,18 @@ def create_app() -> Flask:
             _apply_faults()
             with span("checkout"):
                 db = db_ping()
-                hits = cache_incr()
+                if _fault_mode() == "skip_cache":
+                    if not last_hits[0] and redis_lib is not None:
+                        # seed once (uninstrumented) so the logged value stays plausible
+                        last_hits[0] = int(redis_lib.from_url(REDIS_URL).get("aomb:hits") or 0)
+                    hits = last_hits[0]
+                else:
+                    hits = cache_incr()
+                    last_hits[0] = hits
+            if _fault_mode() == "silent_fallback":
+                app.logger.warning(
+                    "pricing_fallback source=static_table reason=upstream_budget_exceeded"
+                )
             app.logger.info("checkout_ok db=%s hits=%s", db, hits)
             return jsonify(
                 {

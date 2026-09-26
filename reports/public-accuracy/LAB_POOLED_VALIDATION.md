@@ -1,4 +1,7 @@
-# Lab pooled labeled ranking eval — NOT a public accuracy claim
+# Lab pooled labeled ranking eval — SUPERSEDED (label leak)
+
+> **Withdrawn.** These 2026-09-18 numbers (AUROC 0.766) were inflated by a label leak: the scored text included `window=` / `fault=` provenance lines.
+> Corrected, published result: [`docs/lab/ranking-validation.md`](../../docs/lab/ranking-validation.md) · reports: [`lab-pooled-crisp-zeroshot-20260925/`](lab-pooled-crisp-zeroshot-20260925/).
 
 > **Canonical narrative:** [`docs/lab/ranking-validation.md`](../../docs/lab/ranking-validation.md)
 >

@@ -95,7 +95,7 @@ Prints `val_bpb` + `claim_status` + `max_spans` with an explicit **train fitness
 
 | Surface | Status |
 |---------|--------|
-| **Lab AUROC** | **`not_published`** — no invented AUROC; private numbers stay under [`lab/`](lab/); publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md) (empty boxes = no claim) |
+| **Lab AUROC** | **`published`** (2026-09-25): zero-shot **0.583 ± 0.007** (trained on CRISP only) and in-domain **0.688 ± 0.003** (trained on the lab's normal traffic), on 2900 labelled lab sessions. A simple error-and-latency rule scores **0.776** and the model adds nothing beyond it on this lab ([`lab/in-domain-eval.md`](lab/in-domain-eval.md)). Details and limitations: [`lab/ranking-validation.md`](lab/ranking-validation.md) · gate: [`lab/publish-checklist.md`](lab/publish-checklist.md) |
 | **CUDA** | **No claim yet** — checklist only in [`compute-paths.md`](compute-paths.md) |
 | **Public ranking card** | **`published_fixture_card` / harness smoke** — tiny-n synthetic; not production / field accuracy |
 | **CRISP / Tale `val_bpb`** | Train fitness only when cited — **not** ranking accuracy; Tale measured row **pending** ([`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md); scale path [`tale-scale.md`](tale-scale.md)) |
@@ -114,7 +114,7 @@ Prints `val_bpb` + `claim_status` + `max_spans` with an explicit **train fitness
 - README blurb: [Claims & reproducibility](../README.md#claims--reproducibility)
 - Compute honesty: [`compute-paths.md`](compute-paths.md) · Mac product bridge: [`product-mac-path.md`](product-mac-path.md) · DIPTYCH: [pandeyaby/DIPTYCH](https://github.com/pandeyaby/DIPTYCH)
 - Three lanes: README *Claims & reproducibility* · [`corpus-v1.md`](corpus-v1.md) · [`crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) · [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md)
-- Lab lane: [`lab/`](lab/) (`not_published` by default) · publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md)
+- Lab lane: [`lab/ranking-validation.md`](lab/ranking-validation.md) (published zero-shot result) · publish gate: [`lab/publish-checklist.md`](lab/publish-checklist.md)
 - BYO session BPB (not AUROC): [`byo-and-scorer.md`](byo-and-scorer.md) · `./scripts/byo_score.sh`
 - Tale-scale train path (no AUROC; fixture smoke only in-repo): [`tale-scale.md`](tale-scale.md) · `./scripts/tale_scale_smoke.sh`
 - Capped Tale `val_bpb` subset (pending Mac measure): [`tale-val-bpb-baseline.md`](tale-val-bpb-baseline.md) · `./scripts/tale_capped_baseline.sh`

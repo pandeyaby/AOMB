@@ -1,0 +1,66 @@
+{
+  "seed": 0,
+  "note": "Training-length sweep; held-out BPB = mean bpb_content over eval-set normal sessions. See docs/lab/in-domain-eval.md.",
+  "rows": [
+    {
+      "train_seconds": 10,
+      "num_steps": 25,
+      "heldout_normal_bpb_content": 0.34210788405983233,
+      "incident_bpb_content": 0.5138710505731326,
+      "auroc": {
+        "bpb_mean": 0.6377518688574356,
+        "bpb_content": 0.6842437293666755,
+        "bpb_max_event": 0.6260397298220316,
+        "bpb_top10": 0.6814100861382005
+      }
+    },
+    {
+      "train_seconds": 30,
+      "num_steps": 75,
+      "heldout_normal_bpb_content": 0.2799282844591752,
+      "incident_bpb_content": 0.4878058207794794,
+      "auroc": {
+        "bpb_mean": 0.632124426061549,
+        "bpb_content": 0.6851079573483095,
+        "bpb_max_event": 0.6285925701058703,
+        "bpb_top10": 0.6890050468637346
+      }
+    },
+    {
+      "train_seconds": 60,
+      "num_steps": 154,
+      "heldout_normal_bpb_content": 0.2722694992818622,
+      "incident_bpb_content": 0.5006187612870938,
+      "auroc": {
+        "bpb_mean": 0.6095586840207946,
+        "bpb_content": 0.6822135999696429,
+        "bpb_max_event": 0.6248188062080219,
+        "bpb_top10": 0.6854950100557812
+      }
+    },
+    {
+      "train_seconds": 120,
+      "num_steps": 307,
+      "heldout_normal_bpb_content": 0.28915433483015257,
+      "incident_bpb_content": 0.518724201488472,
+      "auroc": {
+        "bpb_mean": 0.6061283345349675,
+        "bpb_content": 0.6774152847873107,
+        "bpb_max_event": 0.6252513945281372,
+        "bpb_top10": 0.685832732516222
+      }
+    },
+    {
+      "train_seconds": 300,
+      "num_steps": 777,
+      "heldout_normal_bpb_content": 0.34703146595354023,
+      "incident_bpb_content": 0.6476539563073086,
+      "auroc": {
+        "bpb_mean": 0.6104969073729746,
+        "bpb_content": 0.6806492619436117,
+        "bpb_max_event": 0.6285679049823549,
+        "bpb_top10": 0.6807156680453839
+      }
+    }
+  ]
+}

@@ -14,6 +14,7 @@ from typing import Any, Iterable, Optional
 
 
 POSITIVE_LABELS = frozenset({"incident", "cascade", "anomalous"})
+META_PREFIX = "# aomb_meta"
 NEGATIVE_LABELS = frozenset({"normal"})
 
 
@@ -73,6 +74,19 @@ def parse_windows(provenance: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
+def strip_meta_lines(text: str) -> str:
+    """
+    Drop ``# aomb_meta`` provenance lines before scoring.
+
+    The meta line carries ``window=<label>`` and ``fault=<mode>``. Leaving it in
+    the scored text leaks the label into session BPB (and into length
+    baselines), so every eval path scores telemetry events only.
+    """
+    return "\n".join(
+        line for line in text.split("\n") if not line.startswith(META_PREFIX)
+    )
+
+
 def load_lab_sessions(capture_dir: str | Path) -> tuple[list[LabeledSession], dict[str, Any]]:
     """
     Load lab_capture dir → labeled sessions via existing ingest path.
@@ -98,9 +112,10 @@ def load_lab_sessions(capture_dir: str | Path) -> tuple[list[LabeledSession], di
         for lg in bundle.logs:
             if lg.timestamp is None:
                 n_missing_event_ts += 1
-        for si, (text, window) in enumerate(bundle_to_sessions(bundle)):
+        for si, (raw_text, window) in enumerate(bundle_to_sessions(bundle)):
+            text = strip_meta_lines(raw_text)
             label = window.label or "unknown"
-            n_events = max(0, text.count("\n"))  # meta + events; approx
+            n_events = text.count("\n") + 1 if text else 0
             sid = f"{bundle.capture_id or capture_dir.name}:{bi}:{si}"
             sessions.append(
                 LabeledSession(

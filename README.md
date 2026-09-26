@@ -16,13 +16,41 @@ The model isn't tuned by hand. An LLM agent (Claude) runs the research loop over
 
 It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch), via [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
 
-> **Status: research prototype.** Training results on public real-world traces are measured and reproducible (below). Anomaly-detection *accuracy* (AUROC on labeled incidents) is **not yet published**. See [Claims & reproducibility](#claims--reproducibility).
+> **Status: research prototype.** On error and latency faults, a simple rule beats the model. On faults built to evade rules, the model is the **only** detector that catches a pure value change, but it can't see missing calls. It complements rules; it doesn't replace them. See [Results](#results-so-far).
 
 ---
 
 ## Results so far
 
-All numbers are `val_bpb` (validation bits-per-byte, **lower is better**). This measures how well the model predicts held-out telemetry. Numbers from different datasets are **not comparable** with each other.
+### Detection (labelled)
+
+We ran two experiments on 2,900 labelled sessions from a small lab microservice stack, captured during normal load and during injected faults (API errors, added latency, Redis killed):
+
+| Method | AUROC | Notes |
+|--------|-------|-------|
+| Random ranking | 0.500 | |
+| AOMB, **zero-shot** (trained on Uber CRISP only) | 0.583 ± 0.007 | catches errors, blind to latency |
+| AOMB, **in-domain** (trained on the lab's own normal traffic) | 0.688 ± 0.003 | catches both |
+| **Simple SRE rule** (error lines, then duration z-score) | **0.776** | |
+
+The in-domain model and the rule are scored on the same 2,174 held-out sessions. The other 726 normal sessions are used to train the model and fit the rule. The zero-shot model is scored on all 2,900.
+
+This is the honest state of things. Training on your own traffic helps a lot, but **on this lab a 5-line rule still wins, and the model adds nothing the rule doesn't already catch.** Every fault here is an error code or a slow span, which is exactly what rules are built for. Better next-token prediction didn't improve ranking either: held-out BPB improved about 20% while AUROC stayed flat.
+
+**Faults rules can't see.** We then added four faults where every request still returns 200 with normal latency: a new warning log, a skipped cache call, a retry storm, and a value change (`db=ok` → `db=replica`). On the checkout requests these faults touch:
+
+| Fault | Error/latency rule | Template + trace-shape novelty | AOMB (per-event surprise) |
+|-------|--------------------|--------------------------------|---------------------------|
+| New log line | 0.46 | **1.00** | **1.00** |
+| Value changed (`db=replica`) | 0.66 | 0.50 | **1.00** |
+| Retry storm | **1.00** | **1.00** | 0.47 |
+| Missing call | 0.22 | **1.00** | 0.37 |
+
+The model is the only method that catches a pure value change, which is what template and trace-shape tools throw away by design. It can't see a missing call, because nothing surprising *happens*. **A telemetry language model complements rules and novelty checks; it doesn't replace them.** Write-ups: [rule-proof faults](docs/lab/rule-proof-eval.md) · [in-domain eval](docs/lab/in-domain-eval.md) · [zero-shot eval](docs/lab/ranking-validation.md), including a withdrawn earlier number and why.
+
+### Training fitness
+
+These numbers are `val_bpb` (validation bits-per-byte, **lower is better**). This measures how well the model predicts held-out telemetry. Numbers from different datasets are **not comparable** with each other.
 
 | Dataset | Setup | `val_bpb` | Details |
 |---------|-------|-----------|---------|
@@ -33,7 +61,7 @@ All numbers are `val_bpb` (validation bits-per-byte, **lower is better**). This 
 
 The first release was trained on a synthetic corpus, and that's where the 15.8% improvement quoted in the [original write-up](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212) comes from. The project has since moved to public, real-world traces from Uber (CRISP and Tale of Errors).
 
-**Does surprise actually find anomalies?** Run `uv run python demo_anomaly.py`. It trains briefly, then scores held-out sessions, and anomalous and cascade-failure sessions score higher bits-per-byte than normal ones. The walkthrough is in [`docs/anomaly-story.md`](docs/anomaly-story.md). Labeled lab evaluation is in progress in [`docs/lab/`](docs/lab/).
+**See it yourself:** run `uv run python demo_anomaly.py`. It trains briefly, then scores held-out sessions, and anomalous and cascade-failure sessions score higher bits-per-byte than normal ones. The walkthrough is in [`docs/anomaly-story.md`](docs/anomaly-story.md).
 
 ---
 
@@ -193,7 +221,7 @@ This project keeps three kinds of evidence separate and never mixes their number
 | Lane | Data | What it can claim |
 |------|------|-------------------|
 | **1. Train** | Public real traces (Uber CRISP, Tale scale) | `val_bpb` training fitness only. These datasets have no incident labels, so no detection accuracy |
-| **2. Lab** | Private Docker microservice stack with injected faults | Ranking accuracy (AUROC). **Not published yet**, see [`docs/lab/`](docs/lab/) and [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) |
+| **2. Lab** | Docker microservice stack with injected faults | Ranking accuracy (AUROC). **Published:** zero-shot 0.583 and in-domain 0.688 (5 seeds each), against random, length, error-count, duration-z and rule baselines. See [`docs/lab/in-domain-eval.md`](docs/lab/in-domain-eval.md), [`docs/lab/ranking-validation.md`](docs/lab/ranking-validation.md) and the protocol in [`docs/public-accuracy-eval.md`](docs/public-accuracy-eval.md) |
 | **3. Public fixture card** | Tiny synthetic pack, runs in CI | Proves the scoring harness works and beats trivial baselines. Not a real-world accuracy claim ([`docs/public-ranking-card-v1.md`](docs/public-ranking-card-v1.md)) |
 
 **What CI proves** ([`stranger-verify`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml), [`stranger-demo`](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml)): the ingest → shard → score pipeline and the fixture ranking card run end to end on CPU, and the DIPTYCH probes pass. **What it doesn't prove:** production accuracy, MPS training, or the overnight agent, which needs a Mac and API keys. Compute details: [`docs/compute-paths.md`](docs/compute-paths.md) (Apple MPS is the product path; there's no CUDA claim yet).
