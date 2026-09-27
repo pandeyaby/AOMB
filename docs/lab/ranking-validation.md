@@ -16,7 +16,7 @@ A model trained **only on Uber's public CRISP traces** had never seen the lab ap
 
 The table shows mean ± std over 5 seeds. The random row is the mean ± std of 64 shuffled rankings. The length and event-count baselines are deterministic.
 
-> **Follow-up:** trained on the lab's own normal traffic instead, the model reaches 0.740, but a simple error-and-latency rule scores 0.776 on the same data. See [`in-domain-eval.md`](in-domain-eval.md).
+> **Follow-up:** trained on the lab's own normal traffic instead, the model reaches 0.788 with per-field scoring, matching a simple error-and-latency rule (0.776) on the same data. See [`in-domain-eval.md`](in-domain-eval.md).
 
 **In plain terms:** the signal is real but modest. It beats every baseline across all 5 seeds, and 9 of the 10 most surprising sessions are genuine incidents. It's nowhere near a finished detector.
 

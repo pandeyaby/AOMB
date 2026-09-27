@@ -1,7 +1,7 @@
 # Rule-proof faults: one model against hand-built detectors
 
-> **claim_status=`published`** (2026-09-25; **corrected 2026-09-26**, see [Corrections](#corrections)).
-> On checkout sessions, the model is the **best single detector** across four faults that evade error/latency rules (AUROC 0.944 ± 0.012). It isn't the best on any *individual* fault: for each one, a purpose-built check matches or beats it.
+> **claim_status=`published`** (2026-09-25; **corrected 2026-09-26**, see [Corrections](#corrections); per-field score added 2026-09-27).
+> On checkout sessions, the model is the **best single detector** across four faults that evade error/latency rules (AUROC 0.957 ± 0.006, per-field scoring). It isn't the best on any *individual* fault: for each one, a purpose-built check matches or beats it.
 
 The [in-domain eval](in-domain-eval.md) showed that on error and latency faults, a 5-line rule beats the model. Those faults are what rules are built for. This eval asks the follow-up question: **on faults a rule can't see, does the model earn its keep?**
 
@@ -32,25 +32,25 @@ Baselines, all fitted on training normals only:
 
 Every fault touches **checkout requests only**, so this re-ranks the checkout sessions (chosen by endpoint, not by label; `eval.in_domain --subset-marker "op=GET_/api/checkout"`).
 
-| Fault | Rule | Template/shape novelty | Value novelty | **Model (masked mean)** | Model (max event) |
-|-------|------|------------------------|---------------|------------------------|-------------------|
+| Fault | Rule | Template/shape novelty | Value novelty | Model (masked mean) | **Model (per-field)** |
+|-------|------|------------------------|---------------|---------------------|-----------------------|
 | `silent_fallback` (new log line) | 0.455 | **1.000** | **1.000** | **1.000 ± 0.000** | **1.000 ± 0.000** |
-| `db_failover` (value changed) | 0.662 | 0.500 | **1.000** | 0.985 ± 0.013 | **1.000 ± 0.000** |
-| `retry_storm` (extra calls) | **1.000** | **1.000** | 0.500 | 0.955 ± 0.035 | 0.958 ± 0.026 |
-| `skip_cache` (missing call) | 0.217 | **1.000** | 0.500 | 0.855 ± 0.033 | 0.795 ± 0.064 |
-| **All four pooled** | 0.601 | 0.875 | 0.750 | **0.944 ± 0.012** | 0.943 ± 0.019 |
+| `db_failover` (value changed) | 0.662 | 0.500 | **1.000** | 0.992 ± 0.005 | **1.000 ± 0.000** |
+| `retry_storm` (extra calls) | **1.000** | **1.000** | 0.500 | 0.956 ± 0.026 | 0.967 ± 0.016 |
+| `skip_cache` (missing call) | 0.217 | **1.000** | 0.500 | 0.832 ± 0.095 | 0.818 ± 0.062 |
+| **All four pooled** | 0.601 | 0.875 | 0.750 | 0.938 ± 0.015 | **0.957 ± 0.006** |
 
 Rule + novelty combined reaches 0.890 on the pooled set. Session length scores 0.750, and 1.000 on three faults, because checkout sessions in this lab are nearly identical, so any change in text length separates them. That's a sign the lab is too uniform, not a competitor. The model's clean result on `skip_cache`, where length scores 0.000, shows it isn't just measuring length.
 
 ### Whole fault window
 
-Across whole windows, where only about a quarter of sessions are checkouts, the model (0.706 ± 0.015) edges out rule + novelty (0.680). Every method is compressed toward 0.5 by the untouched sessions.
+Across whole windows, where only about a quarter of sessions are checkouts, the model (0.708–0.709) edges out rule + novelty (0.680). Every method is compressed toward 0.5 by the untouched sessions.
 
 ## What this shows
 
-1. **Breadth without prior knowledge.** Four different kinds of change (a new log line, a changed value, extra calls, a missing call) each need a different hand-built detector. The model catches all four, from 0.86 to 1.00, with no one telling it what to look for, and it's the best single method on the pooled set.
+1. **Breadth without prior knowledge.** Four different kinds of change (a new log line, a changed value, extra calls, a missing call) each need a different hand-built detector. The model catches all four, from 0.82 to 1.00, with no one telling it what to look for, and it's the best single method on the pooled set.
 2. **No individual win.** For every fault there's a purpose-built check that matches or beats the model. Template/shape novelty plus value novelty together would cover all four. If you know what's coming, write the rule.
-3. **It does see missing calls.** When the cache call disappears, the log line after the database ping arrives where the model expects a `cache.incr` span, and that transition is surprising (0.86). The earlier claim that surprise *can't* see a missing call was an artifact; see Corrections.
+3. **It does see missing calls.** When the cache call disappears, the log line after the database ping arrives where the model expects a `cache.incr` span, and that transition is surprising (0.82–0.83). The earlier claim that surprise *can't* see a missing call was an artifact; see Corrections.
 
 ## Corrections
 

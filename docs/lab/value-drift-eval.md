@@ -1,7 +1,7 @@
 # Value drift: one model against three hand-built value checks
 
 > **claim_status=`published`** (2026-09-26).
-> The model catches a **never-seen value** (0.99), only partly catches a **wrong pairing** of familiar values (0.65), and **misses a frequency shift** (0.55). Each simple value check beats it on the fault it was built for, and the model is *not* the best single detector here.
+> With per-field scoring, the model catches a **never-seen value** (1.00), partly catches a **wrong pairing** of familiar values (0.77), and mostly **misses a frequency shift** (0.63). Each simple value check beats it on the fault it was built for; on the pooled set it's close to, but below, the best simple check (0.81 vs 0.83).
 
 ## Why this eval exists
 
@@ -30,26 +30,26 @@ Everything from the [rule-proof eval](rule-proof-eval.md), plus three value chec
 
 ## Results: checkout sessions (543 sessions, 360 incidents; 5 seeds)
 
-| Fault | Rule | Value novelty | Value rarity | Value pair | Model (masked mean) | Model (max event) |
-|-------|------|---------------|--------------|------------|---------------------|-------------------|
-| `region_new` | 0.685 | **1.000** | **1.000** | **1.000** | 0.942 ± 0.033 | 0.991 ± 0.011 |
-| `currency_swap` | 0.474 | 0.500 | 0.493 | **1.000** | 0.648 ± 0.080 | 0.557 ± 0.067 |
-| `pricing_flip` | 0.528 | 0.500 | **0.886** | 0.500 | 0.551 ± 0.051 | 0.519 ± 0.032 |
-| **All three pooled** | 0.565 | 0.667 | 0.792 | **0.833** | 0.719 ± 0.045 | 0.695 ± 0.024 |
+| Fault | Rule | Value novelty | Value rarity | Value pair | Model (masked mean) | Model (max event) | **Model (per-field)** |
+|-------|------|---------------|--------------|------------|---------------------|-------------------|-----------------------|
+| `region_new` | 0.685 | **1.000** | **1.000** | **1.000** | 0.938 ± 0.036 | 0.991 ± 0.009 | **1.000 ± 0.000** |
+| `currency_swap` | 0.474 | 0.500 | 0.493 | **1.000** | 0.650 ± 0.064 | 0.571 ± 0.070 | 0.770 ± 0.123 |
+| `pricing_flip` | 0.528 | 0.500 | **0.886** | 0.500 | 0.545 ± 0.044 | 0.508 ± 0.062 | 0.625 ± 0.021 |
+| **All three pooled** | 0.565 | 0.667 | 0.792 | **0.833** | 0.716 ± 0.041 | 0.691 ± 0.029 | 0.812 ± 0.049 |
 
 For `pricing_flip`, about **0.89 is the most any per-session method can score**: 90% of incident checkouts are `v2`, against 12% of normal ones. The rarity check is at that bound. Session length is at chance (0.500) on every fault, so there's no length artifact here.
 
-Across whole fault windows, only about a quarter of sessions are checkouts, and every method is near chance (model 0.564–0.569; best baseline, value rarity, 0.586).
+Across whole fault windows, only about a quarter of sessions are checkouts, and every method is near chance (model 0.552–0.588; best baseline, value rarity, 0.586).
 
 ## What it shows
 
-1. **A never-seen value is easy, for everyone.** The model catches `ap-east` (0.99), and so does the simplest value check.
-2. **The model learned the region→currency dependency, but session scores drown it.** Per-token surprise on normal traffic is about 0.7 bits for `currency`, because currency follows from region; a swapped currency costs about 6.6 bits. That's a strong signal at the token, but averaged into a whole session it yields only 0.65 AUROC. The pair check, which you'd only write if you anticipated this fault, gets 1.000.
-3. **A frequency shift is invisible per session.** A single `v2` checkout looks the same in a normal window and in a fault window. Only its rate changes, and the model's session score doesn't measure rates. The rarity check does better (0.89) because it's explicitly scoring how rare each value is.
+1. **A never-seen value is easy, for everyone.** The model catches `ap-east` (1.00), and so does the simplest value check.
+2. **The model learned the region→currency dependency; scoring by field recovers part of it.** Per-token surprise on normal traffic is about 0.7 bits for `currency`, because currency follows from region; a swapped currency costs about 6.6 bits. Averaged over a session that gives only 0.65 AUROC. Scoring the most surprising field raises it to 0.77, but with a wide spread across seeds (±0.12). The pair check, which you'd only write if you anticipated this fault, gets 1.000.
+3. **A frequency shift is mostly invisible per session.** A single `v2` checkout looks almost the same in a normal window and in a fault window; only its rate changes. Per-field scoring gets 0.63, because a `v2` costs about 3 bits against 0.2 for `v1`. The rarity check does better (0.89) because it explicitly scores how rare each value is.
 
 ## What to build next
 
-- **Score per field, not per session.** The model's token-level signal on `currency_swap` is strong; the session-level aggregation loses it. Scoring the most surprising *field value* (not the average of a line or session) is the obvious next experiment.
+- **Score per field, not per session.** *Done 2026-09-27:* the per-field column above. It helps on every fault here and on the other two labs, most on `currency_swap` (0.65 → 0.77).
 - **Score windows, not just sessions, for frequency drift.** A shift in the *rate* of a familiar value needs a window-level statistic: compare the model's expected distribution with what's observed.
 
 ## Correction note
