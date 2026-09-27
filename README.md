@@ -16,15 +16,26 @@ The model isn't tuned by hand. An LLM agent (Claude) runs the research loop over
 
 It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch), via [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
 
-> **Status: research prototype.** On error and latency faults, the model matches a simple rule without any rules written, but adds little beyond it. On faults built to evade rules, the model is the best *single* detector (it catches new log lines, changed values, extra calls and missing calls with no fault-specific rules), but a purpose-built check matches or beats it on every individual fault. See [Results](#results-so-far).
+> **Status: research prototype.** On real data (LogHub HDFS, RCAEval) and in the lab, one model with no rules written lands within a few points of the best hand-built check on every dataset (ahead on some, behind on others), wins no individual fault type, and is well short of specialised published detectors. See [Results](#results-so-far).
 
 ---
 
 ## Results so far
 
-### Detection (labelled)
+### Detection on real data
 
-All results are from a small lab microservice stack with injected faults, compared against the checks an SRE would write. Every capture is public in [`lab/published/`](lab/published/), and `./scripts/reproduce_lab_evals.sh` reruns every in-domain number (`QUICK=1` finishes in minutes on a CPU).
+Two public datasets the project didn't create, each compared against the hand-built checks an SRE would write:
+
+| Dataset | Best hand-built check | AOMB | Verdict |
+|---------|-----------------------|------|---------|
+| [LogHub HDFS_v1](docs/real-data/loghub-hdfs.md): real Hadoop logs, 10,000 blocks, 2.7% anomalous | value rarity: AUROC 0.822, PR-AUC 0.605, best F1 0.795 | AUROC **0.878**, PR-AUC **0.740**, best F1 0.787 | Ranks better; level at a single threshold; well short of published HDFS detectors |
+| [RCAEval RE3](docs/real-data/rcaeval-re3.md): 60 code-level faults designed by other researchers | trace-shape novelty: 0.952 (Online Boutique), 0.882 (Train Ticket) | 0.928, **0.887** | Level with a structural check, not better |
+
+AOMB numbers are the best model scoring variant for each dataset, and the best variant differs between datasets. That selection flatters the model: with one score fixed in advance, it loses clearly on Online Boutique. Details and caveats are in each write-up.
+
+### Detection in the lab
+
+All results below are from a small lab microservice stack with injected faults, compared against the checks an SRE would write. Every capture is public in [`lab/published/`](lab/published/), and `./scripts/reproduce_lab_evals.sh` reruns every in-domain number (`QUICK=1` finishes in minutes on a CPU).
 
 **1. Error and latency faults: the model matches a simple rule.**
 
