@@ -1,0 +1,36 @@
+# ZERODAY localization gate (https://github.com/pandeyaby/ZERODAY).
+# Keyless and offline: no model weights, no GPU, source never leaves the runner.
+# Findings are localization candidates for human review — not exploit proof.
+name: ZERODAY
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write   # SARIF → Code Scanning
+  pull-requests: write     # reviewable PR comment
+
+jobs:
+  pr-gate:
+    name: New findings in changed files (${{ matrix.cwe }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cwe: [CWE-78, CWE-94, CWE-502, CWE-22, CWE-798]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pandeyaby/ZERODAY/.github/actions/zeroday-locate-gate@v0.9.0
+        with:
+          mode: rules
+          repo: .
+          cwe: ${{ matrix.cwe }}
+          output: zeroday-reports/${{ matrix.cwe }}
+          changed-since: origin/${{ github.base_ref || 'main' }}
+          sarif-category: zeroday-${{ matrix.cwe }}
+          post-comment: ${{ matrix.cwe == 'CWE-502' }}
+          fail-on-findings: "true"
