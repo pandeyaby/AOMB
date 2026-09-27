@@ -20,6 +20,7 @@ __pycache__/
 .venv/
 
 # Generated outputs
+reports/reproduce/
 overnight_progress.png
 
 # Lab capture runtime (keep directory via .gitkeep)

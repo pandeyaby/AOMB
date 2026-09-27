@@ -20,9 +20,14 @@ Methods compared on the identical eval set:
 - ``novelty``         unseen (op, svc) + unseen log templates (values masked, Drain-style)
                       + unseen trace shape (multiset of spans), vs train normals
 - ``heuristic``       rule + novelty: the strongest detector an SRE could hand-build
+- ``value_novelty``   categorical field values never seen in train normals
+- ``value_rarity``    per-line naive-Bayes surprisal: sum of -log2 p(value | field)
+                      over a line's categorical fields, max over lines
+- ``value_pair``      field-value *pairs* on one line never seen together in training
+                      (the check you'd only write if you anticipated the fault)
 - ``bpb_mean``        session bits-per-byte (the current AOMB score)
-- ``bpb_content``     bits-per-byte excluding IDs and timestamps (random hex is
-                      incompressible noise; clock time is a confound)
+- ``bpb_content``     bits-per-byte excluding IDs, timestamps and monotonic counters
+                      (random hex is incompressible noise; clock-like values are confounds)
 - ``bpb_max_event``   highest per-event (per-line) bits-per-byte, IDs/timestamps excluded
 - ``bpb_top10``       mean bits of the 10% most surprising tokens, IDs/timestamps excluded
 
@@ -53,14 +58,24 @@ ROOT = Path(__file__).resolve().parents[1]
 _TS = re.compile(r"\[ts=([0-9T:\-\.]+)Z\]")
 _EVENT = re.compile(r"op=(\S+) svc=(\S+) duration_ms=(\d+(?:\.\d+)?)")
 _ERROR = re.compile(r"status=error|level=ERROR")
+# key=value fields preceded by start/space/underscore (log msgs join words with "_")
+_FIELD = re.compile(r"(?:^|(?<=[\s_]))([A-Za-z]+)=([^\s_\]]+)")
+_NUMERIC = re.compile(r"^-?\d+(?:\.\d+)?$")
+MAX_CATEGORICAL = 20  # keys with more distinct train values are treated as IDs/counters
 _LOG = re.compile(r"\[src=OTelLog\] level=(\S+) svc=(\S+) msg=(\S+)")
-# Values that carry no information about system health: random hex IDs and the
-# wall-clock timestamp (eval windows sit at clock times training never saw, so
-# scoring them would reward "unfamiliar time", not anomalies).
-_NOISE_VALUE = re.compile(r"(?:trace_id|span_id|parent)=(\S+)|\[ts=([^\]]+)\]")
+# Values that carry no information about system health: random hex IDs, the
+# wall-clock timestamp, and monotonic counters (the lab's Redis ``hits``). Eval
+# windows come later than training, so clock times and counter values in them
+# are always "new" — scoring them would reward unfamiliar time, not anomalies.
+_NOISE_VALUE = re.compile(
+    r"(?:trace_id|span_id|parent)=(\S+)|\[ts=([^\]]+)\]|(?:^|(?<=[\s_]))hits=(\d+)"
+)
 
 MODEL_METHODS = ("bpb_mean", "bpb_content", "bpb_max_event", "bpb_top10")
-BASELINE_METHODS = ("length", "error_lines", "duration_z", "rule", "novelty", "heuristic")
+BASELINE_METHODS = (
+    "length", "error_lines", "duration_z", "rule", "novelty", "heuristic",
+    "value_novelty", "value_rarity", "value_pair",
+)
 
 
 # ---------------------------------------------------------------- split
@@ -125,6 +140,48 @@ def session_features(text: str) -> tuple[set, set, tuple]:
     return set(ops), templates, shape
 
 
+def line_fields(line: str) -> list[tuple[str, str]]:
+    """Non-numeric key=value fields on one line (IDs/timestamps filtered later by cardinality)."""
+    return [(k, v) for k, v in _FIELD.findall(line) if not _NUMERIC.match(v)]
+
+
+class ValueStats:
+    """Per-field value frequencies and co-occurring pairs from train normals."""
+
+    def __init__(self, train: Sequence[LabeledSession]):
+        counts: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+        per_line: list[list[tuple[str, str]]] = []
+        for s in train:
+            for line in s.text.split("\n"):
+                fs = line_fields(line)
+                per_line.append(fs)
+                for k, v in fs:
+                    counts[k][v] += 1
+        self.counts = {
+            k: dict(vs) for k, vs in counts.items() if len(vs) <= MAX_CATEGORICAL
+        }
+        self.pairs = set()
+        for fs in per_line:
+            cat = [(k, v) for k, v in fs if k in self.counts]
+            self.pairs |= {(a, b) for i, a in enumerate(cat) for b in cat[i + 1 :]}
+
+    def score(self, text: str) -> tuple[float, float, float]:
+        novel, rarity, pair_novel = 0.0, 0.0, 0.0
+        for line in text.split("\n"):
+            cat = [(k, v) for k, v in line_fields(line) if k in self.counts]
+            line_bits = 0.0
+            for k, v in cat:
+                c = self.counts[k]
+                n = c.get(v, 0)
+                novel += n == 0
+                line_bits += -math.log2((n + 0.5) / (sum(c.values()) + 0.5 * len(c)))
+            rarity = max(rarity, line_bits)
+            pair_novel += sum(
+                (a, b) not in self.pairs for i, a in enumerate(cat) for b in cat[i + 1 :]
+            )
+        return novel, rarity, pair_novel
+
+
 def fit_novelty(train: Sequence[LabeledSession]) -> tuple[set, set, set]:
     ops, templates, shapes = set(), set(), set()
     for s in train:
@@ -139,6 +196,7 @@ def baseline_scores(
     sessions: Sequence[LabeledSession],
     stats: dict[tuple[str, str], tuple[float, float]],
     seen: tuple[set, set, set] = (set(), set(), set()),
+    values: "ValueStats | None" = None,
 ) -> dict[str, list[float]]:
     seen_ops, seen_templates, seen_shapes = seen
     out: dict[str, list[float]] = {m: [] for m in BASELINE_METHODS}
@@ -158,6 +216,10 @@ def baseline_scores(
         novelty = float(len(o - seen_ops) + len(t - seen_templates) + (sh not in seen_shapes))
         out["novelty"].append(novelty)
         out["heuristic"].append(errors * 1000.0 + novelty * 100.0 + z)
+        vn, vr, vp = values.score(s.text) if values is not None else (0.0, 0.0, 0.0)
+        out["value_novelty"].append(vn)
+        out["value_rarity"].append(vr)
+        out["value_pair"].append(vp)
     return out
 
 
@@ -193,7 +255,10 @@ def token_surprise(model, tokenizer, token_bytes, text: str, max_seq_len: int) -
 
 def _noise_mask(text: str, toks: Sequence[tuple[str, float, int]]) -> list[bool]:
     """True where a token starts inside an ID value or a timestamp."""
-    spans = [m.span(1) if m.group(1) is not None else m.span(2) for m in _NOISE_VALUE.finditer(text)]
+    spans = [
+        m.span(next(g for g in (1, 2, 3) if m.group(g) is not None))
+        for m in _NOISE_VALUE.finditer(text)
+    ]
     mask, off, j = [], 0, 0
     for tok, _n, _b in toks:
         while j < len(spans) and spans[j][1] <= off:
@@ -289,7 +354,7 @@ def write_heatmap(path: Path, picks: list[tuple[str, LabeledSession, float, list
         "<style>body{font:13px ui-monospace,monospace;margin:16px;max-width:1200px}"
         "pre{white-space:pre-wrap;word-break:break-all;border:1px solid #ddd;padding:8px}"
         "h3{font:600 14px system-ui;margin:20px 0 6px}</style>"
-        "<h1 style='font:600 18px system-ui'>Per-token surprise (red = more bits; faded = IDs and timestamps, not scored)</h1>"
+        "<h1 style='font:600 18px system-ui'>Per-token surprise (red = more bits; faded = IDs, timestamps, counters: not scored)</h1>"
         + "".join(body),
         encoding="utf-8",
     )
@@ -324,7 +389,8 @@ def run(capture: str, seeds: list[int], train_seconds: float, out_dir: Path) -> 
 
     stats = fit_duration_stats(train)
     seen = fit_novelty(train)
-    for name, sc in baseline_scores(eval_set, stats, seen).items():
+    values = ValueStats(train)
+    for name, sc in baseline_scores(eval_set, stats, seen, values).items():
         results["methods"][name] = {
             "kind": "baseline",
             "metrics": ranking_metrics(y, sc),
@@ -337,8 +403,10 @@ def run(capture: str, seeds: list[int], train_seconds: float, out_dir: Path) -> 
     train_info: list[dict] = []
     for seed in seeds:
         model, tokenizer, token_bytes, info = train_fixture_lm(
-            [s.text for s in train], seed=seed, train_seconds=train_seconds
+            [s.text for s in train], seed=seed, train_seconds=train_seconds, max_seq_len=None
         )
+        if info["n_train_cropped"]:
+            raise RuntimeError(f"{info['n_train_cropped']} training sessions cropped")
         train_info.append({"seed": seed, **info})
         scores: dict[str, list[float]] = {m: [] for m in MODEL_METHODS}
         all_toks = []
@@ -416,7 +484,9 @@ def subset_report(capture: str, out_dir: Path, marker: str) -> dict[str, Any]:
     y = [int(s.binary) for s in sub_sessions]
 
     methods: dict[str, Any] = {}
-    base = baseline_scores(eval_set, fit_duration_stats(train), fit_novelty(train))
+    base = baseline_scores(
+        eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train)
+    )
     for name, sc in base.items():
         sub_sc = [sc[i] for i in idx]
         methods[name] = {
@@ -470,6 +540,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--train-seconds", type=float, default=120.0)
     p.add_argument("--out-dir", required=True)
     p.add_argument(
+        "--refresh-baselines",
+        action="store_true",
+        help="Recompute baseline rows in an existing results.json (no retraining)",
+    )
+    p.add_argument(
         "--subset-marker",
         default=None,
         help="Only re-rank eval sessions containing this text, from an existing run",
@@ -478,6 +553,30 @@ def main(argv: list[str] | None = None) -> int:
 
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
+    if args.refresh_baselines:
+        r = json.loads((out / "results.json").read_text(encoding="utf-8"))
+        sessions, _ = load_lab_sessions(args.capture)
+        _y, kept = filter_scorable(sessions)
+        capture_of = session_capture_ids(args.capture)
+        train, eval_set = temporal_split(kept, capture_of)
+        y = [int(s.binary) for s in eval_set]
+        base = baseline_scores(
+            eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train)
+        )
+        models = {k: v for k, v in r["methods"].items() if v["kind"] == "model"}
+        r["methods"] = {
+            name: {
+                "kind": "baseline",
+                "metrics": ranking_metrics(y, sc),
+                "per_capture_auroc": per_capture_auroc(eval_set, sc, capture_of),
+            }
+            for name, sc in base.items()
+        } | models
+        (out / "results.json").write_text(json.dumps(r, indent=2) + "\n", encoding="utf-8")
+        md = render_markdown(r)
+        (out / "results.md").write_text(md, encoding="utf-8")
+        print(md)
+        return 0
     if args.subset_marker:
         r = subset_report(args.capture, out, args.subset_marker)
         slug = re.sub(r"[^A-Za-z0-9]+", "_", args.subset_marker).strip("_")

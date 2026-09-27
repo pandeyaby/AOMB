@@ -13,6 +13,14 @@ normal-ish latency, so status/latency alerts stay quiet, but behaviour changes:
   skip_cache       checkout stops calling Redis (a span disappears)
   retry_storm      every DB ping is retried twice more (extra spans, same result)
   db_failover      checkout reports db=replica instead of db=ok (value drift)
+
+Value-drift faults on the checkout log's region / currency / pricing fields.
+Normal: region us-east|eu-west (50/50), currency matches region (USD|EUR),
+pricing v1 (90%) | v2 (10%). All drifted values keep the same length:
+  region_new       region=ap-east — a value never seen in normal traffic
+  currency_swap    currency mismatches region (us-east+EUR, eu-west+USD) —
+                   every individual value is familiar; only the pairing is wrong
+  pricing_flip     pricing=v2 on 90% of requests — familiar value, wrong frequency
 """
 
 from __future__ import annotations
@@ -75,6 +83,23 @@ def _apply_faults() -> None:
         rate = float(os.environ.get("FAULT_ERROR_RATE", "0.3"))
         if random.random() < rate:
             raise RuntimeError("induced_fault_error")
+
+
+REGION_CURRENCY = {"us-east": "USD", "eu-west": "EUR"}
+
+
+def checkout_context() -> tuple[str, str, str]:
+    """(region, currency, pricing) for one checkout, with value-drift faults applied."""
+    mode = _fault_mode()
+    region = random.choice(sorted(REGION_CURRENCY))
+    currency = REGION_CURRENCY[region]
+    if mode == "region_new":
+        region = "ap-east"
+    elif mode == "currency_swap":
+        currency = "EUR" if currency == "USD" else "USD"
+    v2_rate = 0.9 if mode == "pricing_flip" else 0.1
+    pricing = "v2" if random.random() < v2_rate else "v1"
+    return region, currency, pricing
 
 
 def setup_otel(app: Flask) -> None:
@@ -156,7 +181,15 @@ def create_app() -> Flask:
                 app.logger.warning(
                     "pricing_fallback source=static_table reason=upstream_budget_exceeded"
                 )
-            app.logger.info("checkout_ok db=%s hits=%s", db, hits)
+            region, currency, pricing = checkout_context()
+            app.logger.info(
+                "checkout_ok db=%s hits=%s region=%s currency=%s pricing=%s",
+                db,
+                hits,
+                region,
+                currency,
+                pricing,
+            )
             return jsonify(
                 {
                     "ok": True,

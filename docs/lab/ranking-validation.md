@@ -16,7 +16,7 @@ A model trained **only on Uber's public CRISP traces** had never seen the lab ap
 
 The table shows mean ± std over 5 seeds. The random row is the mean ± std of 64 shuffled rankings. The length and event-count baselines are deterministic.
 
-> **Follow-up:** trained on the lab's own normal traffic instead, the model reaches 0.688, but a simple error-and-latency rule scores 0.776 on the same data. See [`in-domain-eval.md`](in-domain-eval.md).
+> **Follow-up:** trained on the lab's own normal traffic instead, the model reaches 0.740, but a simple error-and-latency rule scores 0.776 on the same data. See [`in-domain-eval.md`](in-domain-eval.md).
 
 **In plain terms:** the signal is real but modest. It beats every baseline across all 5 seeds, and 9 of the 10 most surprising sessions are genuine incidents. It's nowhere near a finished detector.
 
@@ -51,7 +51,7 @@ The model catches **error-type** failures: failed requests, dependency outages, 
 
 Reports: [`reports/public-accuracy/lab-pooled-crisp-zeroshot-20260925/`](../../reports/public-accuracy/lab-pooled-crisp-zeroshot-20260925/). These include per-seed JSON with every session's score, the aggregates, the baselines and the breakdown.
 
-To reproduce, you need the capture; see limitation 2.
+To reproduce, use the published capture at `lab/published/pooled-20260918` (the commands below use the original local path `lab/captures/pooled-20260918`; either works). The zero-shot run also needs the CRISP-500k training cache.
 
 ```bash
 # training cache = CRISP-500k shards + tokenizer (see docs/crisp-val-bpb-baseline.md)
@@ -73,7 +73,7 @@ An earlier internal run (2026-09-18, `reports/public-accuracy/lab-pooled-2026091
 
 1. **Faults were only half on.** A lab bug meant every capture in this pool had its fault active on only one of the API's two gunicorn workers, so about half of API requests. `docker-compose.yml` hardcoded `FAULT_MODE: none`, and the runtime switch reached one worker. That's a big part of why so many incident-window sessions look normal. It was fixed on 2026-09-25, and later captures (`20260925v2-*`) have the fault on every request.
 2. **Small lab, scripted faults.** One three-service app with four fault types over a few minutes each. It isn't production traffic and it isn't multi-tenant. Results may not transfer.
-3. **The capture isn't in the repo yet.** The raw traces and logs (~6 MB) stay on the operator's machine. The repo holds the content hash, provenance and per-session scores. A redacted sample is in [`corpus/fixtures/lab_public_pack_v0/`](../../corpus/fixtures/lab_public_pack_v0/).
+3. **The capture is public** (added 2026-09-26) at [`lab/published/pooled-20260918/`](../../lab/published/pooled-20260918/). It's byte-identical to the evaluated capture; `tests/test_published_captures.py` pins its content hash.
 4. **Some lab artifacts remain in the text.** About 20 sessions, spread over both classes, contain the fault-switch control calls (`POST /admin/fault`). The lab app's error message is the literal string `induced_fault_error`. In real incidents the error text would differ; the `status=error` signal itself is genuine.
 5. **Short training.** It's one 5-minute training run per seed, not an overnight-bred model. Whether overnight breeding (lower CRISP `val_bpb`) improves ranking hasn't been measured.
 6. **Session-level score only.** A session is scored by its mean surprise. Localising which event is anomalous, and per-field scoring (which could catch latency faults), are future work.

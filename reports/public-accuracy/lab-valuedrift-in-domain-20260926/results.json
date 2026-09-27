@@ -1,0 +1,474 @@
+{
+  "protocol": "eval/in_domain.py (temporal split, train on normals only)",
+  "capture_id": "pooled-20260926-valuedrift",
+  "content_sha256": "088c818399acc4d6b35cdc223501f52e040fc9657740329295900ff953b92dab",
+  "git_head": "783b8b166c45ecb8b4027f69d0bb06fcc0261d2e",
+  "n_train_normal": 723,
+  "n_eval": 2169,
+  "n_eval_normal": 726,
+  "n_eval_incident": 1443,
+  "train_seconds": 120.0,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "methods": {
+    "length": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.49975420429965883,
+        "pr_auc": 0.6643849507519093,
+        "precision_at_10": 0.9,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.49848799848799846,
+        "20260926-pricing_flip": 0.499750863387227,
+        "20260926-region_new": 0.501043796498342
+      }
+    },
+    "error_lines": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.665283540802213,
+        "precision_at_10": 1.0,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 0.5
+      }
+    },
+    "duration_z": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5620049483685847,
+        "pr_auc": 0.7141943486575012,
+        "precision_at_10": 0.9,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.4849830758921668,
+        "20260926-pricing_flip": 0.49878438514802154,
+        "20260926-region_new": 0.6919597601415783
+      }
+    },
+    "rule": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5620049483685847,
+        "pr_auc": 0.7141943486575012,
+        "precision_at_10": 0.9,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.4849830758921668,
+        "20260926-pricing_flip": 0.49878438514802154,
+        "20260926-region_new": 0.6919597601415783
+      }
+    },
+    "novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.501039501039501,
+        "pr_auc": 0.6659794170167614,
+        "precision_at_10": 1.0,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.501039501039501,
+        "20260926-pricing_flip": 0.501039501039501,
+        "20260926-region_new": 0.501039501039501
+      }
+    },
+    "heuristic": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5639636776000413,
+        "pr_auc": 0.7166917639110751,
+        "precision_at_10": 0.9,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.48700194154739607,
+        "20260926-pricing_flip": 0.5007774780502053,
+        "20260926-region_new": 0.6938239892785347
+      }
+    },
+    "value_novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5426195426195426,
+        "pr_auc": 0.693814465598698,
+        "precision_at_10": 1.0,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.501039501039501,
+        "20260926-pricing_flip": 0.501039501039501,
+        "20260926-region_new": 0.6257796257796258
+      }
+    },
+    "value_rarity": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5862279953189045,
+        "pr_auc": 0.7398074764716602,
+        "precision_at_10": 1.0,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.49812717994536176,
+        "20260926-pricing_flip": 0.6205391659937114,
+        "20260926-region_new": 0.6402123674850948
+      }
+    },
+    "value_pair": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5841995841995842,
+        "pr_auc": 0.7216495141806345,
+        "precision_at_10": 1.0,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.6257796257796258,
+        "20260926-pricing_flip": 0.501039501039501,
+        "20260926-region_new": 0.6257796257796258
+      }
+    },
+    "bpb_mean": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.6496791769519044,
+          "std": 0.055284968055889845,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.7774641458538754,
+          "std": 0.033254418608799026,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.82,
+          "std": 0.16431676725154987,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.6021649112558204,
+          "std": 0.06748406019578797,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.776424803697531,
+          "std": 0.07293864864346135,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.5676809676809678,
+          "std": 0.026229504916933256,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.664009209463755,
+          "pr_auc": 0.783602084995607,
+          "precision_at_10": 1.0,
+          "n": 2169
+        },
+        {
+          "auroc": 0.6381285926740472,
+          "pr_auc": 0.7634465114056491,
+          "precision_at_10": 0.7,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5966860057769149,
+          "pr_auc": 0.7400124200367326,
+          "precision_at_10": 0.6,
+          "n": 2169
+        },
+        {
+          "auroc": 0.6122642031732941,
+          "pr_auc": 0.7704721726020634,
+          "precision_at_10": 0.9,
+          "n": 2169
+        },
+        {
+          "auroc": 0.7373078736715101,
+          "pr_auc": 0.8297875402293243,
+          "precision_at_10": 0.9,
+          "n": 2169
+        }
+      ]
+    },
+    "bpb_content": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.5640884368157095,
+          "std": 0.011876808997257324,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.7092585752175353,
+          "std": 0.008494802957420765,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.8000000000000002,
+          "std": 0.12247448713915893,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.5280699644336008,
+          "std": 0.014023560198949068,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.5172557172557173,
+          "std": 0.024795339318850328,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.6471521107884745,
+          "std": 0.021833431851402272,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.5510348237620964,
+          "pr_auc": 0.6979127293439513,
+          "precision_at_10": 0.9,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5750683932502114,
+          "pr_auc": 0.7183943612470594,
+          "precision_at_10": 0.8,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5515607788335061,
+          "pr_auc": 0.7030106070652385,
+          "precision_at_10": 0.6,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5735955281409827,
+          "pr_auc": 0.7125793823693514,
+          "precision_at_10": 0.8,
+          "n": 2169
+        },
+        {
+          "auroc": 0.569182660091751,
+          "pr_auc": 0.7143957960620758,
+          "precision_at_10": 0.9,
+          "n": 2169
+        }
+      ]
+    },
+    "bpb_max_event": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.5694905967633239,
+          "std": 0.007330010559732039,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.7370316108551289,
+          "std": 0.013143491972229762,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.8800000000000001,
+          "std": 0.08366600265340754,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.5156148519784883,
+          "std": 0.01745557950509434,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.5108383017473928,
+          "std": 0.024551129751728525,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.680794144430508,
+          "std": 0.016234810881445287,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.5651229742138834,
+          "pr_auc": 0.7143493448745553,
+          "precision_at_10": 0.8,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5668879305242942,
+          "pr_auc": 0.7384906075707094,
+          "precision_at_10": 0.9,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5612446521537431,
+          "pr_auc": 0.7427239425301339,
+          "precision_at_10": 1.0,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5754702572884391,
+          "pr_auc": 0.7480669429772663,
+          "precision_at_10": 0.9,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5787271696362606,
+          "pr_auc": 0.7415272163229795,
+          "precision_at_10": 0.8,
+          "n": 2169
+        }
+      ]
+    },
+    "bpb_top10": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.5579150033695489,
+          "std": 0.011243663526642429,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.705917510837402,
+          "std": 0.007308405781271524,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.8399999999999999,
+          "std": 0.1140175425099138,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.5248140066321885,
+          "std": 0.010585608360151908,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.5162557344375526,
+          "std": 0.022435348392902347,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.6334135152316971,
+          "std": 0.02080872477958515,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.547797956888866,
+          "pr_auc": 0.6997523401122595,
+          "precision_at_10": 0.9,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5705533887352069,
+          "pr_auc": 0.7165244013337315,
+          "precision_at_10": 1.0,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5443978625796808,
+          "pr_auc": 0.69873009425163,
+          "precision_at_10": 0.7,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5629494720403811,
+          "pr_auc": 0.7053272823858616,
+          "precision_at_10": 0.8,
+          "n": 2169
+        },
+        {
+          "auroc": 0.5638763366036094,
+          "pr_auc": 0.7092534361035275,
+          "precision_at_10": 0.8,
+          "n": 2169
+        }
+      ]
+    }
+  },
+  "train_info": [
+    {
+      "seed": 0,
+      "num_steps": 479,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 576,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 7,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 1,
+      "num_steps": 478,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 576,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 7,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 2,
+      "num_steps": 477,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 576,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 7,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 3,
+      "num_steps": 479,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 576,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 7,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 4,
+      "num_steps": 479,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 576,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 7,
+      "device_batch_size": 8
+    }
+  ]
+}

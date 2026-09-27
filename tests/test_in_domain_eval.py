@@ -6,6 +6,7 @@ import math
 import unittest
 
 from eval.in_domain import (
+    ValueStats,
     _noise_mask,
     baseline_scores,
     fit_duration_stats,
@@ -94,6 +95,31 @@ class TestNoveltyBaseline(unittest.TestCase):
         self.assertEqual(nov[3], 1.0)  # new trace shape (extra span)
 
 
+class TestValueBaselines(unittest.TestCase):
+    def _checkout(self, region, currency, pricing="v1", hits=7):
+        return (
+            "[ts=2026-09-26T05:23:01.000Z] [src=OTelLog] level=INFO svc=api "
+            f"msg=checkout_ok_db=ok_hits={hits}_region={region}_currency={currency}_pricing={pricing}"
+        )
+
+    def test_value_novelty_rarity_and_pairs(self):
+        train = [
+            _sess(f"n{i}", "normal", self._checkout(r, c, "v2" if i == 0 else "v1", hits=i))
+            for i, (r, c) in enumerate([("us-east", "USD"), ("eu-west", "EUR")] * 5)
+        ]
+        vs = ValueStats(train)
+        self.assertNotIn("hits", vs.counts)  # numeric → never categorical
+        normal = vs.score(self._checkout("us-east", "USD", hits=99))
+        new_region = vs.score(self._checkout("ap-east", "USD"))
+        swapped = vs.score(self._checkout("us-east", "EUR"))
+        rare = vs.score(self._checkout("us-east", "USD", "v2"))
+        self.assertEqual(normal[0], 0.0)
+        self.assertEqual(new_region[0], 1.0)  # unseen value
+        self.assertEqual(swapped[0], 0.0)  # every value familiar...
+        self.assertGreater(swapped[2], normal[2])  # ...but the pairing is new
+        self.assertGreater(rare[1], normal[1])  # v2 is rarer than v1
+
+
 class TestModelScoring(unittest.TestCase):
     def test_noise_mask_covers_ids_and_timestamp_only(self):
         text = _span(1, "GET", 150)
@@ -103,6 +129,13 @@ class TestModelScoring(unittest.TestCase):
         self.assertIn("trace_id=____", masked)
         self.assertIn("parent=___", masked)
         self.assertIn("duration_ms=150", masked)
+
+    def test_noise_mask_covers_monotonic_counter(self):
+        text = "[src=OTelLog] level=INFO svc=api msg=checkout_ok_db=ok_hits=1234_region=us-east"
+        toks = [(c, 1.0, 1) for c in text]
+        masked = "".join("_" if m else c for c, m in zip(text, _noise_mask(text, toks)))
+        self.assertIn("hits=____", masked)
+        self.assertIn("region=us-east", masked)
 
     def test_content_score_ignores_surprise_in_ids(self):
         text = _span(1, "GET", 5)

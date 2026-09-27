@@ -213,9 +213,15 @@ def train_fixture_lm(
     *,
     seed: int,
     train_seconds: float,
+    max_seq_len: int | None = FIXTURE_MAX_SEQ_LEN,
 ) -> tuple[Any, FixtureTokenizer, Any, dict[str, Any]]:
     """
     Fit a BPE tokenizer and a short GPT on ``train_texts`` only.
+
+    ``max_seq_len=None`` sizes the context to the longest training text (rounded
+    up to 64) so no session is cropped. The packing dataloader crops anything
+    longer than the context, and the model then never learns the tail of long
+    sessions. ``info["n_train_cropped"]`` reports how many texts were cropped.
 
     Returns (model, tokenizer, token_bytes on device, info). Shared by the
     public ranking card and the in-domain lab eval (eval.in_domain).
@@ -249,9 +255,13 @@ def train_fixture_lm(
     tokenizer, token_bytes_cpu = train_fixture_tokenizer(train_texts)
     token_bytes = token_bytes_cpu.to(demo.DEVICE)
 
+    doc_lens = [len(ids) for ids in tokenizer.encode(list(train_texts), prepend=tokenizer.get_bos_token_id())]
+    if max_seq_len is None:
+        max_seq_len = max(64, -(-max(doc_lens) // 64) * 64)
+    n_train_cropped = sum(n > max_seq_len + 1 for n in doc_lens)
+
     torch.manual_seed(seed)
     vocab_size = tokenizer.get_vocab_size()
-    max_seq_len = FIXTURE_MAX_SEQ_LEN
     base_dim = DEPTH * ASPECT_RATIO
     model_dim = ((base_dim + HEAD_DIM - 1) // HEAD_DIM) * HEAD_DIM
     num_heads = model_dim // HEAD_DIM
@@ -346,6 +356,7 @@ def train_fixture_lm(
         "device": demo.DEVICE.type,
         "vocab_size": vocab_size,
         "max_seq_len": max_seq_len,
+        "n_train_cropped": n_train_cropped,
         "grad_accum_steps": grad_accum_steps,
         "device_batch_size": device_batch_size,
     }

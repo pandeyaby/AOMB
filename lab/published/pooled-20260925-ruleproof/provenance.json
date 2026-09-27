@@ -1,0 +1,103 @@
+{
+  "corpus_version": "v1",
+  "source_id": "lab-aomb-stack-pooled",
+  "source_kind": "lab_capture",
+  "license": "Apache-2.0",
+  "license_url": "https://www.apache.org/licenses/LICENSE-2.0",
+  "citation": "AOMB lab stack pooled captures for labelled ranking eval",
+  "capture_id": "pooled-20260925-ruleproof",
+  "captured_at": "2026-09-25T19:41:53Z",
+  "capture_tool": "lab/scripts/pool_captures.py",
+  "signals": [
+    "traces",
+    "logs"
+  ],
+  "windows": [
+    {
+      "label": "normal",
+      "start": "2026-09-25T19:38:59Z",
+      "end": "2026-09-25T19:39:10Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260925v2-silent_fallback]",
+      "capture_id": "20260925v2-silent_fallback"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-25T19:39:14Z",
+      "end": "2026-09-25T19:39:25Z",
+      "fault": "silent_fallback",
+      "notes": "Fault injection active via inject_faults.sh [from 20260925v2-silent_fallback]",
+      "capture_id": "20260925v2-silent_fallback"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-25T19:39:39Z",
+      "end": "2026-09-25T19:39:51Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260925v2-skip_cache]",
+      "capture_id": "20260925v2-skip_cache"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-25T19:39:54Z",
+      "end": "2026-09-25T19:40:05Z",
+      "fault": "skip_cache",
+      "notes": "Fault injection active via inject_faults.sh [from 20260925v2-skip_cache]",
+      "capture_id": "20260925v2-skip_cache"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-25T19:40:20Z",
+      "end": "2026-09-25T19:40:31Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260925v2-retry_storm]",
+      "capture_id": "20260925v2-retry_storm"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-25T19:40:35Z",
+      "end": "2026-09-25T19:40:47Z",
+      "fault": "retry_storm",
+      "notes": "Fault injection active via inject_faults.sh [from 20260925v2-retry_storm]",
+      "capture_id": "20260925v2-retry_storm"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-25T19:41:01Z",
+      "end": "2026-09-25T19:41:13Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260925v2-db_failover]",
+      "capture_id": "20260925v2-db_failover"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-25T19:41:16Z",
+      "end": "2026-09-25T19:41:28Z",
+      "fault": "db_failover",
+      "notes": "Fault injection active via inject_faults.sh [from 20260925v2-db_failover]",
+      "capture_id": "20260925v2-db_failover"
+    }
+  ],
+  "pooled_from": [
+    {
+      "capture_id": "20260925v2-silent_fallback",
+      "fault": "silent_fallback",
+      "path": "lab/captures/20260925v2-silent_fallback"
+    },
+    {
+      "capture_id": "20260925v2-skip_cache",
+      "fault": "skip_cache",
+      "path": "lab/captures/20260925v2-skip_cache"
+    },
+    {
+      "capture_id": "20260925v2-retry_storm",
+      "fault": "retry_storm",
+      "path": "lab/captures/20260925v2-retry_storm"
+    },
+    {
+      "capture_id": "20260925v2-db_failover",
+      "fault": "db_failover",
+      "path": "lab/captures/20260925v2-db_failover"
+    }
+  ]
+}

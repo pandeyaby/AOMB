@@ -42,7 +42,7 @@ A public lab AUROC (or PR-AUC / precision@k) may be claimed **only after** all b
 
 - [x] Public-safe pack path named (e.g. `corpus/fixtures/lab_public_pack_v0/`) **or** explicit “private-only; pack TBD” (sample pack named; full capture private-only, content hash published)
 - [x] Clone-repro smoke documented (length / harness path) without private JSONL
-- [x] Private `lab/captures/` stays local — not vendored into the claim PR
+- [x] Private `lab/captures/` stays local — not vendored into the claim PR (superseded 2026-09-26: the evaluated pools are published under `lab/published/`, hash-pinned)
 - [x] Pack `claim_status` only flips when this whole checklist is green (not by renaming a file) (the pack stays `not_published`; only the pooled-lab result is published)
 
 ### 4. README / hero honesty

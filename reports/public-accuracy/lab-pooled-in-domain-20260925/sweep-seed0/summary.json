@@ -1,65 +1,70 @@
 {
   "seed": 0,
-  "note": "Training-length sweep; held-out BPB = mean bpb_content over eval-set normal sessions. See docs/lab/in-domain-eval.md.",
+  "note": "Training-length sweep with uncropped context and IDs/timestamps/counters masked. Held-out BPB = mean bpb_content over eval-set normals. See docs/lab/in-domain-eval.md.",
   "rows": [
     {
       "train_seconds": 10,
-      "num_steps": 25,
-      "heldout_normal_bpb_content": 0.34210788405983233,
-      "incident_bpb_content": 0.5138710505731326,
+      "num_steps": 39,
+      "max_seq_len": 768,
+      "heldout_normal_bpb_content": 0.2229207873965661,
+      "incident_bpb_content": 0.4305091091242752,
       "auroc": {
-        "bpb_mean": 0.6377518688574356,
-        "bpb_content": 0.6842437293666755,
-        "bpb_max_event": 0.6260397298220316,
-        "bpb_top10": 0.6814100861382005
+        "bpb_mean": 0.6971160778658976,
+        "bpb_content": 0.7243501688612303,
+        "bpb_max_event": 0.6860433347246992,
+        "bpb_top10": 0.7209976093803362
       }
     },
     {
       "train_seconds": 30,
-      "num_steps": 75,
-      "heldout_normal_bpb_content": 0.2799282844591752,
-      "incident_bpb_content": 0.4878058207794794,
+      "num_steps": 119,
+      "max_seq_len": 768,
+      "heldout_normal_bpb_content": 0.15353792653820958,
+      "incident_bpb_content": 0.3971705693791175,
       "auroc": {
-        "bpb_mean": 0.632124426061549,
-        "bpb_content": 0.6851079573483095,
-        "bpb_max_event": 0.6285925701058703,
-        "bpb_top10": 0.6890050468637346
+        "bpb_mean": 0.7219301407809358,
+        "bpb_content": 0.7295981482184192,
+        "bpb_max_event": 0.7352331802830797,
+        "bpb_top10": 0.7337902705574318
       }
     },
     {
       "train_seconds": 60,
-      "num_steps": 154,
-      "heldout_normal_bpb_content": 0.2722694992818622,
-      "incident_bpb_content": 0.5006187612870938,
+      "num_steps": 233,
+      "max_seq_len": 768,
+      "heldout_normal_bpb_content": 0.12688244538505528,
+      "incident_bpb_content": 0.3984870942184296,
       "auroc": {
-        "bpb_mean": 0.6095586840207946,
-        "bpb_content": 0.6822135999696429,
-        "bpb_max_event": 0.6248188062080219,
-        "bpb_top10": 0.6854950100557812
+        "bpb_mean": 0.7158226767350966,
+        "bpb_content": 0.7332353052783365,
+        "bpb_max_event": 0.7388665427086101,
+        "bpb_top10": 0.7314489811406671
       }
     },
     {
       "train_seconds": 120,
-      "num_steps": 307,
-      "heldout_normal_bpb_content": 0.28915433483015257,
-      "incident_bpb_content": 0.518724201488472,
+      "num_steps": 478,
+      "max_seq_len": 768,
+      "heldout_normal_bpb_content": 0.12494234523705512,
+      "incident_bpb_content": 0.46248378036823956,
       "auroc": {
-        "bpb_mean": 0.6061283345349675,
-        "bpb_content": 0.6774152847873107,
-        "bpb_max_event": 0.6252513945281372,
-        "bpb_top10": 0.685832732516222
+        "bpb_mean": 0.717345273782871,
+        "bpb_content": 0.7534142222896824,
+        "bpb_max_event": 0.7563673965013471,
+        "bpb_top10": 0.7489365537130498
       }
     },
     {
       "train_seconds": 300,
-      "num_steps": 777,
-      "heldout_normal_bpb_content": 0.34703146595354023,
-      "incident_bpb_content": 0.6476539563073086,
+      "num_steps": 1095,
+      "max_seq_len": 768,
+      "heldout_normal_bpb_content": 0.14421551976012548,
+      "incident_bpb_content": 0.5411989848888623,
       "auroc": {
-        "bpb_mean": 0.6104969073729746,
-        "bpb_content": 0.6806492619436117,
-        "bpb_max_event": 0.6285679049823549,
-        "bpb_top10": 0.6807156680453839
+        "bpb_mean": 0.7064897734603272,
+        "bpb_content": 0.7446694873448944,
+        "bpb_max_event": 0.7546237620005313,
+        "bpb_top10": 0.7379558304557355
       }
     }
   ]
