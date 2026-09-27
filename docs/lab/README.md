@@ -4,8 +4,8 @@ These are fault-injected OpenTelemetry captures from the lab stack in [`lab/`](.
 The evaluated captures are **public** in [`lab/published/`](../../lab/published/), hash-pinned to the reports. Rerun every in-domain eval with `./scripts/reproduce_lab_evals.sh` (`QUICK=1` for a few-minute CPU run).
 
 > **Published results (corrected 2026-09-26):**
-> - Error and latency faults: zero-shot **0.583** ([`ranking-validation.md`](ranking-validation.md)) and in-domain **0.740**, against a simple rule at **0.776** ([`in-domain-eval.md`](in-domain-eval.md)).
-> - Rule-proof faults: the model is the best single detector (**0.944**) but wins no individual fault ([`rule-proof-eval.md`](rule-proof-eval.md)).
+> - Error and latency faults: zero-shot **0.583** ([`ranking-validation.md`](ranking-validation.md)); in-domain with per-field scoring **0.788**, matching a simple rule at **0.776** ([`in-domain-eval.md`](in-domain-eval.md)).
+> - Rule-proof faults: the model is the best single detector (**0.957**) but wins no individual fault ([`rule-proof-eval.md`](rule-proof-eval.md)).
 > - Subtle value drift: simple value checks beat the model ([`value-drift-eval.md`](value-drift-eval.md)).
 
 **Publish gate:** [`publish-checklist.md`](publish-checklist.md). Every new lab number has to pass it on its own run.

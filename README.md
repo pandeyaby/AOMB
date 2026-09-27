@@ -16,7 +16,7 @@ The model isn't tuned by hand. An LLM agent (Claude) runs the research loop over
 
 It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch), via [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
 
-> **Status: research prototype.** On error and latency faults, a simple rule beats the model. On faults built to evade rules, the model is the best *single* detector (it catches new log lines, changed values, extra calls and missing calls with no fault-specific rules), but a purpose-built check matches or beats it on every individual fault. See [Results](#results-so-far).
+> **Status: research prototype.** On error and latency faults, the model matches a simple rule without any rules written, but adds little beyond it. On faults built to evade rules, the model is the best *single* detector (it catches new log lines, changed values, extra calls and missing calls with no fault-specific rules), but a purpose-built check matches or beats it on every individual fault. See [Results](#results-so-far).
 
 ---
 
@@ -26,29 +26,31 @@ It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.c
 
 All results are from a small lab microservice stack with injected faults, compared against the checks an SRE would write. Every capture is public in [`lab/published/`](lab/published/), and `./scripts/reproduce_lab_evals.sh` reruns every in-domain number (`QUICK=1` finishes in minutes on a CPU).
 
-**1. Error and latency faults: a simple rule wins.**
+**1. Error and latency faults: the model matches a simple rule.**
 
 | Method | AUROC |
 |--------|-------|
 | AOMB, zero-shot (trained on Uber CRISP only) | 0.583 |
-| AOMB, in-domain (trained on the lab's own normal traffic) | 0.740 |
-| **Error-lines-then-duration-z rule** | **0.776** |
+| Error-lines-then-duration-z rule | 0.776 |
+| **AOMB, in-domain** (trained on the lab's own normal traffic, per-field scoring) | **0.788** |
 
-Where the rule sees nothing, the model is close to chance.
+It gets there with no rules written, but it adds little *beyond* the rule. Where the rule sees nothing, the model scores 0.58, and combining the two is no better than the rule alone.
 
 **2. Faults built to evade that rule** (every request 200, latency ~normal), on the checkout requests they touch:
 
 | Fault | Rule | Template/shape novelty | Value novelty | **AOMB** |
 |-------|------|------------------------|---------------|----------|
 | New log line | 0.46 | **1.00** | **1.00** | **1.00** |
-| Value changed (`db=replica`) | 0.66 | 0.50 | **1.00** | 0.99 |
-| Retry storm (extra calls) | **1.00** | **1.00** | 0.50 | 0.96 |
-| Missing call | 0.22 | **1.00** | 0.50 | 0.86 |
-| **All four** | 0.60 | 0.88 | 0.75 | **0.94** |
+| Value changed (`db=replica`) | 0.66 | 0.50 | **1.00** | **1.00** |
+| Retry storm (extra calls) | **1.00** | **1.00** | 0.50 | 0.97 |
+| Missing call | 0.22 | **1.00** | 0.50 | 0.82 |
+| **All four** | 0.60 | 0.88 | 0.75 | **0.96** |
 
 The model is the best *single* detector: one model with no fault-specific rules covers all four. It wins no individual fault, though. Each has a purpose-built check that matches or beats it.
 
-**3. Subtler value drift inside a log line.** The model catches a never-seen value (0.99) but only partly catches a wrong *pairing* of familiar values (0.65), and it misses a *frequency* shift (0.55). Simple value checks beat it here.
+**3. Subtler value drift inside a log line.** The model catches a never-seen value (1.00), partly catches a wrong *pairing* of familiar values (0.77), and mostly misses a *frequency* shift (0.63). Simple value checks beat it on each fault, and narrowly on the pooled set (0.83 vs 0.81).
+
+**Scoring matters as much as the model.** Taking the single most surprising *field value* in a session, rather than averaging surprise over it, improved every lab: error/latency 0.74 → 0.79, rule-proof 0.94 → 0.96, value drift 0.72 → 0.81.
 
 **Better compression helps, modestly.** In a training-length sweep, held-out BPB fell 44% and detection AUROC rose from 0.72 to 0.75. The effect is small, but it goes the direction the agent loop assumes.
 

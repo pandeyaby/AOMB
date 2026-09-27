@@ -30,6 +30,8 @@ Methods compared on the identical eval set:
                       (random hex is incompressible noise; clock-like values are confounds)
 - ``bpb_max_event``   highest per-event (per-line) bits-per-byte, IDs/timestamps excluded
 - ``bpb_top10``       mean bits of the 10% most surprising tokens, IDs/timestamps excluded
+- ``bits_max_field``  most surprising single field value: total bits of the tokens in
+                      one ``key=value`` value (≈ -log2 p(value | context)), max over fields
 
 Usage:
     uv run python -m eval.in_domain --capture lab/captures/pooled-20260918 \\
@@ -71,7 +73,7 @@ _NOISE_VALUE = re.compile(
     r"(?:trace_id|span_id|parent)=(\S+)|\[ts=([^\]]+)\]|(?:^|(?<=[\s_]))hits=(\d+)"
 )
 
-MODEL_METHODS = ("bpb_mean", "bpb_content", "bpb_max_event", "bpb_top10")
+MODEL_METHODS = ("bpb_mean", "bpb_content", "bpb_max_event", "bpb_top10", "bits_max_field")
 BASELINE_METHODS = (
     "length", "error_lines", "duration_z", "rule", "novelty", "heuristic",
     "value_novelty", "value_rarity", "value_pair",
@@ -291,11 +293,28 @@ def model_scores_for(toks: Sequence[tuple[str, float, int]], text: str) -> dict[
     bits = sorted((n / ln2 for _t, n, _b in kept), reverse=True)
     k = max(1, len(bits) // 10)
     nan = float("nan")
+
+    # per-field: bits of the tokens starting inside each key=value value span
+    starts, off = [], 0
+    for tok, _n, _b in toks:
+        starts.append(off)
+        off += len(tok)
+    field_bits = []
+    for m in _FIELD.finditer(text):
+        a, b = m.span(2)
+        fb = sum(
+            n / ln2
+            for (tok, n, nb), st, noise in zip(toks, starts, is_id)
+            if a <= st < b and nb > 0 and not noise
+        )
+        if fb > 0:
+            field_bits.append(fb)
     return {
         "bpb_mean": tot_n / (ln2 * tot_b) if tot_b else nan,
         "bpb_content": kn / (ln2 * kb) if kb else nan,
         "bpb_max_event": max(ev) if ev else nan,
         "bpb_top10": sum(bits[:k]) / k if bits else nan,
+        "bits_max_field": max(field_bits) if field_bits else nan,
     }
 
 

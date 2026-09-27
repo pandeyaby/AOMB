@@ -137,6 +137,20 @@ class TestModelScoring(unittest.TestCase):
         self.assertIn("hits=____", masked)
         self.assertIn("region=us-east", masked)
 
+    def test_max_field_picks_the_surprising_value_and_ignores_ids(self):
+        text = _span(1, "GET", 5) + " region=us-east"
+        toks = [(c, 1.0, 1) for c in text]
+        mask = _noise_mask(text, toks)
+        base = model_scores_for(toks, text)["bits_max_field"]
+        start = text.index("us-east")
+        spiked = [
+            (c, 30.0 if start <= i < start + 7 else (90.0 if m else n), b)
+            for i, ((c, n, b), m) in enumerate(zip(toks, mask))
+        ]
+        out = model_scores_for(spiked, text)["bits_max_field"]
+        self.assertAlmostEqual(out, 7 * 30.0 / math.log(2))  # region value, not the IDs
+        self.assertGreater(out, base)
+
     def test_content_score_ignores_surprise_in_ids(self):
         text = _span(1, "GET", 5)
         toks = [(c, 1.0, 1) for c in text]
