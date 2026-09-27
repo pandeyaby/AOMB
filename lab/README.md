@@ -65,6 +65,11 @@ hand-rotate `_active` while the collector is up.
 ./scripts/inject_faults.sh skip_cache        # checkout skips Redis (span disappears)
 ./scripts/inject_faults.sh retry_storm       # each DB ping runs 3×
 ./scripts/inject_faults.sh db_failover       # checkout logs db=replica instead of db=ok
+
+# Value drift in the checkout log (region / currency / pricing fields)
+./scripts/inject_faults.sh region_new        # region=ap-east (never seen)
+./scripts/inject_faults.sh currency_swap     # currency mismatches region
+./scripts/inject_faults.sh pricing_flip      # pricing=v2 on 90% of requests (normally 10%)
 ```
 
 Faults are applied by recreating the `api` container with `FAULT_MODE` in its

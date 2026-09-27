@@ -1,0 +1,82 @@
+{
+  "corpus_version": "v1",
+  "source_id": "lab-aomb-stack-pooled",
+  "source_kind": "lab_capture",
+  "license": "Apache-2.0",
+  "license_url": "https://www.apache.org/licenses/LICENSE-2.0",
+  "citation": "AOMB lab stack pooled captures for labelled ranking eval",
+  "capture_id": "pooled-20260926-valuedrift",
+  "captured_at": "2026-09-26T19:35:45Z",
+  "capture_tool": "lab/scripts/pool_captures.py",
+  "signals": [
+    "traces",
+    "logs"
+  ],
+  "windows": [
+    {
+      "label": "normal",
+      "start": "2026-09-26T19:32:51Z",
+      "end": "2026-09-26T19:33:09Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260926-region_new]",
+      "capture_id": "20260926-region_new"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-26T19:33:13Z",
+      "end": "2026-09-26T19:33:31Z",
+      "fault": "region_new",
+      "notes": "Fault injection active via inject_faults.sh [from 20260926-region_new]",
+      "capture_id": "20260926-region_new"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-26T19:33:46Z",
+      "end": "2026-09-26T19:34:04Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260926-currency_swap]",
+      "capture_id": "20260926-currency_swap"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-26T19:34:08Z",
+      "end": "2026-09-26T19:34:26Z",
+      "fault": "currency_swap",
+      "notes": "Fault injection active via inject_faults.sh [from 20260926-currency_swap]",
+      "capture_id": "20260926-currency_swap"
+    },
+    {
+      "label": "normal",
+      "start": "2026-09-26T19:34:41Z",
+      "end": "2026-09-26T19:34:59Z",
+      "fault": "",
+      "notes": "Steady load, FAULT_MODE=none [from 20260926-pricing_flip]",
+      "capture_id": "20260926-pricing_flip"
+    },
+    {
+      "label": "incident",
+      "start": "2026-09-26T19:35:02Z",
+      "end": "2026-09-26T19:35:21Z",
+      "fault": "pricing_flip",
+      "notes": "Fault injection active via inject_faults.sh [from 20260926-pricing_flip]",
+      "capture_id": "20260926-pricing_flip"
+    }
+  ],
+  "pooled_from": [
+    {
+      "capture_id": "20260926-region_new",
+      "fault": "region_new",
+      "path": "lab/captures/20260926-region_new"
+    },
+    {
+      "capture_id": "20260926-currency_swap",
+      "fault": "currency_swap",
+      "path": "lab/captures/20260926-currency_swap"
+    },
+    {
+      "capture_id": "20260926-pricing_flip",
+      "fault": "pricing_flip",
+      "path": "lab/captures/20260926-pricing_flip"
+    }
+  ]
+}
