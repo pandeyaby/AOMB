@@ -1,0 +1,41 @@
+$ time npm run zeroday -- locate --cwe CWE-502 --repo /Users/abhinavpandey/Documents/GitHub/AOMB --live --remote-inference --output demo-antares/aomb502
+started 2026-09-28 11:31:17 AM PDT
+
+> zeroday@0.9.0 zeroday
+> tsx cli/index.ts locate --cwe CWE-502 --repo /Users/abhinavpandey/Documents/GitHub/AOMB --live --remote-inference --output demo-antares/aomb502
+
+
+ZERODAY locate
+──────────────
+Advisory : CWE-502 → CWE-502
+Mode     : live
+Model    : fdtn-ai/antares-1b
+Target   : /Users/abhinavpandey/Documents/GitHub/AOMB
+Findings : 2
+
+Ranked files:
+  1. prepare.py  [CWE-502]  Deserialization of Untrusted Data  ✓ rules agree
+  2. eval/score_cli.py  [CWE-502]  Deserialization of Untrusted Data  ✓ rules agree
+
+Context  : ZERODAY static pass sent to Antares (2 candidate(s))
+Agreement: 2 file(s) flagged by both Antares and rules
+
+Artifacts:
+  JSON     /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/report.json
+  SARIF    /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/report.sarif
+  Report   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/report.md
+  Comment  /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/comment.md
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/asff-findings.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/splunk-cim-vulnerabilities.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/xsoar-incidents.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/fortisiem-custom.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/crowdstrike-hec-events.ndjson
+  Evidence /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/evidence
+  Manifest /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502/evidence/manifest.json
+
+Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge
+
+Live Antares path complete — report.sarif is from real inference (not fixture).
+npm run zeroday -- locate --cwe CWE-502 --repo  --live --remote-inference   2  7.72s user 3.74s system 24% cpu 46.328 total
+
+exit=0 elapsed=46s

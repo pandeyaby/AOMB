@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY",
+          "version": "0.9.0",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY",
+          "rules": [
+            {
+              "id": "CWE-502",
+              "name": "CWE-502",
+              "shortDescription": {
+                "text": "CWE-502 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-502. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/502.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-502"
+                ],
+                "precision": "medium"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-502",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Deserialization of Untrusted Data — rank 1. Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "prepare.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "4d5fc647c92cf8a19479c81d",
+            "zeroday/v1": "4d5fc647c92cf8a19479c81d"
+          },
+          "properties": {
+            "submission_rank": 1,
+            "cwe_ids": [
+              "CWE-502"
+            ],
+            "advisory": "CWE-502",
+            "mode": "live",
+            "likelihood_of_exploit": "Medium",
+            "exploration_steps": 1,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-502",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Deserialization of Untrusted Data — rank 2. Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser-torch-load] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "eval/score_cli.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "d79d4fa49fd14c8b32ddee53",
+            "zeroday/v1": "d79d4fa49fd14c8b32ddee53"
+          },
+          "properties": {
+            "submission_rank": 2,
+            "cwe_ids": [
+              "CWE-502"
+            ],
+            "advisory": "CWE-502",
+            "mode": "live",
+            "likelihood_of_exploit": "Medium",
+            "exploration_steps": 1,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "file:///Users/abhinavpandey/Documents/GitHub/AOMB"
+        }
+      },
+      "properties": {
+        "advisory": {
+          "kind": "cwe",
+          "id": "CWE-502",
+          "cweId": "CWE-502"
+        },
+        "model": "fdtn-ai/antares-1b",
+        "mode": "live",
+        "generatedAt": "2026-09-28T18:32:03.437Z",
+        "summary": {
+          "findingCount": 2,
+          "incompleteReason": null,
+          "incompleteClass": null,
+          "incompleteTips": [],
+          "recoveryAttempted": false,
+          "terminalCallBudget": 30,
+          "terminalCallsUsed": 1,
+          "hybrid": {
+            "contextSent": true,
+            "rulesCandidates": 2,
+            "agreed": [
+              "prepare.py",
+              "eval/score_cli.py"
+            ],
+            "antaresOnly": [],
+            "rulesOnly": []
+          }
+        },
+        "explorationTrace": [
+          {
+            "step": 1,
+            "tool": "other",
+            "command": "antares query",
+            "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+          }
+        ],
+        "posture": {
+          "localizationOnly": true,
+          "notExploitProof": true,
+          "noAutoMerge": true,
+          "noPoC": true
+        },
+        "warnings": [
+          "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
+          "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+          "Model id sent to endpoint: fdtn-ai/antares-1b (default fdtn-ai/antares-1b when unset).",
+          "Tool budget: 30 (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).",
+          "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+          "ZERODAY context sent to Antares (--query): 2 static candidate(s). Antares still explores and decides; files it did not confirm are listed as rules-only.",
+          "Read-only snapshot: 1058 files at /var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-GOpRjF/repo",
+          "Sandbox active (ubuntu:24.04, network=none, mem=512m, cpus=1, timeout=10000ms)",
+          "Local completions probe ok: GET https://zxqlprh3acxmcw-8000.proxy.runpod.net/v1/models → 200 (1 model(s))",
+          "Resolved CWE-502 → CWE-502 (deserialization) via cwe-direct",
+          "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights)."
+        ]
+      }
+    }
+  ]
+}

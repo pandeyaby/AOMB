@@ -1,0 +1,10 @@
+{
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-502",
+    "cweId": "CWE-502"
+  },
+  "repo": "/Users/abhinavpandey/Documents/GitHub/AOMB",
+  "mode": "live",
+  "at": "2026-09-28T18:32:03.438Z"
+}

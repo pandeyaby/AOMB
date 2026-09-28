@@ -1,0 +1,37 @@
+{
+  "note": "Generic JSON for a customer FortiSIEM parser or rawupload configuration. ZERODAY does not ship an official FortiSIEM finding schema and does not call /rawupload.",
+  "events": [
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-502",
+      "filePath": "prepare.py",
+      "title": "Deserialization of Untrusted Data",
+      "description": "Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser]",
+      "occurred": "2026-09-28T18:32:03.437Z",
+      "category": "deserialization",
+      "advisoryId": "CWE-502",
+      "rank": 1,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    },
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-502",
+      "filePath": "eval/score_cli.py",
+      "title": "Deserialization of Untrusted Data",
+      "description": "Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser-torch-load]",
+      "occurred": "2026-09-28T18:32:03.437Z",
+      "category": "deserialization",
+      "advisoryId": "CWE-502",
+      "rank": 2,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    }
+  ]
+}
