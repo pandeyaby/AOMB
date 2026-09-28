@@ -1,0 +1,49 @@
+$ npm run zeroday -- scan --repo /Users/abhinavpandey/Documents/GitHub/AOMB --require-antares --output /tmp/scan-aomb
+started 2026-09-28 02:25:14 PM PDT
+
+> zeroday@0.9.0 zeroday
+> tsx cli/index.ts scan --repo /Users/abhinavpandey/Documents/GitHub/AOMB --require-antares --output /tmp/scan-aomb
+
+
+ZERODAY scan
+────────────
+Target   : /Users/abhinavpandey/Documents/GitHub/AOMB
+Rules    : 10 CWEs
+Antares  : fdtn-ai/antares-1b — 8 CWEs picked for this repo (CWE-78, CWE-94, CWE-327, CWE-502, CWE-22, CWE-77, CWE-338, CWE-409), 164 tool calls, 63s
+
+By CWE     rules  antares  both
+  CWE-78        0        1     0
+  CWE-94        1        1     0
+  CWE-502       2        1     1
+  CWE-327       0        1     0
+  CWE-77        0        9     0
+  CWE-338       0        4     0
+  CWE-409       0        2     0
+
+Files:
+   1. demo_anomaly.py  [CWE-338,CWE-94]  antares+rules
+   2. prepare.py  [CWE-502]  antares+rules
+   3. agent_loop.py  [CWE-77,CWE-78,CWE-94]  antares
+   4. best_val_bpb.py  [CWE-338]  antares
+   5. corpus/ingest/fetch_tale_of_errors.py  [CWE-327]  antares
+   6. corpus/ingest/tale_capped_pipeline.py  [CWE-77]  antares
+   7. corpus/ingest/tale_stream_extract.py  [CWE-409]  antares
+   8. eval/in_domain.py  [CWE-77]  antares
+   9. eval/report.py  [CWE-77]  antares
+  10. eval/run_public_ranking_card.py  [CWE-77]  antares
+  11. generate_observability_corpus.py  [CWE-338]  antares
+  12. morning_report.py  [CWE-77]  antares
+  13. tests/test_stranger_scripts.py  [CWE-77]  antares
+  14. tests/test_tale_script_refusals.py  [CWE-77]  antares
+  15. tests/test_tale_stream_extract.py  [CWE-409]  antares
+  16. tests/test_train_refusals.py  [CWE-77]  antares
+  17. visualize_corpus.py  [CWE-338]  antares
+  18. eval/score_cli.py  [CWE-502]  rules
+
+Report   : /tmp/scan-aomb/report.md
+SARIF    : /tmp/scan-aomb/report.sarif
+Evidence : /tmp/scan-aomb/evidence/manifest.json
+
+Localization only — candidates for human review, not proof of exploitability.
+
+exit=0 elapsed=101s finished 02:26:55 PM PDT

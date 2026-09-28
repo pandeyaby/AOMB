@@ -1,0 +1,1019 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY",
+          "version": "0.9.0",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY",
+          "rules": [
+            {
+              "id": "CWE-338",
+              "name": "CWE-338",
+              "shortDescription": {
+                "text": "CWE-338 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-338. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/338.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-338"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-94",
+              "name": "CWE-94",
+              "shortDescription": {
+                "text": "CWE-94 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-94. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/94.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-94"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-502",
+              "name": "CWE-502",
+              "shortDescription": {
+                "text": "CWE-502 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-502. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/502.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-502"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-77",
+              "name": "CWE-77",
+              "shortDescription": {
+                "text": "CWE-77 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-77. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/77.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-77"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-78",
+              "name": "CWE-78",
+              "shortDescription": {
+                "text": "CWE-78 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-78. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/78.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-78"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-327",
+              "name": "CWE-327",
+              "shortDescription": {
+                "text": "CWE-327 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-327. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/327.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-327"
+                ],
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CWE-409",
+              "name": "CWE-409",
+              "shortDescription": {
+                "text": "CWE-409 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-409. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/409.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-409"
+                ],
+                "precision": "medium"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-338",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) — Antares and rules — rank 1. CWE-94: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-94/code-eval]; Antares (CWE-338): Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "demo_anomaly.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 139,
+                  "endLine": 139
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-338|demo_anomaly.py|1"
+          },
+          "properties": {
+            "submission_rank": 1,
+            "cwe_ids": [
+              "CWE-338",
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-502",
+          "ruleIndex": 2,
+          "level": "note",
+          "message": {
+            "text": "Deserialization of Untrusted Data — Antares and rules — rank 2. CWE-502: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser]; Antares (CWE-502): Deserialization of Untrusted Data (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "prepare.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 230,
+                  "endLine": 230
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-502|prepare.py|2"
+          },
+          "properties": {
+            "submission_rank": 2,
+            "cwe_ids": [
+              "CWE-502"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 3. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection'); Antares (CWE-78): Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection'); Antares (CWE-94): Improper Control of Generation of Code ('Code Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "agent_loop.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|agent_loop.py|3"
+          },
+          "properties": {
+            "submission_rank": 3,
+            "cwe_ids": [
+              "CWE-77",
+              "CWE-78",
+              "CWE-94"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-338",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) — Antares — rank 4. Antares (CWE-338): Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "best_val_bpb.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-338|best_val_bpb.py|4"
+          },
+          "properties": {
+            "submission_rank": 4,
+            "cwe_ids": [
+              "CWE-338"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-327",
+          "ruleIndex": 5,
+          "level": "note",
+          "message": {
+            "text": "Use of a Broken or Risky Cryptographic Algorithm — Antares — rank 5. Antares (CWE-327): Use of a Broken or Risky Cryptographic Algorithm (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "corpus/ingest/fetch_tale_of_errors.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-327|corpus/ingest/fetch_tale_of_errors.py|5"
+          },
+          "properties": {
+            "submission_rank": 5,
+            "cwe_ids": [
+              "CWE-327"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 6. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "corpus/ingest/tale_capped_pipeline.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|corpus/ingest/tale_capped_pipeline.py|6"
+          },
+          "properties": {
+            "submission_rank": 6,
+            "cwe_ids": [
+              "CWE-77"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-409",
+          "ruleIndex": 6,
+          "level": "note",
+          "message": {
+            "text": "Improper Handling of Highly Compressed Data (Data Amplification) — Antares — rank 7. Antares (CWE-409): Improper Handling of Highly Compressed Data (Data Amplification) (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "corpus/ingest/tale_stream_extract.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-409|corpus/ingest/tale_stream_extract.py|7"
+          },
+          "properties": {
+            "submission_rank": 7,
+            "cwe_ids": [
+              "CWE-409"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 8. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "eval/in_domain.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|eval/in_domain.py|8"
+          },
+          "properties": {
+            "submission_rank": 8,
+            "cwe_ids": [
+              "CWE-77"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 9. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "eval/report.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|eval/report.py|9"
+          },
+          "properties": {
+            "submission_rank": 9,
+            "cwe_ids": [
+              "CWE-77"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 10. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "eval/run_public_ranking_card.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|eval/run_public_ranking_card.py|10"
+          },
+          "properties": {
+            "submission_rank": 10,
+            "cwe_ids": [
+              "CWE-77"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-338",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) — Antares — rank 11. Antares (CWE-338): Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "generate_observability_corpus.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-338|generate_observability_corpus.py|11"
+          },
+          "properties": {
+            "submission_rank": 11,
+            "cwe_ids": [
+              "CWE-338"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 12. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "morning_report.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|morning_report.py|12"
+          },
+          "properties": {
+            "submission_rank": 12,
+            "cwe_ids": [
+              "CWE-77"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 13. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/test_stranger_scripts.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|tests/test_stranger_scripts.py|13"
+          },
+          "properties": {
+            "submission_rank": 13,
+            "cwe_ids": [
+              "CWE-77"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 14. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/test_tale_script_refusals.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|tests/test_tale_script_refusals.py|14"
+          },
+          "properties": {
+            "submission_rank": 14,
+            "cwe_ids": [
+              "CWE-77"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-409",
+          "ruleIndex": 6,
+          "level": "note",
+          "message": {
+            "text": "Improper Handling of Highly Compressed Data (Data Amplification) — Antares — rank 15. Antares (CWE-409): Improper Handling of Highly Compressed Data (Data Amplification) (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/test_tale_stream_extract.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-409|tests/test_tale_stream_extract.py|15"
+          },
+          "properties": {
+            "submission_rank": 15,
+            "cwe_ids": [
+              "CWE-409"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-77",
+          "ruleIndex": 3,
+          "level": "note",
+          "message": {
+            "text": "Improper Neutralization of Special Elements used in a Command ('Command Injection') — Antares — rank 16. Antares (CWE-77): Improper Neutralization of Special Elements used in a Command ('Command Injection') (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/test_train_refusals.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-77|tests/test_train_refusals.py|16"
+          },
+          "properties": {
+            "submission_rank": 16,
+            "cwe_ids": [
+              "CWE-77"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-338",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) — Antares — rank 17. Antares (CWE-338): Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "visualize_corpus.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-338|visualize_corpus.py|17"
+          },
+          "properties": {
+            "submission_rank": 17,
+            "cwe_ids": [
+              "CWE-338"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        },
+        {
+          "ruleId": "CWE-502",
+          "ruleIndex": 2,
+          "level": "note",
+          "message": {
+            "text": "torch.load without weights_only=True (pickle; unsafe before PyTorch 2.6 defaults) — Rules — rank 18. CWE-502: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser-torch-load] (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "eval/score_cli.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 412,
+                  "endLine": 412
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "CWE-502|eval/score_cli.py|18"
+          },
+          "properties": {
+            "submission_rank": 18,
+            "cwe_ids": [
+              "CWE-502"
+            ],
+            "advisory": "SCAN",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 0,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "file:///Users/abhinavpandey/Documents/GitHub/AOMB"
+        }
+      },
+      "properties": {
+        "advisory": {
+          "kind": "cwe",
+          "id": "SCAN",
+          "cweId": "CWE-89",
+          "title": "Scan: 14 CWEs"
+        },
+        "model": "fdtn-ai/antares-1b",
+        "mode": "live",
+        "generatedAt": "2026-09-28T21:26:55.495Z",
+        "summary": {
+          "findingCount": 18,
+          "needs_human": true,
+          "incompleteReason": null,
+          "terminalCallBudget": 0,
+          "terminalCallsUsed": 164,
+          "scan": {
+            "cwesRules": [
+              "CWE-89",
+              "CWE-79",
+              "CWE-22",
+              "CWE-78",
+              "CWE-94",
+              "CWE-502",
+              "CWE-918",
+              "CWE-611",
+              "CWE-798",
+              "CWE-601"
+            ],
+            "cwesAntares": [
+              "CWE-78",
+              "CWE-94",
+              "CWE-327",
+              "CWE-502",
+              "CWE-22",
+              "CWE-77",
+              "CWE-338",
+              "CWE-409"
+            ],
+            "perCwe": [
+              {
+                "cwe": "CWE-89",
+                "rules": 0,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-79",
+                "rules": 0,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-22",
+                "rules": 0,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-78",
+                "rules": 0,
+                "antares": 1,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-94",
+                "rules": 1,
+                "antares": 1,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-502",
+                "rules": 2,
+                "antares": 1,
+                "both": 1,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-918",
+                "rules": 0,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-611",
+                "rules": 0,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-798",
+                "rules": 0,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-601",
+                "rules": 0,
+                "antares": 0,
+                "both": 0,
+                "antaresPlanned": false
+              },
+              {
+                "cwe": "CWE-327",
+                "rules": 0,
+                "antares": 1,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-77",
+                "rules": 0,
+                "antares": 9,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-338",
+                "rules": 0,
+                "antares": 4,
+                "both": 0,
+                "antaresPlanned": true
+              },
+              {
+                "cwe": "CWE-409",
+                "rules": 0,
+                "antares": 2,
+                "both": 0,
+                "antaresPlanned": true
+              }
+            ],
+            "antares": {
+              "endpoint": "https://698frdbr9mnz72-8000.proxy.runpod.net/v1",
+              "model": "fdtn-ai/antares-1b",
+              "source": "Using saved endpoint https://698frdbr9mnz72-8000.proxy.runpod.net/v1 (model fdtn-ai/antares-1b; remote-inference ACK from saved Desk config)",
+              "seconds": 63,
+              "toolCalls": 164,
+              "failedToolCalls": 62,
+              "incomplete": null
+            }
+          }
+        },
+        "explorationTrace": [],
+        "posture": {
+          "localizationOnly": true,
+          "notExploitProof": true,
+          "noAutoMerge": true,
+          "noPoC": true
+        },
+        "warnings": [
+          "ZERODAY rules findings for 8 planned CWE(s) sent to Antares as starting context (--query).",
+          "Read-only snapshot: 1058 files (destroyed after run)",
+          "Localization only: candidates for human review — not proof of exploitability."
+        ]
+      }
+    }
+  ]
+}

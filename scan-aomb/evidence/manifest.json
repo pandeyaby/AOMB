@@ -1,0 +1,319 @@
+{
+  "schemaVersion": "zeroday-evidence-manifest/v1",
+  "runId": "scan-aomb",
+  "createdAt": "2026-09-28T21:26:55.497Z",
+  "updatedAt": "2026-09-28T21:26:55.498Z",
+  "entries": [
+    {
+      "id": "ev_input_001",
+      "kind": "input",
+      "title": "Scan inputs",
+      "summary": "14 CWEs",
+      "relativePath": "evidence/inputs/scan.json",
+      "sha256": "0927507a974f6ba0f3c93364e6480503febe81aa13d0ec807e5e386c130934e1",
+      "createdAt": "2026-09-28T21:26:55.497Z",
+      "tags": [
+        "input",
+        "scan"
+      ]
+    },
+    {
+      "id": "ev_claim_002",
+      "kind": "claim",
+      "title": "Candidate: demo_anomaly.py",
+      "summary": "CWE-338, CWE-94 (rank 1)",
+      "relativePath": "evidence/claims/2-candidate-demo-anomaly-py.json",
+      "sha256": "68b1ceaef57051f98426b33fbe51dafde6de7f6f8a48ea971d96f3a11978289d",
+      "createdAt": "2026-09-28T21:26:55.497Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_003",
+      "kind": "claim",
+      "title": "Candidate: prepare.py",
+      "summary": "CWE-502 (rank 2)",
+      "relativePath": "evidence/claims/3-candidate-prepare-py.json",
+      "sha256": "de0ed2cb248e594d053642c9cc162d0a35e95b301cad9e1873aa0a73e864f635",
+      "createdAt": "2026-09-28T21:26:55.497Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_004",
+      "kind": "claim",
+      "title": "Candidate: agent_loop.py",
+      "summary": "CWE-77, CWE-78, CWE-94 (rank 3)",
+      "relativePath": "evidence/claims/4-candidate-agent-loop-py.json",
+      "sha256": "ed4f0441f43a311b2b68f2b81db6e6ec013c264076a3f3a98bfcaf4c0bbc2361",
+      "createdAt": "2026-09-28T21:26:55.497Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_005",
+      "kind": "claim",
+      "title": "Candidate: best_val_bpb.py",
+      "summary": "CWE-338 (rank 4)",
+      "relativePath": "evidence/claims/5-candidate-best-val-bpb-py.json",
+      "sha256": "810e2950004976f19370c501502f4a00fc4682d5bfb95e7099a3c7e6d9069f0e",
+      "createdAt": "2026-09-28T21:26:55.497Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_006",
+      "kind": "claim",
+      "title": "Candidate: corpus/ingest/fetch_tale_of_errors.py",
+      "summary": "CWE-327 (rank 5)",
+      "relativePath": "evidence/claims/6-candidate-corpus-ingest-fetch-tale-of-errors-py.json",
+      "sha256": "60dd449c0f937a7b653036bcb3fb2ade926f072a5266c33a8f71b303b96fcb2f",
+      "createdAt": "2026-09-28T21:26:55.497Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_007",
+      "kind": "claim",
+      "title": "Candidate: corpus/ingest/tale_capped_pipeline.py",
+      "summary": "CWE-77 (rank 6)",
+      "relativePath": "evidence/claims/7-candidate-corpus-ingest-tale-capped-pipeline-py.json",
+      "sha256": "75e7ed6e1aa09f078df138031fe477bfc0a29118443cfbb217e2586592129c30",
+      "createdAt": "2026-09-28T21:26:55.497Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_008",
+      "kind": "claim",
+      "title": "Candidate: corpus/ingest/tale_stream_extract.py",
+      "summary": "CWE-409 (rank 7)",
+      "relativePath": "evidence/claims/8-candidate-corpus-ingest-tale-stream-extract-py.json",
+      "sha256": "f26d1a6af226ba1b16c64961ba3727e1e0c378106e841e68cda00b76537c09b3",
+      "createdAt": "2026-09-28T21:26:55.497Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_009",
+      "kind": "claim",
+      "title": "Candidate: eval/in_domain.py",
+      "summary": "CWE-77 (rank 8)",
+      "relativePath": "evidence/claims/9-candidate-eval-in-domain-py.json",
+      "sha256": "cd9e9971825218059e724d1da49f5c95be5cc8736f02f5e8664b04eebf83106f",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_010",
+      "kind": "claim",
+      "title": "Candidate: eval/report.py",
+      "summary": "CWE-77 (rank 9)",
+      "relativePath": "evidence/claims/10-candidate-eval-report-py.json",
+      "sha256": "057a8654db50e1470a5cd64f196ba90efe94c1b2266c20dcb41e89d77bf46940",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_011",
+      "kind": "claim",
+      "title": "Candidate: eval/run_public_ranking_card.py",
+      "summary": "CWE-77 (rank 10)",
+      "relativePath": "evidence/claims/11-candidate-eval-run-public-ranking-card-py.json",
+      "sha256": "c45d15e6f14ef12a5b13f7ac3e34dbff6ef4774e955783738eafbc567bab984c",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_012",
+      "kind": "claim",
+      "title": "Candidate: generate_observability_corpus.py",
+      "summary": "CWE-338 (rank 11)",
+      "relativePath": "evidence/claims/12-candidate-generate-observability-corpus-py.json",
+      "sha256": "da8fad70e75af0b6eee7fabb794e62c87390be7fa81a31d81e45283efcf6126e",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_013",
+      "kind": "claim",
+      "title": "Candidate: morning_report.py",
+      "summary": "CWE-77 (rank 12)",
+      "relativePath": "evidence/claims/13-candidate-morning-report-py.json",
+      "sha256": "064878af92c138fc5fc370a70f49d9e6f1df2d09e244a1488f2635dde6e01f80",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_014",
+      "kind": "claim",
+      "title": "Candidate: tests/test_stranger_scripts.py",
+      "summary": "CWE-77 (rank 13)",
+      "relativePath": "evidence/claims/14-candidate-tests-test-stranger-scripts-py.json",
+      "sha256": "0000fd9305f101045defe71ecf140f3d6d8ebc416fc4c012287a9b11f7073a23",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_015",
+      "kind": "claim",
+      "title": "Candidate: tests/test_tale_script_refusals.py",
+      "summary": "CWE-77 (rank 14)",
+      "relativePath": "evidence/claims/15-candidate-tests-test-tale-script-refusals-py.json",
+      "sha256": "1774c69205f224f070582768c5a079377949185faab6d6721e37d33779ee76eb",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_016",
+      "kind": "claim",
+      "title": "Candidate: tests/test_tale_stream_extract.py",
+      "summary": "CWE-409 (rank 15)",
+      "relativePath": "evidence/claims/16-candidate-tests-test-tale-stream-extract-py.json",
+      "sha256": "9436ebbd1caf8021cec2ec59f0d50bebfb0698474c766cd2ce440d467e8e347b",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_017",
+      "kind": "claim",
+      "title": "Candidate: tests/test_train_refusals.py",
+      "summary": "CWE-77 (rank 16)",
+      "relativePath": "evidence/claims/17-candidate-tests-test-train-refusals-py.json",
+      "sha256": "170e52dc404cd09796cc99a33ed9f6831348df42f622ecd148eb430853bc3c47",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_018",
+      "kind": "claim",
+      "title": "Candidate: visualize_corpus.py",
+      "summary": "CWE-338 (rank 17)",
+      "relativePath": "evidence/claims/18-candidate-visualize-corpus-py.json",
+      "sha256": "83d32c4e5d4ec6e05f1304bbd65752c43eaf5d059af1b12a4f3f513d353a96a8",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_claim_019",
+      "kind": "claim",
+      "title": "Candidate: eval/score_cli.py",
+      "summary": "CWE-502 (rank 18)",
+      "relativePath": "evidence/claims/19-candidate-eval-score-cli-py.json",
+      "sha256": "be7df12ab2055e12e70d2fb8e96656e04e05cefd7624b776ac941e79a458ce6c",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "cites": [],
+      "tags": [
+        "claim"
+      ]
+    },
+    {
+      "id": "ev_artifact_020",
+      "kind": "artifact",
+      "title": "report.json",
+      "summary": "Run artifact report.json",
+      "relativePath": "report.json",
+      "sha256": "87bed0a394df47022ff7da24e5a930b6ebf4f69a938109586de1c2effb3244da",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_021",
+      "kind": "artifact",
+      "title": "report.sarif",
+      "summary": "Run artifact report.sarif",
+      "relativePath": "report.sarif",
+      "sha256": "3ca8ed5db26250bf2875837ecdf09d2c1304990979e59906b4ec226c974ed991",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "tags": [
+        "artifact"
+      ]
+    },
+    {
+      "id": "ev_artifact_022",
+      "kind": "artifact",
+      "title": "report.md",
+      "summary": "Run artifact report.md",
+      "relativePath": "report.md",
+      "sha256": "0a7b45bbd0c8ae0e68141a087cd5e310d4495a0acae5477d46f52f4f972ed6fc",
+      "createdAt": "2026-09-28T21:26:55.498Z",
+      "tags": [
+        "artifact"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "report.json",
+      "relativePath": "report.json",
+      "sha256": "87bed0a394df47022ff7da24e5a930b6ebf4f69a938109586de1c2effb3244da",
+      "bytes": 14005
+    },
+    {
+      "name": "report.sarif",
+      "relativePath": "report.sarif",
+      "sha256": "3ca8ed5db26250bf2875837ecdf09d2c1304990979e59906b4ec226c974ed991",
+      "bytes": 35133
+    },
+    {
+      "name": "report.md",
+      "relativePath": "report.md",
+      "sha256": "0a7b45bbd0c8ae0e68141a087cd5e310d4495a0acae5477d46f52f4f972ed6fc",
+      "bytes": 4477
+    }
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true,
+    "keylessDefault": true,
+    "offlineVerifiable": true
+  }
+}
