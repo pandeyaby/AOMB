@@ -1,0 +1,61 @@
+{
+  "Findings": [
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-418b0985f180bce5",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-377",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-377"
+      ],
+      "CreatedAt": "2026-09-28T18:51:57.327Z",
+      "UpdatedAt": "2026-09-28T18:51:57.327Z",
+      "Title": "CWE-377: Insecure Temporary File",
+      "Description": "ZERODAY Antares localization candidate: corpus/ingest/tale_stream_extract.py for CWE-377 (code-weakness), rank 1. Antares submitted this file as a localization candidate. Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://corpus/ingest/tale_stream_extract.py",
+          "Details": {
+            "Other": {
+              "FilePath": "corpus/ingest/tale_stream_extract.py",
+              "CweId": "CWE-377",
+              "Category": "code-weakness",
+              "Rank": "1",
+              "AdvisoryId": "ghsa-gc5v-m9x4-r6x2"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-377"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "live",
+        "zeroday/model": "fdtn-ai/antares-1b",
+        "zeroday/cwe": "CWE-377",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-377",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    }
+  ]
+}

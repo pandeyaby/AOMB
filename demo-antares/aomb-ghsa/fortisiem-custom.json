@@ -1,0 +1,21 @@
+{
+  "note": "Generic JSON for a customer FortiSIEM parser or rawupload configuration. ZERODAY does not ship an official FortiSIEM finding schema and does not call /rawupload.",
+  "events": [
+    {
+      "vendor": "ZERODAY",
+      "model": "fdtn-ai/antares-1b",
+      "eventType": "VulnerabilityLocalization",
+      "severity": "Informational",
+      "cwe": "CWE-377",
+      "filePath": "corpus/ingest/tale_stream_extract.py",
+      "title": "Insecure Temporary File",
+      "description": "Antares submitted this file as a localization candidate.",
+      "occurred": "2026-09-28T18:51:57.327Z",
+      "category": "code-weakness",
+      "advisoryId": "ghsa-gc5v-m9x4-r6x2",
+      "rank": 1,
+      "file_f1": 0.209,
+      "posture": "detector-candidate;localization-only"
+    }
+  ]
+}

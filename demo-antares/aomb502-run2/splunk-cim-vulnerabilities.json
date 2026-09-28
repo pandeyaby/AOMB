@@ -1,0 +1,44 @@
+{
+  "sourcetype_recommendation": "zeroday:antares:json",
+  "note": "CIM Vulnerabilities projection for a customer TA. Not ES Notable JSON. Configure props/transforms locally — ZERODAY does not push to Splunk.",
+  "events": [
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/Documents/GitHub/AOMB",
+      "dvc": "zeroday-local",
+      "signature": "Deserialization of Untrusted Data",
+      "severity": "informational",
+      "category": "deserialization",
+      "xref": "CWE-502",
+      "signature_id": "zeroday-ea5e29b212f8957f",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-502",
+      "file": "eval/score_cli.py",
+      "evidence": "Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser-torch-load]",
+      "advisory": "CWE-502",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-28T18:52:17.814Z"
+    },
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/Documents/GitHub/AOMB",
+      "dvc": "zeroday-local",
+      "signature": "Deserialization of Untrusted Data",
+      "severity": "informational",
+      "category": "deserialization",
+      "xref": "CWE-502",
+      "signature_id": "zeroday-4f2e60d6a3d696b3",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-502",
+      "file": "prepare.py",
+      "evidence": "Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser]",
+      "advisory": "CWE-502",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-28T18:52:17.814Z"
+    }
+  ]
+}

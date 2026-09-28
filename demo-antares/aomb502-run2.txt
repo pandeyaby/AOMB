@@ -1,0 +1,41 @@
+$ npm run zeroday -- locate --cwe CWE-502 --repo /Users/abhinavpandey/Documents/GitHub/AOMB --live --remote-inference --output demo-antares/aomb502-run2
+started 2026-09-28 11:51:23 AM PDT
+
+> zeroday@0.9.0 zeroday
+> tsx cli/index.ts locate --cwe CWE-502 --repo /Users/abhinavpandey/Documents/GitHub/AOMB --live --remote-inference --output demo-antares/aomb502-run2
+
+
+ZERODAY locate
+──────────────
+Advisory : CWE-502 → CWE-502
+Mode     : live
+Model    : fdtn-ai/antares-1b
+Target   : /Users/abhinavpandey/Documents/GitHub/AOMB
+Findings : 2
+
+Ranked files:
+  1. eval/score_cli.py  [CWE-502]  Deserialization of Untrusted Data  ✓ rules agree
+  2. prepare.py  [CWE-502]  Deserialization of Untrusted Data  ✓ rules agree
+
+Context  : ZERODAY static pass sent to Antares (2 candidate(s))
+Agreement: 2 file(s) flagged by both Antares and rules
+
+Artifacts:
+  JSON     /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/report.json
+  SARIF    /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/report.sarif
+  Report   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/report.md
+  Comment  /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/comment.md
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/asff-findings.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/splunk-cim-vulnerabilities.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/xsoar-incidents.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/fortisiem-custom.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/crowdstrike-hec-events.ndjson
+  Evidence /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/evidence
+  Manifest /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb502-run2/evidence/manifest.json
+
+Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge
+
+Live Antares path complete — report.sarif is from real inference (not fixture).
+  9.86s user 4.27s system 25% cpu 54.549 total
+
+exit=0 elapsed=55s

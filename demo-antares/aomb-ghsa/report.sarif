@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ZERODAY",
+          "version": "0.9.0",
+          "informationUri": "https://github.com/pandeyaby/ZERODAY",
+          "rules": [
+            {
+              "id": "CWE-377",
+              "name": "CWE-377",
+              "shortDescription": {
+                "text": "CWE-377 candidate file (ZERODAY localization)"
+              },
+              "fullDescription": {
+                "text": "ZERODAY localized a candidate for CWE-377. This is file-level localization for human review — not proof of exploitability. Reports do not include offensive demonstration code or attack procedures."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/377.html",
+              "properties": {
+                "tags": [
+                  "security",
+                  "localization",
+                  "CWE-377"
+                ],
+                "precision": "medium"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-377",
+          "ruleIndex": 0,
+          "level": "note",
+          "message": {
+            "text": "Insecure Temporary File — rank 1. Antares submitted this file as a localization candidate. (Localization only; not exploitability proof.)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "corpus/ingest/tale_stream_extract.py",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "bb55967e0aa916bb4385392d",
+            "zeroday/v1": "bb55967e0aa916bb4385392d"
+          },
+          "properties": {
+            "submission_rank": 1,
+            "cwe_ids": [
+              "CWE-377"
+            ],
+            "advisory": "ghsa-gc5v-m9x4-r6x2",
+            "mode": "live",
+            "likelihood_of_exploit": "",
+            "exploration_steps": 1,
+            "zeroday_posture": {
+              "localizationOnly": true,
+              "notExploitProof": true,
+              "noAutoMerge": true,
+              "noPoC": true
+            },
+            "foundry_lane": "detector-candidate"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "file:///Users/abhinavpandey/Documents/GitHub/AOMB"
+        }
+      },
+      "properties": {
+        "advisory": {
+          "kind": "ghsa",
+          "id": "ghsa-gc5v-m9x4-r6x2",
+          "cweId": "CWE-377",
+          "title": "Requests has Insecure Temp File Reuse in its extract_zipped_paths() utility function"
+        },
+        "model": "fdtn-ai/antares-1b",
+        "mode": "live",
+        "generatedAt": "2026-09-28T18:51:57.327Z",
+        "summary": {
+          "findingCount": 1,
+          "incompleteReason": null,
+          "incompleteClass": null,
+          "incompleteTips": [],
+          "recoveryAttempted": false,
+          "terminalCallBudget": 30,
+          "terminalCallsUsed": 1,
+          "hybrid": {
+            "contextSent": true,
+            "rulesCandidates": 4,
+            "agreed": [],
+            "antaresOnly": [
+              "corpus/ingest/tale_stream_extract.py"
+            ],
+            "rulesOnly": [
+              {
+                "filePath": "uv.lock",
+                "title": "Vulnerable dependency requests@2.32.5",
+                "line": 1540
+              },
+              {
+                "filePath": "corpus/ingest/fetch_crisp.py",
+                "title": "Imports requests@2.32.5",
+                "line": 43
+              },
+              {
+                "filePath": "corpus/ingest/fetch_tale_of_errors.py",
+                "title": "Imports requests@2.32.5",
+                "line": 78
+              },
+              {
+                "filePath": "prepare.py",
+                "title": "Imports requests@2.32.5",
+                "line": 19
+              }
+            ]
+          },
+          "advisoryMatch": {
+            "verdict": "affected",
+            "advisoryIds": [
+              "GHSA-gc5v-m9x4-r6x2",
+              "PYSEC-2026-2275"
+            ],
+            "packages": [
+              {
+                "ecosystem": "PyPI",
+                "name": "requests",
+                "installed": "2.32.5",
+                "file": "uv.lock",
+                "affected": true,
+                "fixed": "2.33.0"
+              }
+            ],
+            "symbols": [
+              "extract_zipped_paths"
+            ]
+          }
+        },
+        "explorationTrace": [
+          {
+            "step": 1,
+            "tool": "other",
+            "command": "antares query",
+            "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+          }
+        ],
+        "posture": {
+          "localizationOnly": true,
+          "notExploitProof": true,
+          "noAutoMerge": true,
+          "noPoC": true
+        },
+        "warnings": [
+          "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
+          "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+          "Model id sent to endpoint: fdtn-ai/antares-1b (default fdtn-ai/antares-1b when unset).",
+          "Tool budget: 30 (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).",
+          "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+          "ZERODAY context sent to Antares (--query): 4 static candidate(s), dependency verdict affected. Antares still explores and decides; files it did not confirm are listed as rules-only.",
+          "Read-only snapshot: 1058 files at /var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-c5E4eq/repo",
+          "Sandbox active (ubuntu:24.04, network=none, mem=512m, cpus=1, timeout=10000ms)",
+          "Local completions probe ok: GET https://zxqlprh3acxmcw-8000.proxy.runpod.net/v1/models → 200 (1 model(s))",
+          "Resolved ghsa-gc5v-m9x4-r6x2 → CWE-377 (code-weakness) via ghsa",
+          "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights)."
+        ]
+      }
+    }
+  ]
+}

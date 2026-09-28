@@ -1,0 +1,48 @@
+$ npm run zeroday -- locate --ghsa GHSA-gc5v-m9x4-r6x2 --repo /Users/abhinavpandey/Documents/GitHub/AOMB --live --remote-inference --output demo-antares/aomb-ghsa
+started 2026-09-28 11:51:23 AM PDT
+
+> zeroday@0.9.0 zeroday
+> tsx cli/index.ts locate --ghsa GHSA-gc5v-m9x4-r6x2 --repo /Users/abhinavpandey/Documents/GitHub/AOMB --live --remote-inference --output demo-antares/aomb-ghsa
+
+
+ZERODAY locate
+──────────────
+Advisory : ghsa-gc5v-m9x4-r6x2 → CWE-377
+Mode     : live
+Model    : fdtn-ai/antares-1b
+Target   : /Users/abhinavpandey/Documents/GitHub/AOMB
+Findings : 1
+Exposure : AFFECTED — GHSA-gc5v-m9x4-r6x2, PYSEC-2026-2275
+           ✗ requests@2.32.5  uv.lock  → upgrade to 2.33.0
+Functions: extract_zipped_paths
+
+Ranked files:
+  1. corpus/ingest/tale_stream_extract.py  [CWE-377]  Insecure Temporary File
+
+Context  : ZERODAY static pass sent to Antares (4 candidate(s))
+Agreement: 0 file(s) flagged by both Antares and rules
+Rules only (Antares did not confirm — review or dismiss):
+  - uv.lock:1540  Vulnerable dependency requests@2.32.5
+  - corpus/ingest/fetch_crisp.py:43  Imports requests@2.32.5
+  - corpus/ingest/fetch_tale_of_errors.py:78  Imports requests@2.32.5
+  - prepare.py:19  Imports requests@2.32.5
+
+Artifacts:
+  JSON     /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/report.json
+  SARIF    /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/report.sarif
+  Report   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/report.md
+  Comment  /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/comment.md
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/asff-findings.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/splunk-cim-vulnerabilities.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/xsoar-incidents.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/fortisiem-custom.json
+  Export   /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/crowdstrike-hec-events.ndjson
+  Evidence /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/evidence
+  Manifest /Users/abhinavpandey/Documents/GitHub/ZERODAY-mac-verify/demo-antares/aomb-ghsa/evidence/manifest.json
+
+Posture: localization only · detector-lane candidate · not exploit proof · no PoC · no auto-merge
+
+Live Antares path complete — report.sarif is from real inference (not fixture).
+  1.77s user 3.30s system 14% cpu 33.989 total
+
+exit=0 elapsed=34s

@@ -1,0 +1,18 @@
+[
+  {
+    "type": "ZERODAY Antares Localization",
+    "name": "CWE-377: Insecure Temporary File",
+    "occurred": "2026-09-28T18:51:57.327Z",
+    "severity": 0.5,
+    "details": "Antares submitted this file as a localization candidate.",
+    "cwe": "CWE-377",
+    "file_path": "corpus/ingest/tale_stream_extract.py",
+    "advisory_id": "ghsa-gc5v-m9x4-r6x2",
+    "rank": 1,
+    "category": "code-weakness",
+    "mode": "live",
+    "model": "fdtn-ai/antares-1b",
+    "file_f1": 0.209,
+    "posture": "detector-candidate;localization-only;human-triage-required"
+  }
+]

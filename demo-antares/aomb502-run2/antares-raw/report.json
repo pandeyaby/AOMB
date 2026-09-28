@@ -1,0 +1,87 @@
+{
+  "summary": {
+    "total_findings": 2,
+    "tool_call_count": 35,
+    "duration_seconds": 46.78731362498365,
+    "cwe_ids_triggered": [
+      "CWE-502"
+    ],
+    "failed_tool_calls": 6,
+    "retried_turns": 2,
+    "generation_errors": 0,
+    "failed_workers": 0,
+    "total_workers": 0,
+    "incomplete_reason": null
+  },
+  "findings": [
+    {
+      "title": "Deserialization of Untrusted Data",
+      "file_path": "eval/score_cli.py",
+      "cwe_ids": [
+        "CWE-502"
+      ],
+      "submission_rank": 1,
+      "likelihood_of_exploit": "Medium"
+    },
+    {
+      "title": "Deserialization of Untrusted Data",
+      "file_path": "prepare.py",
+      "cwe_ids": [
+        "CWE-502"
+      ],
+      "submission_rank": 2,
+      "likelihood_of_exploit": "Medium"
+    }
+  ],
+  "metadata": {
+    "schema_version": "1.0",
+    "request_id": "b4763dfde7176fc7",
+    "mode": "query",
+    "model": "fdtn-ai/antares-1b",
+    "backend": "remote",
+    "profile": null,
+    "cwe_ids": [
+      "CWE-502"
+    ],
+    "query": "ZERODAY pre-analysis for CWE-502 (static analysis; may be incomplete or wrong):\n- Candidate locations from static analysis:\n  1. eval/score_cli.py:412 \u2014 torch.load without weights_only=True (pickle; unsafe before PyTorch 2.6 defaults)\n  2. prepare.py:230 \u2014 Unsafe deserialization API\nRead these first, but confirm each by reading the code, look beyond them, and submit only files you confirm.",
+    "target": "repo",
+    "terminal_call_budget": 30,
+    "allowed_sensitive_files": [],
+    "reproducibility": {
+      "request_hash": "b4763dfde7176fc7e8a3bf749dc233dc579d68a827cce6dd81ffa42f7d785167",
+      "deterministic_ordering": true,
+      "remote_provider_may_vary": true,
+      "safe_for_cache_reuse": false,
+      "cache_reuse_note": "Request identity excludes source contents and the deployed model revision."
+    },
+    "model_configuration": {
+      "settings": {
+        "model": "fdtn-ai/antares-1b",
+        "endpoint": "<configured>",
+        "ignore_paths": [],
+        "backend": "remote",
+        "context_window": 16384,
+        "remote_timeout_seconds": 300.0,
+        "api_key": null
+      },
+      "model_label": "fdtn-ai/antares-1b",
+      "backend": {
+        "class": "RemoteInferenceBackend",
+        "backend_name": "remote",
+        "model_id": "fdtn-ai/antares-1b",
+        "context_window": 16384,
+        "endpoint": "<configured>",
+        "timeout_seconds": 300.0,
+        "retry_count": 6,
+        "retry_delay": 5.0,
+        "max_tokens": 4096,
+        "temperature": 0.3,
+        "top_p": 1.0,
+        "repetition_penalty": null
+      },
+      "model_adapter": "antares",
+      "model_spec": null,
+      "selected_profile": null
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "advisory": {
+    "kind": "ghsa",
+    "id": "ghsa-gc5v-m9x4-r6x2",
+    "cweId": "CWE-377",
+    "title": "Requests has Insecure Temp File Reuse in its extract_zipped_paths() utility function"
+  },
+  "repo": "/Users/abhinavpandey/Documents/GitHub/AOMB",
+  "mode": "live",
+  "at": "2026-09-28T18:51:57.328Z"
+}

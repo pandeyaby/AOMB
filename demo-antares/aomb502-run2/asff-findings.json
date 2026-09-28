@@ -1,0 +1,118 @@
+{
+  "Findings": [
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-ea5e29b212f8957f",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-502",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-502"
+      ],
+      "CreatedAt": "2026-09-28T18:52:17.814Z",
+      "UpdatedAt": "2026-09-28T18:52:17.814Z",
+      "Title": "CWE-502: Deserialization of Untrusted Data",
+      "Description": "ZERODAY Antares localization candidate: eval/score_cli.py for CWE-502 (deserialization), rank 1. Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser-torch-load] Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://eval/score_cli.py",
+          "Details": {
+            "Other": {
+              "FilePath": "eval/score_cli.py",
+              "CweId": "CWE-502",
+              "Category": "deserialization",
+              "Rank": "1",
+              "AdvisoryId": "CWE-502"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-502"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "live",
+        "zeroday/model": "fdtn-ai/antares-1b",
+        "zeroday/cwe": "CWE-502",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-502",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    },
+    {
+      "SchemaVersion": "2018-10-08",
+      "Id": "zeroday-4f2e60d6a3d696b3",
+      "ProductArn": "arn:aws:securityhub:us-east-1:000000000000:product/000000000000/default",
+      "GeneratorId": "zeroday/antares/CWE-502",
+      "AwsAccountId": "000000000000",
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CWE-502"
+      ],
+      "CreatedAt": "2026-09-28T18:52:17.814Z",
+      "UpdatedAt": "2026-09-28T18:52:17.814Z",
+      "Title": "CWE-502: Deserialization of Untrusted Data",
+      "Description": "ZERODAY Antares localization candidate: prepare.py for CWE-502 (deserialization), rank 2. Antares submitted this file as a localization candidate.; Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser] Detector-lane candidate only — human triage required. Not proof of exploitability. Antares-1B File F1=0.209.",
+      "Resources": [
+        {
+          "Type": "Other",
+          "Id": "file://prepare.py",
+          "Details": {
+            "Other": {
+              "FilePath": "prepare.py",
+              "CweId": "CWE-502",
+              "Category": "deserialization",
+              "Rank": "2",
+              "AdvisoryId": "CWE-502"
+            }
+          }
+        }
+      ],
+      "FindingProviderFields": {
+        "Severity": {
+          "Label": "INFORMATIONAL",
+          "Original": "note"
+        },
+        "Types": [
+          "Software and Configuration Checks/Vulnerabilities/CWE-502"
+        ]
+      },
+      "RecordState": "ACTIVE",
+      "Workflow": {
+        "Status": "NEW"
+      },
+      "ProductFields": {
+        "zeroday/mode": "live",
+        "zeroday/model": "fdtn-ai/antares-1b",
+        "zeroday/cwe": "CWE-502",
+        "zeroday/fileF1": "0.209",
+        "zeroday/lane": "detector-candidate"
+      },
+      "Vulnerabilities": [
+        {
+          "Id": "CWE-502",
+          "Vendor": {
+            "Name": "ZERODAY"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "sourcetype_recommendation": "zeroday:antares:json",
+  "note": "CIM Vulnerabilities projection for a customer TA. Not ES Notable JSON. Configure props/transforms locally — ZERODAY does not push to Splunk.",
+  "events": [
+    {
+      "sourcetype": "zeroday:antares:json",
+      "dest": "/Users/abhinavpandey/Documents/GitHub/AOMB",
+      "dvc": "zeroday-local",
+      "signature": "Insecure Temporary File",
+      "severity": "informational",
+      "category": "code-weakness",
+      "xref": "CWE-377",
+      "signature_id": "zeroday-418b0985f180bce5",
+      "vendor_product": "ZERODAY Antares",
+      "cwe": "CWE-377",
+      "file": "corpus/ingest/tale_stream_extract.py",
+      "evidence": "Antares submitted this file as a localization candidate.",
+      "advisory": "ghsa-gc5v-m9x4-r6x2",
+      "mode": "live",
+      "model": "fdtn-ai/antares-1b",
+      "file_f1": 0.209,
+      "time": "2026-09-28T18:51:57.327Z"
+    }
+  ]
+}

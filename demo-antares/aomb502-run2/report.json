@@ -1,0 +1,122 @@
+{
+  "mode": "live",
+  "advisory": {
+    "kind": "cwe",
+    "id": "CWE-502",
+    "cweId": "CWE-502"
+  },
+  "targetRepo": "/Users/abhinavpandey/Documents/GitHub/AOMB",
+  "snapshotPath": "/var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-jffoJl/repo",
+  "model": "fdtn-ai/antares-1b",
+  "generatedAt": "2026-09-28T18:52:17.814Z",
+  "rankedFiles": [
+    {
+      "filePath": "eval/score_cli.py",
+      "rank": 1,
+      "cweIds": [
+        "CWE-502"
+      ],
+      "title": "Deserialization of Untrusted Data",
+      "evidence": [
+        {
+          "filePath": "eval/score_cli.py",
+          "note": "Antares submitted this file as a localization candidate."
+        },
+        {
+          "filePath": "eval/score_cli.py",
+          "startLine": 412,
+          "endLine": 412,
+          "excerpt": "        )\n    payload = torch.load(ckpt, map_location=\"cpu\", weights_only=False)\n    if isinstance(payload, dict) and \"model_state_dict\" in payload:",
+          "note": "Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser-torch-load]"
+        }
+      ],
+      "likelihoodOfExploit": "Medium",
+      "sources": [
+        "antares",
+        "rules"
+      ],
+      "fingerprint": "d79d4fa49fd14c8b32ddee53"
+    },
+    {
+      "filePath": "prepare.py",
+      "rank": 2,
+      "cweIds": [
+        "CWE-502"
+      ],
+      "title": "Deserialization of Untrusted Data",
+      "evidence": [
+        {
+          "filePath": "prepare.py",
+          "note": "Antares submitted this file as a localization candidate."
+        },
+        {
+          "filePath": "prepare.py",
+          "startLine": 230,
+          "endLine": 230,
+          "excerpt": "        with open(os.path.join(tokenizer_dir, \"tokenizer.pkl\"), \"rb\") as f:\n            enc = pickle.load(f)\n        return cls(enc)",
+          "note": "Rules agree: Value is built at runtime (not a constant) — check whether it can carry untrusted input. [rule cwe-502/deser]"
+        }
+      ],
+      "likelihoodOfExploit": "Medium",
+      "sources": [
+        "antares",
+        "rules"
+      ],
+      "fingerprint": "4d5fc647c92cf8a19479c81d"
+    }
+  ],
+  "explorationTrace": [
+    {
+      "step": 1,
+      "tool": "other",
+      "command": "antares query",
+      "summary": "Live Antares CLI run (trace not present in report.json; see Antares private history under ANTARES_DATA_DIR)."
+    }
+  ],
+  "warnings": [
+    "Live mode used the official Antares CLI (cisco-antares-cli) against a read-only snapshot.",
+    "Inference must be POST /v1/completions only — chat completions break the Antares tool prompt.",
+    "Model id sent to endpoint: fdtn-ai/antares-1b (default fdtn-ai/antares-1b when unset).",
+    "Tool budget: 30 (raise with --tool-budget / ANTARES_TOOL_BUDGET when incomplete).",
+    "Antares raw report listed ranked finding(s) without an explicit submit_* tool in the exploration trace — treating candidates as complete localization evidence (not bare no_submit). Human triage still required; no invented files.",
+    "ZERODAY context sent to Antares (--query): 2 static candidate(s). Antares still explores and decides; files it did not confirm are listed as rules-only.",
+    "Read-only snapshot: 1058 files at /var/folders/jl/x8gd2r3562z568_z9nzsjwz80000gn/T/zeroday-snap-jffoJl/repo",
+    "Sandbox active (ubuntu:24.04, network=none, mem=512m, cpus=1, timeout=10000ms)",
+    "Local completions probe ok: GET https://zxqlprh3acxmcw-8000.proxy.runpod.net/v1/models → 200 (1 model(s))",
+    "Resolved CWE-502 → CWE-502 (deserialization) via cwe-direct",
+    "Sandbox network=none isolates inspection; vLLM /v1/completions remains on the host (HF-gated weights)."
+  ],
+  "posture": {
+    "localizationOnly": true,
+    "notExploitProof": true,
+    "noAutoMerge": true,
+    "noPoC": true
+  },
+  "summary": {
+    "findingCount": 2,
+    "incompleteReason": null,
+    "incompleteClass": null,
+    "incompleteTips": [],
+    "recoveryAttempted": false,
+    "terminalCallBudget": 30,
+    "terminalCallsUsed": 1,
+    "hybrid": {
+      "contextSent": true,
+      "rulesCandidates": 2,
+      "agreed": [
+        "eval/score_cli.py",
+        "prepare.py"
+      ],
+      "antaresOnly": [],
+      "rulesOnly": []
+    }
+  },
+  "evidence": {
+    "runId": "aomb502-run2",
+    "claimIds": [
+      "ev_claim_002",
+      "ev_claim_003"
+    ],
+    "vaultRelative": "evidence/"
+  }
+}
