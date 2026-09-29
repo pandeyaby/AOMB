@@ -141,7 +141,7 @@ def render(summary: dict) -> str:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     p.add_argument("--sessions", required=True)
-    p.add_argument("--out-dir", required=True)
+    p.add_argument("--out-dir")
     p.add_argument("--base", help="branch-start commit (before the agent's first change)")
     p.add_argument("--branch", help="branch the agent committed to")
     p.add_argument("--max-eval", type=int, default=None, help="score only the first N eval sessions")
@@ -153,8 +153,8 @@ def main(argv: list[str] | None = None) -> int:
     if a.run_one:
         run_one(a.run_one, a.sessions, a.max_eval, Path(a.result))
         return 0
-    if not (a.base and a.branch):
-        p.error("--base and --branch are required")
+    if not (a.base and a.branch and a.out_dir):
+        p.error("--base, --branch and --out-dir are required")
 
     out = Path(a.out_dir)
     (out / "runs").mkdir(parents=True, exist_ok=True)
