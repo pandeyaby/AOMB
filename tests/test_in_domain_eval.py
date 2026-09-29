@@ -7,6 +7,8 @@ import unittest
 
 from eval.in_domain import (
     ValueStats,
+    chunk_lines,
+    load_session_file,
     _noise_mask,
     baseline_scores,
     fit_duration_stats,
@@ -118,6 +120,51 @@ class TestValueBaselines(unittest.TestCase):
         self.assertEqual(swapped[0], 0.0)  # every value familiar...
         self.assertGreater(swapped[2], normal[2])  # ...but the pairing is new
         self.assertGreater(rare[1], normal[1])  # v2 is rarer than v1
+
+
+class TestSessionFiles(unittest.TestCase):
+    def test_load_session_file_split_and_sequence_novelty(self):
+        import json
+        import tempfile
+        from pathlib import Path
+
+        log = "[ts=081109T203518] [src=OTelLog] level=INFO svc=dfs.X msg={}"
+        rows = [
+            {"session_id": "a", "label": "normal", "split": "train", "group": "g", "text": log.format("Receiving_blk")},
+            {"session_id": "b", "label": "normal", "split": "eval", "group": "g", "text": log.format("Receiving_blk")},
+            {"session_id": "c", "label": "incident", "split": "eval", "group": "g",
+             "text": log.format("Receiving_blk") + "\n" + log.format("Receiving_blk")},
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "s.jsonl"
+            f.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+            train, ev, group_of, meta = load_session_file(f)
+        self.assertEqual([s.session_id for s in train], ["a"])
+        self.assertEqual([s.session_id for s in ev], ["b", "c"])
+        self.assertEqual(group_of["c"], "g")
+        self.assertEqual(len(meta["content_sha256"]), 64)
+        sc = baseline_scores(ev, fit_duration_stats(train), fit_novelty(train))
+        # same template twice: no new template, but a new event multiset
+        self.assertEqual(sc["novelty"][1], 0.0)
+        self.assertEqual(sc["sequence_novelty"], [0.0, 1.0])
+
+    def test_training_session_must_be_normal(self):
+        import json
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "s.jsonl"
+            f.write_text(json.dumps({"session_id": "x", "label": "incident", "split": "train", "text": "t"}) + "\n")
+            with self.assertRaises(ValueError):
+                load_session_file(f)
+
+    def test_chunk_lines_keeps_every_line(self):
+        text = "\n".join(f"l{i}" for i in range(10))
+        chunks = chunk_lines([text], 4)
+        self.assertEqual([c.count("\n") + 1 for c in chunks], [4, 4, 2])
+        self.assertEqual("\n".join(chunks), text)
+        self.assertEqual(chunk_lines([text], None), [text])
 
 
 class TestModelScoring(unittest.TestCase):

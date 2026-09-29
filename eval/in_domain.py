@@ -25,6 +25,12 @@ Methods compared on the identical eval set:
                       over a line's categorical fields, max over lines
 - ``value_pair``      field-value *pairs* on one line never seen together in training
                       (the check you'd only write if you anticipated the fault)
+- ``sequence_novelty`` session's multiset of events (ops + log templates) never seen in
+                      training (the classic event-count-vector check on log benchmarks)
+
+Inputs: a lab capture dir (``--capture``, temporal split per capture) or a prepared
+session file (``--sessions``, JSONL with session_id / label / split / group / text,
+e.g. from corpus.ingest.loghub_hdfs), whose ``split`` field defines train vs eval.
 - ``bpb_mean``        session bits-per-byte (the current AOMB score)
 - ``bpb_content``     bits-per-byte excluding IDs, timestamps and monotonic counters
                       (random hex is incompressible noise; clock-like values are confounds)
@@ -41,6 +47,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import math
@@ -76,7 +83,7 @@ _NOISE_VALUE = re.compile(
 MODEL_METHODS = ("bpb_mean", "bpb_content", "bpb_max_event", "bpb_top10", "bits_max_field")
 BASELINE_METHODS = (
     "length", "error_lines", "duration_z", "rule", "novelty", "heuristic",
-    "value_novelty", "value_rarity", "value_pair",
+    "value_novelty", "value_rarity", "value_pair", "sequence_novelty",
 )
 
 
@@ -106,6 +113,56 @@ def temporal_split(
         train.extend(xs[:cut])
         eval_set.extend(xs[cut:])
     return train, eval_set
+
+
+# ---------------------------------------------------------------- session files
+
+
+def load_session_file(path: str | Path) -> tuple[list[LabeledSession], list[LabeledSession], dict[str, str], dict]:
+    """(train normals, eval sessions, group_of, meta) from a prepared JSONL session file."""
+    from eval.labels import binary_from_label
+
+    path = Path(path).expanduser()
+    train, eval_set, group_of = [], [], {}
+    in_subset: set[str] = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        r = json.loads(line)
+        s = LabeledSession(
+            session_id=r["session_id"],
+            text=r["text"],
+            label=r["label"],
+            binary=binary_from_label(r["label"]),
+            n_chars=len(r["text"]),
+        )
+        if s.binary is None:
+            continue
+        group_of[s.session_id] = r.get("group", "")
+        if r.get("touches_root_cause"):
+            in_subset.add(s.session_id)
+        if r["split"] == "train":
+            if s.binary != 0:
+                raise ValueError(f"training session {s.session_id} is not normal")
+            train.append(s)
+        else:
+            eval_set.append(s)
+    meta = {
+        "capture_id": path.stem,
+        "content_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "subset_field": "touches_root_cause" if in_subset else None,
+        "subset_ids": in_subset,
+    }
+    return train, eval_set, group_of, meta
+
+
+def chunk_lines(texts: Sequence[str], max_lines: int | None) -> list[str]:
+    """Split long texts into ≤ max_lines pieces at line boundaries (no text dropped)."""
+    if not max_lines:
+        return list(texts)
+    out = []
+    for t in texts:
+        lines = t.split("\n")
+        out.extend("\n".join(lines[i : i + max_lines]) for i in range(0, len(lines), max_lines))
+    return out
 
 
 # ---------------------------------------------------------------- baselines
@@ -184,23 +241,32 @@ class ValueStats:
         return novel, rarity, pair_novel
 
 
-def fit_novelty(train: Sequence[LabeledSession]) -> tuple[set, set, set]:
-    ops, templates, shapes = set(), set(), set()
+def event_multiset(text: str) -> tuple:
+    """Sorted multiset of a session's events: (op, svc) spans and log templates."""
+    ops = [f"{op} {svc}" for op, svc, _d in _EVENT.findall(text)]
+    logs = [log_template(*m) for m in _LOG.findall(text)]
+    return tuple(sorted(ops + logs))
+
+
+def fit_novelty(train: Sequence[LabeledSession]) -> tuple[set, set, set, set]:
+    ops, templates, shapes, sequences = set(), set(), set(), set()
     for s in train:
         o, t, sh = session_features(s.text)
         ops |= o
         templates |= t
         shapes.add(sh)
-    return ops, templates, shapes
+        sequences.add(event_multiset(s.text))
+    return ops, templates, shapes, sequences
 
 
 def baseline_scores(
     sessions: Sequence[LabeledSession],
     stats: dict[tuple[str, str], tuple[float, float]],
-    seen: tuple[set, set, set] = (set(), set(), set()),
+    seen: tuple[set, ...] = (set(), set(), set(), set()),
     values: "ValueStats | None" = None,
 ) -> dict[str, list[float]]:
-    seen_ops, seen_templates, seen_shapes = seen
+    seen_ops, seen_templates, seen_shapes = seen[:3]
+    seen_sequences = seen[3] if len(seen) > 3 else set()
     out: dict[str, list[float]] = {m: [] for m in BASELINE_METHODS}
     for s in sessions:
         errors = float(len(_ERROR.findall(s.text)))
@@ -222,6 +288,7 @@ def baseline_scores(
         out["value_novelty"].append(vn)
         out["value_rarity"].append(vr)
         out["value_pair"].append(vp)
+        out["sequence_novelty"].append(float(event_multiset(s.text) not in seen_sequences))
     return out
 
 
@@ -382,14 +449,24 @@ def write_heatmap(path: Path, picks: list[tuple[str, LabeledSession, float, list
 # ---------------------------------------------------------------- main
 
 
-def run(capture: str, seeds: list[int], train_seconds: float, out_dir: Path) -> dict[str, Any]:
+def run(
+    capture: str | None,
+    seeds: list[int],
+    train_seconds: float,
+    out_dir: Path,
+    sessions_file: str | None = None,
+    train_chunk_lines: int | None = None,
+) -> dict[str, Any]:
     from eval.fixture_train import train_fixture_lm
     from eval.report import git_sha
 
-    sessions, corpus_meta = load_lab_sessions(capture)
-    _y, kept = filter_scorable(sessions)
-    capture_of = session_capture_ids(capture)
-    train, eval_set = temporal_split(kept, capture_of)
+    if sessions_file:
+        train, eval_set, capture_of, corpus_meta = load_session_file(sessions_file)
+    else:
+        sessions, corpus_meta = load_lab_sessions(capture)
+        _y, kept = filter_scorable(sessions)
+        capture_of = session_capture_ids(capture)
+        train, eval_set = temporal_split(kept, capture_of)
     y = [int(s.binary) for s in eval_set]
 
     results: dict[str, Any] = {
@@ -402,14 +479,28 @@ def run(capture: str, seeds: list[int], train_seconds: float, out_dir: Path) -> 
         "n_eval_normal": y.count(0),
         "n_eval_incident": y.count(1),
         "train_seconds": train_seconds,
+        "train_chunk_lines": train_chunk_lines,
         "seeds": seeds,
         "methods": {},
     }
+
+    subset_ids = corpus_meta.pop("subset_ids", set()) if sessions_file else set()
+    sub_idx = [i for i, s in enumerate(eval_set) if s.session_id in subset_ids]
+    y_sub = [y[i] for i in sub_idx]
+    if sub_idx:
+        results["subset"] = {
+            "field": corpus_meta.get("subset_field"),
+            "n": len(sub_idx),
+            "n_incident": sum(y_sub),
+            "auroc": {},
+        }
 
     stats = fit_duration_stats(train)
     seen = fit_novelty(train)
     values = ValueStats(train)
     for name, sc in baseline_scores(eval_set, stats, seen, values).items():
+        if sub_idx:
+            results["subset"]["auroc"][name] = auroc(y_sub, [sc[i] for i in sub_idx])
         results["methods"][name] = {
             "kind": "baseline",
             "metrics": ranking_metrics(y, sc),
@@ -422,7 +513,10 @@ def run(capture: str, seeds: list[int], train_seconds: float, out_dir: Path) -> 
     train_info: list[dict] = []
     for seed in seeds:
         model, tokenizer, token_bytes, info = train_fixture_lm(
-            [s.text for s in train], seed=seed, train_seconds=train_seconds, max_seq_len=None
+            chunk_lines([s.text for s in train], train_chunk_lines),
+            seed=seed,
+            train_seconds=train_seconds,
+            max_seq_len=None,
         )
         if info["n_train_cropped"]:
             raise RuntimeError(f"{info['n_train_cropped']} training sessions cropped")
@@ -455,6 +549,11 @@ def run(capture: str, seeds: list[int], train_seconds: float, out_dir: Path) -> 
         del model
 
     results["train_info"] = train_info
+    if sub_idx:
+        for m in MODEL_METHODS:
+            results["subset"]["auroc"][m] = mean_std(
+                [auroc(y_sub, [sc[m][i] for i in sub_idx]) for sc in session_rows.values()]
+            )
     for m in MODEL_METHODS:
         caps = sorted(per_seed_cap[m][0])
         results["methods"][m] = {
@@ -549,12 +648,31 @@ def render_markdown(r: dict[str, Any]) -> str:
             f"| {name} ({d['kind']}) | {_fmt(m['auroc'])} | {_fmt(m['pr_auc'])} | "
             f"{_fmt(m['precision_at_10'])} | " + " | ".join(_fmt(pc[c]) for c in caps) + " |"
         )
+    sub = r.get("subset")
+    if sub:
+        lines += [
+            "",
+            f"Subset `{sub['field']}`: {sub['n']} eval sessions ({sub['n_incident']} incidents). "
+            "Chosen by service, not by label.",
+            "",
+            "| Method | AUROC |",
+            "|---|---|",
+        ]
+        lines += [f"| {name} | {_fmt(a)} |" for name, a in sub["auroc"].items()]
     return "\n".join(lines) + "\n"
 
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    p.add_argument("--capture", required=True)
+    src = p.add_mutually_exclusive_group(required=True)
+    src.add_argument("--capture", help="lab capture dir (temporal split per capture)")
+    src.add_argument("--sessions", help="prepared session JSONL with a split field")
+    p.add_argument(
+        "--train-chunk-lines",
+        type=int,
+        default=None,
+        help="Split long training sessions into chunks of at most N lines (none dropped)",
+    )
     p.add_argument("--seeds", default="0..4")
     p.add_argument("--train-seconds", type=float, default=120.0)
     p.add_argument("--out-dir", required=True)
@@ -607,7 +725,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{name:16} {a:15} {caps}")
         print(f"subset n={r['n']} incidents={r['n_incident']}")
         return 0
-    r = run(args.capture, parse_seeds(args.seeds), args.train_seconds, out)
+    if args.sessions and (args.refresh_baselines or args.subset_marker):
+        p.error("--refresh-baselines / --subset-marker need --capture")
+    r = run(
+        args.capture,
+        parse_seeds(args.seeds),
+        args.train_seconds,
+        out,
+        sessions_file=args.sessions,
+        train_chunk_lines=args.train_chunk_lines,
+    )
     (out / "results.json").write_text(json.dumps(r, indent=2) + "\n", encoding="utf-8")
     md = render_markdown(r)
     (out / "results.md").write_text(md, encoding="utf-8")
