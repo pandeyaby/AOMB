@@ -30,6 +30,18 @@ VAL="$DATASETS/hdfs_sessions.val.jsonl"
 die() { echo "ERROR: $*" >&2; exit 1; }
 branch() { cat "$STATE/branch"; }
 
+add_corpus_note() {
+  grep -q "agent-hdfs experiment" "$WORKTREE/program.md" && return 0
+  cat >> "$WORKTREE/program.md" <<'EOF'
+
+## Current corpus (agent-hdfs experiment)
+
+Training data is LogHub HDFS_v1: real Hadoop DataNode / NameNode log lines,
+one document per HDFS block (block ids, IPs, job and task ids normalised).
+Only normal blocks are used. Optimise val_bpb as usual.
+EOF
+}
+
 cmd_prepare() {
   [[ -f "$SESSIONS" && -f "$VAL" ]] || die "HDFS sessions missing. Build them with:
   uv run python -m corpus.ingest.loghub_hdfs --input $DATASETS/HDFS_v1 --out $SESSIONS --n-val 1000"
@@ -58,21 +70,21 @@ cmd_prepare() {
   echo "$br" > "$STATE/branch"
   git -C "$WORKTREE" rev-parse HEAD > "$STATE/base_sha"
   (cd "$WORKTREE" && uv sync --quiet)
-  cat >> "$WORKTREE/program.md" <<'EOF'
-
-## Current corpus (agent-hdfs experiment)
-
-Training data is LogHub HDFS_v1: real Hadoop DataNode / NameNode log lines,
-one document per HDFS block (block ids, IPs, job and task ids normalised).
-Only normal blocks are used. Optimise val_bpb as usual.
-EOF
+  add_corpus_note
   echo
   echo "Prepared. Branch: $br   Worktree: $WORKTREE   Base: $(cat "$STATE/base_sha")"
-  echo "Next: export ANTHROPIC_API_KEY (or rely on the claude CLI login), then: $0 start"
+  echo "Next: measure the base model's val_bpb (the loop's starting bar):"
+  echo "  $0 evaluate --max-eval 300 --repeat-ends 0   # then: echo <val_bpb> > $STATE/base_val_bpb"
+  echo "Then export ANTHROPIC_API_KEY (or rely on the claude CLI login) and: $0 start"
 }
 
 cmd_start() {
   [[ -f "$STATE/branch" ]] || die "run 'prepare' first"
+  # Without a bar, the loop's first change is always "an improvement" (best = inf),
+  # even when it's worse than the untouched base model.
+  [[ -s "$STATE/base_val_bpb" ]] || die "missing $STATE/base_val_bpb (the base model's val_bpb; see 'prepare' output)"
+  local bar; bar="$(cat "$STATE/base_val_bpb")"
+  add_corpus_note
   cd "$WORKTREE"
   mkdir -p logs
   local run=(uv run)
@@ -82,7 +94,8 @@ cmd_start() {
   else
     echo "No API key in the environment: the loop will use the 'claude' CLI login (rate-limited)."
   fi
-  AOMB_NO_PUSH=1 AOMB_CORPUS=hdfs_v1 nohup caffeinate -i "${run[@]}" python agent_loop.py \
+  echo "Starting bar: val_bpb < $bar (base model)"
+  AOMB_NO_PUSH=1 AOMB_CORPUS=hdfs_v1 AOMB_BEST_VAL_BPB="$bar" nohup caffeinate -i "${run[@]}" python agent_loop.py \
     >> logs/agent_loop.log 2>&1 &
   sleep 3
   echo "Started (pid $(cat logs/agent_loop.pid 2>/dev/null || echo '?')). Log: $WORKTREE/logs/agent_loop.log"
