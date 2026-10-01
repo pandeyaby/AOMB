@@ -531,13 +531,14 @@ def extract_change_summary(claude_response_path: Path) -> str:
 
 # ── Push helper ───────────────────────────────────────────────────────────────
 
-def push_to_remote(experiment_num: int) -> None:
-    """Push every 10 experiments to keep GitHub up to date.
+def push_disabled() -> bool:
+    """``AOMB_NO_PUSH=1`` keeps a run local (e.g. a loop on a side branch or worktree)."""
+    return os.getenv("AOMB_NO_PUSH", "").strip().lower() in {"1", "true", "yes"}
 
-    Set ``AOMB_NO_PUSH=1`` for experiments that must stay local (e.g. a loop on a
-    side branch or worktree — this function always pushes ``main``).
-    """
-    if os.getenv("AOMB_NO_PUSH", "").strip().lower() in {"1", "true", "yes"}:
+
+def push_to_remote(experiment_num: int) -> None:
+    """Push every 10 experiments to keep GitHub up to date (always pushes ``main``)."""
+    if push_disabled():
         return
     if experiment_num % 10 != 0:
         return
@@ -665,8 +666,11 @@ def main():
     log.info("=" * 60)
 
     try:
-        git("push", "origin", "main", check=False)
-        log.info("Final push to GitHub complete.")
+        if push_disabled():
+            log.info("AOMB_NO_PUSH set — skipping final push.")
+        else:
+            git("push", "origin", "main", check=False)
+            log.info("Final push to GitHub complete.")
     except Exception:
         pass
 

@@ -20,6 +20,13 @@ class TestNoPush(unittest.TestCase):
             agent_loop.push_to_remote(10)
         git.assert_not_called()
 
+    def test_no_push_covers_the_final_push(self):
+        import inspect
+
+        src = inspect.getsource(agent_loop.main)
+        tail = src[src.index("LOOP COMPLETE"):]
+        self.assertIn("push_disabled()", tail.split('git("push"')[0])
+
     def test_push_still_happens_without_flag(self):
         env = {k: v for k, v in os.environ.items() if k != "AOMB_NO_PUSH"}
         with mock.patch.object(agent_loop, "git") as git, mock.patch.dict(os.environ, env, clear=True):
