@@ -1,0 +1,10 @@
+{
+  "sha": "7083fc1",
+  "label": "Tale capped 200k single run (reported 1.379520)",
+  "true_bpb": 1.4556861851621958,
+  "legacy_bpb": 1.3717611422540201,
+  "legacy_over_true": 0.9423467476962938,
+  "num_steps": 572,
+  "depth": 4,
+  "seconds": 507.3
+}

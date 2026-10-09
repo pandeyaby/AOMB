@@ -1,5 +1,8 @@
 # CRISP val_bpb baseline — Reference corpus v1
 
+> **Correction (2026-10-08).** The numbers on this page were measured with a focal-weighted loss, not true bits-per-byte. Re-measured: the 200k pre-overnight base is **0.5211** and the overnight best is **0.5206** (no real improvement); the 500k single run is **0.4665**. The "overnight breeding improved CRISP" claim is withdrawn. See [`val-bpb-audit.md`](val-bpb-audit.md). The figures below are kept as the historical record of what was reported.
+
+
 Recorded `val_bpb` on **CRISP subsets** for README / internal factual documentation.
 
 > **Not a public accuracy claim, marketing number, or product benchmark.**

@@ -1,0 +1,10 @@
+{
+  "sha": "c2026cc",
+  "label": "synthetic: exp 17 (focal loss)",
+  "true_bpb": 0.4357572448699911,
+  "legacy_bpb": 0.3951291685963193,
+  "legacy_over_true": 0.9067644273228475,
+  "num_steps": 573,
+  "depth": 4,
+  "seconds": 498.3
+}

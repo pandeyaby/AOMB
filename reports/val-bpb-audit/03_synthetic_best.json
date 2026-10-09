@@ -1,0 +1,10 @@
+{
+  "sha": "983ee44",
+  "label": "synthetic: best (reported 0.3682)",
+  "true_bpb": 0.44830240620227846,
+  "legacy_bpb": 0.3685418990330279,
+  "legacy_over_true": 0.8220832499095224,
+  "num_steps": 557,
+  "depth": 4,
+  "seconds": 495.7
+}

@@ -14,6 +14,8 @@ Contributing as a stranger: **[`contributing-stranger.md`](contributing-stranger
 
 ---
 
+> **Correction (2026-10-08).** Every `val_bpb` figure cited on this page predates the [`val_bpb` audit](val-bpb-audit.md) and was a focal-weighted loss, not true bits-per-byte. The overnight training improvements are withdrawn. Detection results are unaffected.
+
 ## One-click verify (no clone required)
 
 | Action | Link |

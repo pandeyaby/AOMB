@@ -82,12 +82,31 @@ def select_blocks(labels: list[tuple[str, str]], n_train: int, n_eval: int, seed
     return train, rng.sample(later, min(n_eval, len(later)))
 
 
-def build(input_dir: Path, out: Path, n_train: int, n_eval: int, seed: int) -> dict:
+def select_val(labels: list[tuple[str, str]], exclude: set[str], n_val: int, seed: int) -> list[str]:
+    """
+    ``n_val`` normal blocks for a val_bpb shard, disjoint from train and eval.
+
+    Drawn after the eval sample (separate RNG) so adding a val set never
+    changes the published eval set.
+    """
+    if n_val <= 0:
+        return []
+    pool = [b for b, lab in labels if lab == "Normal" and b not in exclude]
+    return random.Random(seed + 1).sample(pool, min(n_val, len(pool)))
+
+
+def build(
+    input_dir: Path, out: Path, n_train: int, n_eval: int, seed: int, n_val: int = 0
+) -> dict:
     with open(input_dir / "preprocessed" / "anomaly_label.csv", newline="") as f:
         labels = [(r["BlockId"], r["Label"]) for r in csv.DictReader(f)]
     label_of = dict(labels)
     train, evals = select_blocks(labels, n_train, n_eval, seed)
     role = {b: "train" for b in train} | {b: "eval" for b in evals}
+    # val candidates must come after the training window, like eval
+    later = {b for b, _ in labels[labels.index((train[-1], "Normal")) + 1 :]} if train else set()
+    val = select_val([(b, l) for b, l in labels if b in later], set(role), n_val, seed)
+    role |= {b: "val" for b in val}
 
     lines: dict[str, list[str]] = {b: [] for b in role}
     log_sha = hashlib.sha256()
@@ -105,6 +124,12 @@ def build(input_dir: Path, out: Path, n_train: int, n_eval: int, seed: int) -> d
                 lines[b].append(rendered)
 
     out.parent.mkdir(parents=True, exist_ok=True)
+    if val:
+        val_out = out.with_suffix(".val.jsonl")
+        with val_out.open("w", encoding="utf-8") as f:
+            for b in val:
+                f.write(json.dumps({"session_id": b, "label": "normal", "split": "val",
+                                    "group": "hdfs_v1", "text": "\n".join(lines[b])}) + "\n")
     with out.open("w", encoding="utf-8") as f:
         for b in train + evals:
             f.write(
@@ -129,6 +154,7 @@ def build(input_dir: Path, out: Path, n_train: int, n_eval: int, seed: int) -> d
         "n_eval_anomaly": n_eval_anom,
         "seed": seed,
         "split": "first n_train normal blocks (first-appearance order); eval sampled from later blocks",
+        "n_val_normal": len(val),
     }
     out.with_suffix(".meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
     return meta
@@ -141,8 +167,16 @@ def main() -> int:
     p.add_argument("--n-train", type=int, default=5000)
     p.add_argument("--n-eval", type=int, default=10000)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument(
+        "--n-val",
+        type=int,
+        default=0,
+        help="Also write <out>.val.jsonl: normal blocks disjoint from train and eval (for a val_bpb shard)",
+    )
     args = p.parse_args()
-    meta = build(Path(args.input).expanduser(), Path(args.out).expanduser(), args.n_train, args.n_eval, args.seed)
+    meta = build(
+        Path(args.input).expanduser(), Path(args.out).expanduser(), args.n_train, args.n_eval, args.seed, args.n_val
+    )
     print(json.dumps(meta, indent=2))
     return 0
 

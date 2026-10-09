@@ -1,0 +1,10 @@
+{
+  "sha": "dd0280c",
+  "label": "CRISP 500k single run (reported 0.407753)",
+  "true_bpb": 0.4665324508967414,
+  "legacy_bpb": 0.39366300883197874,
+  "legacy_over_true": 0.8438062734442218,
+  "num_steps": 557,
+  "depth": 4,
+  "seconds": 509.8
+}

@@ -275,10 +275,16 @@ CRITICAL OUTPUT FORMAT:
 # Full API model names for the SDK (aliases not always accepted).
 # Override at runtime via AOMB_CLAUDE_MODELS env var with full model IDs.
 _SDK_MODEL_MAP = {
-    "opus":   "claude-opus-4-5",
-    "sonnet": "claude-sonnet-4-5",
+    "opus":   "claude-opus-5-5",
+    "sonnet": "claude-sonnet-5-5",
     "haiku":  "claude-haiku-4-5",
 }
+# Current models think before answering and return the whole train.py (~35 KB),
+# so stream with a generous output cap instead of a 16K non-streaming call.
+SDK_MAX_TOKENS = 64000
+# Server-side refusal fallback ("default" routes by refusal category). Not sent to
+# Haiku, which doesn't take it.
+_FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
 
 def _call_via_sdk(prompt: str, model: str, api_key: str,
@@ -289,14 +295,28 @@ def _call_via_sdk(prompt: str, model: str, api_key: str,
         client = _anthropic_module.Anthropic(api_key=api_key)
         log.info(f"[Exp {experiment_num}] SDK call (model={sdk_model}, key=...{api_key[-6:]})...")
         t0 = time.time()
-        message = client.messages.create(
+        kwargs = dict(
             model=sdk_model,
-            max_tokens=16000,
+            max_tokens=SDK_MAX_TOKENS,
             messages=[{"role": "user", "content": prompt}],
         )
+        if not sdk_model.startswith("claude-haiku"):
+            kwargs.update(betas=[_FALLBACK_BETA], fallbacks="default")
+        with client.beta.messages.stream(**kwargs) as stream:
+            message = stream.get_final_message()
         elapsed = time.time() - t0
-        log.info(f"[Exp {experiment_num}] SDK responded in {elapsed:.1f}s")
-        return message.content[0].text
+        log.info(
+            f"[Exp {experiment_num}] SDK responded in {elapsed:.1f}s "
+            f"(model={message.model}, stop={message.stop_reason})"
+        )
+        if message.stop_reason == "refusal":
+            log.warning(f"[Exp {experiment_num}] SDK refusal: {message.stop_details}")
+            return None
+        if message.stop_reason == "max_tokens":
+            log.warning(f"[Exp {experiment_num}] SDK hit max_tokens — response truncated")
+            return None
+        # Thinking blocks come first on current models; keep only the text.
+        return "".join(b.text for b in message.content if b.type == "text")
     except _anthropic_module.RateLimitError as e:
         log.warning(f"[Exp {experiment_num}] SDK rate limit (429): {e}. Sleeping 60s.")
         time.sleep(60)
@@ -511,8 +531,15 @@ def extract_change_summary(claude_response_path: Path) -> str:
 
 # ── Push helper ───────────────────────────────────────────────────────────────
 
+def push_disabled() -> bool:
+    """``AOMB_NO_PUSH=1`` keeps a run local (e.g. a loop on a side branch or worktree)."""
+    return os.getenv("AOMB_NO_PUSH", "").strip().lower() in {"1", "true", "yes"}
+
+
 def push_to_remote(experiment_num: int) -> None:
-    """Push every 10 experiments to keep GitHub up to date."""
+    """Push every 10 experiments to keep GitHub up to date (always pushes ``main``)."""
+    if push_disabled():
+        return
     if experiment_num % 10 != 0:
         return
     try:
@@ -639,8 +666,11 @@ def main():
     log.info("=" * 60)
 
     try:
-        git("push", "origin", "main", check=False)
-        log.info("Final push to GitHub complete.")
+        if push_disabled():
+            log.info("AOMB_NO_PUSH set — skipping final push.")
+        else:
+            git("push", "origin", "main", check=False)
+            log.info("Final push to GitHub complete.")
     except Exception:
         pass
 

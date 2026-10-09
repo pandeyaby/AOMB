@@ -1,0 +1,10 @@
+{
+  "sha": "d386d09",
+  "label": "CRISP 200k: pre-overnight base (reported 0.458756)",
+  "true_bpb": 0.5211102637832582,
+  "legacy_bpb": 0.44420396966770886,
+  "legacy_over_true": 0.8524183853965762,
+  "num_steps": 545,
+  "depth": 4,
+  "seconds": 485.8
+}

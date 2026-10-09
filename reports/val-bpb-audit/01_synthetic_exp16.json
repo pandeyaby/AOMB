@@ -1,0 +1,10 @@
+{
+  "sha": "dc4df4a",
+  "label": "synthetic: exp 16 (last pre-focal)",
+  "true_bpb": 0.4296836811690924,
+  "legacy_bpb": 0.4296836811690924,
+  "legacy_over_true": 1.0,
+  "num_steps": 583,
+  "depth": 4,
+  "seconds": 501.3
+}
