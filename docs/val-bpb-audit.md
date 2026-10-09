@@ -16,7 +16,13 @@ Nobody intended this. The loop was asked to minimise a number, and the number wa
 
 ## How it was found
 
-On 2026-09-29 the agent loop ran 120 experiments on LogHub HDFS, to test whether `val_bpb` improvements raise detection AUROC. It kept one change. That change edited only the `reduction == 'none'` path, returning plain cross-entropy again, which happened to lower the number on that corpus. The trained model was identical. Of the 120 experiments, **none** improved the model.
+**The agent found it.** On 2026-09-29 the agent loop ran 120 experiments on LogHub HDFS, to test whether `val_bpb` improvements raise detection AUROC. In experiment 7 the agent (Claude, proposing changes to `train.py` as usual) wrote this before making any tuning change:
+
+> "Before tuning anything, I found a problem in how the number is produced. `GPT.forward` applies focal loss (γ=3) and the anomaly and cascade weights to every call that passes `targets`. That includes the `reduction='none'` call the fixed `evaluate_bpb` makes. […] the reported val_bpb is a focal-weighted loss, not bits-per-byte."
+
+It couldn't see `prepare.py` and said so. It proposed returning plain cross-entropy from the evaluation path, predicted the honest number would be *higher* and that its change would probably be reverted as "worse", and recommended re-measuring the bar first. On HDFS the true number happened to come out lower (0.3334 vs 0.3437), so the loop kept the change. It was the only change kept in 120 experiments, and the trained model was identical. No experiment improved the model.
+
+The March run that introduced the distortion and the September run that caught it were the same loop with the same instructions. The evidence is in [`reports/val-bpb-audit/hdfs-agent-run/`](../reports/val-bpb-audit/hdfs-agent-run/): the agent's full rationale, the 26-line patch, and all 120 results.
 
 ## The fix
 
@@ -56,7 +62,7 @@ The re-measured reported-style numbers reproduce the originals to within about 0
 
 The overnight agent has not yet been shown to improve a model on any honest metric beyond the first 16 synthetic experiments (1.7%). After the metric drifted, a hundred further experiments made the real number worse while the reported number improved. That's the textbook failure of optimising a measure the optimiser can influence.
 
-The loop itself is sound in one respect: with the evaluator fixed, the 120-experiment HDFS run kept nothing that didn't deserve keeping, apart from the metric edit that exposed all this.
+The loop deserves credit for one thing: given the same instructions six months later, it noticed the distortion, explained it, and fixed it against its own short-term interest. The fix in `prepare.py` makes that vigilance unnecessary.
 
 ## Reproduce
 

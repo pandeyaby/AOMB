@@ -1,0 +1,15 @@
+**1. Current state.** The best val_bpb is 0.3437 (the base run on HDFS). There is no history yet, so I can't see a trend.
+
+**2. Bottleneck diagnosis.** val_bpb is below 1.0, so the guidance is to refine the loss and schedule. Before tuning anything, I found a problem in how the number is produced.
+
+`GPT.forward` applies focal loss (γ=3) and the anomaly and cascade weights to every call that passes `targets`. That includes the `reduction='none'` call the fixed `evaluate_bpb` makes. I'm assuming `evaluate_bpb` calls `model(x, y, reduction='none')`, as the upstream autoresearch code does. I can't see `prepare.py`. Under that assumption, the reported val_bpb is a focal-weighted loss, not bits-per-byte.
+
+That loss is at most the true cross-entropy. `(1-pt)^3 * ce` shrinks well-predicted tokens toward zero, so 0.3437 understates the true BPB. On HDFS the anomaly weights are also close to meaningless. The corpus is normal blocks only, and the keyword list comes from the synthetic corpus, e.g. "down", "fail" and "alert".
+
+**3. Domain justification.** The HDFS-to-AUROC experiment uses BPB-derived scores. Those scores need a real per-token cross-entropy, so training should be free to use a shaped loss but evaluation must not be.
+
+**4. Precise change.** In `GPT.forward`, return the plain per-token cross-entropy when `reduction == 'none'`. Focal and anomaly weighting stay in the training path (`reduction='mean'`). Nothing else changes, and `evaluate_bpb` and the print format are untouched.
+
+**5. Risk.** The reported val_bpb will rise, probably substantially, because it is now the true BPB. The loop's bar (0.3437) was measured with the distorted metric. This run will likely be marked "worse" and reverted even though the number is now honest. The bar should be re-measured with this fix applied to the base before comparing. There is no OOM or stability risk.
+
+**6. Fallback.** After re-baselining, the next experiment is `gamma` 3.0 → 0 (plain CE training), to test whether focal training helps true BPB at all. After that, `WARMDOWN_RATIO` and `MATRIX_LR` tuning.

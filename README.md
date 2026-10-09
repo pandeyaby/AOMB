@@ -1,6 +1,6 @@
 # AOMB — Autonomous Observability Model Breeder
 
-**An AI research agent that improves a small language model for your telemetry while you sleep.**
+**A small language model that learns what normal telemetry looks like, and an AI research agent that tries to improve it while you sleep.**
 
 [![stranger-verify](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-verify.yml)
 [![stranger-demo](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml/badge.svg)](https://github.com/pandeyaby/AOMB/actions/workflows/stranger-demo.yml)
@@ -12,7 +12,7 @@
 
 AOMB trains an **Infrastructure Language Model (ILM)**: a small GPT that learns to predict the next token of observability telemetry (traces, logs, network and APM events). A model that predicts *normal* traffic well is surprised by *abnormal* traffic, so the surprise score (bits-per-byte) is an anomaly signal. That means no rules, no thresholds, and no labels.
 
-The model isn't tuned by hand. An LLM agent (Claude) runs the research loop overnight on a Mac. It proposes a change to `train.py`, trains for 5 minutes on Apple Silicon, keeps the change if validation loss improved and reverts it if not. It repeats this dozens of times, and every improvement becomes a git commit. In the morning you get a report and a better model.
+The model isn't tuned by hand. An LLM agent (Claude) runs the research loop overnight on a Mac. It proposes a change to `train.py`, trains for 5 minutes on Apple Silicon, keeps the change if validation loss improved and reverts it if not. It repeats this dozens of times, and every kept change becomes a git commit. In the morning you get a report. Whether you also get a better model is an open question: so far the loop's honest gains are small (see [Training fitness](#training-fitness-corrected-2026-10-08)).
 
 It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch), via [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
 
@@ -77,9 +77,9 @@ Write-ups: [value drift](docs/lab/value-drift-eval.md) · [rule-proof faults](do
 | Uber CRISP 200k, 20 overnight experiments | 0.4588 → 0.4309 (−6.1%) | 0.5211 → 0.5206 | **Withdrawn.** No change |
 | Uber CRISP 500k, single run | 0.4078 | 0.4665 | Corrected |
 | Uber Tale of Errors 200k, single run | 1.3795 | 1.4557 | Corrected |
-| LogHub HDFS, 120 overnight experiments | none | no improvement | The run that exposed the problem |
+| LogHub HDFS, 120 overnight experiments | none | no improvement | The run where the agent itself spotted the metric problem |
 
-So the overnight agent hasn't yet improved a model on an honest metric beyond a 1.7% gain in its first 16 experiments. The [original write-up](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212) predates this audit, and its "focal loss breakthrough" and 15.8% figure don't hold. The detection results above are unaffected: they're computed from the model's raw output and never used the faulty path.
+So the overnight agent hasn't yet improved a model on an honest metric beyond a 1.7% gain in its first 16 experiments. The distortion came from an agent change in March; in September the same loop noticed it, explained it and fixed it, predicting its own score would look worse ([its rationale](reports/val-bpb-audit/hdfs-agent-run/exp07_agent_rationale.txt)). The [original write-up](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212) predates this audit, and its "focal loss breakthrough" and 15.8% figure don't hold. The detection results above are unaffected: they're computed from the model's raw output and never used the faulty path.
 
 **See it yourself:** run `uv run python demo_anomaly.py`. It trains briefly, then scores held-out sessions, and anomalous and cascade-failure sessions score higher bits-per-byte than normal ones. The walkthrough is in [`docs/anomaly-story.md`](docs/anomaly-story.md).
 
@@ -157,7 +157,7 @@ Three files define the system:
 val_bpb = total_nats / (log(2) × total_bytes)
 ```
 
-Minimizing `val_bpb` minimizes the gap between the model's predictions and the real distribution of normal telemetry. The *same* quantity computed on a new session is its surprise score. So a lower training `val_bpb` means a sharper sense of normal, and a better anomaly signal. There's no separate detection head and no labels.
+Minimizing `val_bpb` minimizes the gap between the model's predictions and the real distribution of normal telemetry. The *same* quantity computed on a new session is its surprise score. So in principle a lower `val_bpb` means a sharper sense of normal and a better anomaly signal, with no separate detection head and no labels. The evidence so far is modest: in a lab training-length sweep, 44% lower held-out bits-per-byte took AUROC from 0.72 to 0.75.
 
 ### The model
 
@@ -222,7 +222,7 @@ AOMB_OPENAI_API_KEYS=sk-proj-...     # optional fallback provider
 AOMB_CLAUDE_MODELS=sonnet            # or: opus, haiku, gpt-4o-mini
 ```
 
-Every improvement is a git commit. Results are pushed every 10 successes. To stop: `kill $(cat logs/agent_loop.pid)`.
+Every kept change is a git commit, and the loop pushes `main` every 10 of them and once at the end. Set `AOMB_NO_PUSH=1` to keep a run local. To stop: `kill $(cat logs/agent_loop.pid)`.
 
 **Scheduled morning report (launchd):**
 
