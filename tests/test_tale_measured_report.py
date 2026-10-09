@@ -264,18 +264,33 @@ class TestHonestyNoInventedMetrics(unittest.TestCase):
         self.assertNotRegex(src, r"val_bpb\s*=\s*0\.\d+")
         self.assertIn("Never invents", src)
 
-    def test_prepare_untouched(self):
-        # Sacred: this PR must not modify prepare.py
-        import subprocess as sp
+    def test_prepare_measuring_stick_intact(self):
+        # prepare.py is the fixed measuring stick. It was changed once, on purpose
+        # (2026-10-08, docs/val-bpb-audit.md): evaluate_bpb now computes
+        # cross-entropy from logits instead of trusting train.py's loss path.
+        # Guard what makes scores comparable, and that the hole stays closed.
+        src = (ROOT / "prepare.py").read_text(encoding="utf-8")
+        for constant in (
+            "MAX_SEQ_LEN = 2048",
+            "TIME_BUDGET = 300",
+            "EVAL_TOKENS = 40 * 524288",
+            "VOCAB_SIZE = 8192",
+        ):
+            self.assertIn(constant, src)
+        import ast
 
-        diff = sp.run(
-            ["git", "diff", "--name-only", "main", "--", "prepare.py"],
-            capture_output=True,
-            text=True,
-            cwd=str(ROOT),
+        fn = next(
+            n for n in ast.walk(ast.parse(src))
+            if isinstance(n, ast.FunctionDef) and n.name == "evaluate_bpb"
         )
-        self.assertEqual(diff.stdout.strip(), "")
-
+        calls = [
+            c for c in ast.walk(fn)
+            if isinstance(c, ast.Call) and isinstance(c.func, ast.Name) and c.func.id == "model"
+        ]
+        self.assertTrue(calls, "evaluate_bpb should call the model for logits")
+        for c in calls:
+            self.assertEqual(len(c.args), 1, "evaluate_bpb must call model(x) only — never the loss path")
+            self.assertFalse(c.keywords)
 
 if __name__ == "__main__":
     unittest.main()

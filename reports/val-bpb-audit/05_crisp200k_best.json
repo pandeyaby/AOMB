@@ -1,0 +1,10 @@
+{
+  "sha": "73b1645",
+  "label": "CRISP 200k: overnight best (reported 0.4309)",
+  "true_bpb": 0.5206265376940316,
+  "legacy_bpb": 0.42889596433440685,
+  "legacy_over_true": 0.8238073422727942,
+  "num_steps": 209,
+  "depth": 4,
+  "seconds": 586.0
+}

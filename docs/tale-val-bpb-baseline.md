@@ -1,5 +1,8 @@
 # Tale val_bpb baseline — capped public-real subset (honest)
 
+> **Correction (2026-10-08).** The measured card on this page records a focal-weighted loss, not true bits-per-byte. For the same commit, true bits-per-byte is **1.4557**. See [`val-bpb-audit.md`](val-bpb-audit.md). The figures below are kept as the historical record of what was measured then.
+
+
 Recorded `val_bpb` on a **capped Tale of Errors subset** for README / internal factual documentation — **when a measured Mac run is attached**.
 
 > **Not a public accuracy claim, marketing number, or product benchmark.**

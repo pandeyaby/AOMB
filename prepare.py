@@ -361,6 +361,12 @@ def evaluate_bpb(model, tokenizer, batch_size):
     then converts nats/byte to bits/byte. Special tokens (byte length 0)
     are excluded from both sums.
     Uses fixed MAX_SEQ_LEN so results are comparable across configs.
+
+    The cross-entropy is computed HERE, from the model's logits. It must never be
+    taken from model(x, y, reduction='none'): train.py is agent-editable, and from
+    2026-03-10 to 2026-10-08 its loss path returned a focal-weighted loss, so
+    every val_bpb reported in that window was not true bits-per-byte
+    (see docs/val-bpb-audit.md).
     """
     device = next(model.parameters()).device
     token_bytes = get_token_bytes(device=device)
@@ -370,8 +376,11 @@ def evaluate_bpb(model, tokenizer, batch_size):
     total_bytes = 0
     for _ in range(steps):
         x, y, _ = next(val_loader)
-        loss_flat = model(x, y, reduction='none').view(-1)
+        logits = model(x)  # no targets → raw logits
         y_flat = y.view(-1)
+        loss_flat = torch.nn.functional.cross_entropy(
+            logits.view(-1, logits.size(-1)).float(), y_flat, ignore_index=-1, reduction='none'
+        )
         nbytes = token_bytes[y_flat]
         mask = nbytes > 0
         total_nats += (loss_flat * mask).sum().item()

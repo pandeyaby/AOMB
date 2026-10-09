@@ -16,7 +16,7 @@ The model isn't tuned by hand. An LLM agent (Claude) runs the research loop over
 
 It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch), via [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
 
-> **Status: research prototype.** On real data (LogHub HDFS, RCAEval) and in the lab, one model with no rules written lands within a few points of the best hand-built check on every dataset (ahead on some, behind on others), wins no individual fault type, and is well short of specialised published detectors. See [Results](#results-so-far).
+> **Status: research prototype.** On real data (LogHub HDFS, RCAEval) and in the lab, one model with no rules written lands within a few points of the best hand-built check on every dataset (ahead on some, behind on others), wins no individual fault type, and is well short of specialised published detectors. The overnight agent's reported training improvements were a measurement artifact and are withdrawn ([audit](docs/val-bpb-audit.md)). See [Results](#results-so-far).
 
 ---
 
@@ -67,18 +67,19 @@ The model is the best *single* detector: one model with no fault-specific rules 
 
 Write-ups: [value drift](docs/lab/value-drift-eval.md) · [rule-proof faults](docs/lab/rule-proof-eval.md) · [in-domain](docs/lab/in-domain-eval.md) · [zero-shot](docs/lab/ranking-validation.md). Each includes its **corrections**: a label leak, a training-context bug, and clock-like confounds, all found and fixed along the way.
 
-### Training fitness
+### Training fitness (corrected 2026-10-08)
 
-These numbers are `val_bpb` (validation bits-per-byte, **lower is better**). This measures how well the model predicts held-out telemetry. Numbers from different datasets are **not comparable** with each other.
+`val_bpb` is validation bits-per-byte: how well the model predicts held-out telemetry, lower is better. **Until 2026-10-08 the numbers this project reported under that name were a focal-weighted loss, not true bits-per-byte**, and the agent loop's reported improvements were an artifact of that. The evaluator is fixed and the record has been re-measured. See the [`val_bpb` audit](docs/val-bpb-audit.md).
 
-| Dataset | Setup | `val_bpb` | Details |
-|---------|-------|-----------|---------|
-| **Uber CRISP** (real Jaeger traces, 200k spans) | Single 5-min run → **20 overnight agent experiments** | 0.4588 → **0.4309** (−6.1%) | [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) |
-| **Uber CRISP** (500k spans) | Single 5-min run, no agent | **0.4078** | [`docs/crisp-val-bpb-baseline.md`](docs/crisp-val-bpb-baseline.md) |
-| **Uber Tale of Errors** (200k-span capped subset) | Single 5-min run | **1.3795** | [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) |
-| Synthetic smoke corpus (first release) | 120 overnight experiments | 0.4372 → 0.3682 (−15.8%) | Legacy; used in the original write-up |
+| Dataset | Earlier claim | True bits-per-byte (re-measured) | Verdict |
+|---------|---------------|-----------------------------------|---------|
+| Synthetic smoke corpus, 120 overnight experiments | 0.4372 → 0.3682 (−15.8%) | 0.4372 → 0.4483 | **Withdrawn.** The final model is slightly worse than the baseline; the real best was experiment 16 at 0.4297 (−1.7%) |
+| Uber CRISP 200k, 20 overnight experiments | 0.4588 → 0.4309 (−6.1%) | 0.5211 → 0.5206 | **Withdrawn.** No change |
+| Uber CRISP 500k, single run | 0.4078 | 0.4665 | Corrected |
+| Uber Tale of Errors 200k, single run | 1.3795 | 1.4557 | Corrected |
+| LogHub HDFS, 120 overnight experiments | none | no improvement | The run that exposed the problem |
 
-The first release was trained on a synthetic corpus, and that's where the 15.8% improvement quoted in the [original write-up](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212) comes from. The project has since moved to public, real-world traces from Uber (CRISP and Tale of Errors).
+So the overnight agent hasn't yet improved a model on an honest metric beyond a 1.7% gain in its first 16 experiments. The [original write-up](https://medium.com/@pandeyaby/i-let-an-ai-improve-itself-overnight-heres-what-i-woke-up-to-6db1905fc212) predates this audit, and its "focal loss breakthrough" and 15.8% figure don't hold. The detection results above are unaffected: they're computed from the model's raw output and never used the faulty path.
 
 **See it yourself:** run `uv run python demo_anomaly.py`. It trains briefly, then scores held-out sessions, and anomalous and cascade-failure sessions score higher bits-per-byte than normal ones. The walkthrough is in [`docs/anomaly-story.md`](docs/anomaly-story.md).
 
@@ -146,7 +147,7 @@ Three files define the system:
 
 | File | Who changes it | What it is |
 |------|----------------|------------|
-| `prepare.py` | Nobody (frozen) | Data pipeline, tokenizer, and the `evaluate_bpb` metric. It's frozen so scores stay comparable across experiments |
+| `prepare.py` | Nobody (frozen) | Data pipeline, tokenizer, and the `evaluate_bpb` metric. It's frozen so scores stay comparable across experiments, and it computes the metric from the model's raw output so `train.py` can't redefine it |
 | `train.py` | The agent | Model architecture and training loop. This is the only file the agent edits |
 | `program.md` | You, rarely | The agent's research brief: domain context, experiment ideas, constraints |
 
@@ -172,7 +173,7 @@ It isn't vanilla nanoGPT. The baseline the agent starts from includes:
 | Logit softcapping | `tanh(x/15)×15` |
 | RMSNorm | Everywhere, no bias |
 
-The agent explores depth, width, head size, attention windows, learning rates, schedules, batch size, and loss functions. Focal loss was an early breakthrough. See the top of `train.py`.
+The agent explores depth, width, head size, attention windows, learning rates, schedules, batch size, and loss functions. (An early "focal loss breakthrough" turned out to be a measurement artifact; see the [`val_bpb` audit](docs/val-bpb-audit.md).) See the top of `train.py`.
 
 ---
 
@@ -196,7 +197,7 @@ uv run python train.py
 
 Much larger public dataset (CC BY 4.0, hundreds of GB), streamed and capped so it fits on a laptop. To try it on a fixture without downloading: `./scripts/tale_scale_smoke.sh`. Docs: [`docs/tale-scale.md`](docs/tale-scale.md).
 
-**Capped subset measured** (Mac run, `max_spans=200000`): **`val_bpb=1.379520`**, `claim_status=measured_not_published`. This is train fitness only, not AUROC, and not a published accuracy claim. It isn't directly comparable to CRISP. Card: [`reports/tale-capped/measured_capped_200k.json`](reports/tale-capped/measured_capped_200k.json) · write-up: [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · summary: [`docs/public-wins.md`](docs/public-wins.md) · one-liner: `./scripts/public_wins_tale_line.sh`.
+**Capped subset measured** (Mac run, `max_spans=200000`): **`val_bpb=1.379520`**, `claim_status=measured_not_published`. This is train fitness only, not AUROC, and not a published accuracy claim. It isn't directly comparable to CRISP. Card: [`reports/tale-capped/measured_capped_200k.json`](reports/tale-capped/measured_capped_200k.json) · write-up: [`docs/tale-val-bpb-baseline.md`](docs/tale-val-bpb-baseline.md) · summary: [`docs/public-wins.md`](docs/public-wins.md) · one-liner: `./scripts/public_wins_tale_line.sh`. The card records the number as measured at the time, which was focal-weighted; true bits-per-byte for the same commit is 1.4557 ([audit](docs/val-bpb-audit.md)).
 
 ### Your own telemetry
 
@@ -260,7 +261,7 @@ Index of everything an outsider can check: [`docs/public-wins.md`](docs/public-w
 ```
 agent_loop.py        overnight research agent (Claude proposes, train.py runs, git keeps winners)
 train.py             model + training loop — the file the agent edits
-prepare.py           frozen data pipeline, tokenizer, and val_bpb metric
+prepare.py           frozen data pipeline, tokenizer, and val_bpb metric (computed from logits)
 program.md           research brief given to the agent
 morning_report.py    overnight summary + progress plot
 demo_anomaly.py      train briefly, then score normal vs anomalous sessions
