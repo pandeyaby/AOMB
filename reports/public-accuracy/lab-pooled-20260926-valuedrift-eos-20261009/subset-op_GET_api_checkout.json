@@ -1,0 +1,265 @@
+{
+  "marker": "op=GET_/api/checkout",
+  "n": 543,
+  "n_incident": 360,
+  "methods": {
+    "length": {
+      "kind": "baseline",
+      "auroc": 0.5000303582270795,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 0.5
+      }
+    },
+    "error_lines": {
+      "kind": "baseline",
+      "auroc": 0.5,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 0.5
+      }
+    },
+    "duration_z": {
+      "kind": "baseline",
+      "auroc": 0.5646554341226473,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.4744535519125683,
+        "20260926-pricing_flip": 0.5278005464480874,
+        "20260926-region_new": 0.6851775956284153
+      }
+    },
+    "rule": {
+      "kind": "baseline",
+      "auroc": 0.5646554341226473,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.4744535519125683,
+        "20260926-pricing_flip": 0.5278005464480874,
+        "20260926-region_new": 0.6851775956284153
+      }
+    },
+    "novelty": {
+      "kind": "baseline",
+      "auroc": 0.5,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 0.5
+      }
+    },
+    "heuristic": {
+      "kind": "baseline",
+      "auroc": 0.5646554341226473,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.4744535519125683,
+        "20260926-pricing_flip": 0.5278005464480874,
+        "20260926-region_new": 0.6851775956284153
+      }
+    },
+    "value_novelty": {
+      "kind": "baseline",
+      "auroc": 0.6666666666666666,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 1.0
+      }
+    },
+    "value_rarity": {
+      "kind": "baseline",
+      "auroc": 0.7917273831208257,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.49275956284153005,
+        "20260926-pricing_flip": 0.8855191256830601,
+        "20260926-region_new": 1.0
+      }
+    },
+    "value_pair": {
+      "kind": "baseline",
+      "auroc": 0.8333333333333334,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 1.0,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 1.0
+      }
+    },
+    "sequence_novelty": {
+      "kind": "baseline",
+      "auroc": 0.5,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 0.5
+      }
+    },
+    "too_short": {
+      "kind": "baseline",
+      "auroc": 0.5,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "auroc": 0.7917273831208257,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.49275956284153005,
+        "20260926-pricing_flip": 0.8855191256830601,
+        "20260926-region_new": 1.0
+      }
+    },
+    "bpb_mean": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.7189283545840922,
+        "std": 0.04251542756383323,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.5996994535519125,
+          "std": 0.06864950517810889,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.8945901639344263,
+          "std": 0.034405975697045454,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.6574316939890711,
+          "std": 0.024092102330984456,
+          "n": 5
+        }
+      }
+    },
+    "bpb_content": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.712896174863388,
+        "std": 0.01890654288666448,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.6568032786885245,
+          "std": 0.05190046954209868,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.5419125683060109,
+          "std": 0.01974041352315792,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.924863387978142,
+          "std": 0.027798280677261006,
+          "n": 5
+        }
+      }
+    },
+    "bpb_max_event": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.6948087431693989,
+        "std": 0.012356483700185128,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.5669398907103825,
+          "std": 0.0418648426988195,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.507103825136612,
+          "std": 0.0298496486225234,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.983551912568306,
+          "std": 0.01960646675905492,
+          "n": 5
+        }
+      }
+    },
+    "bpb_top10": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.7124043715846995,
+        "std": 0.018892470717617255,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.6560928961748634,
+          "std": 0.05144740545531766,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.5409836065573771,
+          "std": 0.019889603193829156,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.9240983606557377,
+          "std": 0.028240483946991298,
+          "n": 5
+        }
+      }
+    },
+    "bits_max_field": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.8321038251366121,
+        "std": 0.04127607923587249,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.8455737704918033,
+          "std": 0.12327676134747187,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.6190983606557376,
+          "std": 0.04134927940391789,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.9983060109289618,
+          "std": 0.0037878747159832697,
+          "n": 5
+        }
+      }
+    },
+    "bits_end": {
+      "kind": "model",
+      "auroc": {
+        "mean": 0.5023982999392835,
+        "std": 0.03352151633156091,
+        "n": 5
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": {
+          "mean": 0.46532786885245897,
+          "std": 0.06214911657243623,
+          "n": 5
+        },
+        "20260926-pricing_flip": {
+          "mean": 0.499808743169399,
+          "std": 0.03186570216875994,
+          "n": 5
+        },
+        "20260926-region_new": {
+          "mean": 0.5425409836065573,
+          "std": 0.08711780874857113,
+          "n": 5
+        }
+      }
+    }
+  }
+}

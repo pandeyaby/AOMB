@@ -27,6 +27,9 @@ Methods compared on the identical eval set:
                       (the check you'd only write if you anticipated the fault)
 - ``sequence_novelty`` session's multiset of events (ops + log templates) never seen in
                       training (the classic event-count-vector check on log benchmarks)
+- ``too_short``       session has fewer than half as many lines as the shortest training
+                      session (a request or block that stopped early)
+- ``rarity_or_short`` ``too_short`` first, then ``value_rarity``
 
 Inputs: a lab capture dir (``--capture``, temporal split per capture) or a prepared
 session file (``--sessions``, JSONL with session_id / label / split / group / text,
@@ -38,6 +41,8 @@ e.g. from corpus.ingest.loghub_hdfs), whose ``split`` field defines train vs eva
 - ``bpb_top10``       mean bits of the 10% most surprising tokens, IDs/timestamps excluded
 - ``bits_max_field``  most surprising single field value: total bits of the tokens in
                       one ``key=value`` value (≈ -log2 p(value | context)), max over fields
+- ``bits_end``        with ``--end-marker``: bits of the end-of-session marker, i.e. how
+                      unexpected it is that the session stopped here (0 without the flag)
 
 Usage:
     uv run python -m eval.in_domain --capture lab/captures/pooled-20260918 \\
@@ -66,7 +71,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 _TS = re.compile(r"\[ts=([0-9T:\-\.]+)Z\]")
 _EVENT = re.compile(r"op=(\S+) svc=(\S+) duration_ms=(\d+(?:\.\d+)?)")
-_ERROR = re.compile(r"status=error|level=ERROR")
+# Severity words a simple alert rule would key on (BGL uses FATAL / SEVERE / FAILURE).
+_ERROR = re.compile(r"status=error|level=(?:ERROR|FATAL|SEVERE|FAILURE|CRITICAL)\b")
 # key=value fields preceded by start/space/underscore (log msgs join words with "_")
 _FIELD = re.compile(r"(?:^|(?<=[\s_]))([A-Za-z]+)=([^\s_\]]+)")
 _NUMERIC = re.compile(r"^-?\d+(?:\.\d+)?$")
@@ -80,10 +86,14 @@ _NOISE_VALUE = re.compile(
     r"(?:trace_id|span_id|parent)=(\S+)|\[ts=([^\]]+)\]|(?:^|(?<=[\s_]))hits=(\d+)"
 )
 
-MODEL_METHODS = ("bpb_mean", "bpb_content", "bpb_max_event", "bpb_top10", "bits_max_field")
+MODEL_METHODS = ("bpb_mean", "bpb_content", "bpb_max_event", "bpb_top10", "bits_max_field", "bits_end")
+# Appended to every session when --end-marker is on, so the model can be surprised
+# by a session that stops early (surprise only scores what *did* happen otherwise).
+END_MARKER = "[end_of_session]"
 BASELINE_METHODS = (
     "length", "error_lines", "duration_z", "rule", "novelty", "heuristic",
     "value_novelty", "value_rarity", "value_pair", "sequence_novelty",
+    "too_short", "rarity_or_short",
 )
 
 
@@ -154,14 +164,18 @@ def load_session_file(path: str | Path) -> tuple[list[LabeledSession], list[Labe
     return train, eval_set, group_of, meta
 
 
-def chunk_lines(texts: Sequence[str], max_lines: int | None) -> list[str]:
-    """Split long texts into ≤ max_lines pieces at line boundaries (no text dropped)."""
-    if not max_lines:
-        return list(texts)
+def chunk_lines(texts: Sequence[str], max_lines: int | None, suffix: str | None = None) -> list[str]:
+    """
+    Split long texts into ≤ max_lines pieces at line boundaries (no text dropped).
+
+    ``suffix`` (the end-of-session marker) is added as a final line to each text,
+    so it lands only on a session's last chunk.
+    """
     out = []
     for t in texts:
-        lines = t.split("\n")
-        out.extend("\n".join(lines[i : i + max_lines]) for i in range(0, len(lines), max_lines))
+        lines = t.split("\n") + ([suffix] if suffix else [])
+        step = max_lines or len(lines)
+        out.extend("\n".join(lines[i : i + step]) for i in range(0, len(lines), step))
     return out
 
 
@@ -259,11 +273,16 @@ def fit_novelty(train: Sequence[LabeledSession]) -> tuple[set, set, set, set]:
     return ops, templates, shapes, sequences
 
 
+def min_lines(train: Sequence[LabeledSession]) -> int:
+    return min((s.text.count("\n") + 1 for s in train), default=0)
+
+
 def baseline_scores(
     sessions: Sequence[LabeledSession],
     stats: dict[tuple[str, str], tuple[float, float]],
     seen: tuple[set, ...] = (set(), set(), set(), set()),
     values: "ValueStats | None" = None,
+    min_train_lines: int = 0,
 ) -> dict[str, list[float]]:
     seen_ops, seen_templates, seen_shapes = seen[:3]
     seen_sequences = seen[3] if len(seen) > 3 else set()
@@ -289,6 +308,9 @@ def baseline_scores(
         out["value_rarity"].append(vr)
         out["value_pair"].append(vp)
         out["sequence_novelty"].append(float(event_multiset(s.text) not in seen_sequences))
+        short = float((s.text.count("\n") + 1) < min_train_lines / 2)
+        out["too_short"].append(short)
+        out["rarity_or_short"].append(short * 1000.0 + vr)
     return out
 
 
@@ -366,6 +388,10 @@ def model_scores_for(toks: Sequence[tuple[str, float, int]], text: str) -> dict[
     for tok, _n, _b in toks:
         starts.append(off)
         off += len(tok)
+    bits_end = 0.0
+    if text.endswith(END_MARKER):
+        end_at = len(text) - len(END_MARKER)
+        bits_end = sum(n / ln2 for (_t, n, _b), st in zip(toks, starts) if st >= end_at)
     field_bits = []
     for m in _FIELD.finditer(text):
         a, b = m.span(2)
@@ -382,6 +408,7 @@ def model_scores_for(toks: Sequence[tuple[str, float, int]], text: str) -> dict[
         "bpb_max_event": max(ev) if ev else nan,
         "bpb_top10": sum(bits[:k]) / k if bits else nan,
         "bits_max_field": max(field_bits) if field_bits else nan,
+        "bits_end": bits_end,
     }
 
 
@@ -427,13 +454,13 @@ def _heat_html(toks, text) -> str:
     return "".join(parts)
 
 
-def write_heatmap(path: Path, picks: list[tuple[str, LabeledSession, float, list]]) -> None:
+def write_heatmap(path: Path, picks: list[tuple[str, LabeledSession, float, list, str]]) -> None:
     body = []
-    for title, s, score, toks in picks:
+    for title, s, score, toks, text in picks:
         body.append(
             f"<h3>{html.escape(title)} · {html.escape(s.label)}"
             f"{' / ' + html.escape(s.fault) if s.fault else ''} · score {score:.3f}</h3>"
-            f"<pre>{_heat_html(toks, s.text)}</pre>"
+            f"<pre>{_heat_html(toks, text)}</pre>"
         )
     path.write_text(
         "<!doctype html><meta charset=utf-8><title>AOMB surprise heatmap</title>"
@@ -456,6 +483,8 @@ def run(
     out_dir: Path,
     sessions_file: str | None = None,
     train_chunk_lines: int | None = None,
+    end_marker: bool = False,
+    inject_n: int = 0,
 ) -> dict[str, Any]:
     from eval.fixture_train import train_fixture_lm
     from eval.report import git_sha
@@ -480,6 +509,7 @@ def run(
         "n_eval_incident": y.count(1),
         "train_seconds": train_seconds,
         "train_chunk_lines": train_chunk_lines,
+        "end_marker": end_marker,
         "seeds": seeds,
         "methods": {},
     }
@@ -498,7 +528,7 @@ def run(
     stats = fit_duration_stats(train)
     seen = fit_novelty(train)
     values = ValueStats(train)
-    for name, sc in baseline_scores(eval_set, stats, seen, values).items():
+    for name, sc in baseline_scores(eval_set, stats, seen, values, min_lines(train)).items():
         if sub_idx:
             results["subset"]["auroc"][name] = auroc(y_sub, [sc[i] for i in sub_idx])
         results["methods"][name] = {
@@ -507,13 +537,27 @@ def run(
             "per_capture_auroc": per_capture_auroc(eval_set, sc, capture_of),
         }
 
+    # Label-free objective: corrupted copies of some eval normals (eval.inject).
+    inj_clean_idx: list[int] = []
+    inj_corrupted: dict[str, list[tuple[int, str]]] = {}
+    inj_per_seed: list[dict[str, dict[str, float]]] = []
+    if inject_n:
+        from eval.inject import Injector, injection_auroc
+
+        normals = [i for i, s in enumerate(eval_set) if s.binary == 0]
+        step = max(1, len(normals) // inject_n)
+        inj_clean_idx = normals[::step][:inject_n]
+        inj_corrupted = Injector([s.text for s in train], seed=0).corrupt(
+            [eval_set[i].text for i in inj_clean_idx]
+        )
+
     per_seed: dict[str, list[dict]] = {m: [] for m in MODEL_METHODS}
     per_seed_cap: dict[str, list[dict]] = {m: [] for m in MODEL_METHODS}
     session_rows: dict[int, dict[str, list[float]]] = {}
     train_info: list[dict] = []
     for seed in seeds:
         model, tokenizer, token_bytes, info = train_fixture_lm(
-            chunk_lines([s.text for s in train], train_chunk_lines),
+            chunk_lines([s.text for s in train], train_chunk_lines, END_MARKER if end_marker else None),
             seed=seed,
             train_seconds=train_seconds,
             max_seq_len=None,
@@ -523,15 +567,36 @@ def run(
         train_info.append({"seed": seed, **info})
         scores: dict[str, list[float]] = {m: [] for m in MODEL_METHODS}
         all_toks = []
-        for s in eval_set:
-            toks = token_surprise(model, tokenizer, token_bytes, s.text, info["max_seq_len"])
+        scored_texts = [s.text + "\n" + END_MARKER if end_marker else s.text for s in eval_set]
+        for text in scored_texts:
+            toks = token_surprise(model, tokenizer, token_bytes, text, info["max_seq_len"])
             all_toks.append(toks)
-            for m, v in model_scores_for(toks, s.text).items():
+            for m, v in model_scores_for(toks, text).items():
                 scores[m].append(v)
         for m in MODEL_METHODS:
             per_seed[m].append(ranking_metrics(y, scores[m]))
             per_seed_cap[m].append(per_capture_auroc(eval_set, scores[m], capture_of))
         session_rows[seed] = scores
+        if inject_n:
+            seed_inj: dict[str, dict[str, float]] = {m: {} for m in MODEL_METHODS}
+            for name, items in inj_corrupted.items():
+                cor: dict[str, list[float]] = {m: [] for m in MODEL_METHODS}
+                for _i, text in items:
+                    text = text + "\n" + END_MARKER if end_marker else text
+                    toks = token_surprise(model, tokenizer, token_bytes, text, info["max_seq_len"])
+                    for m, v in model_scores_for(toks, text).items():
+                        cor[m].append(v)
+                for m in MODEL_METHODS:
+                    clean = [scores[m][i] for i in inj_clean_idx]
+                    pairs = [(c, 0) for c in clean if c == c] + [(c, 1) for c in cor[m] if c == c]
+                    seed_inj[m][name] = (
+                        injection_auroc([c for c, y_ in pairs if y_ == 0], [c for c, y_ in pairs if y_ == 1])
+                        if cor[m] else float("nan")
+                    )
+            for m in MODEL_METHODS:
+                vals = [v for v in seed_inj[m].values() if v == v]
+                seed_inj[m]["mean"] = sum(vals) / len(vals) if vals else float("nan")
+            inj_per_seed.append(seed_inj)
         print(
             f"seed={seed} steps={info['num_steps']} "
             + " ".join(f"{m}={per_seed[m][-1]['auroc']:.4f}" for m in MODEL_METHODS),
@@ -540,15 +605,28 @@ def run(
         if seed == seeds[0]:
             order = sorted(range(len(eval_set)), key=lambda i: scores["bpb_max_event"][i])
             inc = [i for i in order if eval_set[i].binary == 1]
+            def pick(title, i):
+                return (title, eval_set[i], scores["bpb_max_event"][i], all_toks[i], scored_texts[i])
+
             picks = (
-                [("Most surprising", eval_set[i], scores["bpb_max_event"][i], all_toks[i]) for i in order[::-1][:8]]
-                + [("Least surprising", eval_set[i], scores["bpb_max_event"][i], all_toks[i]) for i in order[:4]]
-                + [("Missed incident", eval_set[i], scores["bpb_max_event"][i], all_toks[i]) for i in inc[:6]]
+                [pick("Most surprising", i) for i in order[::-1][:8]]
+                + [pick("Least surprising", i) for i in order[:4]]
+                + [pick("Missed incident", i) for i in inc[:6]]
             )
             write_heatmap(out_dir / "heatmap-seed0.html", picks)
         del model
 
     results["train_info"] = train_info
+    if inject_n:
+        keys = list(inj_per_seed[0][MODEL_METHODS[0]])
+        results["injection"] = {
+            "n_clean": len(inj_clean_idx),
+            "n_corrupted": {k: len(v) for k, v in inj_corrupted.items()},
+            "auroc": {
+                m: {k: mean_std([sd[m][k] for sd in inj_per_seed]) for k in keys} for m in MODEL_METHODS
+            },
+            "per_seed": inj_per_seed,
+        }
     if sub_idx:
         for m in MODEL_METHODS:
             results["subset"]["auroc"][m] = mean_std(
@@ -603,7 +681,7 @@ def subset_report(capture: str, out_dir: Path, marker: str) -> dict[str, Any]:
 
     methods: dict[str, Any] = {}
     base = baseline_scores(
-        eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train)
+        eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train), min_lines(train)
     )
     for name, sc in base.items():
         sub_sc = [sc[i] for i in idx]
@@ -648,6 +726,19 @@ def render_markdown(r: dict[str, Any]) -> str:
             f"| {name} ({d['kind']}) | {_fmt(m['auroc'])} | {_fmt(m['pr_auc'])} | "
             f"{_fmt(m['precision_at_10'])} | " + " | ".join(_fmt(pc[c]) for c in caps) + " |"
         )
+    inj = r.get("injection")
+    if inj:
+        kinds = [k for k in next(iter(inj["auroc"].values())) if k != "mean"]
+        lines += [
+            "",
+            f"Injected faults ({inj['n_clean']} clean eval normals, one corrupted copy per type). "
+            "A label-free objective, not evidence of real detection.",
+            "",
+            "| Method | mean | " + " | ".join(kinds) + " |",
+            "|---|---|" + "---|" * len(kinds),
+        ]
+        for m, d in inj["auroc"].items():
+            lines.append(f"| {m} | {_fmt(d['mean'])} | " + " | ".join(_fmt(d[k]) for k in kinds) + " |")
     sub = r.get("subset")
     if sub:
         lines += [
@@ -667,6 +758,18 @@ def main(argv: list[str] | None = None) -> int:
     src = p.add_mutually_exclusive_group(required=True)
     src.add_argument("--capture", help="lab capture dir (temporal split per capture)")
     src.add_argument("--sessions", help="prepared session JSONL with a split field")
+    p.add_argument(
+        "--inject",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Also score corrupted copies of N eval normals (label-free objective, eval.inject)",
+    )
+    p.add_argument(
+        "--end-marker",
+        action="store_true",
+        help="Append an end-of-session marker line to every session (train and eval)",
+    )
     p.add_argument(
         "--train-chunk-lines",
         type=int,
@@ -692,13 +795,18 @@ def main(argv: list[str] | None = None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     if args.refresh_baselines:
         r = json.loads((out / "results.json").read_text(encoding="utf-8"))
-        sessions, _ = load_lab_sessions(args.capture)
-        _y, kept = filter_scorable(sessions)
-        capture_of = session_capture_ids(args.capture)
-        train, eval_set = temporal_split(kept, capture_of)
+        subset_ids: set[str] = set()
+        if args.sessions:
+            train, eval_set, capture_of, _meta = load_session_file(args.sessions)
+            subset_ids = _meta.get("subset_ids") or set()
+        else:
+            sessions, _ = load_lab_sessions(args.capture)
+            _y, kept = filter_scorable(sessions)
+            capture_of = session_capture_ids(args.capture)
+            train, eval_set = temporal_split(kept, capture_of)
         y = [int(s.binary) for s in eval_set]
         base = baseline_scores(
-            eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train)
+            eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train), min_lines(train)
         )
         models = {k: v for k, v in r["methods"].items() if v["kind"] == "model"}
         r["methods"] = {
@@ -709,6 +817,13 @@ def main(argv: list[str] | None = None) -> int:
             }
             for name, sc in base.items()
         } | models
+        if subset_ids and "subset" in r:
+            sub_idx = [i for i, s_ in enumerate(eval_set) if s_.session_id in subset_ids]
+            y_sub = [y[i] for i in sub_idx]
+            kept_models = {k: v for k, v in r["subset"]["auroc"].items() if k in MODEL_METHODS}
+            r["subset"]["auroc"] = {
+                name: auroc(y_sub, [sc[i] for i in sub_idx]) for name, sc in base.items()
+            } | kept_models
         (out / "results.json").write_text(json.dumps(r, indent=2) + "\n", encoding="utf-8")
         md = render_markdown(r)
         (out / "results.md").write_text(md, encoding="utf-8")
@@ -725,8 +840,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{name:16} {a:15} {caps}")
         print(f"subset n={r['n']} incidents={r['n_incident']}")
         return 0
-    if args.sessions and (args.refresh_baselines or args.subset_marker):
-        p.error("--refresh-baselines / --subset-marker need --capture")
+    if args.sessions and args.subset_marker:
+        p.error("--subset-marker needs --capture")
     r = run(
         args.capture,
         parse_seeds(args.seeds),
@@ -734,6 +849,8 @@ def main(argv: list[str] | None = None) -> int:
         out,
         sessions_file=args.sessions,
         train_chunk_lines=args.train_chunk_lines,
+        end_marker=args.end_marker,
+        inject_n=args.inject,
     )
     (out / "results.json").write_text(json.dumps(r, indent=2) + "\n", encoding="utf-8")
     md = render_markdown(r)

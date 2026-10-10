@@ -3,6 +3,8 @@
 > **claim_status=`published`** (2026-09-27).
 > On real Hadoop production logs, the model ranks anomalous blocks better than every hand-built check (AUROC 0.878 vs 0.822; PR-AUC 0.740 vs 0.605). At the best single threshold it's level with them (F1 0.787 vs 0.795). It is **not** state of the art on HDFS.
 
+> **Update (2026-10-09).** Two things changed after this page was written. An end-of-session marker lifts the model to 0.964–0.974 AUROC, and a simple "too short" rule added to the baselines lifts the best hand-built check to **0.977 / PR-AUC 0.833**. So the model now *matches* the best simple check on HDFS; the "ranks better than every hand-built check" statement below held only against the baselines that existed then. See [`end-of-session-marker.md`](end-of-session-marker.md).
+
 ## Data
 
 [LogHub HDFS_v1](https://github.com/logpai/loghub) (Xu et al., SOSP 2009; Zhu et al., ISSRE 2023; CC BY 4.0; [Zenodo](https://zenodo.org/records/8196385)). It's 11.2M log lines from a Hadoop cluster running benchmark workloads. 575,061 blocks are labelled Normal or Anomaly by the dataset authors' hand-crafted rules, and 2.93% are anomalous. One session = one block's log lines.

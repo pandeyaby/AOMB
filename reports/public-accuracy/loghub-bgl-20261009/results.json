@@ -1,0 +1,572 @@
+{
+  "protocol": "eval/in_domain.py (temporal split, train on normals only)",
+  "capture_id": "bgl_sessions",
+  "content_sha256": "e70abf326fabbb929be8b8487f33477559e18948258ecdfbf9aebc0827e99f09",
+  "git_head": "0fc33ebc1b981cd651c24aa3e8402253da8a058f",
+  "n_train_normal": 5000,
+  "n_eval": 10000,
+  "n_eval_normal": 9137,
+  "n_eval_incident": 863,
+  "train_seconds": 120.0,
+  "train_chunk_lines": 24,
+  "end_marker": true,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "methods": {
+    "length": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.6239217975985738,
+        "pr_auc": 0.11672681235310639,
+        "precision_at_10": 0.0,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.6239217975985738
+      }
+    },
+    "error_lines": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.9248961761551437,
+        "pr_auc": 0.3864408149951999,
+        "precision_at_10": 0.5,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.9248961761551437
+      }
+    },
+    "duration_z": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.0863,
+        "precision_at_10": 0.1,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.5
+      }
+    },
+    "rule": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.9248961761551437,
+        "pr_auc": 0.3864408149951999,
+        "precision_at_10": 0.5,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.9248961761551437
+      }
+    },
+    "novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.73304719925136,
+        "pr_auc": 0.15503640548127817,
+        "precision_at_10": 0.0,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.73304719925136
+      }
+    },
+    "heuristic": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.931950440006133,
+        "pr_auc": 0.4274081447532705,
+        "precision_at_10": 0.1,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.931950440006133
+      }
+    },
+    "value_novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.4837007311516936,
+        "pr_auc": 0.08527291395216828,
+        "precision_at_10": 0.0,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.4837007311516936
+      }
+    },
+    "value_rarity": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.8896534546673395,
+        "pr_auc": 0.3261204615862117,
+        "precision_at_10": 0.0,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.8896534546673395
+      }
+    },
+    "value_pair": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.4842986844646657,
+        "pr_auc": 0.08521460811203925,
+        "precision_at_10": 0.0,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.4842986844646657
+      }
+    },
+    "sequence_novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.7387545146109227,
+        "pr_auc": 0.1530956182366507,
+        "precision_at_10": 0.1,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.7387545146109227
+      }
+    },
+    "too_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.0863,
+        "precision_at_10": 0.1,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.8896534546673395,
+        "pr_auc": 0.3261204615862117,
+        "precision_at_10": 0.0,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "bgl": 0.8896534546673395
+      }
+    },
+    "bpb_mean": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7927707888329462,
+          "std": 0.01441126937601778,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.17244820889896434,
+          "std": 0.009552839970416643,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "bgl": {
+          "mean": 0.7927707888329462,
+          "std": 0.01441126937601778,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7975690249277415,
+          "pr_auc": 0.17625956419170383,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7671853874667718,
+          "pr_auc": 0.15540005000750906,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.8011936492412207,
+          "pr_auc": 0.17730566597332645,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.8006441409262456,
+          "pr_auc": 0.1758765537402572,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7972617416027508,
+          "pr_auc": 0.1773992105820251,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      ]
+    },
+    "bpb_content": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7996112732778532,
+          "std": 0.002629315339053815,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.17739512933391546,
+          "std": 0.002854663042117569,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "bgl": {
+          "mean": 0.7996112732778532,
+          "std": 0.002629315339053815,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7996110703668668,
+          "pr_auc": 0.17877719665927877,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7975271745368018,
+          "pr_auc": 0.17477586138317314,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.8037477912822085,
+          "pr_auc": 0.18013768486049753,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7971545792380718,
+          "pr_auc": 0.17388826669157112,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.8000157509653173,
+          "pr_auc": 0.17939663707505682,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      ]
+    },
+    "bpb_max_event": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.778579929998246,
+          "std": 0.009288197276306248,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.15991518238232555,
+          "std": 0.0047658213972996575,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.04,
+          "std": 0.05477225575051661,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "bgl": {
+          "mean": 0.778579929998246,
+          "std": 0.009288197276306248,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.77399964566669,
+          "pr_auc": 0.15725358883976134,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7649288904789219,
+          "pr_auc": 0.15299230730912566,
+          "precision_at_10": 0.1,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7836944789569259,
+          "pr_auc": 0.16332015741458863,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7815627722256964,
+          "pr_auc": 0.1613994682660679,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7887138626629961,
+          "pr_auc": 0.16461039008208425,
+          "precision_at_10": 0.1,
+          "n": 10000
+        }
+      ]
+    },
+    "bpb_top10": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.813833557951568,
+          "std": 0.019275541187550163,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.20288989897869678,
+          "std": 0.024651874568929748,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "bgl": {
+          "mean": 0.813833557951568,
+          "std": 0.019275541187550163,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.8367673692755482,
+          "pr_auc": 0.2341851070719543,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7938051529498629,
+          "pr_auc": 0.17664955875781727,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.8235980658017501,
+          "pr_auc": 0.21597036872144856,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7936515746970507,
+          "pr_auc": 0.17920425748948468,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.8213456270336278,
+          "pr_auc": 0.208440202852779,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      ]
+    },
+    "bits_max_field": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.6888361292142234,
+          "std": 0.04839831673772049,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.12579367897159469,
+          "std": 0.015220475130877138,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.48,
+          "std": 0.04472135954999579,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "bgl": {
+          "mean": 0.6888361292142234,
+          "std": 0.04839831673772049,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.652378097737403,
+          "pr_auc": 0.1142567867165131,
+          "precision_at_10": 0.5,
+          "n": 10000
+        },
+        {
+          "auroc": 0.6254727350409899,
+          "pr_auc": 0.1065893498411239,
+          "precision_at_10": 0.4,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7425097628718803,
+          "pr_auc": 0.14424439448394194,
+          "precision_at_10": 0.5,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7182271514937228,
+          "pr_auc": 0.1340351359004856,
+          "precision_at_10": 0.5,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7055928989271208,
+          "pr_auc": 0.1298427279159089,
+          "precision_at_10": 0.5,
+          "n": 10000
+        }
+      ]
+    },
+    "bits_end": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7320113513478552,
+          "std": 0.11904703124217318,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.15966587258438747,
+          "std": 0.05160268195443903,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "bgl": {
+          "mean": 0.7320113513478552,
+          "std": 0.11904703124217318,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7877374803604359,
+          "pr_auc": 0.1652639788496045,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.5281888380949145,
+          "pr_auc": 0.08197083454839875,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.8061427750182588,
+          "pr_auc": 0.20107306539379136,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.8126337706530095,
+          "pr_auc": 0.20963734856412033,
+          "precision_at_10": 0.0,
+          "n": 10000
+        },
+        {
+          "auroc": 0.7253538926126578,
+          "pr_auc": 0.14038413556602244,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      ]
+    }
+  },
+  "train_info": [
+    {
+      "seed": 0,
+      "num_steps": 535,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 2240,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 1,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 1,
+      "num_steps": 529,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 2240,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 1,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 2,
+      "num_steps": 529,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 2240,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 1,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 3,
+      "num_steps": 531,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 2240,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 1,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 4,
+      "num_steps": 515,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 2240,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 1,
+      "device_batch_size": 8
+    }
+  ]
+}
