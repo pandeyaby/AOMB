@@ -426,6 +426,88 @@
         "re3tt_ts-route-service_f4_3": 0.5416666666666666
       }
     },
+    "too_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.5,
+        "precision_at_10": 0.0,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.5,
+        "re3tt_ts-auth-service_f1_2": 0.5,
+        "re3tt_ts-auth-service_f1_3": 0.5,
+        "re3tt_ts-auth-service_f1_4": 0.5,
+        "re3tt_ts-auth-service_f2_1": 0.5,
+        "re3tt_ts-auth-service_f2_2": 0.5,
+        "re3tt_ts-auth-service_f2_3": 0.5,
+        "re3tt_ts-auth-service_f2_4": 0.5,
+        "re3tt_ts-auth-service_f3_1": 0.5,
+        "re3tt_ts-auth-service_f3_2": 0.5,
+        "re3tt_ts-auth-service_f3_3": 0.5,
+        "re3tt_ts-auth-service_f3_4": 0.5,
+        "re3tt_ts-auth-service_f4_1": 0.5,
+        "re3tt_ts-auth-service_f4_2": 0.5,
+        "re3tt_ts-auth-service_f4_3": 0.5,
+        "re3tt_ts-route-service_f1_1": 0.5,
+        "re3tt_ts-route-service_f1_2": 0.5,
+        "re3tt_ts-route-service_f1_3": 0.5,
+        "re3tt_ts-route-service_f2_1": 0.5,
+        "re3tt_ts-route-service_f2_2": 0.5,
+        "re3tt_ts-route-service_f2_3": 0.5,
+        "re3tt_ts-route-service_f3_1": 0.5,
+        "re3tt_ts-route-service_f3_2": 0.5,
+        "re3tt_ts-route-service_f3_3": 0.5,
+        "re3tt_ts-route-service_f3_4": 0.5,
+        "re3tt_ts-route-service_f3_5": 0.5,
+        "re3tt_ts-route-service_f3_6": 0.5,
+        "re3tt_ts-route-service_f4_1": 0.5,
+        "re3tt_ts-route-service_f4_2": 0.5,
+        "re3tt_ts-route-service_f4_3": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.5,
+        "precision_at_10": 0.0,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.5,
+        "re3tt_ts-auth-service_f1_2": 0.5,
+        "re3tt_ts-auth-service_f1_3": 0.5,
+        "re3tt_ts-auth-service_f1_4": 0.5,
+        "re3tt_ts-auth-service_f2_1": 0.5,
+        "re3tt_ts-auth-service_f2_2": 0.5,
+        "re3tt_ts-auth-service_f2_3": 0.5,
+        "re3tt_ts-auth-service_f2_4": 0.5,
+        "re3tt_ts-auth-service_f3_1": 0.5,
+        "re3tt_ts-auth-service_f3_2": 0.5,
+        "re3tt_ts-auth-service_f3_3": 0.5,
+        "re3tt_ts-auth-service_f3_4": 0.5,
+        "re3tt_ts-auth-service_f4_1": 0.5,
+        "re3tt_ts-auth-service_f4_2": 0.5,
+        "re3tt_ts-auth-service_f4_3": 0.5,
+        "re3tt_ts-route-service_f1_1": 0.5,
+        "re3tt_ts-route-service_f1_2": 0.5,
+        "re3tt_ts-route-service_f1_3": 0.5,
+        "re3tt_ts-route-service_f2_1": 0.5,
+        "re3tt_ts-route-service_f2_2": 0.5,
+        "re3tt_ts-route-service_f2_3": 0.5,
+        "re3tt_ts-route-service_f3_1": 0.5,
+        "re3tt_ts-route-service_f3_2": 0.5,
+        "re3tt_ts-route-service_f3_3": 0.5,
+        "re3tt_ts-route-service_f3_4": 0.5,
+        "re3tt_ts-route-service_f3_5": 0.5,
+        "re3tt_ts-route-service_f3_6": 0.5,
+        "re3tt_ts-route-service_f4_1": 0.5,
+        "re3tt_ts-route-service_f4_2": 0.5,
+        "re3tt_ts-route-service_f4_3": 0.5
+      }
+    },
     "bpb_mean": {
       "kind": "model",
       "metrics": {
@@ -1594,6 +1676,8 @@
       "value_rarity": 0.5,
       "value_pair": 0.5,
       "sequence_novelty": 0.8258225352491116,
+      "too_short": 0.5,
+      "rarity_or_short": 0.5,
       "bpb_mean": {
         "mean": 0.7647053225766726,
         "std": 0.0014348391431933483,

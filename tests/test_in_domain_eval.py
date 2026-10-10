@@ -122,6 +122,23 @@ class TestValueBaselines(unittest.TestCase):
         self.assertGreater(rare[1], normal[1])  # v2 is rarer than v1
 
 
+class TestShortnessBaseline(unittest.TestCase):
+    def test_too_short_flags_only_sessions_under_half_the_training_minimum(self):
+        from eval.in_domain import min_lines
+
+        line = _span(1, "GET", 5)
+        train = [_sess(f"n{i}", "normal", "\n".join([line] * k)) for i, k in enumerate((10, 12, 14))]
+        self.assertEqual(min_lines(train), 10)
+        ev = [
+            _sess("full", "normal", "\n".join([line] * 11)),
+            _sess("half", "normal", "\n".join([line] * 5)),   # exactly half: not flagged
+            _sess("cut", "incident", "\n".join([line] * 4)),
+        ]
+        sc = baseline_scores(ev, fit_duration_stats(train), fit_novelty(train), ValueStats(train), min_lines(train))
+        self.assertEqual(sc["too_short"], [0.0, 0.0, 1.0])
+        self.assertGreater(sc["rarity_or_short"][2], max(sc["rarity_or_short"][:2]))
+
+
 class TestSessionFiles(unittest.TestCase):
     def test_load_session_file_split_and_sequence_novelty(self):
         import json

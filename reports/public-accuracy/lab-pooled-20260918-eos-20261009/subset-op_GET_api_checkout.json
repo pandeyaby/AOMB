@@ -113,6 +113,28 @@
         "20260918T052749Z-kill_redis": 1.0
       }
     },
+    "too_short": {
+      "kind": "baseline",
+      "auroc": 0.5,
+      "per_capture_auroc": {
+        "20260911T183259Z": 0.5,
+        "20260918T052312Z-latency": 0.5,
+        "20260918T052510Z-errors": 0.5,
+        "20260918T052553Z-both": 0.5,
+        "20260918T052749Z-kill_redis": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "auroc": 0.6819444444444445,
+      "per_capture_auroc": {
+        "20260911T183259Z": 0.5,
+        "20260918T052312Z-latency": 0.5,
+        "20260918T052510Z-errors": 0.64375,
+        "20260918T052553Z-both": 0.675,
+        "20260918T052749Z-kill_redis": 1.0
+      }
+    },
     "bpb_mean": {
       "kind": "model",
       "auroc": {

@@ -14,6 +14,8 @@ Train: 5000 earlier normal sessions (no incidents). Eval: 9729 later normals + 2
 | value_rarity (baseline) | 0.822 | 0.605 | 0.900 | 0.822 |
 | value_pair (baseline) | 0.791 | 0.580 | 1.000 | 0.791 |
 | sequence_novelty (baseline) | 0.531 | 0.029 | 0.000 | 0.531 |
+| too_short (baseline) | 0.677 | 0.372 | 1.000 | 0.677 |
+| rarity_or_short (baseline) | 0.977 | 0.833 | 1.000 | 0.977 |
 | bpb_mean (model) | 0.775 ± 0.040 | 0.421 ± 0.034 | 1.000 ± 0.000 | 0.775 ± 0.040 |
 | bpb_content (model) | 0.974 ± 0.006 | 0.639 ± 0.054 | 1.000 ± 0.000 | 0.974 ± 0.006 |
 | bpb_max_event (model) | 0.963 ± 0.015 | 0.785 ± 0.040 | 1.000 ± 0.000 | 0.963 ± 0.015 |

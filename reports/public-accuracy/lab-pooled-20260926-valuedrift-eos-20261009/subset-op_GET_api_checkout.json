@@ -93,6 +93,24 @@
         "20260926-region_new": 0.5
       }
     },
+    "too_short": {
+      "kind": "baseline",
+      "auroc": 0.5,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "auroc": 0.7917273831208257,
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.49275956284153005,
+        "20260926-pricing_flip": 0.8855191256830601,
+        "20260926-region_new": 1.0
+      }
+    },
     "bpb_mean": {
       "kind": "model",
       "auroc": {

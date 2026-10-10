@@ -103,6 +103,26 @@
         "20260925v2-skip_cache": 1.0
       }
     },
+    "too_short": {
+      "kind": "baseline",
+      "auroc": 0.5,
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.5,
+        "20260925v2-retry_storm": 0.5,
+        "20260925v2-silent_fallback": 0.5,
+        "20260925v2-skip_cache": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "auroc": 0.75,
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 1.0,
+        "20260925v2-retry_storm": 0.5,
+        "20260925v2-silent_fallback": 1.0,
+        "20260925v2-skip_cache": 0.5
+      }
+    },
     "bpb_mean": {
       "kind": "model",
       "auroc": {

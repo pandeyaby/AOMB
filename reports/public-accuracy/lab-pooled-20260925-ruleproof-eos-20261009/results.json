@@ -168,6 +168,36 @@
         "20260925v2-skip_cache": 0.6273291925465838
       }
     },
+    "too_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.6625514403292181,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.5,
+        "20260925v2-retry_storm": 0.5,
+        "20260925v2-silent_fallback": 0.5,
+        "20260925v2-skip_cache": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5796091501287683,
+        "pr_auc": 0.7306056508057139,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.6576276321769429,
+        "20260925v2-retry_storm": 0.5015906680805938,
+        "20260925v2-silent_fallback": 0.6576276321769429,
+        "20260925v2-skip_cache": 0.5015906680805938
+      }
+    },
     "bpb_mean": {
       "kind": "model",
       "metrics": {

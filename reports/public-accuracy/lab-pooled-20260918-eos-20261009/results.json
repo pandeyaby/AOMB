@@ -178,6 +178,38 @@
         "20260918T052749Z-kill_redis": 0.625
       }
     },
+    "too_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.6642134314627415,
+        "precision_at_10": 1.0,
+        "n": 2174
+      },
+      "per_capture_auroc": {
+        "20260911T183259Z": 0.5,
+        "20260918T052312Z-latency": 0.5,
+        "20260918T052510Z-errors": 0.5,
+        "20260918T052553Z-both": 0.5,
+        "20260918T052749Z-kill_redis": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.6143987401813835,
+        "pr_auc": 0.7655501912526617,
+        "precision_at_10": 1.0,
+        "n": 2174
+      },
+      "per_capture_auroc": {
+        "20260911T183259Z": 0.5015906680805938,
+        "20260918T052312Z-latency": 0.500788431214184,
+        "20260918T052510Z-errors": 0.6372927964309065,
+        "20260918T052553Z-both": 0.6579650782662205,
+        "20260918T052749Z-kill_redis": 0.7183641975308642
+      }
+    },
     "bpb_mean": {
       "kind": "model",
       "metrics": {

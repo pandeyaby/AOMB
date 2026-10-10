@@ -158,6 +158,34 @@
         "20260926-region_new": 0.501039501039501
       }
     },
+    "too_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.665283540802213,
+        "precision_at_10": 1.0,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.5,
+        "20260926-pricing_flip": 0.5,
+        "20260926-region_new": 0.5
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5862279953189045,
+        "pr_auc": 0.7398074764716602,
+        "precision_at_10": 1.0,
+        "n": 2169
+      },
+      "per_capture_auroc": {
+        "20260926-currency_swap": 0.49812717994536176,
+        "20260926-pricing_flip": 0.6205391659937114,
+        "20260926-region_new": 0.6402123674850948
+      }
+    },
     "bpb_mean": {
       "kind": "model",
       "metrics": {

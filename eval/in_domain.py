@@ -27,6 +27,9 @@ Methods compared on the identical eval set:
                       (the check you'd only write if you anticipated the fault)
 - ``sequence_novelty`` session's multiset of events (ops + log templates) never seen in
                       training (the classic event-count-vector check on log benchmarks)
+- ``too_short``       session has fewer than half as many lines as the shortest training
+                      session (a request or block that stopped early)
+- ``rarity_or_short`` ``too_short`` first, then ``value_rarity``
 
 Inputs: a lab capture dir (``--capture``, temporal split per capture) or a prepared
 session file (``--sessions``, JSONL with session_id / label / split / group / text,
@@ -90,6 +93,7 @@ END_MARKER = "[end_of_session]"
 BASELINE_METHODS = (
     "length", "error_lines", "duration_z", "rule", "novelty", "heuristic",
     "value_novelty", "value_rarity", "value_pair", "sequence_novelty",
+    "too_short", "rarity_or_short",
 )
 
 
@@ -269,11 +273,16 @@ def fit_novelty(train: Sequence[LabeledSession]) -> tuple[set, set, set, set]:
     return ops, templates, shapes, sequences
 
 
+def min_lines(train: Sequence[LabeledSession]) -> int:
+    return min((s.text.count("\n") + 1 for s in train), default=0)
+
+
 def baseline_scores(
     sessions: Sequence[LabeledSession],
     stats: dict[tuple[str, str], tuple[float, float]],
     seen: tuple[set, ...] = (set(), set(), set(), set()),
     values: "ValueStats | None" = None,
+    min_train_lines: int = 0,
 ) -> dict[str, list[float]]:
     seen_ops, seen_templates, seen_shapes = seen[:3]
     seen_sequences = seen[3] if len(seen) > 3 else set()
@@ -299,6 +308,9 @@ def baseline_scores(
         out["value_rarity"].append(vr)
         out["value_pair"].append(vp)
         out["sequence_novelty"].append(float(event_multiset(s.text) not in seen_sequences))
+        short = float((s.text.count("\n") + 1) < min_train_lines / 2)
+        out["too_short"].append(short)
+        out["rarity_or_short"].append(short * 1000.0 + vr)
     return out
 
 
@@ -516,7 +528,7 @@ def run(
     stats = fit_duration_stats(train)
     seen = fit_novelty(train)
     values = ValueStats(train)
-    for name, sc in baseline_scores(eval_set, stats, seen, values).items():
+    for name, sc in baseline_scores(eval_set, stats, seen, values, min_lines(train)).items():
         if sub_idx:
             results["subset"]["auroc"][name] = auroc(y_sub, [sc[i] for i in sub_idx])
         results["methods"][name] = {
@@ -669,7 +681,7 @@ def subset_report(capture: str, out_dir: Path, marker: str) -> dict[str, Any]:
 
     methods: dict[str, Any] = {}
     base = baseline_scores(
-        eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train)
+        eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train), min_lines(train)
     )
     for name, sc in base.items():
         sub_sc = [sc[i] for i in idx]
@@ -783,13 +795,18 @@ def main(argv: list[str] | None = None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     if args.refresh_baselines:
         r = json.loads((out / "results.json").read_text(encoding="utf-8"))
-        sessions, _ = load_lab_sessions(args.capture)
-        _y, kept = filter_scorable(sessions)
-        capture_of = session_capture_ids(args.capture)
-        train, eval_set = temporal_split(kept, capture_of)
+        subset_ids: set[str] = set()
+        if args.sessions:
+            train, eval_set, capture_of, _meta = load_session_file(args.sessions)
+            subset_ids = _meta.get("subset_ids") or set()
+        else:
+            sessions, _ = load_lab_sessions(args.capture)
+            _y, kept = filter_scorable(sessions)
+            capture_of = session_capture_ids(args.capture)
+            train, eval_set = temporal_split(kept, capture_of)
         y = [int(s.binary) for s in eval_set]
         base = baseline_scores(
-            eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train)
+            eval_set, fit_duration_stats(train), fit_novelty(train), ValueStats(train), min_lines(train)
         )
         models = {k: v for k, v in r["methods"].items() if v["kind"] == "model"}
         r["methods"] = {
@@ -800,6 +817,13 @@ def main(argv: list[str] | None = None) -> int:
             }
             for name, sc in base.items()
         } | models
+        if subset_ids and "subset" in r:
+            sub_idx = [i for i, s_ in enumerate(eval_set) if s_.session_id in subset_ids]
+            y_sub = [y[i] for i in sub_idx]
+            kept_models = {k: v for k, v in r["subset"]["auroc"].items() if k in MODEL_METHODS}
+            r["subset"]["auroc"] = {
+                name: auroc(y_sub, [sc[i] for i in sub_idx]) for name, sc in base.items()
+            } | kept_models
         (out / "results.json").write_text(json.dumps(r, indent=2) + "\n", encoding="utf-8")
         md = render_markdown(r)
         (out / "results.md").write_text(md, encoding="utf-8")
@@ -816,8 +840,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{name:16} {a:15} {caps}")
         print(f"subset n={r['n']} incidents={r['n_incident']}")
         return 0
-    if args.sessions and (args.refresh_baselines or args.subset_marker):
-        p.error("--refresh-baselines / --subset-marker need --capture")
+    if args.sessions and args.subset_marker:
+        p.error("--subset-marker needs --capture")
     r = run(
         args.capture,
         parse_seeds(args.seeds),

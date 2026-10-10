@@ -138,6 +138,30 @@
         "hdfs_v1": 0.5307842532634393
       }
     },
+    "too_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.6771217712177122,
+        "pr_auc": 0.37174354243542435,
+        "precision_at_10": 1.0,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "hdfs_v1": 0.6771217712177122
+      }
+    },
+    "rarity_or_short": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.977231118287131,
+        "pr_auc": 0.833451647104322,
+        "precision_at_10": 1.0,
+        "n": 10000
+      },
+      "per_capture_auroc": {
+        "hdfs_v1": 0.977231118287131
+      }
+    },
     "bpb_mean": {
       "kind": "model",
       "metrics": {
