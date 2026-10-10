@@ -16,7 +16,7 @@ The model isn't tuned by hand. An LLM agent (Claude) runs the research loop over
 
 It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.com/karpathy/autoresearch), via [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos).
 
-> **Status: research prototype.** On real data (LogHub HDFS, RCAEval) and in the lab, one model with no rules written lands within a few points of the best hand-built check on every dataset (ahead on some, behind on others), wins no individual fault type, and is well short of specialised published detectors. The overnight agent's reported training improvements were a measurement artifact and are withdrawn ([audit](docs/val-bpb-audit.md)). See [Results](#results-so-far).
+> **Status: research prototype.** With one scoring rule fixed in advance, the model beats the best simple hand-built check on one of seven datasets, is within 0.03 on three, and loses three, including the pre-registered test on LogHub BGL. It's well short of specialised published detectors. The overnight agent's reported training improvements were a measurement artifact and are withdrawn ([audit](docs/val-bpb-audit.md)). See [Results](#results-so-far).
 
 ---
 
@@ -24,14 +24,15 @@ It's a domain-specific fork of [Andrej Karpathy's autoresearch](https://github.c
 
 ### Detection on real data
 
-Two public datasets the project didn't create, each compared against the hand-built checks an SRE would write:
+Three public datasets the project didn't create. The model uses **one scoring rule, fixed in advance** ([pre-registration](docs/real-data/scoring-rule-preregistration.md)) and is compared against the best hand-built check an SRE would write. AUROC:
 
-| Dataset | Best hand-built check | AOMB | Verdict |
-|---------|-----------------------|------|---------|
-| [LogHub HDFS_v1](docs/real-data/loghub-hdfs.md): real Hadoop logs, 10,000 blocks, 2.7% anomalous | value rarity: AUROC 0.822, PR-AUC 0.605, best F1 0.795 | AUROC **0.878**, PR-AUC **0.740**, best F1 0.787 | Ranks better; level at a single threshold; well short of published HDFS detectors |
-| [RCAEval RE3](docs/real-data/rcaeval-re3.md): 60 code-level faults designed by other researchers | trace-shape novelty: 0.952 (Online Boutique), 0.882 (Train Ticket) | 0.928, **0.887** | Level with a structural check, not better |
+| Dataset | Best hand-built check | AOMB (fixed rule) | Verdict |
+|---------|-----------------------|-------------------|---------|
+| [LogHub BGL](docs/real-data/loghub-bgl.md): supercomputer logs, 10,000 windows. **The pre-registered test: the rule was fixed before any model saw this data** | **0.932** severity count + novelty | 0.814 | **Lost.** Alerts are bursts of high-severity lines, which a count catches directly |
+| [LogHub HDFS_v1](docs/real-data/loghub-hdfs.md): real Hadoop logs, 10,000 blocks | **0.977** value rarity + too-short rule | 0.964 | Level. An [end-of-session marker](docs/real-data/end-of-session-marker.md) fixed the model's misses on blocks that stop early |
+| [RCAEval RE3](docs/real-data/rcaeval-re3.md): code-level faults designed by other researchers, traces through the faulted service | **0.952** / **0.882** trace-shape novelty (Online Boutique / Train Ticket) | 0.927 / 0.860 | Slightly behind a structural check |
 
-AOMB numbers are the best model scoring variant for each dataset, and the best variant differs between datasets. That selection flatters the model: with one score fixed in advance, it loses clearly on Online Boutique. Details and caveats are in each write-up.
+Across these and the three lab views below, the fixed rule beats the best simple check on one of seven datasets (the lab's rule-proof faults), is within 0.03 on three, and loses three. The model helps where a fault changes structure or content without changing severity, error codes or latency. Where those already carry the signal, simple checks are better.
 
 ### Detection in the lab
 
@@ -61,7 +62,7 @@ The model is the best *single* detector: one model with no fault-specific rules 
 
 **3. Subtler value drift inside a log line.** The model catches a never-seen value (1.00), partly catches a wrong *pairing* of familiar values (0.77), and mostly misses a *frequency* shift (0.63). Simple value checks beat it on each fault, and narrowly on the pooled set (0.83 vs 0.81).
 
-**Scoring matters as much as the model.** Taking the single most surprising *field value* in a session, rather than averaging surprise over it, improved every lab: error/latency 0.74 → 0.79, rule-proof 0.94 → 0.96, value drift 0.72 → 0.81.
+**Scoring matters as much as the model.** Taking the single most surprising *field value* in a session, rather than averaging surprise over it, improved every lab: error/latency 0.74 → 0.79, rule-proof 0.94 → 0.96, value drift 0.72 → 0.81. (These lab tables show the best scoring variant per lab, as measured before one rule was fixed; the fixed rule's numbers are in the [end-of-session write-up](docs/real-data/end-of-session-marker.md).)
 
 **Better compression helps, modestly.** In a training-length sweep, held-out BPB fell 44% and detection AUROC rose from 0.72 to 0.75. The effect is small, but it goes the direction the agent loop assumes.
 
