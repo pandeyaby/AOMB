@@ -38,11 +38,16 @@ def read_texts(path: Path, split: str | None) -> list[str]:
     return texts
 
 
-def write(train_path: Path, val_path: Path, data_dir: Path, num_train_shards: int) -> dict:
+def write(
+    train_path: Path, val_path: Path, data_dir: Path, num_train_shards: int, end_marker: str | None = None
+) -> dict:
     if data_dir.exists() and any(data_dir.glob("shard_*.parquet")):
         raise SystemExit(f"Refusing: {data_dir} already has shards. Move them aside first.")
     train = read_texts(train_path, "train")
     val = read_texts(val_path, None)
+    if end_marker:  # every document ends with the marker, as it will when scored
+        train = [t + "\n" + end_marker for t in train]
+        val = [t + "\n" + end_marker for t in val]
     per_shard = -(-len(train) // num_train_shards)
     written = [
         write_parquet_shard(i, docs, str(data_dir)) for i, docs in enumerate(chunked(train, per_shard))
@@ -57,8 +62,14 @@ def main() -> int:
     p.add_argument("--val", required=True)
     p.add_argument("--data-dir", required=True)
     p.add_argument("--num-train-shards", type=int, default=8)
+    p.add_argument("--end-marker", action="store_true", help="append the end-of-session marker to every document")
     a = p.parse_args()
-    out = write(Path(a.train).expanduser(), Path(a.val).expanduser(), Path(a.data_dir).expanduser(), a.num_train_shards)
+    marker = None
+    if a.end_marker:
+        from eval.in_domain import END_MARKER as marker
+    out = write(
+        Path(a.train).expanduser(), Path(a.val).expanduser(), Path(a.data_dir).expanduser(), a.num_train_shards, marker
+    )
     print(json.dumps(out, indent=2))
     return 0
 

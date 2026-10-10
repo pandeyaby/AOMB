@@ -101,6 +101,46 @@ class TestSdkCall(unittest.TestCase):
         self.assertNotIn("fallbacks", _FakeAnthropic.last_kwargs)
 
 
+class TestInjectObjective(unittest.TestCase):
+    def test_parse_takes_the_final_inject_auroc_line(self):
+        out = "inject_truncate: 0.9\ninject_auroc:     0.612345\nnoise\ninject_auroc: 0.700000\n"
+        self.assertEqual(agent_loop.parse_inject_auroc(out), 0.7)
+        self.assertIsNone(agent_loop.parse_inject_auroc("val_bpb: 0.3\n"))
+
+    def test_improvement_direction_and_margin(self):
+        with mock.patch.object(agent_loop, "OBJECTIVE", "inject"), mock.patch.object(agent_loop, "MIN_DELTA", 0.01):
+            self.assertTrue(agent_loop.is_improvement(0.72, 0.70))
+            self.assertFalse(agent_loop.is_improvement(0.705, 0.70))  # inside the noise margin
+            self.assertFalse(agent_loop.is_improvement(0.60, 0.70))
+        with mock.patch.object(agent_loop, "OBJECTIVE", "val_bpb"), mock.patch.object(agent_loop, "MIN_DELTA", 0.0):
+            self.assertTrue(agent_loop.is_improvement(0.30, 0.31))
+            self.assertFalse(agent_loop.is_improvement(0.32, 0.31))
+
+    def test_best_inject_from_env_then_git_subjects(self):
+        with mock.patch.dict(os.environ, {"AOMB_BEST_INJECT_AUROC": "0.61"}):
+            self.assertEqual(agent_loop.get_best_inject_auroc(), 0.61)
+        env = {k: v for k, v in os.environ.items() if k != "AOMB_BEST_INJECT_AUROC"}
+        log = "[inject_auroc=0.6400] [Δ=+0.0200] [val_bpb=0.31] [change: x]\n[val_bpb=0.30] old\n[inject_auroc=0.6200] y"
+        with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(agent_loop, "git", return_value=log):
+            self.assertEqual(agent_loop.get_best_inject_auroc(), 0.64)
+
+    def test_commit_subject_leads_with_the_kept_metric(self):
+        with mock.patch.object(agent_loop, "git") as git:
+            agent_loop.commit_experiment(3, 0.31, 0.60, "wider model", inject_auroc=0.65)
+        msg = git.call_args_list[-1].args[2]
+        self.assertTrue(msg.startswith("[inject_auroc=0.6500] [Δ=+0.0500] [val_bpb=0.3100] [change: wider model]"))
+
+    def test_prompt_states_the_objective(self):
+        with mock.patch.object(agent_loop, "OBJECTIVE", "inject"), \
+             mock.patch.object(agent_loop, "get_best_inject_auroc", return_value=0.61), \
+             mock.patch.object(agent_loop, "get_best_val_bpb", return_value=0.3), \
+             mock.patch.object(agent_loop, "get_recent_experiments", return_value="none"):
+            prompt = agent_loop._build_prompt(1)
+        self.assertIn("inject_auroc (HIGHER is better)", prompt)
+        self.assertIn("Best inject_auroc so far: 0.6100", prompt)
+        self.assertNotIn("Best val_bpb so far", prompt)
+
+
 class TestShards(unittest.TestCase):
     def _jsonl(self, d: Path, name: str, rows: list[dict]) -> Path:
         p = d / name
