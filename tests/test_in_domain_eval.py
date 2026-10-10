@@ -159,6 +159,21 @@ class TestSessionFiles(unittest.TestCase):
             with self.assertRaises(ValueError):
                 load_session_file(f)
 
+    def test_end_marker_lands_only_on_the_last_chunk_and_is_scored(self):
+        from eval.in_domain import END_MARKER
+
+        text = "\n".join(f"l{i}" for i in range(5))
+        chunks = chunk_lines([text], 4, END_MARKER)
+        self.assertEqual(sum(END_MARKER in c for c in chunks), 1)
+        self.assertTrue(chunks[-1].endswith(END_MARKER))
+        self.assertEqual(chunk_lines([text], None, END_MARKER), [text + "\n" + END_MARKER])
+
+        scored = _span(1, "GET", 5) + "\n" + END_MARKER
+        toks = [(c, 2.0 if i >= len(scored) - len(END_MARKER) else 0.5, 1) for i, c in enumerate(scored)]
+        out = model_scores_for(toks, scored)
+        self.assertAlmostEqual(out["bits_end"], len(END_MARKER) * 2.0 / math.log(2))
+        self.assertEqual(model_scores_for(toks[: -len(END_MARKER)], _span(1, "GET", 5) + "\n")["bits_end"], 0.0)
+
     def test_chunk_lines_keeps_every_line(self):
         text = "\n".join(f"l{i}" for i in range(10))
         chunks = chunk_lines([text], 4)

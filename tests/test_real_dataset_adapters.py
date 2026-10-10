@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 from corpus.ingest.loghub_hdfs import render, select_blocks
+from corpus.ingest.loghub_bgl import render as bgl_render
 from corpus.ingest.rcaeval import normalise, render_trace
 from eval.in_domain import _noise_mask
 
@@ -35,6 +36,34 @@ class TestHdfsAdapter(unittest.TestCase):
         train, ev = select_blocks(labels, n_train=2, n_eval=10, seed=0)
         self.assertEqual(train, ["b0", "b2"])
         self.assertEqual(sorted(ev), ["b3", "b4"])  # strictly after the last training block
+
+
+class TestBglAdapter(unittest.TestCase):
+    NODE = "R30-M0-N9-C:J16-U01"
+
+    def _line(self, label, level, msg):
+        return f"{label} 1118536327 2005.06.11 {self.NODE} 2005-06-11-17.32.07.581048 {self.NODE} RAS KERNEL {level} {msg}".rstrip()
+
+    def test_label_column_never_reaches_the_text(self):
+        is_alert, text = bgl_render(self._line("KERNDTLB", "FATAL", "data TLB error interrupt"))
+        self.assertTrue(is_alert)
+        self.assertNotIn("KERNDTLB", text)
+        self.assertEqual(text, "[ts=1118536327] [src=OTelLog] level=FATAL svc=RAS.KERNEL msg=data_TLB_error_interrupt")
+
+    def test_identifiers_are_masked_and_empty_messages_kept(self):
+        _, text = bgl_render(self._line("-", "INFO", f"63543 exceptions at 0x00544eb8 on {self.NODE}"))
+        self.assertIn("msg=NUM_exceptions_at_HEX_on_NODE", text)
+        is_alert, empty = bgl_render(self._line("-", "FATAL", ""))
+        self.assertFalse(is_alert)
+        self.assertTrue(empty.endswith("level=FATAL svc=RAS.KERNEL msg=empty"))
+
+    def test_severity_rule_counts_bgl_levels(self):
+        from eval.in_domain import _ERROR
+
+        _, fatal = bgl_render(self._line("-", "FATAL", "x"))
+        _, info = bgl_render(self._line("-", "INFO", "x"))
+        self.assertEqual(len(_ERROR.findall(fatal)), 1)
+        self.assertEqual(len(_ERROR.findall(info)), 0)
 
 
 class TestRcaevalAdapter(unittest.TestCase):
