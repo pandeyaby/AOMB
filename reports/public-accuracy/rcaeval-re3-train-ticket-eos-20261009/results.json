@@ -1,0 +1,1661 @@
+{
+  "protocol": "eval/in_domain.py (temporal split, train on normals only)",
+  "capture_id": "re3_train-ticket",
+  "content_sha256": "a7956fd18dee45cf0cd13466449c260c6f6b7c4af8c759f4d86a69390e2ae783",
+  "git_head": "1f77d4a72a4957f4c81b9bc34e326798d03f4bde",
+  "n_train_normal": 1800,
+  "n_eval": 3600,
+  "n_eval_normal": 1800,
+  "n_eval_incident": 1800,
+  "train_seconds": 120.0,
+  "train_chunk_lines": 24,
+  "end_marker": true,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "methods": {
+    "length": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.34692253086419755,
+        "pr_auc": 0.4307531455951925,
+        "precision_at_10": 0.7,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.11375,
+        "re3tt_ts-auth-service_f1_2": 0.08152777777777778,
+        "re3tt_ts-auth-service_f1_3": 0.05472222222222222,
+        "re3tt_ts-auth-service_f1_4": 0.06986111111111111,
+        "re3tt_ts-auth-service_f2_1": 0.07180555555555555,
+        "re3tt_ts-auth-service_f2_2": 0.06291666666666666,
+        "re3tt_ts-auth-service_f2_3": 0.07402777777777778,
+        "re3tt_ts-auth-service_f2_4": 0.09333333333333334,
+        "re3tt_ts-auth-service_f3_1": 0.21194444444444444,
+        "re3tt_ts-auth-service_f3_2": 0.16875,
+        "re3tt_ts-auth-service_f3_3": 0.21055555555555555,
+        "re3tt_ts-auth-service_f3_4": 0.21819444444444444,
+        "re3tt_ts-auth-service_f4_1": 0.5063888888888889,
+        "re3tt_ts-auth-service_f4_2": 0.5002777777777778,
+        "re3tt_ts-auth-service_f4_3": 0.6061111111111112,
+        "re3tt_ts-route-service_f1_1": 0.4651388888888889,
+        "re3tt_ts-route-service_f1_2": 0.5079166666666667,
+        "re3tt_ts-route-service_f1_3": 0.47097222222222224,
+        "re3tt_ts-route-service_f2_1": 0.4488888888888889,
+        "re3tt_ts-route-service_f2_2": 0.4473611111111111,
+        "re3tt_ts-route-service_f2_3": 0.4140277777777778,
+        "re3tt_ts-route-service_f3_1": 0.49083333333333334,
+        "re3tt_ts-route-service_f3_2": 0.4577777777777778,
+        "re3tt_ts-route-service_f3_3": 0.5043055555555556,
+        "re3tt_ts-route-service_f3_4": 0.5072222222222222,
+        "re3tt_ts-route-service_f3_5": 0.5729166666666666,
+        "re3tt_ts-route-service_f3_6": 0.50875,
+        "re3tt_ts-route-service_f4_1": 0.4861111111111111,
+        "re3tt_ts-route-service_f4_2": 0.4440277777777778,
+        "re3tt_ts-route-service_f4_3": 0.4463888888888889
+      }
+    },
+    "error_lines": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.5,
+        "precision_at_10": 0.0,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.5,
+        "re3tt_ts-auth-service_f1_2": 0.5,
+        "re3tt_ts-auth-service_f1_3": 0.5,
+        "re3tt_ts-auth-service_f1_4": 0.5,
+        "re3tt_ts-auth-service_f2_1": 0.5,
+        "re3tt_ts-auth-service_f2_2": 0.5,
+        "re3tt_ts-auth-service_f2_3": 0.5,
+        "re3tt_ts-auth-service_f2_4": 0.5,
+        "re3tt_ts-auth-service_f3_1": 0.5,
+        "re3tt_ts-auth-service_f3_2": 0.5,
+        "re3tt_ts-auth-service_f3_3": 0.5,
+        "re3tt_ts-auth-service_f3_4": 0.5,
+        "re3tt_ts-auth-service_f4_1": 0.5,
+        "re3tt_ts-auth-service_f4_2": 0.5,
+        "re3tt_ts-auth-service_f4_3": 0.5,
+        "re3tt_ts-route-service_f1_1": 0.5,
+        "re3tt_ts-route-service_f1_2": 0.5,
+        "re3tt_ts-route-service_f1_3": 0.5,
+        "re3tt_ts-route-service_f2_1": 0.5,
+        "re3tt_ts-route-service_f2_2": 0.5,
+        "re3tt_ts-route-service_f2_3": 0.5,
+        "re3tt_ts-route-service_f3_1": 0.5,
+        "re3tt_ts-route-service_f3_2": 0.5,
+        "re3tt_ts-route-service_f3_3": 0.5,
+        "re3tt_ts-route-service_f3_4": 0.5,
+        "re3tt_ts-route-service_f3_5": 0.5,
+        "re3tt_ts-route-service_f3_6": 0.5,
+        "re3tt_ts-route-service_f4_1": 0.5,
+        "re3tt_ts-route-service_f4_2": 0.5,
+        "re3tt_ts-route-service_f4_3": 0.5
+      }
+    },
+    "duration_z": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.38575015432098764,
+        "pr_auc": 0.4479303752171167,
+        "precision_at_10": 0.6,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.34041666666666665,
+        "re3tt_ts-auth-service_f1_2": 0.18861111111111112,
+        "re3tt_ts-auth-service_f1_3": 0.36736111111111114,
+        "re3tt_ts-auth-service_f1_4": 0.26375,
+        "re3tt_ts-auth-service_f2_1": 0.41930555555555554,
+        "re3tt_ts-auth-service_f2_2": 0.4309722222222222,
+        "re3tt_ts-auth-service_f2_3": 0.3304166666666667,
+        "re3tt_ts-auth-service_f2_4": 0.345,
+        "re3tt_ts-auth-service_f3_1": 0.17444444444444446,
+        "re3tt_ts-auth-service_f3_2": 0.12805555555555556,
+        "re3tt_ts-auth-service_f3_3": 0.17083333333333334,
+        "re3tt_ts-auth-service_f3_4": 0.14847222222222223,
+        "re3tt_ts-auth-service_f4_1": 0.4461111111111111,
+        "re3tt_ts-auth-service_f4_2": 0.4525,
+        "re3tt_ts-auth-service_f4_3": 0.42694444444444446,
+        "re3tt_ts-route-service_f1_1": 0.4538888888888889,
+        "re3tt_ts-route-service_f1_2": 0.5291666666666667,
+        "re3tt_ts-route-service_f1_3": 0.4116666666666667,
+        "re3tt_ts-route-service_f2_1": 0.42777777777777776,
+        "re3tt_ts-route-service_f2_2": 0.3861111111111111,
+        "re3tt_ts-route-service_f2_3": 0.4945833333333333,
+        "re3tt_ts-route-service_f3_1": 0.4643055555555556,
+        "re3tt_ts-route-service_f3_2": 0.47152777777777777,
+        "re3tt_ts-route-service_f3_3": 0.5498611111111111,
+        "re3tt_ts-route-service_f3_4": 0.5286111111111111,
+        "re3tt_ts-route-service_f3_5": 0.4230555555555556,
+        "re3tt_ts-route-service_f3_6": 0.43416666666666665,
+        "re3tt_ts-route-service_f4_1": 0.4419444444444444,
+        "re3tt_ts-route-service_f4_2": 0.4866666666666667,
+        "re3tt_ts-route-service_f4_3": 0.44819444444444445
+      }
+    },
+    "rule": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.38575015432098764,
+        "pr_auc": 0.4479303752171167,
+        "precision_at_10": 0.6,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.34041666666666665,
+        "re3tt_ts-auth-service_f1_2": 0.18861111111111112,
+        "re3tt_ts-auth-service_f1_3": 0.36736111111111114,
+        "re3tt_ts-auth-service_f1_4": 0.26375,
+        "re3tt_ts-auth-service_f2_1": 0.41930555555555554,
+        "re3tt_ts-auth-service_f2_2": 0.4309722222222222,
+        "re3tt_ts-auth-service_f2_3": 0.3304166666666667,
+        "re3tt_ts-auth-service_f2_4": 0.345,
+        "re3tt_ts-auth-service_f3_1": 0.17444444444444446,
+        "re3tt_ts-auth-service_f3_2": 0.12805555555555556,
+        "re3tt_ts-auth-service_f3_3": 0.17083333333333334,
+        "re3tt_ts-auth-service_f3_4": 0.14847222222222223,
+        "re3tt_ts-auth-service_f4_1": 0.4461111111111111,
+        "re3tt_ts-auth-service_f4_2": 0.4525,
+        "re3tt_ts-auth-service_f4_3": 0.42694444444444446,
+        "re3tt_ts-route-service_f1_1": 0.4538888888888889,
+        "re3tt_ts-route-service_f1_2": 0.5291666666666667,
+        "re3tt_ts-route-service_f1_3": 0.4116666666666667,
+        "re3tt_ts-route-service_f2_1": 0.42777777777777776,
+        "re3tt_ts-route-service_f2_2": 0.3861111111111111,
+        "re3tt_ts-route-service_f2_3": 0.4945833333333333,
+        "re3tt_ts-route-service_f3_1": 0.4643055555555556,
+        "re3tt_ts-route-service_f3_2": 0.47152777777777777,
+        "re3tt_ts-route-service_f3_3": 0.5498611111111111,
+        "re3tt_ts-route-service_f3_4": 0.5286111111111111,
+        "re3tt_ts-route-service_f3_5": 0.4230555555555556,
+        "re3tt_ts-route-service_f3_6": 0.43416666666666665,
+        "re3tt_ts-route-service_f4_1": 0.4419444444444444,
+        "re3tt_ts-route-service_f4_2": 0.4866666666666667,
+        "re3tt_ts-route-service_f4_3": 0.44819444444444445
+      }
+    },
+    "novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.7310385802469136,
+        "pr_auc": 0.7333624280289109,
+        "precision_at_10": 1.0,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.9222222222222223,
+        "re3tt_ts-auth-service_f1_2": 0.92375,
+        "re3tt_ts-auth-service_f1_3": 0.9658333333333333,
+        "re3tt_ts-auth-service_f1_4": 0.9573611111111111,
+        "re3tt_ts-auth-service_f2_1": 0.9825,
+        "re3tt_ts-auth-service_f2_2": 0.9666666666666667,
+        "re3tt_ts-auth-service_f2_3": 0.9576388888888889,
+        "re3tt_ts-auth-service_f2_4": 0.925,
+        "re3tt_ts-auth-service_f3_1": 0.9130555555555555,
+        "re3tt_ts-auth-service_f3_2": 0.9316666666666666,
+        "re3tt_ts-auth-service_f3_3": 0.9275,
+        "re3tt_ts-auth-service_f3_4": 0.95,
+        "re3tt_ts-auth-service_f4_1": 0.92,
+        "re3tt_ts-auth-service_f4_2": 0.925,
+        "re3tt_ts-auth-service_f4_3": 0.9394444444444444,
+        "re3tt_ts-route-service_f1_1": 0.49166666666666664,
+        "re3tt_ts-route-service_f1_2": 0.5,
+        "re3tt_ts-route-service_f1_3": 0.48333333333333334,
+        "re3tt_ts-route-service_f2_1": 0.50875,
+        "re3tt_ts-route-service_f2_2": 0.525,
+        "re3tt_ts-route-service_f2_3": 0.55,
+        "re3tt_ts-route-service_f3_1": 0.5,
+        "re3tt_ts-route-service_f3_2": 0.5088888888888888,
+        "re3tt_ts-route-service_f3_3": 0.5416666666666666,
+        "re3tt_ts-route-service_f3_4": 0.5334722222222222,
+        "re3tt_ts-route-service_f3_5": 0.5166666666666667,
+        "re3tt_ts-route-service_f3_6": 0.5333333333333333,
+        "re3tt_ts-route-service_f4_1": 0.5083333333333333,
+        "re3tt_ts-route-service_f4_2": 0.5583333333333333,
+        "re3tt_ts-route-service_f4_3": 0.5416666666666666
+      }
+    },
+    "heuristic": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.7117075617283951,
+        "pr_auc": 0.791262644777606,
+        "precision_at_10": 1.0,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.9211111111111111,
+        "re3tt_ts-auth-service_f1_2": 0.9,
+        "re3tt_ts-auth-service_f1_3": 0.9679166666666666,
+        "re3tt_ts-auth-service_f1_4": 0.9541666666666667,
+        "re3tt_ts-auth-service_f2_1": 0.9898611111111111,
+        "re3tt_ts-auth-service_f2_2": 0.98375,
+        "re3tt_ts-auth-service_f2_3": 0.9715277777777778,
+        "re3tt_ts-auth-service_f2_4": 0.9268055555555555,
+        "re3tt_ts-auth-service_f3_1": 0.8811111111111111,
+        "re3tt_ts-auth-service_f3_2": 0.9051388888888889,
+        "re3tt_ts-auth-service_f3_3": 0.9372222222222222,
+        "re3tt_ts-auth-service_f3_4": 0.9422222222222222,
+        "re3tt_ts-auth-service_f4_1": 0.9006944444444445,
+        "re3tt_ts-auth-service_f4_2": 0.8948611111111111,
+        "re3tt_ts-auth-service_f4_3": 0.9368055555555556,
+        "re3tt_ts-route-service_f1_1": 0.4490277777777778,
+        "re3tt_ts-route-service_f1_2": 0.5194444444444445,
+        "re3tt_ts-route-service_f1_3": 0.4172222222222222,
+        "re3tt_ts-route-service_f2_1": 0.4452777777777778,
+        "re3tt_ts-route-service_f2_2": 0.41805555555555557,
+        "re3tt_ts-route-service_f2_3": 0.5458333333333333,
+        "re3tt_ts-route-service_f3_1": 0.46875,
+        "re3tt_ts-route-service_f3_2": 0.5004166666666666,
+        "re3tt_ts-route-service_f3_3": 0.5926388888888889,
+        "re3tt_ts-route-service_f3_4": 0.5530555555555555,
+        "re3tt_ts-route-service_f3_5": 0.4563888888888889,
+        "re3tt_ts-route-service_f3_6": 0.44763888888888886,
+        "re3tt_ts-route-service_f4_1": 0.46125,
+        "re3tt_ts-route-service_f4_2": 0.5406944444444445,
+        "re3tt_ts-route-service_f4_3": 0.49041666666666667
+      }
+    },
+    "value_novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.5,
+        "precision_at_10": 0.0,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.5,
+        "re3tt_ts-auth-service_f1_2": 0.5,
+        "re3tt_ts-auth-service_f1_3": 0.5,
+        "re3tt_ts-auth-service_f1_4": 0.5,
+        "re3tt_ts-auth-service_f2_1": 0.5,
+        "re3tt_ts-auth-service_f2_2": 0.5,
+        "re3tt_ts-auth-service_f2_3": 0.5,
+        "re3tt_ts-auth-service_f2_4": 0.5,
+        "re3tt_ts-auth-service_f3_1": 0.5,
+        "re3tt_ts-auth-service_f3_2": 0.5,
+        "re3tt_ts-auth-service_f3_3": 0.5,
+        "re3tt_ts-auth-service_f3_4": 0.5,
+        "re3tt_ts-auth-service_f4_1": 0.5,
+        "re3tt_ts-auth-service_f4_2": 0.5,
+        "re3tt_ts-auth-service_f4_3": 0.5,
+        "re3tt_ts-route-service_f1_1": 0.5,
+        "re3tt_ts-route-service_f1_2": 0.5,
+        "re3tt_ts-route-service_f1_3": 0.5,
+        "re3tt_ts-route-service_f2_1": 0.5,
+        "re3tt_ts-route-service_f2_2": 0.5,
+        "re3tt_ts-route-service_f2_3": 0.5,
+        "re3tt_ts-route-service_f3_1": 0.5,
+        "re3tt_ts-route-service_f3_2": 0.5,
+        "re3tt_ts-route-service_f3_3": 0.5,
+        "re3tt_ts-route-service_f3_4": 0.5,
+        "re3tt_ts-route-service_f3_5": 0.5,
+        "re3tt_ts-route-service_f3_6": 0.5,
+        "re3tt_ts-route-service_f4_1": 0.5,
+        "re3tt_ts-route-service_f4_2": 0.5,
+        "re3tt_ts-route-service_f4_3": 0.5
+      }
+    },
+    "value_rarity": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.5,
+        "precision_at_10": 0.0,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.5,
+        "re3tt_ts-auth-service_f1_2": 0.5,
+        "re3tt_ts-auth-service_f1_3": 0.5,
+        "re3tt_ts-auth-service_f1_4": 0.5,
+        "re3tt_ts-auth-service_f2_1": 0.5,
+        "re3tt_ts-auth-service_f2_2": 0.5,
+        "re3tt_ts-auth-service_f2_3": 0.5,
+        "re3tt_ts-auth-service_f2_4": 0.5,
+        "re3tt_ts-auth-service_f3_1": 0.5,
+        "re3tt_ts-auth-service_f3_2": 0.5,
+        "re3tt_ts-auth-service_f3_3": 0.5,
+        "re3tt_ts-auth-service_f3_4": 0.5,
+        "re3tt_ts-auth-service_f4_1": 0.5,
+        "re3tt_ts-auth-service_f4_2": 0.5,
+        "re3tt_ts-auth-service_f4_3": 0.5,
+        "re3tt_ts-route-service_f1_1": 0.5,
+        "re3tt_ts-route-service_f1_2": 0.5,
+        "re3tt_ts-route-service_f1_3": 0.5,
+        "re3tt_ts-route-service_f2_1": 0.5,
+        "re3tt_ts-route-service_f2_2": 0.5,
+        "re3tt_ts-route-service_f2_3": 0.5,
+        "re3tt_ts-route-service_f3_1": 0.5,
+        "re3tt_ts-route-service_f3_2": 0.5,
+        "re3tt_ts-route-service_f3_3": 0.5,
+        "re3tt_ts-route-service_f3_4": 0.5,
+        "re3tt_ts-route-service_f3_5": 0.5,
+        "re3tt_ts-route-service_f3_6": 0.5,
+        "re3tt_ts-route-service_f4_1": 0.5,
+        "re3tt_ts-route-service_f4_2": 0.5,
+        "re3tt_ts-route-service_f4_3": 0.5
+      }
+    },
+    "value_pair": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.5,
+        "precision_at_10": 0.0,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.5,
+        "re3tt_ts-auth-service_f1_2": 0.5,
+        "re3tt_ts-auth-service_f1_3": 0.5,
+        "re3tt_ts-auth-service_f1_4": 0.5,
+        "re3tt_ts-auth-service_f2_1": 0.5,
+        "re3tt_ts-auth-service_f2_2": 0.5,
+        "re3tt_ts-auth-service_f2_3": 0.5,
+        "re3tt_ts-auth-service_f2_4": 0.5,
+        "re3tt_ts-auth-service_f3_1": 0.5,
+        "re3tt_ts-auth-service_f3_2": 0.5,
+        "re3tt_ts-auth-service_f3_3": 0.5,
+        "re3tt_ts-auth-service_f3_4": 0.5,
+        "re3tt_ts-auth-service_f4_1": 0.5,
+        "re3tt_ts-auth-service_f4_2": 0.5,
+        "re3tt_ts-auth-service_f4_3": 0.5,
+        "re3tt_ts-route-service_f1_1": 0.5,
+        "re3tt_ts-route-service_f1_2": 0.5,
+        "re3tt_ts-route-service_f1_3": 0.5,
+        "re3tt_ts-route-service_f2_1": 0.5,
+        "re3tt_ts-route-service_f2_2": 0.5,
+        "re3tt_ts-route-service_f2_3": 0.5,
+        "re3tt_ts-route-service_f3_1": 0.5,
+        "re3tt_ts-route-service_f3_2": 0.5,
+        "re3tt_ts-route-service_f3_3": 0.5,
+        "re3tt_ts-route-service_f3_4": 0.5,
+        "re3tt_ts-route-service_f3_5": 0.5,
+        "re3tt_ts-route-service_f3_6": 0.5,
+        "re3tt_ts-route-service_f4_1": 0.5,
+        "re3tt_ts-route-service_f4_2": 0.5,
+        "re3tt_ts-route-service_f4_3": 0.5
+      }
+    },
+    "sequence_novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.7263888888888889,
+        "pr_auc": 0.7149072032341051,
+        "precision_at_10": 0.8,
+        "n": 3600
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": 0.9083333333333333,
+        "re3tt_ts-auth-service_f1_2": 0.9166666666666666,
+        "re3tt_ts-auth-service_f1_3": 0.9583333333333334,
+        "re3tt_ts-auth-service_f1_4": 0.95,
+        "re3tt_ts-auth-service_f2_1": 0.9666666666666667,
+        "re3tt_ts-auth-service_f2_2": 0.9666666666666667,
+        "re3tt_ts-auth-service_f2_3": 0.95,
+        "re3tt_ts-auth-service_f2_4": 0.925,
+        "re3tt_ts-auth-service_f3_1": 0.9083333333333333,
+        "re3tt_ts-auth-service_f3_2": 0.925,
+        "re3tt_ts-auth-service_f3_3": 0.925,
+        "re3tt_ts-auth-service_f3_4": 0.95,
+        "re3tt_ts-auth-service_f4_1": 0.8916666666666667,
+        "re3tt_ts-auth-service_f4_2": 0.925,
+        "re3tt_ts-auth-service_f4_3": 0.925,
+        "re3tt_ts-route-service_f1_1": 0.49166666666666664,
+        "re3tt_ts-route-service_f1_2": 0.5,
+        "re3tt_ts-route-service_f1_3": 0.48333333333333334,
+        "re3tt_ts-route-service_f2_1": 0.5083333333333333,
+        "re3tt_ts-route-service_f2_2": 0.525,
+        "re3tt_ts-route-service_f2_3": 0.55,
+        "re3tt_ts-route-service_f3_1": 0.5,
+        "re3tt_ts-route-service_f3_2": 0.5083333333333333,
+        "re3tt_ts-route-service_f3_3": 0.5416666666666666,
+        "re3tt_ts-route-service_f3_4": 0.5333333333333333,
+        "re3tt_ts-route-service_f3_5": 0.5166666666666667,
+        "re3tt_ts-route-service_f3_6": 0.5333333333333333,
+        "re3tt_ts-route-service_f4_1": 0.5083333333333333,
+        "re3tt_ts-route-service_f4_2": 0.5583333333333333,
+        "re3tt_ts-route-service_f4_3": 0.5416666666666666
+      }
+    },
+    "bpb_mean": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7251794238683127,
+          "std": 0.005111365374085526,
+          "n": 3
+        },
+        "pr_auc": {
+          "mean": 0.7673185933661225,
+          "std": 0.008377701944597048,
+          "n": 3
+        },
+        "precision_at_10": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3
+        }
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": {
+          "mean": 0.8920370370370371,
+          "std": 0.004095063775462209,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_2": {
+          "mean": 0.9042592592592592,
+          "std": 0.008052362074535926,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_3": {
+          "mean": 0.9517592592592593,
+          "std": 0.003243385164469812,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_4": {
+          "mean": 0.9256481481481481,
+          "std": 0.0010516496936667547,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_1": {
+          "mean": 0.9498148148148148,
+          "std": 0.0006415002990996203,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_2": {
+          "mean": 0.9443518518518519,
+          "std": 0.004490502093697086,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_3": {
+          "mean": 0.9386111111111112,
+          "std": 0.001469861839480327,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_4": {
+          "mean": 0.9072222222222223,
+          "std": 0.006309898162000284,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_1": {
+          "mean": 0.918888888888889,
+          "std": 0.005053723721850058,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_2": {
+          "mean": 0.934351851851852,
+          "std": 0.009235153807253146,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_3": {
+          "mean": 0.924074074074074,
+          "std": 0.003428427515106253,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_4": {
+          "mean": 0.9456481481481481,
+          "std": 0.002917768751220091,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_1": {
+          "mean": 0.9204629629629629,
+          "std": 0.0068286644694415975,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_2": {
+          "mean": 0.9316666666666666,
+          "std": 0.010639287779003102,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_3": {
+          "mean": 0.9031481481481481,
+          "std": 0.0031954507271735933,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_1": {
+          "mean": 0.5405555555555556,
+          "std": 0.015696287993985182,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_2": {
+          "mean": 0.5024074074074073,
+          "std": 0.005789073715681677,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_3": {
+          "mean": 0.5194444444444445,
+          "std": 0.012659476516784273,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_1": {
+          "mean": 0.576574074074074,
+          "std": 0.004169751944147284,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_2": {
+          "mean": 0.5306481481481481,
+          "std": 0.006390901454347184,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_3": {
+          "mean": 0.5535185185185185,
+          "std": 0.00498712333685011,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_1": {
+          "mean": 0.4877777777777778,
+          "std": 0.016166093918834962,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_2": {
+          "mean": 0.5094444444444445,
+          "std": 0.007092858519335361,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_3": {
+          "mean": 0.5072222222222221,
+          "std": 0.006254627916220962,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_4": {
+          "mean": 0.4724074074074074,
+          "std": 0.002394910584514344,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_5": {
+          "mean": 0.4110185185185185,
+          "std": 0.009168069477397444,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_6": {
+          "mean": 0.49120370370370364,
+          "std": 0.008608123735093641,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_1": {
+          "mean": 0.5391666666666667,
+          "std": 0.025623400281291907,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_2": {
+          "mean": 0.5437962962962963,
+          "std": 0.01389259209889708,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_3": {
+          "mean": 0.5296296296296297,
+          "std": 0.010759482371626872,
+          "n": 3
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7308024691358025,
+          "pr_auc": 0.776978054341023,
+          "precision_at_10": 1.0,
+          "n": 3600
+        },
+        {
+          "auroc": 0.723920987654321,
+          "pr_auc": 0.7620338902110464,
+          "precision_at_10": 1.0,
+          "n": 3600
+        },
+        {
+          "auroc": 0.7208148148148148,
+          "pr_auc": 0.7629438355462982,
+          "precision_at_10": 1.0,
+          "n": 3600
+        }
+      ]
+    },
+    "bpb_content": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7296343621399178,
+          "std": 0.005225351267695042,
+          "n": 3
+        },
+        "pr_auc": {
+          "mean": 0.7935724149389475,
+          "std": 0.00463125899503711,
+          "n": 3
+        },
+        "precision_at_10": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3
+        }
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": {
+          "mean": 0.9151851851851852,
+          "std": 0.006396935351635508,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_2": {
+          "mean": 0.9111111111111111,
+          "std": 0.010183501544346328,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_3": {
+          "mean": 0.9687962962962963,
+          "std": 0.0037713725656326204,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_4": {
+          "mean": 0.9419444444444444,
+          "std": 0.0029000851413640482,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_1": {
+          "mean": 0.980648148148148,
+          "std": 0.0020848759720736416,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_2": {
+          "mean": 0.9619444444444444,
+          "std": 0.0036430214023900113,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_3": {
+          "mean": 0.9539814814814814,
+          "std": 0.003122169500016158,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_4": {
+          "mean": 0.9140740740740739,
+          "std": 0.012760656806760296,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_1": {
+          "mean": 0.9180555555555556,
+          "std": 0.01236345171348215,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_2": {
+          "mean": 0.9362962962962964,
+          "std": 0.00889033553042974,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_3": {
+          "mean": 0.9119444444444444,
+          "std": 0.0030046260628866193,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_4": {
+          "mean": 0.9501851851851852,
+          "std": 0.007583553788682719,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_1": {
+          "mean": 0.9167592592592593,
+          "std": 0.0014254448442907932,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_2": {
+          "mean": 0.9390740740740741,
+          "std": 0.0071272242214540414,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_3": {
+          "mean": 0.9372222222222222,
+          "std": 0.008055555555555538,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_1": {
+          "mean": 0.565,
+          "std": 0.021486070710297414,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_2": {
+          "mean": 0.5171296296296296,
+          "std": 0.005338346409407247,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_3": {
+          "mean": 0.531574074074074,
+          "std": 0.014219219879858754,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_1": {
+          "mean": 0.5811111111111111,
+          "std": 0.008055555555555538,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_2": {
+          "mean": 0.5553703703703704,
+          "std": 0.023785845810173515,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_3": {
+          "mean": 0.576574074074074,
+          "std": 0.011534748004297001,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_1": {
+          "mean": 0.5023148148148149,
+          "std": 0.0209466056454463,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_2": {
+          "mean": 0.5316666666666667,
+          "std": 0.02265549833789299,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_3": {
+          "mean": 0.505462962962963,
+          "std": 0.005762354771296896,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_4": {
+          "mean": 0.47361111111111115,
+          "std": 0.012777777777777777,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_5": {
+          "mean": 0.41361111111111115,
+          "std": 0.01616848023428361,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_6": {
+          "mean": 0.5131481481481481,
+          "std": 0.008759180956505398,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_1": {
+          "mean": 0.5157407407407407,
+          "std": 0.023564223597327696,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_2": {
+          "mean": 0.5000925925925926,
+          "std": 0.032919108363885716,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_3": {
+          "mean": 0.534537037037037,
+          "std": 0.019084633898212668,
+          "n": 3
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7342447530864198,
+          "pr_auc": 0.7982305721421774,
+          "precision_at_10": 1.0,
+          "n": 3600
+        },
+        {
+          "auroc": 0.7307,
+          "pr_auc": 0.7935181414897817,
+          "precision_at_10": 1.0,
+          "n": 3600
+        },
+        {
+          "auroc": 0.7239583333333334,
+          "pr_auc": 0.7889685311848832,
+          "precision_at_10": 1.0,
+          "n": 3600
+        }
+      ]
+    },
+    "bpb_max_event": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.6930755144032922,
+          "std": 0.022135628881730148,
+          "n": 3
+        },
+        "pr_auc": {
+          "mean": 0.7565179501529314,
+          "std": 0.01885895638301954,
+          "n": 3
+        },
+        "precision_at_10": {
+          "mean": 0.7666666666666666,
+          "std": 0.05773502691896263,
+          "n": 3
+        }
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": {
+          "mean": 0.9123148148148149,
+          "std": 0.029189585351698886,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_2": {
+          "mean": 0.9121296296296296,
+          "std": 0.020163937168616596,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_3": {
+          "mean": 0.9379629629629629,
+          "std": 0.002520492146077048,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_4": {
+          "mean": 0.9448148148148148,
+          "std": 0.008855550908498225,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_1": {
+          "mean": 0.9771296296296296,
+          "std": 0.0016972502573910386,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_2": {
+          "mean": 0.9742592592592593,
+          "std": 0.006336337818861307,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_3": {
+          "mean": 0.9730555555555555,
+          "std": 0.006279252530809631,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_4": {
+          "mean": 0.9159259259259259,
+          "std": 0.013089003646607526,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_1": {
+          "mean": 0.740925925925926,
+          "std": 0.13064014202311222,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_2": {
+          "mean": 0.6699074074074075,
+          "std": 0.13459195687695116,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_3": {
+          "mean": 0.741574074074074,
+          "std": 0.10446820553200957,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_4": {
+          "mean": 0.8060185185185186,
+          "std": 0.10642272936315286,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_1": {
+          "mean": 0.9225,
+          "std": 0.004819264325804839,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_2": {
+          "mean": 0.9127777777777778,
+          "std": 0.016694421334796407,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_3": {
+          "mean": 0.9432407407407407,
+          "std": 0.013755844249947252,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_1": {
+          "mean": 0.5212962962962963,
+          "std": 0.04650877168471982,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_2": {
+          "mean": 0.5247222222222222,
+          "std": 0.02691435891953183,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_3": {
+          "mean": 0.4586111111111111,
+          "std": 0.03136921704119786,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_1": {
+          "mean": 0.49574074074074065,
+          "std": 0.052228378281757776,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_2": {
+          "mean": 0.46194444444444444,
+          "std": 0.0220951226392714,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_3": {
+          "mean": 0.44981481481481483,
+          "std": 0.06311997036149662,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_1": {
+          "mean": 0.4961111111111111,
+          "std": 0.024401793599327815,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_2": {
+          "mean": 0.48740740740740746,
+          "std": 0.06361070677536061,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_3": {
+          "mean": 0.5073148148148148,
+          "std": 0.0415891253790488,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_4": {
+          "mean": 0.49287037037037035,
+          "std": 0.007148843758132413,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_5": {
+          "mean": 0.5230555555555555,
+          "std": 0.0571446345623039,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_6": {
+          "mean": 0.5499999999999999,
+          "std": 0.04852055056530683,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_1": {
+          "mean": 0.5278703703703703,
+          "std": 0.0636695106339144,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_2": {
+          "mean": 0.46194444444444444,
+          "std": 0.05406900026931752,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_3": {
+          "mean": 0.44,
+          "std": 0.020023134767711212,
+          "n": 3
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7178006172839506,
+          "pr_auc": 0.7779698142394367,
+          "precision_at_10": 0.8,
+          "n": 3600
+        },
+        {
+          "auroc": 0.6863243827160493,
+          "pr_auc": 0.7490359942605178,
+          "precision_at_10": 0.8,
+          "n": 3600
+        },
+        {
+          "auroc": 0.6751015432098766,
+          "pr_auc": 0.7425480419588397,
+          "precision_at_10": 0.7,
+          "n": 3600
+        }
+      ]
+    },
+    "bpb_top10": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7423746913580246,
+          "std": 0.006748639347300514,
+          "n": 3
+        },
+        "pr_auc": {
+          "mean": 0.8039808372309607,
+          "std": 0.006817760207122508,
+          "n": 3
+        },
+        "precision_at_10": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3
+        }
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": {
+          "mean": 0.9479629629629628,
+          "std": 0.011541435461427116,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_2": {
+          "mean": 0.9183333333333333,
+          "std": 0.007561476438231229,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_3": {
+          "mean": 0.9605555555555556,
+          "std": 0.0014433756729740337,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_4": {
+          "mean": 0.945,
+          "std": 0.00684371388597496,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_1": {
+          "mean": 0.9847222222222222,
+          "std": 0.0035464292596676804,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_2": {
+          "mean": 0.981388888888889,
+          "std": 0.007500000000000007,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_3": {
+          "mean": 0.9780555555555556,
+          "std": 0.005739993977714386,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_4": {
+          "mean": 0.9187037037037037,
+          "std": 0.012147287119441111,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_1": {
+          "mean": 0.9353703703703703,
+          "std": 0.011167680071944248,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_2": {
+          "mean": 0.9396296296296297,
+          "std": 0.004667438207825395,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_3": {
+          "mean": 0.9305555555555555,
+          "std": 0.0033793125168323254,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_4": {
+          "mean": 0.9551851851851851,
+          "std": 0.0033139870681802713,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_1": {
+          "mean": 0.9170370370370371,
+          "std": 0.00652827027298977,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_2": {
+          "mean": 0.9192592592592592,
+          "std": 0.018622163661182585,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_3": {
+          "mean": 0.9419444444444446,
+          "std": 0.01058475493514319,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_1": {
+          "mean": 0.6037962962962963,
+          "std": 0.035837998547877864,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_2": {
+          "mean": 0.5955555555555555,
+          "std": 0.02938542302604737,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_3": {
+          "mean": 0.4771296296296296,
+          "std": 0.028121941991960244,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_1": {
+          "mean": 0.5769444444444444,
+          "std": 0.020075090516838485,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_2": {
+          "mean": 0.47333333333333333,
+          "std": 0.019210899041307482,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_3": {
+          "mean": 0.5137962962962962,
+          "std": 0.02130816899321997,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_1": {
+          "mean": 0.5275,
+          "std": 0.034481386999114655,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_2": {
+          "mean": 0.5559259259259259,
+          "std": 0.032886276798173596,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_3": {
+          "mean": 0.5589814814814814,
+          "std": 0.008518015283042173,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_4": {
+          "mean": 0.5118518518518519,
+          "std": 0.01703603056608433,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_5": {
+          "mean": 0.5193518518518518,
+          "std": 0.05088744337264465,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_6": {
+          "mean": 0.5492592592592592,
+          "std": 0.014869113456404336,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_1": {
+          "mean": 0.5075,
+          "std": 0.034413068146552414,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_2": {
+          "mean": 0.4991666666666667,
+          "std": 0.04267393601268593,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_3": {
+          "mean": 0.5572222222222222,
+          "std": 0.00609214227762815,
+          "n": 3
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7484719135802469,
+          "pr_auc": 0.8112319120159007,
+          "precision_at_10": 1.0,
+          "n": 3600
+        },
+        {
+          "auroc": 0.7435287037037037,
+          "pr_auc": 0.803010161433608,
+          "precision_at_10": 1.0,
+          "n": 3600
+        },
+        {
+          "auroc": 0.7351234567901235,
+          "pr_auc": 0.7977004382433734,
+          "precision_at_10": 1.0,
+          "n": 3600
+        }
+      ]
+    },
+    "bits_max_field": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7083870884773663,
+          "std": 0.002133914683523176,
+          "n": 3
+        },
+        "pr_auc": {
+          "mean": 0.7681066870762646,
+          "std": 0.0018264502135418204,
+          "n": 3
+        },
+        "precision_at_10": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 3
+        }
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": {
+          "mean": 0.9401388888888889,
+          "std": 0.003640372895022543,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_2": {
+          "mean": 0.9186574074074074,
+          "std": 0.006152532183042568,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_3": {
+          "mean": 0.9291666666666666,
+          "std": 0.0044444444444444176,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_4": {
+          "mean": 0.9505555555555555,
+          "std": 0.004589642122738396,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_1": {
+          "mean": 0.9831481481481482,
+          "std": 0.0012525693757841649,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_2": {
+          "mean": 0.985,
+          "std": 0.0018055555555555474,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_3": {
+          "mean": 0.9735185185185186,
+          "std": 0.0037508572408386964,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_4": {
+          "mean": 0.9104629629629629,
+          "std": 0.0063180452256414756,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_1": {
+          "mean": 0.7538425925925926,
+          "std": 0.005570004359035149,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_2": {
+          "mean": 0.6667592592592593,
+          "std": 0.009087763672085154,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_3": {
+          "mean": 0.7655555555555557,
+          "std": 0.007742977702647984,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_4": {
+          "mean": 0.8334259259259259,
+          "std": 0.00599210729161608,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_1": {
+          "mean": 0.9106481481481481,
+          "std": 0.004169751944147244,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_2": {
+          "mean": 0.9101851851851852,
+          "std": 0.002970187950434357,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_3": {
+          "mean": 0.9164814814814815,
+          "std": 0.005417260176411152,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_1": {
+          "mean": 0.5397222222222222,
+          "std": 0.015959536024692512,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_2": {
+          "mean": 0.5578703703703703,
+          "std": 0.02742319990453547,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_3": {
+          "mean": 0.4322685185185186,
+          "std": 0.010143961186818038,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_1": {
+          "mean": 0.475462962962963,
+          "std": 0.012672675637722695,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_2": {
+          "mean": 0.41351851851851856,
+          "std": 0.01571982542913991,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_3": {
+          "mean": 0.5297222222222222,
+          "std": 0.020729370229784053,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_1": {
+          "mean": 0.5346296296296297,
+          "std": 0.013247214164780958,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_2": {
+          "mean": 0.5522222222222222,
+          "std": 0.016015039228221728,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_3": {
+          "mean": 0.5439351851851852,
+          "std": 0.009975213623340355,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_4": {
+          "mean": 0.5249074074074075,
+          "std": 0.017216247470187393,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_5": {
+          "mean": 0.5414351851851852,
+          "std": 0.015970007898037358,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_6": {
+          "mean": 0.5025925925925926,
+          "std": 0.009978113910035592,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_1": {
+          "mean": 0.5006018518518518,
+          "std": 0.011041739459345445,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_2": {
+          "mean": 0.59,
+          "std": 0.018691782045845252,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_3": {
+          "mean": 0.5273148148148149,
+          "std": 0.015116786447862811,
+          "n": 3
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.707016049382716,
+          "pr_auc": 0.7698524259792536,
+          "precision_at_10": 1.0,
+          "n": 3600
+        },
+        {
+          "auroc": 0.7072995370370371,
+          "pr_auc": 0.7662090165979898,
+          "precision_at_10": 1.0,
+          "n": 3600
+        },
+        {
+          "auroc": 0.7108456790123456,
+          "pr_auc": 0.7682586186515504,
+          "precision_at_10": 1.0,
+          "n": 3600
+        }
+      ]
+    },
+    "bits_end": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.5441194444444445,
+          "std": 0.06662497985566239,
+          "n": 3
+        },
+        "pr_auc": {
+          "mean": 0.5368307786131464,
+          "std": 0.043337371429613095,
+          "n": 3
+        },
+        "precision_at_10": {
+          "mean": 0.3333333333333333,
+          "std": 0.32145502536643183,
+          "n": 3
+        }
+      },
+      "per_capture_auroc": {
+        "re3tt_ts-auth-service_f1_1": {
+          "mean": 0.4720370370370371,
+          "std": 0.20203828885785252,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_2": {
+          "mean": 0.4875,
+          "std": 0.22406028041413154,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_3": {
+          "mean": 0.4605555555555556,
+          "std": 0.2618806626719153,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f1_4": {
+          "mean": 0.46249999999999997,
+          "std": 0.2963420248277526,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_1": {
+          "mean": 0.4870370370370371,
+          "std": 0.24405656304856505,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_2": {
+          "mean": 0.4671296296296297,
+          "std": 0.2454232822055798,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_3": {
+          "mean": 0.5389814814814815,
+          "std": 0.23727772791521973,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f2_4": {
+          "mean": 0.47518518518518515,
+          "std": 0.2543281717192202,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_1": {
+          "mean": 0.7282407407407407,
+          "std": 0.11149597697073395,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_2": {
+          "mean": 0.7818518518518518,
+          "std": 0.04461887068717874,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_3": {
+          "mean": 0.7554629629629629,
+          "std": 0.07196231724229467,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f3_4": {
+          "mean": 0.7501851851851852,
+          "std": 0.09411065743910943,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_1": {
+          "mean": 0.5888888888888889,
+          "std": 0.13809662925772545,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_2": {
+          "mean": 0.5985185185185186,
+          "std": 0.1568788784709021,
+          "n": 3
+        },
+        "re3tt_ts-auth-service_f4_3": {
+          "mean": 0.5862962962962963,
+          "std": 0.028669483783485217,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_1": {
+          "mean": 0.523888888888889,
+          "std": 0.020578065752724643,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_2": {
+          "mean": 0.48611111111111116,
+          "std": 0.01001156738385562,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f1_3": {
+          "mean": 0.5522222222222223,
+          "std": 0.05932490576852562,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_1": {
+          "mean": 0.5166666666666667,
+          "std": 0.01101696223058441,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_2": {
+          "mean": 0.5647222222222222,
+          "std": 0.026736020923368818,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f2_3": {
+          "mean": 0.5163888888888889,
+          "std": 0.06577177149754994,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_1": {
+          "mean": 0.46092592592592596,
+          "std": 0.03327811784900125,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_2": {
+          "mean": 0.47972222222222216,
+          "std": 0.05196226669895979,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_3": {
+          "mean": 0.5294444444444445,
+          "std": 0.03367991121949532,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_4": {
+          "mean": 0.47009259259259256,
+          "std": 0.015591063970113308,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_5": {
+          "mean": 0.4507407407407407,
+          "std": 0.020595556674499235,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f3_6": {
+          "mean": 0.5456481481481482,
+          "std": 0.06863378692611193,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_1": {
+          "mean": 0.5354629629629629,
+          "std": 0.026370363868080768,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_2": {
+          "mean": 0.4986111111111111,
+          "std": 0.03119532253636991,
+          "n": 3
+        },
+        "re3tt_ts-route-service_f4_3": {
+          "mean": 0.4715740740740741,
+          "std": 0.016965681894339446,
+          "n": 3
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.5697608024691359,
+          "pr_auc": 0.5809288553594767,
+          "precision_at_10": 0.7,
+          "n": 3600
+        },
+        {
+          "auroc": 0.4684833333333333,
+          "pr_auc": 0.4942964410504571,
+          "precision_at_10": 0.1,
+          "n": 3600
+        },
+        {
+          "auroc": 0.5941141975308643,
+          "pr_auc": 0.5352670394295055,
+          "precision_at_10": 0.2,
+          "n": 3600
+        }
+      ]
+    }
+  },
+  "subset": {
+    "field": "touches_root_cause",
+    "n": 1585,
+    "n_incident": 973,
+    "auroc": {
+      "length": 0.32182489302675504,
+      "error_lines": 0.5,
+      "duration_z": 0.42460149527436875,
+      "rule": 0.42460149527436875,
+      "novelty": 0.8284758747623749,
+      "heuristic": 0.882041425682983,
+      "value_novelty": 0.5,
+      "value_rarity": 0.5,
+      "value_pair": 0.5,
+      "sequence_novelty": 0.8258225352491116,
+      "bpb_mean": {
+        "mean": 0.7647053225766726,
+        "std": 0.0014348391431933483,
+        "n": 3
+      },
+      "bpb_content": {
+        "mean": 0.7738783762905642,
+        "std": 0.0017684863271481188,
+        "n": 3
+      },
+      "bpb_max_event": {
+        "mean": 0.8258743145539591,
+        "std": 0.051264146429902166,
+        "n": 3
+      },
+      "bpb_top10": {
+        "mean": 0.8596780838634416,
+        "std": 0.01270178793852332,
+        "n": 3
+      },
+      "bits_max_field": {
+        "mean": 0.8862025225757768,
+        "std": 0.0021794272587604266,
+        "n": 3
+      },
+      "bits_end": {
+        "mean": 0.488189840284635,
+        "std": 0.0646614946665865,
+        "n": 3
+      }
+    }
+  },
+  "train_info": [
+    {
+      "seed": 0,
+      "num_steps": 477,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 2432,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 1,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 1,
+      "num_steps": 467,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 2432,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 1,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 2,
+      "num_steps": 465,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 2432,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 1,
+      "device_batch_size": 8
+    }
+  ]
+}

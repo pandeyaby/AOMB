@@ -1,0 +1,668 @@
+{
+  "protocol": "eval/in_domain.py (temporal split, train on normals only)",
+  "capture_id": "pooled-20260925-ruleproof",
+  "content_sha256": "21970ed8827cb55e0b55308087fde0a95af9f06a6dd2c86c0840102c2a750188",
+  "git_head": "1f77d4a72a4957f4c81b9bc34e326798d03f4bde",
+  "n_train_normal": 324,
+  "n_eval": 972,
+  "n_eval_normal": 328,
+  "n_eval_incident": 644,
+  "train_seconds": 120.0,
+  "train_chunk_lines": null,
+  "end_marker": true,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "methods": {
+    "length": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5409407665505227,
+        "pr_auc": 0.7321547799639175,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.5250340857445841,
+        "20260925v2-retry_storm": 0.6499015300712013,
+        "20260925v2-silent_fallback": 0.5256779275867293,
+        "20260925v2-skip_cache": 0.46280866535373427
+      }
+    },
+    "error_lines": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5,
+        "pr_auc": 0.6625514403292181,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.5,
+        "20260925v2-retry_storm": 0.5,
+        "20260925v2-silent_fallback": 0.5,
+        "20260925v2-skip_cache": 0.5
+      }
+    },
+    "duration_z": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.6076233714588699,
+        "pr_auc": 0.7903468376400486,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.687054991667929,
+        "20260925v2-retry_storm": 0.9963641872443569,
+        "20260925v2-silent_fallback": 0.4791319497045902,
+        "20260925v2-skip_cache": 0.2547341311922436
+      }
+    },
+    "rule": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.6076233714588699,
+        "pr_auc": 0.7903468376400486,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.687054991667929,
+        "20260925v2-retry_storm": 0.9963641872443569,
+        "20260925v2-silent_fallback": 0.4791319497045902,
+        "20260925v2-skip_cache": 0.2547341311922436
+      }
+    },
+    "novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.6273291925465838,
+        "pr_auc": 0.7484855455869949,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.5031055900621118,
+        "20260925v2-retry_storm": 0.7515527950310559,
+        "20260925v2-silent_fallback": 0.6273291925465838,
+        "20260925v2-skip_cache": 0.6273291925465838
+      }
+    },
+    "heuristic": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.6795750643841842,
+        "pr_auc": 0.8411116510872857,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.6932661717921527,
+        "20260925v2-retry_storm": 1.0,
+        "20260925v2-silent_fallback": 0.5932813210119678,
+        "20260925v2-skip_cache": 0.4575821845174973
+      }
+    },
+    "value_novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5652173913043478,
+        "pr_auc": 0.706566469851494,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.6273291925465838,
+        "20260925v2-retry_storm": 0.5031055900621118,
+        "20260925v2-silent_fallback": 0.6273291925465838,
+        "20260925v2-skip_cache": 0.5031055900621118
+      }
+    },
+    "value_rarity": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5796091501287683,
+        "pr_auc": 0.7306056508057139,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.6576276321769429,
+        "20260925v2-retry_storm": 0.5015906680805938,
+        "20260925v2-silent_fallback": 0.6576276321769429,
+        "20260925v2-skip_cache": 0.5015906680805938
+      }
+    },
+    "value_pair": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.5652173913043478,
+        "pr_auc": 0.706566469851494,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.6273291925465838,
+        "20260925v2-retry_storm": 0.5031055900621118,
+        "20260925v2-silent_fallback": 0.6273291925465838,
+        "20260925v2-skip_cache": 0.5031055900621118
+      }
+    },
+    "sequence_novelty": {
+      "kind": "baseline",
+      "metrics": {
+        "auroc": 0.6273291925465838,
+        "pr_auc": 0.7484855455869949,
+        "precision_at_10": 1.0,
+        "n": 972
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": 0.5031055900621118,
+        "20260925v2-retry_storm": 0.7515527950310559,
+        "20260925v2-silent_fallback": 0.6273291925465838,
+        "20260925v2-skip_cache": 0.6273291925465838
+      }
+    },
+    "bpb_mean": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.6472598848659293,
+          "std": 0.023836352198374395,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.8040105614333382,
+          "std": 0.015459446849893515,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.6245871837600363,
+          "std": 0.022300145558771054,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.7624753825178003,
+          "std": 0.043754876896587976,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 0.6764581124072111,
+          "std": 0.02666852236813858,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.5254506892895016,
+          "std": 0.047257037548423336,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.6394154294803818,
+          "pr_auc": 0.8010746779685968,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.6731366459627329,
+          "pr_auc": 0.8217933595166395,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.6654200121193758,
+          "pr_auc": 0.8156618819974941,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.6124782229965157,
+          "pr_auc": 0.7822673528535125,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.6458491137706408,
+          "pr_auc": 0.7992555348304479,
+          "precision_at_10": 1.0,
+          "n": 972
+        }
+      ]
+    },
+    "bpb_content": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7148405544614452,
+          "std": 0.0112382244008152,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.8417927272686094,
+          "std": 0.009760122678877627,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.6574912891986063,
+          "std": 0.02421953534966233,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.9399333434328131,
+          "std": 0.018391255805144956,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 0.6444023632782911,
+          "std": 0.028700355868287335,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.640084835630965,
+          "std": 0.03144533413465629,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.71727295106802,
+          "pr_auc": 0.8447052475552274,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7110428344190274,
+          "pr_auc": 0.843694845408061,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7117056127859416,
+          "pr_auc": 0.8387283229437398,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7018444175124982,
+          "pr_auc": 0.8275382059446535,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7323369565217391,
+          "pr_auc": 0.8542970144913655,
+          "precision_at_10": 1.0,
+          "n": 972
+        }
+      ]
+    },
+    "bpb_max_event": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.6950395773367671,
+          "std": 0.01144794102511777,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.8389174548122519,
+          "std": 0.012692776512733324,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.630722617785184,
+          "std": 0.026434270810561166,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.8941372519315255,
+          "std": 0.07381511958781815,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 0.6125587032267839,
+          "std": 0.04609332177219018,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.6444023632782911,
+          "std": 0.05121782406657352,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.6952213679745494,
+          "pr_auc": 0.842699873053373,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.6958510074231177,
+          "pr_auc": 0.8476277359328006,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.6782258369943948,
+          "pr_auc": 0.8176698162089118,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.6953444553855477,
+          "pr_auc": 0.8376176015306003,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7105552189062263,
+          "pr_auc": 0.8489722473355741,
+          "precision_at_10": 1.0,
+          "n": 972
+        }
+      ]
+    },
+    "bpb_top10": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7117709437963944,
+          "std": 0.010625691495113006,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.8363585565958293,
+          "std": 0.010830693365082937,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.9800000000000001,
+          "std": 0.04472135954999578,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.6574003938797153,
+          "std": 0.026067115110859906,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.9314800787759431,
+          "std": 0.013555758573953115,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 0.6491289198606272,
+          "std": 0.02879245629391417,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.6310407514013028,
+          "std": 0.037420527877776284,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7080177245871837,
+          "pr_auc": 0.8294907772331908,
+          "precision_at_10": 0.9,
+          "n": 972
+        },
+        {
+          "auroc": 0.7107540524163005,
+          "pr_auc": 0.8425671026061785,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7137602257233753,
+          "pr_auc": 0.8409808080691428,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.698521057415543,
+          "pr_auc": 0.8210675533086199,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7278016588395697,
+          "pr_auc": 0.8476865417620141,
+          "precision_at_10": 1.0,
+          "n": 972
+        }
+      ]
+    },
+    "bits_max_field": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.7147004241781548,
+          "std": 0.00748091569304775,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.8601227965213717,
+          "std": 0.00392167593984129,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 1.0,
+          "std": 0.0,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.6107407968489623,
+          "std": 0.03360519883952435,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.9820784729586427,
+          "std": 0.013634781758484326,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 0.6146341463414634,
+          "std": 0.03704822933349558,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.6273594909862142,
+          "std": 0.023224215959046043,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.7119233828207847,
+          "pr_auc": 0.8595339038817175,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7131637251931525,
+          "pr_auc": 0.8606562923205164,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7256807680654447,
+          "pr_auc": 0.8656050234341951,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7173250265111347,
+          "pr_auc": 0.8545715388046556,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.7054092183002575,
+          "pr_auc": 0.8602472241657738,
+          "precision_at_10": 1.0,
+          "n": 972
+        }
+      ]
+    },
+    "bits_end": {
+      "kind": "model",
+      "metrics": {
+        "auroc": {
+          "mean": 0.5881192243599453,
+          "std": 0.053669669046710666,
+          "n": 5
+        },
+        "pr_auc": {
+          "mean": 0.7325555159708834,
+          "std": 0.05925446672954144,
+          "n": 5
+        },
+        "precision_at_10": {
+          "mean": 0.8400000000000001,
+          "std": 0.2073644135332772,
+          "n": 5
+        }
+      },
+      "per_capture_auroc": {
+        "20260925v2-db_failover": {
+          "mean": 0.49519769731858815,
+          "std": 0.03401306024413819,
+          "n": 5
+        },
+        "20260925v2-retry_storm": {
+          "mean": 0.6523860021208907,
+          "std": 0.09046227260483783,
+          "n": 5
+        },
+        "20260925v2-silent_fallback": {
+          "mean": 0.6346614149371308,
+          "std": 0.050238037038256175,
+          "n": 5
+        },
+        "20260925v2-skip_cache": {
+          "mean": 0.5685805181033177,
+          "std": 0.050856147529924775,
+          "n": 5
+        }
+      },
+      "per_seed": [
+        {
+          "auroc": 0.5141503181336161,
+          "pr_auc": 0.6523163010350604,
+          "precision_at_10": 0.5,
+          "n": 972
+        },
+        {
+          "auroc": 0.5841870549916679,
+          "pr_auc": 0.7349403178151797,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.6037532192092108,
+          "pr_auc": 0.7289373785074341,
+          "precision_at_10": 0.9,
+          "n": 972
+        },
+        {
+          "auroc": 0.6631381608847144,
+          "pr_auc": 0.8194890273701602,
+          "precision_at_10": 1.0,
+          "n": 972
+        },
+        {
+          "auroc": 0.5753673685805181,
+          "pr_auc": 0.7270945551265827,
+          "precision_at_10": 0.8,
+          "n": 972
+        }
+      ]
+    }
+  },
+  "train_info": [
+    {
+      "seed": 0,
+      "num_steps": 482,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 512,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 8,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 1,
+      "num_steps": 483,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 512,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 8,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 2,
+      "num_steps": 482,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 512,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 8,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 3,
+      "num_steps": 483,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 512,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 8,
+      "device_batch_size": 8
+    },
+    {
+      "seed": 4,
+      "num_steps": 482,
+      "device": "mps",
+      "vocab_size": 512,
+      "max_seq_len": 512,
+      "n_train_cropped": 0,
+      "grad_accum_steps": 8,
+      "device_batch_size": 8
+    }
+  ]
+}
