@@ -1,0 +1,10 @@
+**Thinking protocol**
+
+1. **Current state:** The best inject_auroc so far is 0.5782 (exp 1), with val_bpb 0.61. AUROC is only slightly above chance, so the model hasn't yet learned HDFS session structure sharply enough to separate corrupted copies from clean ones. The loss is already plain CE, so the surprise signal is calibrated.
+2. **Bottleneck:** The model is undertrained, not mis-specified. At val_bpb 0.61 it still assigns non-trivial surprise to ordinary tokens. That noise swamps the top-10% surprise score for corruptions such as dropped, duplicated and reordered lines. Those corruptions need tight per-position predictions of the next template.
+3. **Domain justification:** HDFS block sessions are highly templated, with a block-id-specific sequence of allocate, receive, replicate and verify lines. Dropped lines, reordered lines and unseen values only stand out once normal lines are predicted with near-certainty. That needs more optimisation progress inside the fixed 5-minute budget.
+4. **Precise change:** `MATRIX_LR = 0.02` → `0.04`, the Tier 2 item 11 direction. The earlier halving to 0.02 was a stability guess made on the synthetic corpus. Real, low-entropy logs probably benefit from a faster Muon learning rate. Nothing else changes.
+5. **Risk:** Training instability is possible, but Muon with warmdown is robust at 0.04, which was the original default. There's no memory risk.
+6. **Fallback:** If AUROC doesn't rise, revert and try `WEIGHT_DECAY=0.0`. After that, try `WINDOW_PATTERN="L"` to give every layer full context for line-order corruptions.
+
+[full train.py omitted; the change is in the matching .patch file]

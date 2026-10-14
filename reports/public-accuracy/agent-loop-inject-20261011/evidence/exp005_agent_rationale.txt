@@ -1,0 +1,13 @@
+**1. Current state.** The best inject_auroc is 0.7423 (exp 4, `MATRIX_LR` 0.02→0.04), up from 0.5782 at exp 1. val_bpb is 0.5442. The trend is sharply up, and the biggest gain came from fitting the templated HDFS sessions faster inside the 5-minute budget.
+
+**2. Bottleneck.** val_bpb is under 1.0, so this is a refinement regime. Detection depends on the model being confident on normal tokens, so the top-10% surprise score separates corrupted sessions cleanly. That makes it undertraining-limited: more optimizer updates within the fixed time budget should sharpen the model.
+
+**3. Domain justification.** HDFS block logs are highly templated, so a model that has converged tightly makes dropped, duplicated, reordered and novel-value corruptions stand out as high-surprise tokens. At 2**15 tokens per step, each step takes one 16×2048 micro-batch. Halving the batch roughly doubles the number of optimizer steps in the same wall-clock time.
+
+**4. Precise change.** `TOTAL_BATCH_SIZE` 2**15 → 2**14, with `DEVICE_BATCH_SIZE` 16 → 8 so that `TOTAL_BATCH_SIZE % (DEVICE_BATCH_SIZE × MAX_SEQ_LEN) == 0` still holds. Gradient accumulation stays at 1. This is one conceptual change: smaller batch, more steps.
+
+**5. Risk.** Gradient noise is higher, and the smaller device batch may lower throughput slightly. Memory use drops, so there is no OOM risk. The assertion holds.
+
+**6. Fallback.** If this doesn't help, revert it and try `WINDOW_PATTERN="SSSL"` or `WEIGHT_DECAY=0.1`. After that, try `MATRIX_LR=0.06`, continuing in the direction that paid off.
+
+[full train.py omitted; the change is in the matching .patch file]

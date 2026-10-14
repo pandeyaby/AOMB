@@ -1,0 +1,10 @@
+**Thinking protocol**
+
+1. **Current state:** The best inject_auroc so far is 0.5514, which is barely above chance. val_bpb is informational only. There is no trend to read from the history, so this is effectively the baseline.
+2. **Bottleneck diagnosis:** The score is the mean surprise of the top 10% of tokens, taken from the model's logits. That only works if the logits are calibrated. The training loss is focal (γ=3) times anomaly-keyword weights (×4) times a cascade bonus (×2.5). Focal loss stops training on tokens the model already predicts confidently. That leaves the model underconfident on normal text, so every session has a high baseline surprise and corrupted tokens stand out less. The keyword weights also point at the wrong tokens: HDFS lines contain words like "down" and "fail" in ordinary text.
+3. **Domain justification:** Detecting HDFS corruptions (swapped values, unseen values, dropped or duplicated lines, truncation, reordering) needs a sharp model of the normal log grammar. Plain cross-entropy is the proper scoring rule that gives calibrated, peaked probabilities on normal sessions, so deviations get large surprise.
+4. **Precise change:** In `GPT.forward`, replace the focal and anomaly-weighted loss with plain cross-entropy (`ignore_index=-1`), keeping the `reduction` handling. `anomaly_mask` stays in the signature, so the training loop is unchanged. Nothing else is touched.
+5. **Risk:** Low. Plain CE is the standard stable loss. The model might fit rare tokens slightly less, but the objective rewards calibration.
+6. **Fallback:** If AUROC doesn't rise, next try a smaller learning rate or longer warmdown, or `WINDOW_PATTERN="L"` so the end-of-session line sees the whole session.
+
+[full train.py omitted; the change is in the matching .patch file]
