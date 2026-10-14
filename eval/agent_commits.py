@@ -53,10 +53,17 @@ def commits_to_evaluate(base: str, branch: str) -> list[dict]:
 # ---------------------------------------------------------------- one commit (child process)
 
 
-def run_one(sha: str, sessions: str, max_eval: int | None, out: Path) -> None:
+def run_one(sha: str, sessions: str, max_eval: int | None, out: Path, end_marker: bool = False) -> None:
     import torch
 
-    from eval.in_domain import MODEL_METHODS, load_session_file, model_scores_for, ranking_metrics, token_surprise
+    from eval.in_domain import (
+        END_MARKER,
+        MODEL_METHODS,
+        load_session_file,
+        model_scores_for,
+        ranking_metrics,
+        token_surprise,
+    )
 
     source = git("show", f"{sha}:train.py")
     module = types.ModuleType("_aomb_agent_commit")
@@ -81,8 +88,9 @@ def run_one(sha: str, sessions: str, max_eval: int | None, out: Path) -> None:
     scores: dict[str, list[float]] = {m: [] for m in MODEL_METHODS}
     with torch.no_grad():
         for s in eval_set:
-            toks = token_surprise(model, tokenizer, token_bytes, s.text, prepare.MAX_SEQ_LEN)
-            for m, v in model_scores_for(toks, s.text).items():
+            text = s.text + "\n" + END_MARKER if end_marker else s.text
+            toks = token_surprise(model, tokenizer, token_bytes, text, prepare.MAX_SEQ_LEN)
+            for m, v in model_scores_for(toks, text).items():
                 scores[m].append(v)
     result = {
         "sha": sha,
@@ -118,6 +126,7 @@ def spearman(xs: list[float], ys: list[float]) -> float:
 
 
 def render(summary: dict) -> str:
+    PRIMARY = summary["primary"]
     lines = [
         "# Agent loop vs detection",
         "",
@@ -146,12 +155,14 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--branch", help="branch the agent committed to")
     p.add_argument("--max-eval", type=int, default=None, help="score only the first N eval sessions")
     p.add_argument("--repeat-ends", type=int, default=1, help="extra runs of first and last commit (noise)")
+    p.add_argument("--end-marker", action="store_true", help="score sessions with the end-of-session marker")
+    p.add_argument("--primary", default=PRIMARY, help="scoring variant reported as primary")
     p.add_argument("--run-one", metavar="SHA", help=argparse.SUPPRESS)
     p.add_argument("--result", help=argparse.SUPPRESS)
     a = p.parse_args(argv)
 
     if a.run_one:
-        run_one(a.run_one, a.sessions, a.max_eval, Path(a.result))
+        run_one(a.run_one, a.sessions, a.max_eval, Path(a.result), a.end_marker)
         return 0
     if not (a.base and a.branch and a.out_dir):
         p.error("--base, --branch and --out-dir are required")
@@ -171,13 +182,15 @@ def main(argv: list[str] | None = None) -> int:
                    "--run-one", c["sha"], "--result", str(path)]
             if a.max_eval:
                 cmd += ["--max-eval", str(a.max_eval)]
+            if a.end_marker:
+                cmd += ["--end-marker"]
             subprocess.run(cmd, cwd=ROOT, check=True)
         r = json.loads(path.read_text(encoding="utf-8"))
         rows.append({**r, "subject": c["subject"]})
 
     xs = [r["val_bpb"] for r in rows]
-    ys = [r["metrics"][PRIMARY]["auroc"] for r in rows]
-    summary = {"primary": PRIMARY, "base": commits[0]["sha"], "branch": a.branch,
+    ys = [r["metrics"][a.primary]["auroc"] for r in rows]
+    summary = {"primary": a.primary, "base": commits[0]["sha"], "branch": a.branch,
                "spearman_valbpb_vs_auroc": spearman(xs, ys), "rows": rows}
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     md = render(summary)

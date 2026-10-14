@@ -1,0 +1,47 @@
+{
+  "sha": "6eb53fd83a544f03a13e0c0dd6ac13b89252baca",
+  "val_bpb": 0.5532766815200428,
+  "num_steps": 741,
+  "train_and_val_seconds": 368.0,
+  "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+  "n_eval": 10000,
+  "n_incident": 271,
+  "metrics": {
+    "bpb_mean": {
+      "auroc": 0.7267316983993152,
+      "pr_auc": 0.3755025010205112,
+      "precision_at_10": 1.0,
+      "n": 10000
+    },
+    "bpb_content": {
+      "auroc": 0.9038606759795628,
+      "pr_auc": 0.5183119347214256,
+      "precision_at_10": 1.0,
+      "n": 10000
+    },
+    "bpb_max_event": {
+      "auroc": 0.887256458133499,
+      "pr_auc": 0.5719094593331944,
+      "precision_at_10": 1.0,
+      "n": 10000
+    },
+    "bpb_top10": {
+      "auroc": 0.9107757497556475,
+      "pr_auc": 0.5207423526587575,
+      "precision_at_10": 1.0,
+      "n": 10000
+    },
+    "bits_max_field": {
+      "auroc": 0.7907625052198718,
+      "pr_auc": 0.7133262093061875,
+      "precision_at_10": 1.0,
+      "n": 10000
+    },
+    "bits_end": {
+      "auroc": 0.7155318731725707,
+      "pr_auc": 0.05165848617610102,
+      "precision_at_10": 0.0,
+      "n": 10000
+    }
+  }
+}

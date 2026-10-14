@@ -72,6 +72,16 @@ CLAUDE_MODEL      = "sonnet" # default; override with AOMB_CLAUDE_MODELS env var
                              # OpenAI models:     gpt-4o, gpt-4o-mini, gpt-4.1, gpt-4.1-mini
 MAX_GIT_LOG_LINES = 30       # recent experiment lines to feed agent
 
+# Objective. "val_bpb" (default): keep a change when validation bits-per-byte falls.
+# "inject": keep a change when injected-fault detection AUROC rises; the run goes
+# through eval/objective.py, which trains with train.py and then scores the model
+# with code this loop never rewrites. See docs/real-data/injection-objective.md.
+OBJECTIVE = os.getenv("AOMB_OBJECTIVE", "val_bpb").strip().lower()
+# A change must beat the best by more than this to be kept (run-to-run noise).
+MIN_DELTA = float(os.getenv("AOMB_MIN_DELTA", "0") or 0)
+_INJECT_RE = re.compile(r"^inject_auroc:\s*([0-9]*\.?[0-9]+)\s*$", re.M)
+_INJECT_SUBJECT_RE = re.compile(r"\[inject_auroc=([0-9]*\.?[0-9]+)\]")
+
 
 def _parse_csv_env(name: str) -> list[str]:
     raw = os.getenv(name, "")
@@ -211,6 +221,35 @@ def parse_val_bpb(output: str) -> float | None:
     return parse_val_bpb_from_train_log(output)
 
 
+def parse_inject_auroc(output: str) -> float | None:
+    """The FINAL ``inject_auroc:`` line printed by eval/objective.py, or None."""
+    hits = _INJECT_RE.findall(output or "")
+    try:
+        return float(hits[-1]) if hits else None
+    except ValueError:
+        return None
+
+
+def get_best_inject_auroc() -> float:
+    """Highest injected-fault AUROC so far: ``AOMB_BEST_INJECT_AUROC``, else git subjects, else -inf."""
+    raw = os.getenv("AOMB_BEST_INJECT_AUROC", "").strip()
+    if raw:
+        return float(raw)
+    try:
+        subjects = git("log", "--format=%s", "-200").splitlines()
+    except Exception:
+        subjects = []
+    vals = [float(m.group(1)) for sub in subjects for m in [_INJECT_SUBJECT_RE.search(sub)] if m]
+    return max(vals) if vals else float("-inf")
+
+
+def is_improvement(new: float, best: float) -> bool:
+    """True when ``new`` beats ``best`` by more than MIN_DELTA, in the objective's direction."""
+    if OBJECTIVE == "inject":
+        return new > best + MIN_DELTA
+    return new < best - MIN_DELTA
+
+
 def validate_python(code: str) -> tuple[bool, str]:
     """Check code is valid Python. Returns (ok, error_message)."""
     try:
@@ -243,6 +282,31 @@ def _build_prompt(experiment_num: int) -> str:
     train_py    = read_file(TRAIN_PY)
     recent_exps = get_recent_experiments()
     best_bpb    = get_best_val_bpb()
+    if OBJECTIVE == "inject":
+        history_header = (
+            "=== EXPERIMENT HISTORY (recent results, chronological) ===\n"
+            f"Best inject_auroc so far: {get_best_inject_auroc():.4f} (higher is better)"
+        )
+        objective_note = """
+=== OBJECTIVE FOR THIS RUN: inject_auroc (HIGHER is better) ===
+This run does NOT keep changes for lowering val_bpb. A change is kept only if it
+raises inject_auroc. After training, a fixed evaluator takes held-out NORMAL
+sessions, makes corrupted copies (a swapped field value, a value never seen in
+that field, a dropped line, a duplicated line, a truncated session, two reordered
+lines, an inflated duration), and measures how well the model ranks corrupted
+copies above clean ones (AUROC, averaged over corruption types). The score for a
+session is the mean surprise, in bits, of its 10% most surprising tokens,
+computed from your model's logits; every session ends with an [end_of_session]
+line. You cannot see or change the evaluator. val_bpb is still printed, for
+information only. Where program.md says to minimise val_bpb, read: maximise
+inject_auroc.
+"""
+    else:
+        history_header = (
+            "=== EXPERIMENT HISTORY (recent val_bpb results, chronological) ===\n"
+            f"Best val_bpb so far: {best_bpb:.4f}"
+        )
+        objective_note = ""
     return f"""You are the research agent for the Autonomous Observability Model Breeder.
 This is experiment #{experiment_num}.
 
@@ -254,8 +318,8 @@ This is experiment #{experiment_num}.
 {train_py}
 ```
 
-=== EXPERIMENT HISTORY (recent val_bpb results, chronological) ===
-Best val_bpb so far: {best_bpb:.4f}
+{objective_note}
+{history_header}
 
 {recent_exps}
 
@@ -449,8 +513,9 @@ def run_training(experiment_num: int) -> tuple[str, float | None]:
     out_path = LOGS_DIR / f"exp_{experiment_num:04d}_train_output.txt"
 
     try:
+        cmd = ["uv", "run", "python", "-m", "eval.objective"] if OBJECTIVE == "inject" else ["uv", "run", "train.py"]
         result = subprocess.run(
-            ["uv", "run", "train.py"],
+            cmd,
             cwd=REPO_DIR,
             capture_output=True,
             text=True,
@@ -486,22 +551,32 @@ def run_training(experiment_num: int) -> tuple[str, float | None]:
 
 
 def commit_experiment(experiment_num: int, val_bpb: float, prev_best: float,
-                      change_summary: str) -> None:
-    """Commit train.py with val_bpb + optional corpus/source_id lane tags."""
-    delta = val_bpb - prev_best
+                      change_summary: str, inject_auroc: float | None = None) -> None:
+    """Commit train.py with its score + optional corpus/source_id lane tags.
+
+    In the ``inject`` objective the subject leads with ``[inject_auroc=…]`` (the
+    number the change was kept for) and still records ``[val_bpb=…]``.
+    """
     corpus, source_id = resolve_lane_from_environ()
     lane_tags = format_lane_commit_tags(corpus=corpus, source_id=source_id)
     lane_frag = f" {lane_tags}" if lane_tags else ""
+    if inject_auroc is not None:
+        delta = inject_auroc - prev_best
+        head = f"[inject_auroc={inject_auroc:.4f}] [Δ={delta:+.4f}] [val_bpb={val_bpb:.4f}] "
+    else:
+        delta = val_bpb - prev_best
+        head = f"[val_bpb={val_bpb:.4f}] [Δ={delta:+.4f}] "
     msg = (
-        f"[val_bpb={val_bpb:.4f}] [Δ={delta:+.4f}] "
+        f"{head}"
         f"[change: {change_summary[:60]}] "
         f"[exp: {experiment_num}]{lane_frag}\n\n"
         f"Authored-By: Abhinav Pandey <pandey.aby@gmail.com>"
     )
     git("add", "train.py")
     git("commit", "-m", msg)
+    shown = f"inject_auroc={inject_auroc:.4f}" if inject_auroc is not None else f"val_bpb={val_bpb:.4f}"
     log.info(
-        f"[Exp {experiment_num}] Committed: val_bpb={val_bpb:.4f} "
+        f"[Exp {experiment_num}] Committed: {shown} "
         f"(Δ={delta:+.4f}){(' ' + lane_tags) if lane_tags else ''}"
     )
 
@@ -573,6 +648,12 @@ def main():
             sys.exit(1)
 
     best_val_bpb = get_best_val_bpb()
+    if OBJECTIVE == "inject":
+        best_val_bpb = get_best_inject_auroc()  # same variable; "best score" in this objective
+        log.info(f"Objective: inject_auroc (higher is better), min delta {MIN_DELTA}")
+        if best_val_bpb == float("-inf"):
+            log.error("AOMB_OBJECTIVE=inject needs a bar: set AOMB_BEST_INJECT_AUROC to the base model's score.")
+            sys.exit(1)
     corpus, source_id = resolve_lane_from_environ()
     override_raw = os.getenv("AOMB_BEST_VAL_BPB", "").strip()
     if override_raw:
@@ -585,7 +666,7 @@ def main():
     if best_val_bpb == float("inf"):
         log.info("No prior in-lane experiments found. Starting fresh.")
     else:
-        log.info(f"Resuming from best val_bpb={best_val_bpb:.4f}")
+        log.info(f"Resuming from best {'inject_auroc' if OBJECTIVE == 'inject' else 'val_bpb'}={best_val_bpb:.4f}")
 
     experiment_num = 0
     consecutive_failures = 0
@@ -646,15 +727,29 @@ def main():
             continue
 
         # ── Step 6: Commit if improved, else roll back ───────────────────────
-        if val_bpb < best_val_bpb:
+        inject = None
+        score = val_bpb
+        if OBJECTIVE == "inject":
+            inject = parse_inject_auroc(output)
+            if inject is None:
+                log.warning(f"[Exp {experiment_num}] No inject_auroc in output — rolling back")
+                shutil.copy2(backup_path, TRAIN_PY)
+                time.sleep(SLEEP_BETWEEN)
+                continue
+            score = inject
+            log.info(f"[Exp {experiment_num}] inject_auroc={inject:.4f} (val_bpb={val_bpb:.4f})")
+        if is_improvement(score, best_val_bpb):
             resp_path = LOGS_DIR / f"exp_{experiment_num:04d}_claude_response.txt"
             summary = extract_change_summary(resp_path)
-            commit_experiment(experiment_num, val_bpb, best_val_bpb, summary)
-            best_val_bpb = val_bpb
+            commit_experiment(experiment_num, val_bpb, best_val_bpb, summary, inject_auroc=inject)
+            best_val_bpb = score
             push_to_remote(experiment_num)
             log.info(f"[Exp {experiment_num}] ✓ IMPROVED → new best={best_val_bpb:.4f}")
         else:
-            log.info(f"[Exp {experiment_num}] ✗ No improvement ({val_bpb:.4f} ≥ {best_val_bpb:.4f}) — rolling back")
+            log.info(
+                f"[Exp {experiment_num}] ✗ No improvement ({score:.4f} vs best {best_val_bpb:.4f}, "
+                f"min delta {MIN_DELTA}) — rolling back"
+            )
             shutil.copy2(backup_path, TRAIN_PY)
 
         time.sleep(SLEEP_BETWEEN)
@@ -662,7 +757,7 @@ def main():
     # ── Final push and summary ───────────────────────────────────────────────
     log.info("\n" + "=" * 60)
     log.info(f"  LOOP COMPLETE — {experiment_num} experiments run")
-    log.info(f"  Final best val_bpb: {best_val_bpb:.4f}")
+    log.info(f"  Final best {'inject_auroc' if OBJECTIVE == 'inject' else 'val_bpb'}: {best_val_bpb:.4f}")
     log.info("=" * 60)
 
     try:

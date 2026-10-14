@@ -1,0 +1,344 @@
+{
+  "primary": "bpb_top10",
+  "base": "fdd9b571ef568448a4ad1f99e5a534667690f94f",
+  "branch": "experiment/agent-inject-20261010",
+  "spearman_valbpb_vs_auroc": 0.75,
+  "rows": [
+    {
+      "sha": "fdd9b571ef568448a4ad1f99e5a534667690f94f",
+      "val_bpb": 0.4682243289391753,
+      "num_steps": 777,
+      "train_and_val_seconds": 367.3,
+      "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "n_eval": 10000,
+      "n_incident": 271,
+      "metrics": {
+        "bpb_mean": {
+          "auroc": 0.6894027404658876,
+          "pr_auc": 0.3280019185444063,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_content": {
+          "auroc": 0.8423987477617607,
+          "pr_auc": 0.43628533245495016,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_max_event": {
+          "auroc": 0.9306751716915874,
+          "pr_auc": 0.8325291440910598,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_top10": {
+          "auroc": 0.8421359051703375,
+          "pr_auc": 0.2396524773102132,
+          "precision_at_10": 0.1,
+          "n": 10000
+        },
+        "bits_max_field": {
+          "auroc": 0.796185103386649,
+          "pr_auc": 0.7174747633436029,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_end": {
+          "auroc": 0.7555233924217133,
+          "pr_auc": 0.21655881250488548,
+          "precision_at_10": 1.0,
+          "n": 10000
+        }
+      },
+      "subject": "branch start (before any agent change)"
+    },
+    {
+      "sha": "6eb53fd83a544f03a13e0c0dd6ac13b89252baca",
+      "val_bpb": 0.5532766815200428,
+      "num_steps": 741,
+      "train_and_val_seconds": 368.0,
+      "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "n_eval": 10000,
+      "n_incident": 271,
+      "metrics": {
+        "bpb_mean": {
+          "auroc": 0.7267316983993152,
+          "pr_auc": 0.3755025010205112,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_content": {
+          "auroc": 0.9038606759795628,
+          "pr_auc": 0.5183119347214256,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_max_event": {
+          "auroc": 0.887256458133499,
+          "pr_auc": 0.5719094593331944,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_top10": {
+          "auroc": 0.9107757497556475,
+          "pr_auc": 0.5207423526587575,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_max_field": {
+          "auroc": 0.7907625052198718,
+          "pr_auc": 0.7133262093061875,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_end": {
+          "auroc": 0.7155318731725707,
+          "pr_auc": 0.05165848617610102,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      },
+      "subject": "[inject_auroc=0.5782] [\u0394=+0.0268] [val_bpb=0.6098] [change: ** In `GPT.forward`, replace the focal and anomaly-weighted ] [exp: 1] [corpus=hdfs_v1_inject]"
+    },
+    {
+      "sha": "62f644a7930bf4a1bd41e28cc975adeee1fa8611",
+      "val_bpb": 0.635303674323379,
+      "num_steps": 758,
+      "train_and_val_seconds": 368.4,
+      "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "n_eval": 10000,
+      "n_incident": 271,
+      "metrics": {
+        "bpb_mean": {
+          "auroc": 0.7672648326853296,
+          "pr_auc": 0.4479748270759411,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_content": {
+          "auroc": 0.9044682861259695,
+          "pr_auc": 0.613870708944925,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_max_event": {
+          "auroc": 0.8916876125282992,
+          "pr_auc": 0.5715247997082965,
+          "precision_at_10": 0.9,
+          "n": 10000
+        },
+        "bpb_top10": {
+          "auroc": 0.9218978221234572,
+          "pr_auc": 0.6024617678303545,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_max_field": {
+          "auroc": 0.8069339620315722,
+          "pr_auc": 0.6774823539728959,
+          "precision_at_10": 0.9,
+          "n": 10000
+        },
+        "bits_end": {
+          "auroc": 0.6697231125872776,
+          "pr_auc": 0.04907666069571626,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      },
+      "subject": "[inject_auroc=0.7423] [\u0394=+0.1640] [val_bpb=0.5442] [change: ** `MATRIX_LR = 0.02` \u2192 `0.04`, the Tier 2 item 11 direction] [exp: 4] [corpus=hdfs_v1_inject]"
+    },
+    {
+      "sha": "3af49723a5136ca0bb10b70e402b37fd8283118e",
+      "val_bpb": 0.5763697602065263,
+      "num_steps": 1471,
+      "train_and_val_seconds": 363.8,
+      "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "n_eval": 10000,
+      "n_incident": 271,
+      "metrics": {
+        "bpb_mean": {
+          "auroc": 0.7547250033092375,
+          "pr_auc": 0.40342086145174766,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_content": {
+          "auroc": 0.9571316249702737,
+          "pr_auc": 0.6011845857525142,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_max_event": {
+          "auroc": 0.8745899484896792,
+          "pr_auc": 0.5441183883652195,
+          "precision_at_10": 0.8,
+          "n": 10000
+        },
+        "bpb_top10": {
+          "auroc": 0.9566734520259171,
+          "pr_auc": 0.5912445324787501,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_max_field": {
+          "auroc": 0.8069208767943369,
+          "pr_auc": 0.621782439640331,
+          "precision_at_10": 0.8,
+          "n": 10000
+        },
+        "bits_end": {
+          "auroc": 0.6786195567783615,
+          "pr_auc": 0.04400866851011653,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      },
+      "subject": "[inject_auroc=0.7660] [\u0394=+0.0237] [val_bpb=0.5581] [change: smaller batch, more steps] [exp: 5] [corpus=hdfs_v1_inject]"
+    },
+    {
+      "sha": "d69869c20665c8eace72644242dd09fe0f510a9f",
+      "val_bpb": 0.6314297204988657,
+      "num_steps": 1467,
+      "train_and_val_seconds": 363.8,
+      "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "n_eval": 10000,
+      "n_incident": 271,
+      "metrics": {
+        "bpb_mean": {
+          "auroc": 0.7035954818382596,
+          "pr_auc": 0.3859218153773652,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_content": {
+          "auroc": 0.9565528402740087,
+          "pr_auc": 0.6395038335120432,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_max_event": {
+          "auroc": 0.926419624973308,
+          "pr_auc": 0.7515354939058088,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_top10": {
+          "auroc": 0.9575458011749405,
+          "pr_auc": 0.6413395983294072,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_max_field": {
+          "auroc": 0.8050094839523788,
+          "pr_auc": 0.7236372216304989,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_end": {
+          "auroc": 0.7759989440782474,
+          "pr_auc": 0.08096597889353961,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      },
+      "subject": "[inject_auroc=0.7957] [\u0394=+0.0297] [val_bpb=0.6061] [change: self._adamw_step_t = torch.tensor(0.0, dtype=torch.float32, ] [exp: 76] [corpus=hdfs_v1_inject]"
+    },
+    {
+      "sha": "fdd9b571ef568448a4ad1f99e5a534667690f94f",
+      "val_bpb": 0.46870185864800046,
+      "num_steps": 755,
+      "train_and_val_seconds": 368.4,
+      "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "n_eval": 10000,
+      "n_incident": 271,
+      "metrics": {
+        "bpb_mean": {
+          "auroc": 0.7045759264253142,
+          "pr_auc": 0.34218765889320757,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_content": {
+          "auroc": 0.8404700975779416,
+          "pr_auc": 0.47250933747503976,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_max_event": {
+          "auroc": 0.8763342675054873,
+          "pr_auc": 0.5888029335315694,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_top10": {
+          "auroc": 0.8422568962044847,
+          "pr_auc": 0.43403312399957134,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_max_field": {
+          "auroc": 0.7879254740743522,
+          "pr_auc": 0.7125681200805496,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_end": {
+          "auroc": 0.6297317829792544,
+          "pr_auc": 0.039252623205385764,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      },
+      "subject": "branch start (before any agent change)"
+    },
+    {
+      "sha": "d69869c20665c8eace72644242dd09fe0f510a9f",
+      "val_bpb": 0.5828387140023155,
+      "num_steps": 1459,
+      "train_and_val_seconds": 364.9,
+      "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "n_eval": 10000,
+      "n_incident": 271,
+      "metrics": {
+        "bpb_mean": {
+          "auroc": 0.8003014535233234,
+          "pr_auc": 0.4471266971064149,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_content": {
+          "auroc": 0.9525146222785077,
+          "pr_auc": 0.6272559810878552,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bpb_max_event": {
+          "auroc": 0.8876000878417665,
+          "pr_auc": 0.5709511902779129,
+          "precision_at_10": 0.9,
+          "n": 10000
+        },
+        "bpb_top10": {
+          "auroc": 0.9523109477163226,
+          "pr_auc": 0.6245454453357386,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_max_field": {
+          "auroc": 0.8027538924787953,
+          "pr_auc": 0.7076052958759638,
+          "precision_at_10": 1.0,
+          "n": 10000
+        },
+        "bits_end": {
+          "auroc": 0.7426312098458635,
+          "pr_auc": 0.05689960290622035,
+          "precision_at_10": 0.0,
+          "n": 10000
+        }
+      },
+      "subject": "[inject_auroc=0.7957] [\u0394=+0.0297] [val_bpb=0.6061] [change: self._adamw_step_t = torch.tensor(0.0, dtype=torch.float32, ] [exp: 76] [corpus=hdfs_v1_inject]"
+    }
+  ]
+}
