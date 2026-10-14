@@ -34,6 +34,8 @@ Three public datasets the project didn't create. The model uses **one scoring ru
 
 Across these and the three lab views below, the fixed rule beats the best simple check on one of seven datasets (the lab's rule-proof faults), is within 0.03 on three, and loses three. The model helps where a fault changes structure or content without changing severity, error codes or latency. Where those already carry the signal, simple checks are better.
 
+**The agent loop improved real detection once its objective was changed.** An overnight run that kept changes only when the model got better at spotting *corrupted copies of normal sessions* (no incident labels) raised AUROC on labelled HDFS anomalies it never saw from 0.842 to 0.958, while `val_bpb` got worse. That closes the gap between `train.py` and the simpler trainer behind the 0.964 above; it doesn't beat the hand-built check. One dataset, one run: [write-up](docs/real-data/agent-inject-run.md).
+
 ### Detection in the lab
 
 All results below are from a small lab microservice stack with injected faults, compared against the checks an SRE would write. Every capture is public in [`lab/published/`](lab/published/), and `./scripts/reproduce_lab_evals.sh` reruns every in-domain number (`QUICK=1` finishes in minutes on a CPU).
