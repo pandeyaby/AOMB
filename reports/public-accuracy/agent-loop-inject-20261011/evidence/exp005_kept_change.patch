@@ -1,0 +1,22 @@
+diff --git a/train.py b/train.py
+index 0a0db88..9de20c4 100644
+--- a/train.py
++++ b/train.py
+@@ -525,7 +525,7 @@ HEAD_DIM = 128          # target head dimension for attention
+ WINDOW_PATTERN = "SSL"  # sliding window pattern: 2 local + 1 global (best from exp 6)
+ 
+ # Optimization
+-TOTAL_BATCH_SIZE = 2**15 # ~32K tokens per optimizer step (smaller batch for higher gradient noise)
++TOTAL_BATCH_SIZE = 2**14 # ~16K tokens per optimizer step (halved to double optimizer steps within the 5-minute budget)
+ EMBEDDING_LR = 0.45     # learning rate for token embeddings (Adam) - increased from 0.3 to 0.45 for faster learning of structured telemetry vocab
+ UNEMBEDDING_LR = 0.004  # learning rate for lm_head (Adam)
+ MATRIX_LR = 0.04        # learning rate for matrix parameters (Muon) - doubled from 0.02 to fit templated HDFS sessions faster within the 5-minute budget
+@@ -538,7 +538,7 @@ FINAL_LR_FRAC = 0.0     # final LR as fraction of initial (decay fully to zero f
+ 
+ # Model size
+ DEPTH = 4               # number of transformer layers
+-DEVICE_BATCH_SIZE = 16  # per-device batch size (reduce if OOM)
++DEVICE_BATCH_SIZE = 8   # per-device batch size (8 so TOTAL_BATCH_SIZE=2**14 divides evenly: 8*2048=2**14)
+ 
+ # ---------------------------------------------------------------------------
+ # Setup: tokenizer, model, optimizer, dataloader

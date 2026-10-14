@@ -1,0 +1,3 @@
+val_bpb:          0.435371 inject_auroc:     0.558933 
+val_bpb:          0.429909 inject_auroc:     0.545228 
+val_bpb:          0.479197 inject_auroc:     0.550150 

@@ -1,0 +1,10 @@
+**Thinking protocol**
+
+1. **Current state.** inject_auroc went 0.578 (exp 1), then 0.742 (exp 4), then 0.766 (exp 5). val_bpb is about 0.558, and it is for information only. The last three runs trend upward. Doubling MATRIX_LR from 0.02 to 0.04 gave +0.164, and halving the batch gave +0.024.
+2. **Bottleneck diagnosis.** val_bpb is below 1.0, and AUROC is limited by how sharply the model has fit the templated HDFS sessions. Within a 5-minute budget the model is undertrained. Faster convergence should sharpen the surprise on corrupted tokens.
+3. **Domain justification.** HDFS blocks are highly templated, so the model has to learn the exact value-in-field distributions. Value swaps, unseen values and duplicated lines only show up as surprise if those distributions are learned tightly. A higher Muon LR learns them faster in the fixed time.
+4. **Precise change.** `MATRIX_LR = 0.04` → `0.06`. This is Tier 2 item 11, and nothing else changes.
+5. **Risk.** Muon instability or loss spikes at the higher LR. The fast-fail guard at loss > 100 and the warmdown to zero limit the damage. There is no memory risk.
+6. **Fallback.** If AUROC drops, revert and try `TOTAL_BATCH_SIZE=2**13` with `DEVICE_BATCH_SIZE=4`, which continues the more-steps trend. After that, try `WINDOW_PATTERN="SSSL"`.
+
+[full train.py omitted; the change is in the matching .patch file]
