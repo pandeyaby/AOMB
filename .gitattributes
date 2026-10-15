@@ -1,0 +1,2 @@
+# Generated eval output (per-token heatmaps): keep out of GitHub language stats
+reports/**/*.html linguist-generated
