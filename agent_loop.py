@@ -504,14 +504,19 @@ def call_claude_agent(experiment_num: int, attempt_num: int) -> str | None:
 
 def run_training(experiment_num: int) -> tuple[str, float | None]:
     """
-    Run `uv run train.py` for up to TRAIN_TIMEOUT seconds.
-    Returns (full_output, val_bpb or None).
+    Run the training command for up to TRAIN_TIMEOUT seconds.
+    Returns (stdout, val_bpb or None).
+
+    A score is trusted only from a run that exits 0 within the time limit, and
+    only from stdout: a crash, a timeout or a score printed to stderr counts as
+    no result, so the change is rolled back.
     """
     log.info(f"[Exp {experiment_num}] Starting 5-minute training run...")
     t0 = time.time()
 
     out_path = LOGS_DIR / f"exp_{experiment_num:04d}_train_output.txt"
 
+    returncode: int | None = None
     try:
         cmd = ["uv", "run", "python", "-m", "eval.objective"] if OBJECTIVE == "inject" else ["uv", "run", "train.py"]
         result = subprocess.run(
@@ -521,7 +526,7 @@ def run_training(experiment_num: int) -> tuple[str, float | None]:
             text=True,
             timeout=TRAIN_TIMEOUT,
         )
-        output = result.stdout + result.stderr
+        stdout, stderr, returncode = result.stdout, result.stderr, result.returncode
     except subprocess.TimeoutExpired as e:
         stdout = e.stdout or b""
         stderr = e.stderr or b""
@@ -529,16 +534,22 @@ def run_training(experiment_num: int) -> tuple[str, float | None]:
             stdout = stdout.decode("utf-8", errors="replace")
         if isinstance(stderr, bytes):
             stderr = stderr.decode("utf-8", errors="replace")
-        output = stdout + stderr
         log.warning(f"Training timed out after {TRAIN_TIMEOUT}s")
     except Exception as ex:
         log.error(f"Training subprocess error: {ex}")
         return "", None
 
     elapsed = time.time() - t0
+    output = stdout + stderr
     out_path.write_text(output, encoding="utf-8")
 
-    val_bpb = parse_val_bpb(output)
+    if returncode != 0:
+        why = "timed out" if returncode is None else f"exited with code {returncode}"
+        log.warning(f"[Exp {experiment_num}] Training {why} after {elapsed:.0f}s — ignoring any printed score")
+        log.debug("Training tail:\n" + "\n".join(output.splitlines()[-20:]))
+        return stdout, None
+
+    val_bpb = parse_val_bpb(stdout)
     if val_bpb is not None:
         log.info(f"[Exp {experiment_num}] Training done in {elapsed:.0f}s | val_bpb={val_bpb:.4f}")
     else:
@@ -547,7 +558,7 @@ def run_training(experiment_num: int) -> tuple[str, float | None]:
         tail = "\n".join(output.splitlines()[-20:])
         log.debug(f"Training tail:\n{tail}")
 
-    return output, val_bpb
+    return stdout, val_bpb
 
 
 def commit_experiment(experiment_num: int, val_bpb: float, prev_best: float,

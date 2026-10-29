@@ -183,6 +183,12 @@ class TestAgentCommitsSummary(unittest.TestCase):
         self.assertAlmostEqual(spearman(val_bpb, [0.80, 0.75, 0.72, 0.70]), 1.0)
         self.assertNotEqual(spearman([1, 2], [1, 2]), spearman([1, 2], [1, 2]))  # NaN below 3 points
 
+    def test_spearman_averages_ties(self):
+        from eval.agent_commits import spearman
+
+        # scipy.stats.spearmanr([1, 1, 2, 3], [1, 2, 3, 4]) = 0.9486832980505138
+        self.assertAlmostEqual(spearman([1, 1, 2, 3], [1, 2, 3, 4]), 0.9486832980505138)
+
 
 class TestValSelection(unittest.TestCase):
     def test_val_is_normal_and_disjoint(self):

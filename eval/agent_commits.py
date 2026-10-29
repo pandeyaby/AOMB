@@ -109,11 +109,17 @@ def run_one(sha: str, sessions: str, max_eval: int | None, out: Path, end_marker
 
 
 def spearman(xs: list[float], ys: list[float]) -> float:
-    def ranks(v):
+    def ranks(v):  # average ranks for ties
         order = sorted(range(len(v)), key=lambda i: v[i])
         r = [0.0] * len(v)
-        for rank, i in enumerate(order):
-            r[i] = float(rank)
+        i = 0
+        while i < len(order):
+            j = i
+            while j + 1 < len(order) and v[order[j + 1]] == v[order[i]]:
+                j += 1
+            for k in range(i, j + 1):
+                r[order[k]] = (i + j) / 2.0
+            i = j + 1
         return r
 
     if len(xs) < 3:

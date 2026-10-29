@@ -14,7 +14,8 @@ ever used for training or fitting.
 Methods compared on the identical eval set:
 
 - ``length``          session characters
-- ``error_lines``     count of lines with status=error / level=ERROR
+- ``error_lines``     count of lines with a failed status (error, HTTP 4xx/5xx, non-zero
+                      gRPC code) or a severity level (ERROR, FATAL, ...)
 - ``duration_z``      max per-(op, svc) z-score of log duration_ms, fit on train normals
 - ``rule``            error_lines, tie-broken by duration_z (a sensible SRE alert rule)
 - ``novelty``         unseen (op, svc) + unseen log templates (values masked, Drain-style)
@@ -71,8 +72,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 _TS = re.compile(r"\[ts=([0-9T:\-\.]+)Z\]")
 _EVENT = re.compile(r"op=(\S+) svc=(\S+) duration_ms=(\d+(?:\.\d+)?)")
-# Severity words a simple alert rule would key on (BGL uses FATAL / SEVERE / FAILURE).
-_ERROR = re.compile(r"status=error|level=(?:ERROR|FATAL|SEVERE|FAILURE|CRITICAL)\b")
+# What a simple alert rule would key on: a failed status (status=error, HTTP 4xx/5xx,
+# or a non-zero gRPC code, as in RCAEval Online Boutique) or a severity word (BGL
+# uses FATAL / SEVERE / FAILURE).
+_ERROR = re.compile(
+    r"status=(?:error|[45]\d\d|[1-9]|1[0-6])\b|level=(?:ERROR|FATAL|SEVERE|FAILURE|CRITICAL)\b"
+)
 # key=value fields preceded by start/space/underscore (log msgs join words with "_")
 _FIELD = re.compile(r"(?:^|(?<=[\s_]))([A-Za-z]+)=([^\s_\]]+)")
 _NUMERIC = re.compile(r"^-?\d+(?:\.\d+)?$")
