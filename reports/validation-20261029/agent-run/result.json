@@ -1,0 +1,516 @@
+{
+ "assignment": "agent-run: combined kept train.py changes vs base fdd9b57 on labelled HDFS",
+ "base_commit": "fdd9b571ef568448a4ad1f99e5a534667690f94f",
+ "patched_commit": "ecf014b60420578379354c70dae61314bfaa115c (temp branch, deleted)",
+ "primary": "bpb_top10",
+ "sessions_sha256": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+ "n_eval": 10000,
+ "n_incident": 271,
+ "training_seconds_budget": 300,
+ "runs": [
+  {
+   "run": 0,
+   "commit": "fdd9b57",
+   "label": "base",
+   "num_steps": 722,
+   "val_bpb": 0.4484785385801503,
+   "metrics": {
+    "bpb_mean": {
+     "auroc": 0.7217923058046491,
+     "pr_auc": 0.35485348306806047,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_content": {
+     "auroc": 0.8571308284775725,
+     "pr_auc": 0.48159128882609814,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_max_event": {
+     "auroc": 0.9418438957747579,
+     "pr_auc": 0.8558653897058723,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_top10": {
+     "auroc": 0.8602754575186825,
+     "pr_auc": 0.34155115902428573,
+     "precision_at_10": 0.4,
+     "n": 10000
+    },
+    "bits_max_field": {
+     "auroc": 0.8058715924809572,
+     "pr_auc": 0.7100504499694338,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bits_end": {
+     "auroc": 0.773151293030044,
+     "pr_auc": 0.21302019690137608,
+     "precision_at_10": 1.0,
+     "n": 10000
+    }
+   }
+  },
+  {
+   "run": 1,
+   "commit": "ecf014b",
+   "label": "patched",
+   "num_steps": 1425,
+   "val_bpb": 0.56338624526199,
+   "metrics": {
+    "bpb_mean": {
+     "auroc": 0.7929854784209267,
+     "pr_auc": 0.43606303428295684,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_content": {
+     "auroc": 0.9734798273052111,
+     "pr_auc": 0.6470498582640294,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_max_event": {
+     "auroc": 0.9532663596756227,
+     "pr_auc": 0.8289758041515548,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_top10": {
+     "auroc": 0.9740313036802893,
+     "pr_auc": 0.6445769950784975,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bits_max_field": {
+     "auroc": 0.7862300824673372,
+     "pr_auc": 0.6325662827355505,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bits_end": {
+     "auroc": 0.6512818412180421,
+     "pr_auc": 0.4536857861074622,
+     "precision_at_10": 1.0,
+     "n": 10000
+    }
+   }
+  },
+  {
+   "run": 2,
+   "commit": "fdd9b57",
+   "label": "base",
+   "num_steps": 737,
+   "val_bpb": 0.45678528705483734,
+   "metrics": {
+    "bpb_mean": {
+     "auroc": 0.7168885657404215,
+     "pr_auc": 0.37049040201654443,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_content": {
+     "auroc": 0.8503951552003957,
+     "pr_auc": 0.5006445161272884,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_max_event": {
+     "auroc": 0.9407856983287687,
+     "pr_auc": 0.8739095350275244,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_top10": {
+     "auroc": 0.8556057345957363,
+     "pr_auc": 0.41536794007026523,
+     "precision_at_10": 0.6,
+     "n": 10000
+    },
+    "bits_max_field": {
+     "auroc": 0.7883540630040898,
+     "pr_auc": 0.7096758593906126,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bits_end": {
+     "auroc": 0.7032564035168566,
+     "pr_auc": 0.22466766821920456,
+     "precision_at_10": 1.0,
+     "n": 10000
+    }
+   }
+  },
+  {
+   "run": 3,
+   "commit": "fdd9b57",
+   "label": "base",
+   "num_steps": 734,
+   "val_bpb": 0.42480979561139925,
+   "metrics": {
+    "bpb_mean": {
+     "auroc": 0.7050291687005676,
+     "pr_auc": 0.37022885057638544,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_content": {
+     "auroc": 0.8469831321809981,
+     "pr_auc": 0.46497573325388164,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_max_event": {
+     "auroc": 0.9395560653108844,
+     "pr_auc": 0.8294974663440644,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_top10": {
+     "auroc": 0.8507767131325338,
+     "pr_auc": 0.403833625054286,
+     "precision_at_10": 0.8,
+     "n": 10000
+    },
+    "bits_max_field": {
+     "auroc": 0.8088170983467466,
+     "pr_auc": 0.7186119357154824,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bits_end": {
+     "auroc": 0.6143890578591262,
+     "pr_auc": 0.12172312270373899,
+     "precision_at_10": 0.9,
+     "n": 10000
+    }
+   }
+  },
+  {
+   "run": 4,
+   "commit": "ecf014b",
+   "label": "patched",
+   "num_steps": 1398,
+   "val_bpb": 0.6550584376161719,
+   "metrics": {
+    "bpb_mean": {
+     "auroc": 0.7518496646576086,
+     "pr_auc": 0.4272861855256129,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_content": {
+     "auroc": 0.9183989434713958,
+     "pr_auc": 0.5868226267056761,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_max_event": {
+     "auroc": 0.8910784852529376,
+     "pr_auc": 0.5663395677095173,
+     "precision_at_10": 0.8,
+     "n": 10000
+    },
+    "bpb_top10": {
+     "auroc": 0.924853189327453,
+     "pr_auc": 0.6048141954471371,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bits_max_field": {
+     "auroc": 0.7951906253567623,
+     "pr_auc": 0.6976779002693554,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bits_end": {
+     "auroc": 0.7263017819817421,
+     "pr_auc": 0.05088951322375876,
+     "precision_at_10": 0.0,
+     "n": 10000
+    }
+   }
+  },
+  {
+   "run": 5,
+   "commit": "ecf014b",
+   "label": "patched",
+   "num_steps": 1417,
+   "val_bpb": 0.5785274850869899,
+   "metrics": {
+    "bpb_mean": {
+     "auroc": 0.8070048878102102,
+     "pr_auc": 0.45891234873818043,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_content": {
+     "auroc": 0.9660246556212093,
+     "pr_auc": 0.6125907814383484,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bpb_max_event": {
+     "auroc": 0.9087757945109516,
+     "pr_auc": 0.6181352521491242,
+     "precision_at_10": 0.9,
+     "n": 10000
+    },
+    "bpb_top10": {
+     "auroc": 0.9663189786384451,
+     "pr_auc": 0.6057833840529081,
+     "precision_at_10": 1.0,
+     "n": 10000
+    },
+    "bits_max_field": {
+     "auroc": 0.8294257780690666,
+     "pr_auc": 0.6971550496920992,
+     "precision_at_10": 0.8,
+     "n": 10000
+    },
+    "bits_end": {
+     "auroc": 0.7930188552579328,
+     "pr_auc": 0.09457423595251718,
+     "precision_at_10": 0.7,
+     "n": 10000
+    }
+   }
+  }
+ ],
+ "aggregate": {
+  "base": {
+   "val_bpb": [
+    0.4484785385801503,
+    0.45678528705483734,
+    0.42480979561139925
+   ],
+   "steps": [
+    722,
+    737,
+    734
+   ],
+   "bpb_mean": {
+    "auroc": [
+     0.7217923058046491,
+     0.7168885657404215,
+     0.7050291687005676
+    ],
+    "pr_auc": [
+     0.35485348306806047,
+     0.37049040201654443,
+     0.37022885057638544
+    ],
+    "auroc_mean": 0.7145700134152128,
+    "auroc_sd": 0.008618726997422914,
+    "pr_mean": 0.36519091188699676
+   },
+   "bpb_content": {
+    "auroc": [
+     0.8571308284775725,
+     0.8503951552003957,
+     0.8469831321809981
+    ],
+    "pr_auc": [
+     0.48159128882609814,
+     0.5006445161272884,
+     0.46497573325388164
+    ],
+    "auroc_mean": 0.8515030386196554,
+    "auroc_sd": 0.005163766966554604,
+    "pr_mean": 0.4824038460690894
+   },
+   "bpb_max_event": {
+    "auroc": [
+     0.9418438957747579,
+     0.9407856983287687,
+     0.9395560653108844
+    ],
+    "pr_auc": [
+     0.8558653897058723,
+     0.8739095350275244,
+     0.8294974663440644
+    ],
+    "auroc_mean": 0.940728553138137,
+    "auroc_sd": 0.00114498525644051,
+    "pr_mean": 0.8530907970258204
+   },
+   "bpb_top10": {
+    "auroc": [
+     0.8602754575186825,
+     0.8556057345957363,
+     0.8507767131325338
+    ],
+    "pr_auc": [
+     0.34155115902428573,
+     0.41536794007026523,
+     0.403833625054286
+    ],
+    "auroc_mean": 0.8555526350823175,
+    "auroc_sd": 0.004749594813991186,
+    "pr_mean": 0.38691757471627897
+   },
+   "bits_max_field": {
+    "auroc": [
+     0.8058715924809572,
+     0.7883540630040898,
+     0.8088170983467466
+    ],
+    "pr_auc": [
+     0.7100504499694338,
+     0.7096758593906126,
+     0.7186119357154824
+    ],
+    "auroc_mean": 0.8010142512772646,
+    "auroc_sd": 0.01106251673605618,
+    "pr_mean": 0.7127794150251763
+   },
+   "bits_end": {
+    "auroc": [
+     0.773151293030044,
+     0.7032564035168566,
+     0.6143890578591262
+    ],
+    "pr_auc": [
+     0.21302019690137608,
+     0.22466766821920456,
+     0.12172312270373899
+    ],
+    "auroc_mean": 0.6969322514686757,
+    "auroc_sd": 0.07956983098802484,
+    "pr_mean": 0.1864703292747732
+   }
+  },
+  "patched": {
+   "val_bpb": [
+    0.56338624526199,
+    0.6550584376161719,
+    0.5785274850869899
+   ],
+   "steps": [
+    1425,
+    1398,
+    1417
+   ],
+   "bpb_mean": {
+    "auroc": [
+     0.7929854784209267,
+     0.7518496646576086,
+     0.8070048878102102
+    ],
+    "pr_auc": [
+     0.43606303428295684,
+     0.4272861855256129,
+     0.45891234873818043
+    ],
+    "auroc_mean": 0.7839466769629152,
+    "auroc_sd": 0.028667047443036976,
+    "pr_mean": 0.44075385618225005
+   },
+   "bpb_content": {
+    "auroc": [
+     0.9734798273052111,
+     0.9183989434713958,
+     0.9660246556212093
+    ],
+    "pr_auc": [
+     0.6470498582640294,
+     0.5868226267056761,
+     0.6125907814383484
+    ],
+    "auroc_mean": 0.9526344754659387,
+    "auroc_sd": 0.029882246140836104,
+    "pr_mean": 0.6154877554693513
+   },
+   "bpb_max_event": {
+    "auroc": [
+     0.9532663596756227,
+     0.8910784852529376,
+     0.9087757945109516
+    ],
+    "pr_auc": [
+     0.8289758041515548,
+     0.5663395677095173,
+     0.6181352521491242
+    ],
+    "auroc_mean": 0.9177068798131707,
+    "auroc_sd": 0.03204147538440678,
+    "pr_mean": 0.6711502080033988
+   },
+   "bpb_top10": {
+    "auroc": [
+     0.9740313036802893,
+     0.924853189327453,
+     0.9663189786384451
+    ],
+    "pr_auc": [
+     0.6445769950784975,
+     0.6048141954471371,
+     0.6057833840529081
+    ],
+    "auroc_mean": 0.9550678238820625,
+    "auroc_sd": 0.026449255099892998,
+    "pr_mean": 0.6183915248595142
+   },
+   "bits_max_field": {
+    "auroc": [
+     0.7862300824673372,
+     0.7951906253567623,
+     0.8294257780690666
+    ],
+    "pr_auc": [
+     0.6325662827355505,
+     0.6976779002693554,
+     0.6971550496920992
+    ],
+    "auroc_mean": 0.803615495297722,
+    "auroc_sd": 0.022796948365315945,
+    "pr_mean": 0.675799744232335
+   },
+   "bits_end": {
+    "auroc": [
+     0.6512818412180421,
+     0.7263017819817421,
+     0.7930188552579328
+    ],
+    "pr_auc": [
+     0.4536857861074622,
+     0.05088951322375876,
+     0.09457423595251718
+    ],
+    "auroc_mean": 0.7235341594859057,
+    "auroc_sd": 0.07090902684387679,
+    "pr_mean": 0.19971651176124605
+   }
+  }
+ },
+ "delta_auroc_mean_patched_minus_base": {
+  "bpb_mean": 0.06937666354770244,
+  "bpb_content": 0.10113143684628334,
+  "bpb_max_event": -0.023021673324966296,
+  "bpb_top10": 0.09951518879974497,
+  "bits_max_field": 0.0026012440204574716,
+  "bits_end": 0.026601908017230058
+ },
+ "spearman_valbpb_vs_bpb_top10_auroc_6runs": 0.7142857142857143,
+ "cache_restore": {
+  "file_checksums_identical": true,
+  "data_tokenizer_listing_identical": true,
+  "only_difference": "mtime of parent dir ~/.cache/autoresearch ('..' line in ls -la of data/ and tokenizer/): Oct 11 13:37 -> Oct 28 17:27, caused by creating/removing the hold dir",
+  "hdfs_source_cache_unchanged": true
+ },
+ "cleanup": {
+  "worktree_removed": true,
+  "temp_branch_deleted": true,
+  "git_worktree_list": "only main checkout (b5538b7)"
+ },
+ "fairness": {
+  "eval_blocks_disjoint_from_objective_val": true,
+  "eval_blocks_disjoint_from_train_shards": true,
+  "same_sessions_file_all_runs": true,
+  "same_scoring_code_all_runs": true,
+  "same_time_budget_all_runs": true
+ },
+ "blinding_breach": "Auto-loaded project memory in my context contained published numbers for this experiment before I started; I did not use them, did not open README/docs/reports."
+}

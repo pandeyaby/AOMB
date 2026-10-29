@@ -1,7 +1,20 @@
 # Agent run on the injected-fault objective (HDFS)
 
-> **claim_status=`published`** (2026-10-11).
+> **claim_status=`published`** (2026-10-11; **independently reproduced and corrected 2026-10-29**, see below).
 > Optimising injected-fault AUROC overnight raised detection of real HDFS anomalies the agent never saw, from 0.842 to 0.958 AUROC under the fixed rule. It is the first agent run in this project that produced a measured detection gain. The gain brings `train.py` up to what the simpler fixture trainer already reached (0.964); it doesn't beat the hand-built check (0.977).
+
+## Independent reproduction (2026-10-29)
+
+A blinded validator applied the four kept changes to `train.py` at `fdd9b57` and retrained base and patched three times each, scoring the same 10,000 labelled blocks ([`docs/validation-2026-10-29.md`](../validation-2026-10-29.md)):
+
+| | Run 1 | Run 2 | Run 3 | Mean ± sd | PR-AUC (mean) | val_bpb (mean) |
+|---|---|---|---|---|---|---|
+| Base `fdd9b57` | 0.860 | 0.856 | 0.851 | 0.856 ± 0.005 | 0.387 | 0.443 |
+| With the kept changes | 0.974 | 0.925 | 0.966 | 0.955 ± 0.026 | 0.618 | 0.599 |
+
+The gain reproduces (+0.10 against +0.11 here), and the worst patched run beats the best base run. Two statements below were wrong and are corrected in place: another scoring rule got **worse**, not flat, and the changes make training about 5× noisier between runs.
+
+The review also found that the loop's score could have been faked: `train.py` ran in the same process as the scorer, and the loop trusted a score from a run that crashed or printed it to stderr. The kept changes don't do either (they only change the loss and hyperparameters, and the real-data numbers were measured outside the loop), so this result stands. Both holes are now closed: `eval/objective.py` runs `train.py` in a child process that only returns per-token surprise for an unlabelled, shuffled list, and the loop only accepts a score from a clean exit on stdout (`tests/test_objective_isolation.py`).
 
 ## Setup
 
@@ -30,9 +43,11 @@ Two values in a cell are the two repeat runs.
 
 ## How much to trust this
 
-- **One dataset, one run, one training seed per commit.** Only the end points were repeated.
+- **One dataset, one run, one training seed per commit.** Only the end points were repeated in the original evaluation; the reproduction above repeats them three times.
 - **It closes a gap rather than setting a record.** The fixture trainer used for the published HDFS numbers already reaches 0.964 ± 0.020 with the same rule ([`end-of-session-marker.md`](end-of-session-marker.md)), and value rarity plus a too-short rule reaches 0.977. The base `train.py` was held back by the focal training loss it inherited (see the [`val_bpb` audit](../val-bpb-audit.md)); the agent's first kept change removed it.
-- **Only the optimised rule improved.** Under other scoring rules the same models show no gain: max-event AUROC was 0.931 and 0.876 for the base, 0.926 and 0.888 for the final commit; per-field was 0.796 → 0.805. The loop optimised `bpb_top10` and that is what moved.
+- **Only the optimised rule improved, and one other rule got worse.** The original run showed max-event AUROC 0.931 and 0.876 for the base against 0.926 and 0.888 for the final commit, which looked flat. With three runs each, max-event AUROC falls from 0.941 to 0.918 and its PR-AUC from 0.853 to 0.671; per-field is flat (+0.003). The loop optimised `bpb_top10`, and the gain there came partly at the expense of max-event scoring.
+- **The changes make training noisier.** Across three runs the patched model's AUROC spread is about 5× the base's (sd 0.026 vs 0.005). They halve the batch, roughly doubling the optimizer steps.
+- **Residual risks in the objective.** The 300 clean sessions it scores are also the validation shard, which `train.py` could in principle train on; the scoring rule was chosen partly on these same HDFS eval blocks ([pre-registration notes](scoring-rule-preregistration.md#notes-added-after-independent-validation-2026-10-29)); and comparing about 120 tries against a running best with a fixed training seed biases the best injected score upward.
 - **PR-AUC is noisy.** The base scored 0.240 and 0.434 on two runs, so the rise to about 0.63 is real in direction but its size is uncertain.
 - **Kept changes are selected for a higher injected score by construction**, so "injected and real rise together" over five commits is weaker evidence than it looks. The stronger evidence is that the held-out real score rose at all, by an amount far outside noise.
 

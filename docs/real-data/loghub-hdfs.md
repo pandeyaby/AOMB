@@ -28,6 +28,7 @@ uv run python -m eval.in_domain --sessions ~/.cache/aomb-datasets/loghub/hdfs_se
 | Normalised before anything sees the text | Block ids, IPs/ports, job and task ids (they embed a timestamp), **job output directories** (workload names that change over time), part numbers, data sub-directories, thread ids |
 | Masked from model scoring | Timestamps (as in the lab evals) |
 | Model | Tokenizer + `train.py` GPT fit on the 5,000 training blocks only (split into ≤24-line chunks, none cropped; context 960 tokens); 120 s × 5 seeds, MPS |
+| Scoring long blocks | Eval blocks longer than the 960-token context (1,304 of 10,000, 97 of them anomalous) are scored in consecutive windows, so the model's context resets partway through. Training is chunked and checked for cropping; scoring isn't (found in the 2026-10-29 validation) |
 | Code | `corpus/ingest/loghub_hdfs.py`, `eval/in_domain.py` |
 
 ## Results (5 seeds)

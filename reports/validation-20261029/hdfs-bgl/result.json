@@ -1,0 +1,349 @@
+{
+  "git_head": "b5538b73bbf53b3b4de9f61fc721c6386c3304bd",
+  "datasets": {
+    "hdfs": {
+      "commands": [
+        "uv run python -m corpus.ingest.loghub_hdfs --input ~/.cache/aomb-datasets/loghub/HDFS_v1 --out /private/tmp/claude-501/-Users-abhinavpandey-Documents-GitHub-AOMB/93ef5deb-e083-4dcd-9de4-3b697e12752e/scratchpad/validation/hdfs-bgl/hdfs_sessions.jsonl",
+        "uv run python -m eval.in_domain --sessions /private/tmp/claude-501/-Users-abhinavpandey-Documents-GitHub-AOMB/93ef5deb-e083-4dcd-9de4-3b697e12752e/scratchpad/validation/hdfs-bgl/hdfs_sessions.jsonl --seeds 0..4 --train-seconds 120 --train-chunk-lines 24 --end-marker --out-dir /private/tmp/claude-501/-Users-abhinavpandey-Documents-GitHub-AOMB/93ef5deb-e083-4dcd-9de4-3b697e12752e/scratchpad/validation/hdfs-bgl/hdfs"
+      ],
+      "wall_seconds": {
+        "ingest_s": 8,
+        "eval_s_after_lock": 1657
+      },
+      "sessions_sha256_rebuilt": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "sessions_sha256_cached": "f445a5355ba1dcae1e12448d65a5685cabf63f5a9705193330ba8a8ef122f18b",
+      "sha256_match": true,
+      "n_train": 5000,
+      "n_eval": 10000,
+      "n_eval_incident": 271,
+      "steps_per_seed": [
+        449,
+        453,
+        453,
+        456,
+        461
+      ],
+      "max_seq_len": 960,
+      "n_train_cropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "best_baseline": "rarity_or_short",
+      "methods": {
+        "length": {
+          "kind": "baseline",
+          "auroc": 0.5694198385092084,
+          "pr_auc": 0.12338824877080536
+        },
+        "error_lines": {
+          "kind": "baseline",
+          "auroc": 0.5,
+          "pr_auc": 0.0271
+        },
+        "duration_z": {
+          "kind": "baseline",
+          "auroc": 0.5,
+          "pr_auc": 0.0271
+        },
+        "rule": {
+          "kind": "baseline",
+          "auroc": 0.5,
+          "pr_auc": 0.0271
+        },
+        "novelty": {
+          "kind": "baseline",
+          "auroc": 0.791309619849205,
+          "pr_auc": 0.5802034668124458
+        },
+        "heuristic": {
+          "kind": "baseline",
+          "auroc": 0.791309619849205,
+          "pr_auc": 0.5802034668124458
+        },
+        "value_novelty": {
+          "kind": "baseline",
+          "auroc": 0.7655347367534729,
+          "pr_auc": 0.5340494992092778
+        },
+        "value_rarity": {
+          "kind": "baseline",
+          "auroc": 0.8216556124858195,
+          "pr_auc": 0.6048426552609723
+        },
+        "value_pair": {
+          "kind": "baseline",
+          "auroc": 0.791326308267708,
+          "pr_auc": 0.5802466131287239
+        },
+        "sequence_novelty": {
+          "kind": "baseline",
+          "auroc": 0.5307842532634393,
+          "pr_auc": 0.02882672056164238
+        },
+        "too_short": {
+          "kind": "baseline",
+          "auroc": 0.6771217712177122,
+          "pr_auc": 0.37174354243542435
+        },
+        "rarity_or_short": {
+          "kind": "baseline",
+          "auroc": 0.977231118287131,
+          "pr_auc": 0.833451647104322
+        },
+        "bpb_mean": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.7997844159755196,
+            "std": 0.047929103126955176,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.4395135276185763,
+            "std": 0.038639674778907944,
+            "n": 5
+          }
+        },
+        "bpb_content": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.9741097392472536,
+            "std": 0.0041439543343117224,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.6482161784994516,
+            "std": 0.022689327791512726,
+            "n": 5
+          }
+        },
+        "bpb_max_event": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.9537394763401842,
+            "std": 0.023655439514396213,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.7467406197966382,
+            "std": 0.06020551130211314,
+            "n": 5
+          }
+        },
+        "bpb_top10": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.9663805740740109,
+            "std": 0.012023820598533182,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.6304009167660485,
+            "std": 0.02518275795069963,
+            "n": 5
+          }
+        },
+        "bits_max_field": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.7592735455569172,
+            "std": 0.04676331026452204,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.6728231045941516,
+            "std": 0.06619231052153979,
+            "n": 5
+          }
+        },
+        "bits_end": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.7372133527070701,
+            "std": 0.10984941764401518,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.08738246140409367,
+            "std": 0.04936214929976147,
+            "n": 5
+          }
+        }
+      }
+    },
+    "bgl": {
+      "commands": [
+        "uv run python -m corpus.ingest.loghub_bgl --input ~/.cache/aomb-datasets/loghub/BGL --out /private/tmp/claude-501/-Users-abhinavpandey-Documents-GitHub-AOMB/93ef5deb-e083-4dcd-9de4-3b697e12752e/scratchpad/validation/hdfs-bgl/bgl_sessions.jsonl",
+        "uv run python -m eval.in_domain --sessions /private/tmp/claude-501/-Users-abhinavpandey-Documents-GitHub-AOMB/93ef5deb-e083-4dcd-9de4-3b697e12752e/scratchpad/validation/hdfs-bgl/bgl_sessions.jsonl --seeds 0..4 --train-seconds 120 --train-chunk-lines 24 --end-marker --out-dir /private/tmp/claude-501/-Users-abhinavpandey-Documents-GitHub-AOMB/93ef5deb-e083-4dcd-9de4-3b697e12752e/scratchpad/validation/hdfs-bgl/bgl"
+      ],
+      "wall_seconds": {
+        "ingest_s": 12,
+        "eval_s_after_lock": 1812
+      },
+      "sessions_sha256_rebuilt": "e70abf326fabbb929be8b8487f33477559e18948258ecdfbf9aebc0827e99f09",
+      "sessions_sha256_cached": "e70abf326fabbb929be8b8487f33477559e18948258ecdfbf9aebc0827e99f09",
+      "sha256_match": true,
+      "n_train": 5000,
+      "n_eval": 10000,
+      "n_eval_incident": 863,
+      "steps_per_seed": [
+        532,
+        522,
+        525,
+        527,
+        527
+      ],
+      "max_seq_len": 2240,
+      "n_train_cropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "best_baseline": "heuristic",
+      "methods": {
+        "length": {
+          "kind": "baseline",
+          "auroc": 0.6239217975985738,
+          "pr_auc": 0.11672681235310639
+        },
+        "error_lines": {
+          "kind": "baseline",
+          "auroc": 0.9248961761551437,
+          "pr_auc": 0.3864408149951999
+        },
+        "duration_z": {
+          "kind": "baseline",
+          "auroc": 0.5,
+          "pr_auc": 0.0863
+        },
+        "rule": {
+          "kind": "baseline",
+          "auroc": 0.9248961761551437,
+          "pr_auc": 0.3864408149951999
+        },
+        "novelty": {
+          "kind": "baseline",
+          "auroc": 0.73304719925136,
+          "pr_auc": 0.15503640548127817
+        },
+        "heuristic": {
+          "kind": "baseline",
+          "auroc": 0.931950440006133,
+          "pr_auc": 0.4274081447532705
+        },
+        "value_novelty": {
+          "kind": "baseline",
+          "auroc": 0.4837007311516936,
+          "pr_auc": 0.08527291395216828
+        },
+        "value_rarity": {
+          "kind": "baseline",
+          "auroc": 0.8896534546673395,
+          "pr_auc": 0.3261204615862117
+        },
+        "value_pair": {
+          "kind": "baseline",
+          "auroc": 0.4842986844646657,
+          "pr_auc": 0.08521460811203925
+        },
+        "sequence_novelty": {
+          "kind": "baseline",
+          "auroc": 0.7387545146109227,
+          "pr_auc": 0.1530956182366507
+        },
+        "too_short": {
+          "kind": "baseline",
+          "auroc": 0.5,
+          "pr_auc": 0.0863
+        },
+        "rarity_or_short": {
+          "kind": "baseline",
+          "auroc": 0.8896534546673395,
+          "pr_auc": 0.3261204615862117
+        },
+        "bpb_mean": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.7899295277462384,
+            "std": 0.01642754563678379,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.16977974403872972,
+            "std": 0.010417139438480187,
+            "n": 5
+          }
+        },
+        "bpb_content": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.7978656046982009,
+            "std": 0.003618641398015541,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.1749274252057552,
+            "std": 0.003954153400848786,
+            "n": 5
+          }
+        },
+        "bpb_max_event": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.7773238095370953,
+            "std": 0.008346512311822233,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.15899471412176944,
+            "std": 0.00414936097637444,
+            "n": 5
+          }
+        },
+        "bpb_top10": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.8286813664685283,
+            "std": 0.020938244601620585,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.2265961114058058,
+            "std": 0.02688542786409172,
+            "n": 5
+          }
+        },
+        "bits_max_field": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.6678405489959648,
+            "std": 0.0469843232039277,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.11907421565835155,
+            "std": 0.013095971749190407,
+            "n": 5
+          }
+        },
+        "bits_end": {
+          "kind": "model",
+          "auroc": {
+            "mean": 0.7392751334742128,
+            "std": 0.14904339653180282,
+            "n": 5
+          },
+          "pr_auc": {
+            "mean": 0.2876352933453958,
+            "std": 0.21904012281763718,
+            "n": 5
+          }
+        }
+      }
+    }
+  }
+}

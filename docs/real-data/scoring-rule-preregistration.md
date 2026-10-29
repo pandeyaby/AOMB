@@ -58,3 +58,11 @@ Output of `eval/select_rule.py` on the six views (AUROC, mean over seeds):
 **Selected rule: `bpb_top10`** — the mean bits of the 10% most surprising tokens in a session, with the end-of-session marker on and IDs, timestamps and counters masked.
 
 Best hand-built check on the same views, for reference: 0.776, 0.890, 0.833, 0.822, 0.952, 0.882. The fixed rule beats it on two of six (rule-proof, HDFS).
+
+## Notes added after independent validation (2026-10-29)
+
+A blinded re-run ([`docs/validation-2026-10-29.md`](../validation-2026-10-29.md)) reproduced the six development numbers for `bpb_top10` and the BGL result. Its methodology audit adds three caveats this page should have stated:
+
+- **The baselines in the reference line have since changed.** HDFS gained a too-short rule (0.977) and Online Boutique's error rule was fixed to read gRPC status codes (0.998). Against today's baselines the fixed rule beats the best check on one of six development views (rule-proof).
+- **The "before the BGL run" order rests on commit history, not on an external timestamp.** The BGL ingest code was committed 11 minutes before the selection (`a7cba47` 18:19, `1f77d4a` 18:30, 2026-10-09). The BGL report records `git_head` `0fc33eb`, after the selection commit, but nothing outside the repository proves BGL data wasn't looked at before the rule was chosen.
+- **HDFS was a development view, so it isn't a clean test for later work.** The agent-loop run on the injected-fault objective was judged on the same 10,000 HDFS eval blocks that helped choose this rule. The agent never saw their labels, but the scoring rule did.

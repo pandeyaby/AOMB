@@ -21,7 +21,7 @@ With `--end-marker`, every training session ends with a line `[end_of_session]`,
 | Lab, rule-proof (checkout) | 0.933 ± 0.017 | **0.931 ± 0.026** | 0.890 rule + novelty |
 | Lab, value drift (checkout) | 0.715 ± 0.040 | 0.712 ± 0.019 | **0.833** value pair |
 | HDFS | 0.851 ± 0.010 | 0.964 ± 0.020 | **0.977** rarity or too-short |
-| RCAEval Online Boutique (faulted service) | 0.928 ± 0.027 | 0.927 ± 0.036 | **0.952** rule + novelty |
+| RCAEval Online Boutique (faulted service) | 0.928 ± 0.027 | 0.927 ± 0.036 | **0.998** rule + novelty *(0.952 before the 2026-10-29 status-code fix)* |
 | RCAEval Train Ticket (faulted service) | 0.868 ± 0.005 | 0.860 ± 0.013 | **0.882** rule + novelty |
 
 The marker helps where sessions stop early (HDFS) and is neutral elsewhere. The marker score alone separates the lab's missing-call fault perfectly in a one-seed check (1.000 on checkout sessions).
