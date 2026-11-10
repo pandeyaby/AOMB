@@ -11,6 +11,8 @@ Frozen protocol for any **public accuracy claim** about AOMB’s anomaly-ranking
 
 ## `val_bpb` lanes — keep separate (never mix)
 
+> **Correction (2026-10-08).** Every `val_bpb` figure in this table was a focal-weighted loss, not true bits-per-byte, and the improvements they imply are withdrawn. True values: synthetic baseline 0.4372, best real gain 0.4297 (experiment 16); CRISP 200k 0.5211 → 0.5206 (no change). See [`val-bpb-audit.md`](val-bpb-audit.md).
+
 These are **not** interchangeable and **none** is a public accuracy claim:
 
 | Lane | Value | What it is | What it is not |

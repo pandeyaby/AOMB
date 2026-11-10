@@ -128,7 +128,7 @@ class TestInjectObjective(unittest.TestCase):
         with mock.patch.object(agent_loop, "git") as git:
             agent_loop.commit_experiment(3, 0.31, 0.60, "wider model", inject_auroc=0.65)
         msg = git.call_args_list[-1].args[2]
-        self.assertTrue(msg.startswith("[inject_auroc=0.6500] [Δ=+0.0500] [val_bpb=0.3100] [change: wider model]"))
+        self.assertTrue(msg.startswith("[inject_auroc=0.6500] [Δ=+0.0500] [val_bpb=0.3100] [bpb=ce] [change: wider model]"))
 
     def test_prompt_states_the_objective(self):
         with mock.patch.object(agent_loop, "OBJECTIVE", "inject"), \

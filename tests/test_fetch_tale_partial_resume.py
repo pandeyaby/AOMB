@@ -6,7 +6,6 @@ prepare.py untouched. No invented AUROC / val_bpb. CUDA gate skipped.
 from __future__ import annotations
 
 import hashlib
-import io
 import os
 import tempfile
 import unittest

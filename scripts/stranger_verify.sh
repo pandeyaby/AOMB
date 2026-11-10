@@ -222,7 +222,7 @@ PY
 banner "2/2  Public ranking card v1 (harness smoke)"
 if [[ "${STRANGER_FAST}" == "1" ]]; then
   echo "${YLW}STRANGER_FAST=1 → baselines-only + ε check (CPU, no model train).${RST}"
-  ./scripts/run_public_ranking_card_v1.sh --baselines-only --check-eps
+  ./scripts/run_public_ranking_card_v1.sh --baselines-only --check-eps --out-dir reports/reproduce/public-ranking-card-v1
   CARD_MODE="baselines-only (length/events ε)"
 else
   if ! check_import torch; then
@@ -231,7 +231,7 @@ else
   Or keep default: STRANGER_FAST=1 $0"
   fi
   echo "Full harness smoke: fixture-only short CPU train + ε (no MPS, no CRISP)."
-  ./scripts/run_public_ranking_card_v1.sh --with-model --check-eps
+  ./scripts/run_public_ranking_card_v1.sh --with-model --check-eps --out-dir reports/reproduce/public-ranking-card-v1
   CARD_MODE="baselines + fixture model (published_fixture_card when model beats baselines)"
 fi
 

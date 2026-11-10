@@ -10,7 +10,7 @@ from eval.inject import CORRUPTIONS, Injector, injection_auroc
 def _session(region="us-east", currency="USD", dur=5, hits=7):
     return "\n".join([
         f"[ts=1.0] [src=OTel] trace_id=aa11 span_id=bb22 parent=n/a op=GET_/api/checkout svc=api duration_ms={dur} status=ok",
-        f"[ts=1.1] [src=OTel] trace_id=aa11 span_id=cc33 parent=bb22 op=db.ping svc=api duration_ms=1 status=ok",
+        "[ts=1.1] [src=OTel] trace_id=aa11 span_id=cc33 parent=bb22 op=db.ping svc=api duration_ms=1 status=ok",
         f"[ts=1.2] [src=OTelLog] level=INFO svc=api msg=checkout_ok_db=ok_hits={hits}_region={region}_currency={currency}",
     ])
 

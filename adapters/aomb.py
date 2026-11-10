@@ -26,7 +26,6 @@ AXIS_REQUIREMENTS: dict[str, tuple[str, ...]] = {
 
 def _has_path(trace: dict[str, Any], dotted: str) -> bool:
     parts = dotted.split(".")
-    cur: Any = {"channels": trace.get("channels"), "meta": trace.get("meta")}
     # paths are channels.X.values or meta.Y
     if parts[0] == "channels":
         block = (trace.get("channels") or {}).get(parts[1])
