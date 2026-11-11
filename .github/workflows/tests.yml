@@ -15,7 +15,9 @@ permissions:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    # prepare.py (the fixed measuring stick) refuses to import without macOS + MPS,
+    # so the suite runs on Apple Silicon.
+    runs-on: macos-14
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -23,10 +25,10 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - name: Install (CPU torch)
+      - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install torch==2.6.0
           pip install "matplotlib>=3.10.8" "numpy>=2.2.6" "pandas>=2.3.3" "pyarrow>=21.0.0" \
             "requests>=2.32.0" "rustbpe>=0.1.0" "tiktoken>=0.11.0" "zstandard>=0.25.0" "pytest>=8.0"
       - name: pytest
