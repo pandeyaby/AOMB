@@ -141,7 +141,7 @@ cmd_start() {
   else
     echo "No API key in the environment: the loop will use the 'claude' CLI login (rate-limited)."
   fi
-  echo "Bar: inject_auroc > $AOMB_BEST_INJECT_AUROC + $AOMB_MIN_DELTA"
+  echo "Bar: inject_auroc > max(base $AOMB_BEST_INJECT_AUROC, best kept change) + $AOMB_MIN_DELTA"
   nohup caffeinate -i "${run[@]}" python agent_loop.py >> logs/agent_loop.log 2>&1 &
   sleep 3
   echo "Started (pid $(cat logs/agent_loop.pid 2>/dev/null || echo '?')). Log: $WORKTREE/logs/agent_loop.log"
