@@ -1,4 +1,4 @@
-# Full test suite on every push and pull request.
+# Full test suite (Apple Silicon) and command-line smoke checks (Linux) on every push and pull request.
 # The other workflows are path-filtered and run a few test modules each, so
 # before this one about half the suite (including the val_bpb integrity and
 # agent-objective isolation tests) never ran in CI.
@@ -33,3 +33,159 @@ jobs:
             "requests>=2.32.0" "rustbpe>=0.1.0" "tiktoken>=0.11.0" "zstandard>=0.25.0" "pytest>=8.0"
       - name: pytest
         run: python -m pytest -q
+
+  # Command-line smoke checks (refusal flags, dry runs, fixture pipelines), folded
+  # in from the per-feature workflows. Linux on purpose: the Mac smoke script must
+  # refuse to run here.
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (no torch)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyarrow numpy zstandard
+      - name: CLI smoke (dry-run + auroc refuse) [from demo-anomaly]
+        run: |
+          set -euo pipefail
+          python demo_anomaly.py --dry-run --per-class 1 --json \
+            >/tmp/demo-ok.out 2>/tmp/demo-ok.err
+          grep -qi not_published /tmp/demo-ok.out
+          grep -qi dry_run /tmp/demo-ok.out
+
+          python demo_anomaly.py --auroc --dry-run \
+            >/tmp/demo-auroc.out 2>/tmp/demo-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/demo-auroc.err
+          grep -qi not_published /tmp/demo-auroc.err
+
+          python demo_anomaly.py --publish --dry-run \
+            >/tmp/demo-pub.out 2>/tmp/demo-pub.err && exit 1 || test $? -eq 1
+          grep -qi publish /tmp/demo-pub.err
+      - name: CLI smoke (factual extract + refuse invent) [from morning-report-val-bpb]
+        run: |
+          set -euo pipefail
+          python morning_report.py --from-log tests/fixtures/val_bpb_logs/train_success.txt \
+            | grep -E '^val_bpb: 0\.430912$'
+
+          python morning_report.py --from-log tests/fixtures/val_bpb_logs/train_missing.txt \
+            >/tmp/mr-missing.out 2>/tmp/mr-missing.err && exit 1 || test $? -eq 1
+          grep -qi refused /tmp/mr-missing.err
+          ! grep -E 'val_bpb:\s*[0-9]' /tmp/mr-missing.out
+
+          python morning_report.py --from-log tests/fixtures/val_bpb_logs/train_malformed_pending.txt \
+            >/tmp/mr-bad.out 2>/tmp/mr-bad.err && exit 1 || test $? -eq 1
+          grep -qi refused /tmp/mr-bad.err
+      - name: CLI smoke (dry-run + auroc/publish/cuda refuse) [from product-mac-smoke]
+        run: |
+          set -euo pipefail
+          chmod +x scripts/product_mac_smoke.sh
+
+          ./scripts/product_mac_smoke.sh --dry-run \
+            >/tmp/pm-dry.out 2>/tmp/pm-dry.err
+          grep -qi not_published /tmp/pm-dry.err /tmp/pm-dry.out
+          grep -qi "cuda gate stays skipped" /tmp/pm-dry.err /tmp/pm-dry.out
+
+          ./scripts/product_mac_smoke.sh --help-only \
+            >/tmp/pm-help.out 2>/tmp/pm-help.err
+          test $? -eq 0
+
+          ./scripts/product_mac_smoke.sh --auroc \
+            >/tmp/pm-auroc.out 2>/tmp/pm-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/pm-auroc.err
+          grep -qi not_published /tmp/pm-auroc.err
+
+          ./scripts/product_mac_smoke.sh --publish \
+            >/tmp/pm-pub.out 2>/tmp/pm-pub.err && exit 1 || test $? -eq 1
+          grep -qi publish /tmp/pm-pub.err
+
+          ./scripts/product_mac_smoke.sh --cuda \
+            >/tmp/pm-cuda.out 2>/tmp/pm-cuda.err && exit 1 || test $? -eq 1
+          grep -qi cuda /tmp/pm-cuda.err
+
+          # Real path on Linux → platform fail (exit 2), not invent
+          ./scripts/product_mac_smoke.sh \
+            >/tmp/pm-plat.out 2>/tmp/pm-plat.err && exit 1 || test $? -eq 2
+          grep -qi darwin /tmp/pm-plat.err
+
+          python -m eval.product_mac_path --dry-run \
+            >/tmp/pp.out 2>/tmp/pp.err
+          grep -qi not_published /tmp/pp.err
+
+          python -m eval.product_mac_path --auroc \
+            >/tmp/pp-auroc.out 2>/tmp/pp-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/pp-auroc.err
+      - name: BYO script smoke (refusals + missing dump + fixture dry-run) [from session-scorer]
+        run: |
+          set -euo pipefail
+          # Shared exit codes with eval.score_cli
+          bash scripts/byo_score.sh corpus/fixtures/lab_sample --auroc >/tmp/byo-auroc.out 2>/tmp/byo-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/byo-auroc.err
+          bash scripts/byo_score.sh /no/such/byo-dump --dry-run >/tmp/byo-miss.out 2>/tmp/byo-miss.err && exit 1 || test $? -eq 2
+          grep -qi 'dump path not found' /tmp/byo-miss.err
+          bash scripts/byo_score.sh corpus/fixtures/lab_sample --dry-run --max-sessions 1 --json >/tmp/byo-ok.out 2>/tmp/byo-ok.err
+          grep -qi not_published /tmp/byo-ok.err || grep -qi not_published /tmp/byo-ok.out
+      - name: Fixture dry-run E2E (shards only; no prepare/train) [from tale-capped-pipeline]
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$PWD"
+          DATA_DIR="$(mktemp -d)"
+
+          # Happy path: fixture → shards (extract skipped)
+          python -m corpus.ingest.tale_capped_pipeline \
+            --fixture --dry-run --max-spans 50 --data-dir "$DATA_DIR"
+          test -n "$(ls "$DATA_DIR"/shard_*.parquet 2>/dev/null)"
+
+          # Shell wrapper same path
+          DATA_DIR2="$(mktemp -d)"
+          bash scripts/tale_capped_train_score.sh \
+            --fixture --dry-run --max-spans 40 --data-dir "$DATA_DIR2"
+          test -n "$(ls "$DATA_DIR2"/shard_*.parquet 2>/dev/null)"
+
+          # Invent paths refused on CI
+          python -m corpus.ingest.tale_capped_pipeline \
+            --auroc --fixture --max-spans 10 \
+            >/tmp/tale-auroc.out 2>/tmp/tale-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/tale-auroc.err
+
+          python -m corpus.ingest.tale_capped_pipeline \
+            --fixture --max-spans 10 --train \
+            >/tmp/tale-train.out 2>/tmp/tale-train.err && exit 1 || test $? -eq 1
+          grep -qi train /tmp/tale-train.err
+
+          bash scripts/tale_capped_train_score.sh \
+            --fixture --max-spans 10 --prepare \
+            >/tmp/tale-prep.out 2>/tmp/tale-prep.err && exit 1 || test $? -eq 1
+          grep -qi prepare /tmp/tale-prep.err
+
+          # Baseline / scale-smoke invent + CUDA refusals (exit 1)
+          bash scripts/tale_capped_baseline.sh --auroc \
+            >/tmp/tb-auroc.out 2>/tmp/tb-auroc.err && exit 1 || test $? -eq 1
+          grep -qi auroc /tmp/tb-auroc.err
+          grep -qi not_published /tmp/tb-auroc.err
+
+          bash scripts/tale_capped_baseline.sh --publish \
+            >/tmp/tb-pub.out 2>/tmp/tb-pub.err && exit 1 || test $? -eq 1
+          grep -qi publish /tmp/tb-pub.err
+
+          bash scripts/tale_capped_baseline.sh --cuda \
+            >/tmp/tb-cuda.out 2>/tmp/tb-cuda.err && exit 1 || test $? -eq 1
+          grep -qi cuda /tmp/tb-cuda.err
+
+          bash scripts/tale_capped_baseline.sh --download-all \
+            >/tmp/tb-dl.out 2>/tmp/tb-dl.err && exit 1 || test $? -eq 1
+          grep -qi refusing /tmp/tb-dl.err
+
+          bash scripts/tale_scale_smoke.sh --invent-metrics \
+            >/tmp/ts-inv.out 2>/tmp/ts-inv.err && exit 1 || test $? -eq 1
+          grep -qi invent /tmp/ts-inv.err
+
+          bash scripts/tale_scale_smoke.sh --cuda \
+            >/tmp/ts-cuda.out 2>/tmp/ts-cuda.err && exit 1 || test $? -eq 1
+          grep -qi cuda /tmp/ts-cuda.err
