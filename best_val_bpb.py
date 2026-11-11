@@ -4,6 +4,10 @@ Product overnight previously needed ``AOMB_BEST_VAL_BPB`` so a synthetic
 smoke-era best (e.g. 0.3682) did not poison CRISP / Tale breeding. This
 module hardens that in code.
 
+Note: every ``val_bpb`` in commit subjects and the Tale card from before
+2026-10-08 is focal-weighted (docs/val-bpb-audit.md). ``agent_loop`` therefore
+passes only subjects tagged ``[bpb=ce]`` and never uses the card.
+
 Precedence (first sane wins)::
 
   1. Env / explicit override ``AOMB_BEST_VAL_BPB``

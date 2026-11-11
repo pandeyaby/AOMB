@@ -66,6 +66,35 @@ class TestBglAdapter(unittest.TestCase):
         self.assertEqual(len(_ERROR.findall(info)), 0)
 
 
+    def test_val_windows_are_normal_disjoint_and_leave_the_main_file_unchanged(self):
+        import hashlib
+        import json
+        import tempfile
+        from pathlib import Path
+
+        from corpus.ingest.loghub_bgl import build
+
+        lines = []
+        for i in range(400):
+            label = "KERNDTLB" if i % 37 == 0 else "-"
+            lines.append(self._line(label, "INFO", f"event {i % 5}"))
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "BGL"
+            src.mkdir()
+            (src / "BGL.log").write_text("\n".join(lines) + "\n")
+            plain, with_val = Path(tmp) / "a.jsonl", Path(tmp) / "b.jsonl"
+            build(src, plain, window=4, n_train=10, n_eval=40, seed=0)
+            build(src, with_val, window=4, n_train=10, n_eval=40, seed=0, n_val=15)
+            self.assertEqual(hashlib.sha256(plain.read_bytes()).digest(), hashlib.sha256(with_val.read_bytes()).digest())
+            main = [json.loads(x) for x in with_val.read_text().splitlines()]
+            val = [json.loads(x) for x in with_val.with_suffix(".val.jsonl").read_text().splitlines()]
+            self.assertEqual(len(val), 15)
+            self.assertTrue(all(r["label"] == "normal" and r["split"] == "val" for r in val))
+            self.assertFalse({r["session_id"] for r in val} & {r["session_id"] for r in main})
+            last_train = max(int(r["session_id"].split(":")[1]) for r in main if r["split"] == "train")
+            self.assertTrue(all(int(r["session_id"].split(":")[1]) > last_train for r in val))
+
+
 class TestRcaevalAdapter(unittest.TestCase):
     def test_render_trace_uses_span_format_and_masks_ids(self):
         spans = [

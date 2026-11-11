@@ -77,6 +77,6 @@ An earlier internal run (2026-09-18, `reports/public-accuracy/lab-pooled-2026091
 4. **Some lab artifacts remain in the text.** About 20 sessions, spread over both classes, contain the fault-switch control calls (`POST /admin/fault`). The lab app's error message is the literal string `induced_fault_error`. In real incidents the error text would differ; the `status=error` signal itself is genuine.
 5. **Short training.** It's one 5-minute training run per seed, not an overnight-bred model. Whether overnight breeding (lower CRISP `val_bpb`) improves ranking hasn't been measured.
 6. **Session-level score only.** A session is scored by its mean surprise. Localising which event is anomalous, and per-field scoring (which could catch latency faults), are future work.
-7. **Separate from `val_bpb`.** Don't compare or blend this with CRISP `val_bpb` (0.4309 / 0.407753), Tale (1.379520) or synthetic (0.3682). Those numbers measure training fitness, not detection.
+7. **Separate from `val_bpb`.** Don't compare or blend this with CRISP `val_bpb` (0.4309 / 0.407753), Tale (1.379520) or synthetic (0.3682). Those numbers measure training fitness (and were focal-weighted, since withdrawn: [`val-bpb-audit.md`](../val-bpb-audit.md)), not detection.
 
 Protocol: [`docs/public-accuracy-eval.md`](../public-accuracy-eval.md) · checklist: [`publish-checklist.md`](publish-checklist.md).

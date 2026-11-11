@@ -23,7 +23,6 @@ Never invents val_bpb / AUROC. prepare.py is sacred.
 """
 
 import ast
-import json
 import logging
 import os
 import re
@@ -31,7 +30,6 @@ import shutil
 import subprocess
 import sys
 import time
-from datetime import datetime
 from pathlib import Path
 
 from best_val_bpb import (
@@ -197,8 +195,19 @@ def get_recent_experiments(n: int = MAX_GIT_LOG_LINES) -> str:
         return "Could not retrieve experiment history."
 
 
+# Commit subjects measured after prepare.evaluate_bpb started computing plain
+# cross-entropy from logits (2026-10-08, docs/val-bpb-audit.md) carry this tag.
+# Older subjects, and the Tale measured card, record a focal-weighted loss that
+# true bits-per-byte can't reach, so they must not set the bar.
+TRUE_BPB_TAG = "[bpb=ce]"
+_NO_CARD = Path("/nonexistent/aomb-focal-weighted-card.json")
+
+
 def get_best_val_bpb() -> float:
-    """Lowest in-lane val_bpb so far (or env override / Tale card). Never invents.
+    """Lowest in-lane true val_bpb so far (or env override). Never invents.
+
+    Only subjects tagged ``[bpb=ce]`` count, and the Tale measured card is
+    ignored (both older sources are focal-weighted; see ``TRUE_BPB_TAG``).
 
     Isolation: when ``AOMB_CORPUS`` / ``AOMB_SOURCE_ID`` is set, only commit
     subjects tagged with a matching ``[corpus=…]`` / ``[source_id=…]`` count.
@@ -213,7 +222,8 @@ def get_best_val_bpb() -> float:
         subjects = log_output.splitlines() if log_output else []
     except Exception:
         subjects = []
-    return resolve_best_val_bpb(subjects)
+    trusted = [s for s in subjects if TRUE_BPB_TAG in s]
+    return resolve_best_val_bpb(trusted, card_path=_NO_CARD)
 
 
 def parse_val_bpb(output: str) -> float | None:
@@ -573,10 +583,10 @@ def commit_experiment(experiment_num: int, val_bpb: float, prev_best: float,
     lane_frag = f" {lane_tags}" if lane_tags else ""
     if inject_auroc is not None:
         delta = inject_auroc - prev_best
-        head = f"[inject_auroc={inject_auroc:.4f}] [Δ={delta:+.4f}] [val_bpb={val_bpb:.4f}] "
+        head = f"[inject_auroc={inject_auroc:.4f}] [Δ={delta:+.4f}] [val_bpb={val_bpb:.4f}] {TRUE_BPB_TAG} "
     else:
         delta = val_bpb - prev_best
-        head = f"[val_bpb={val_bpb:.4f}] [Δ={delta:+.4f}] "
+        head = f"[val_bpb={val_bpb:.4f}] {TRUE_BPB_TAG} [Δ={delta:+.4f}] "
     msg = (
         f"{head}"
         f"[change: {change_summary[:60]}] "
@@ -675,7 +685,15 @@ def main():
             f"source_id={source_id or '-'}"
         )
     if best_val_bpb == float("inf"):
-        log.info("No prior in-lane experiments found. Starting fresh.")
+        # No trusted bar: measure the unmodified train.py first, so the first
+        # proposal has to beat it rather than being kept unconditionally.
+        log.info("No trusted in-lane val_bpb bar. Measuring the unmodified train.py first...")
+        _out, base = run_training(0)
+        if base is None:
+            log.error("Baseline training run failed; fix train.py or set AOMB_BEST_VAL_BPB.")
+            sys.exit(1)
+        best_val_bpb = base
+        log.info(f"Baseline val_bpb={best_val_bpb:.4f} (unmodified train.py) is the bar")
     else:
         log.info(f"Resuming from best {'inject_auroc' if OBJECTIVE == 'inject' else 'val_bpb'}={best_val_bpb:.4f}")
 

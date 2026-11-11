@@ -6,7 +6,6 @@ Refuse runs before torch / MPS verify. prepare.py untouched. No invented AUROC.
 from __future__ import annotations
 
 import os
-import re
 import subprocess
 import sys
 import unittest

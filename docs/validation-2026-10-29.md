@@ -54,15 +54,15 @@ Neither critical hole affected a published result: the agent's kept changes only
 - **RCAEval Train Ticket:** pooling across cases inflates the result because traffic shifts after a fault. Averaged within each case, the model is slightly ahead (0.779 ± 0.005 vs 0.756), the reverse of the pooled order.
 - **Agent run:** the kept changes made max-event scoring **worse** (AUROC 0.941 → 0.918, PR-AUC 0.853 → 0.671), not flat, and made training about 5× noisier between runs. ([agent-inject-run.md](real-data/agent-inject-run.md))
 - **Pre-registration:** the BGL "rule fixed first" order rests on commit history (BGL ingest committed 11 minutes before the selection), and HDFS helped choose the rule that later judged the agent run. ([scoring-rule-preregistration.md](real-data/scoring-rule-preregistration.md))
-- **HDFS:** 1,304 eval blocks are longer than the model's context and are scored in windows. ([loghub-hdfs.md](real-data/loghub-hdfs.md))
+- **HDFS:** 1,304 eval blocks are longer than the model's context and are scored in windows. ([loghub-hdfs.md](real-data/loghub-hdfs.md)) Runs now record `n_eval_windowed` and print a note when this happens.
 
 ### Open, not fixed here
 
-- The objective's 300 clean sessions are also the validation shard, which `train.py` could train on.
+- ~~The objective's 300 clean sessions are also the validation shard, which `train.py` could train on.~~ Fixed 2026-11-10: `scripts/agent_inject_experiment.sh` splits the held-out normals so the objective's sessions never enter the val shard.
 - The loop compares about 120 tries against a running best with a margin from three base runs and a fixed training seed, which biases the best score upward.
 - In the `val_bpb` objective, `train.py` prints its own `val_bpb`, so nothing forces that number to come from `prepare.evaluate_bpb`.
 - In the lab and RCAEval, every incident comes after every eval normal in time. A time-shift test on the baselines came back at chance (0.47–0.56), but the model itself wasn't tested this way.
-- Model sessions scoring NaN are dropped, so a model variant can be scored on fewer sessions than the baselines.
+- Model sessions scoring NaN are dropped, so a model variant can be scored on fewer sessions than the baselines. None of the published runs had any; results now record `n_dropped_nan` so it would be visible.
 - The end-of-session score on its own varies a lot between seeds (AUROC sd 0.11–0.15 on HDFS).
 
 ## Evidence

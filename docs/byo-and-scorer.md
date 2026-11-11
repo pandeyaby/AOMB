@@ -8,7 +8,7 @@ per-session surprise / bits-per-byte (BPB).
 > requires labeled ranking metrics and the pass/fail checklist in
 > [`public-accuracy-eval.md`](public-accuracy-eval.md).  
 > Do **not** invent AUROC / accuracy numbers from scorer output.  
-> CRISP overnight `val_bpb=0.4309` remains a README fact only (unlabeled).
+> The CRISP overnight `val_bpb=0.4309` was a focal-weighted loss and is withdrawn ([`val-bpb-audit.md`](val-bpb-audit.md)).
 
 `prepare.py` / `evaluate_bpb` stay sacred — this path never modifies them.
 
@@ -165,7 +165,7 @@ Implementation notes:
 |----------|------|
 | BYO ingest → shards | Train on your real dump |
 | Session scorer BPB | Per-session surprise diagnostics |
-| `evaluate_bpb` / CRISP `0.4309` | Shard-level / overnight breeding facts — **not** accuracy |
+| `evaluate_bpb` | Shard-level training fitness — **not** accuracy (the old CRISP `0.4309` is withdrawn; see [`val-bpb-audit.md`](val-bpb-audit.md)) |
 | Public accuracy claim | Only after [`public-accuracy-eval.md`](public-accuracy-eval.md) checklist |
 
 Synthetic `generate_observability_corpus.py` remains **smoke/CI only**.

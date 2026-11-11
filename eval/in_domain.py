@@ -429,6 +429,7 @@ def ranking_metrics(y: Sequence[int], scores: Sequence[float]) -> dict[str, floa
         "pr_auc": pr_auc(ys, ss),
         "precision_at_10": precision_at_k(ys, ss, 10),
         "n": len(ys),
+        "n_dropped_nan": len(scores) - len(ys),  # sessions with no scorable tokens
     }
 
 
@@ -569,15 +570,20 @@ def run(
         )
         if info["n_train_cropped"]:
             raise RuntimeError(f"{info['n_train_cropped']} training sessions cropped")
-        train_info.append({"seed": seed, **info})
         scores: dict[str, list[float]] = {m: [] for m in MODEL_METHODS}
         all_toks = []
         scored_texts = [s.text + "\n" + END_MARKER if end_marker else s.text for s in eval_set]
+        n_windowed = 0  # eval sessions longer than the context, scored in windows
         for text in scored_texts:
             toks = token_surprise(model, tokenizer, token_bytes, text, info["max_seq_len"])
+            n_windowed += len(toks) > info["max_seq_len"]
             all_toks.append(toks)
             for m, v in model_scores_for(toks, text).items():
                 scores[m].append(v)
+        train_info.append({"seed": seed, **info, "n_eval_windowed": n_windowed})
+        if n_windowed:
+            print(f"note: {n_windowed} eval sessions exceed the {info['max_seq_len']}-token context; "
+                  "scored in consecutive windows (context resets)")
         for m in MODEL_METHODS:
             per_seed[m].append(ranking_metrics(y, scores[m]))
             per_seed_cap[m].append(per_capture_auroc(eval_set, scores[m], capture_of))

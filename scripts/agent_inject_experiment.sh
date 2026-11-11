@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# Agent loop optimising injected-fault detection (not val_bpb), on LogHub HDFS.
+# Agent loop optimising injected-fault detection (not val_bpb), on a LogHub dataset.
 #
 # Question: if the agent keeps a train.py change only when the model gets better
 # at telling corrupted normal sessions from clean ones, does detection of REAL
-# anomalies (labelled HDFS blocks the agent never sees) improve?
+# anomalies (labelled sessions the agent never sees) improve?
 #
-#   ./scripts/agent_inject_experiment.sh prepare    # cache → HDFS shards (+ end marker), worktree + branch
+# DATASET=hdfs (default) or DATASET=bgl selects the corpus. BGL was never used to
+# choose the scoring rule, so it is the cleaner test (docs/real-data/
+# scoring-rule-preregistration.md). Each dataset has its own state, worktree and branch.
+#
+#   ./scripts/agent_inject_experiment.sh prepare    # cache → shards (+ end marker), worktree + branch
 #   ./scripts/agent_inject_experiment.sh baseline   # measure the base model 3× → bar + noise margin (~25 min)
 #   ./scripts/agent_inject_experiment.sh start      # launch the loop (overnight)
 #   ./scripts/agent_inject_experiment.sh status
@@ -15,23 +19,35 @@
 #
 # Safety: separate git worktree and branch, AOMB_NO_PUSH=1 (covers every push),
 # the prepare.py cache is moved aside and restored by `restore`. The agent's
-# objective is computed by eval/objective.py on held-out NORMAL blocks; the
-# labelled eval blocks are only touched by `evaluate`, after the run.
+# objective is computed by eval/objective.py on held-out NORMAL sessions; the
+# labelled eval sessions are only touched by `evaluate`, after the run. The
+# held-out normals are split in two: the first N_OBJECTIVE are scored by the
+# objective, the rest become the val shard, so train.py can't train on the
+# sessions its score is computed from.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CACHE="$HOME/.cache/autoresearch"
 DATASETS="$HOME/.cache/aomb-datasets/loghub"
-STATE="$HOME/.cache/aomb-datasets/agent-inject"
-WORKTREE="$(dirname "$ROOT")/AOMB-agent-inject"
-SESSIONS="$DATASETS/hdfs_sessions.jsonl"
-VAL="$DATASETS/hdfs_sessions.val.jsonl"
+DATASET="${DATASET:-hdfs}"
+case "$DATASET" in
+  hdfs) SUFFIX="" ;;               # state paths of the first (HDFS) run, unchanged
+  bgl) SUFFIX="-bgl" ;;
+  *) echo "ERROR: DATASET must be hdfs or bgl" >&2; exit 1 ;;
+esac
+STATE="$HOME/.cache/aomb-datasets/agent-inject$SUFFIX"
+WORKTREE="$(dirname "$ROOT")/AOMB-agent-inject$SUFFIX"
+SESSIONS="$DATASETS/${DATASET}_sessions.jsonl"
+VAL_ALL="$DATASETS/${DATASET}_sessions.val.jsonl"
+N_OBJECTIVE=300                    # matches eval/objective.py N_CLEAN
+VAL="$STATE/objective_normals.jsonl"   # scored by the objective; never in a shard
+SHARD_VAL="$STATE/shard_val.jsonl"     # val_bpb shard
 
 die() { echo "ERROR: $*" >&2; exit 1; }
 branch() { cat "$STATE/branch"; }
 objective_env() {
   export AOMB_OBJECTIVE=inject AOMB_OBJECTIVE_VAL="$VAL" AOMB_OBJECTIVE_TRAIN="$SESSIONS"
-  export AOMB_NO_PUSH=1 AOMB_CORPUS=hdfs_v1_inject
+  export AOMB_NO_PUSH=1 AOMB_CORPUS="${DATASET}_inject"
 }
 
 add_corpus_note() {
@@ -40,16 +56,18 @@ add_corpus_note() {
 
 ## Current corpus and objective (agent-inject experiment)
 
-Training data is LogHub HDFS_v1: real Hadoop DataNode / NameNode log lines, one
-document per HDFS block, each ending with an [end_of_session] line. Only normal
-blocks are used. This run keeps a change only when inject_auroc rises (see the
+Training data is a LogHub corpus (HDFS_v1: one document per Hadoop block; BGL:
+one document per 20-line window of BlueGene/L system logs), each ending with an
+[end_of_session] line. Only normal sessions are used. This run keeps a change only when inject_auroc rises (see the
 objective note in the prompt); val_bpb is reported for information.
 EOF
 }
 
 cmd_prepare() {
-  [[ -f "$SESSIONS" && -f "$VAL" ]] || die "HDFS sessions missing. Build them with:
-  uv run python -m corpus.ingest.loghub_hdfs --input $DATASETS/HDFS_v1 --out $SESSIONS --n-val 1000"
+  [[ -f "$SESSIONS" && -f "$VAL_ALL" ]] || die "$DATASET sessions missing. Build them with:
+  uv run python -m corpus.ingest.loghub_hdfs --input $DATASETS/HDFS_v1 --out $DATASETS/hdfs_sessions.jsonl --n-val 1300
+  uv run python -m corpus.ingest.loghub_bgl --input $DATASETS/BGL --out $DATASETS/bgl_sessions.jsonl --n-val 1300"
+  (( $(wc -l < "$VAL_ALL") > N_OBJECTIVE + 100 )) || die "$VAL_ALL needs more than $((N_OBJECTIVE + 100)) normals"
   [[ -e "$STATE/hold" ]] && die "already prepared (see $STATE). Run 'restore' first to start over."
   mkdir -p "$STATE"
   cd "$ROOT"
@@ -63,11 +81,13 @@ cmd_prepare() {
   echo "$hold" > "$STATE/hold"
   echo "Moved previous cache to $hold"
 
-  uv run python -m corpus.ingest.sessions_to_shards --train "$SESSIONS" --val "$VAL" \
+  head -n "$N_OBJECTIVE" "$VAL_ALL" > "$VAL"
+  tail -n +"$((N_OBJECTIVE + 1))" "$VAL_ALL" > "$SHARD_VAL"
+  uv run python -m corpus.ingest.sessions_to_shards --train "$SESSIONS" --val "$SHARD_VAL" \
     --data-dir "$CACHE/data" --num-train-shards 8 --end-marker
   uv run python prepare.py --num-shards 8
 
-  local br="experiment/agent-inject-$(date +%Y%m%d)"
+  local br="experiment/agent-inject$SUFFIX-$(date +%Y%m%d)"
   git worktree add "$WORKTREE" -b "$br" HEAD
   echo "$br" > "$STATE/branch"
   git -C "$WORKTREE" rev-parse HEAD > "$STATE/base_sha"
@@ -145,7 +165,7 @@ cmd_stop() {
 
 cmd_evaluate() {
   [[ -f "$STATE/branch" ]] || die "run 'prepare' first"
-  local out="reports/public-accuracy/agent-loop-inject-$(date +%Y%m%d)"
+  local out="reports/public-accuracy/agent-loop-inject$SUFFIX-$(date +%Y%m%d)"
   cd "$ROOT"
   caffeinate -i uv run python -m eval.agent_commits --base "$(cat "$STATE/base_sha")" \
     --branch "$(branch)" --sessions "$SESSIONS" --out-dir "$out" \
@@ -164,7 +184,7 @@ cmd_restore() {
   done
   rmdir "$hold" 2>/dev/null || true
   rm -f "$STATE/hold"
-  echo "Restored the previous cache. HDFS shards kept at $done_dir"
+  echo "Restored the previous cache. $DATASET shards kept at $done_dir"
   echo "The worktree ($WORKTREE) and branch $(branch 2>/dev/null || echo '?') are left in place."
 }
 

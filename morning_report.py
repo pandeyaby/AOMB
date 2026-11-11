@@ -332,7 +332,7 @@ def main(plot: bool = False, tale_card: Path | None = None):
     print(f"  Anomaly detector status: {verdict}")
 
     # Progress sparkline
-    print(f"\n  val_bpb trend (lower = better):")
+    print("\n  val_bpb trend (lower = better):")
     spark = sparkline(bpb_vals)
     # Print in chunks of 60
     for i in range(0, len(spark), 60):
@@ -350,14 +350,14 @@ def main(plot: bool = False, tale_card: Path | None = None):
 
     # Best 5 hypotheses
     top5 = sorted(exps, key=lambda e: e["val_bpb"])[:5]
-    print(f"\n  Top-5 winning changes (by val_bpb):")
+    print("\n  Top-5 winning changes (by val_bpb):")
     for rank, exp in enumerate(top5, 1):
         print(f"  {rank}. val_bpb={exp['val_bpb']:.4f}  {exp['change'][:55]}")
         if exp["hypothesis"]:
             print(f"       why: {exp['hypothesis'][:65]}")
 
     # Next actions
-    print(f"\n  Recommended next steps:")
+    print("\n  Recommended next steps:")
     if best_bpb > 1.5:
         print("  → Run Tier 1 experiments: DEPTH, ASPECT_RATIO, WINDOW_PATTERN sweeps")
     elif best_bpb > 1.2:
@@ -367,11 +367,11 @@ def main(plot: bool = False, tale_card: Path | None = None):
     else:
         print("  → Run Tier 5: combine best config, push deeper (DEPTH=8)")
 
-    print(f"\n  Restore best model:")
+    print("\n  Restore best model:")
     print(f"  git checkout {best_exp['sha']} -- train.py")
 
-    print(f"\n  Start another overnight session:")
-    print(f"  uv run train.py   # verify best config still runs cleanly first")
+    print("\n  Start another overnight session:")
+    print("  uv run train.py   # verify best config still runs cleanly first")
 
     print("=" * W)
 

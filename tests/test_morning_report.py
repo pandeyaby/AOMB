@@ -6,7 +6,6 @@ No MPS / Zenodo. No invented AUROC / val_bpb. prepare.py untouched.
 from __future__ import annotations
 
 import json
-import math
 import re
 import sys
 import tempfile

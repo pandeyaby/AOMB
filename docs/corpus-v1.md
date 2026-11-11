@@ -102,7 +102,7 @@ uv run python prepare.py --num-shards 8
 
 **Recorded subset run (README fact only — not a marketing/accuracy claim):**
 [`docs/crisp-val-bpb-baseline.md`](crisp-val-bpb-baseline.md) (`val_bpb=0.458756`, 2026-09-14;
-`--max-spans 200000`, 20 train shards). Do not 1:1 compare to synthetic smoke-era 0.3682.
+`--max-spans 200000`, 20 train shards). Do not 1:1 compare to synthetic smoke-era 0.3682. Both were focal-weighted losses, not true bits-per-byte; see [`val-bpb-audit.md`](val-bpb-audit.md).
 
 ---
 

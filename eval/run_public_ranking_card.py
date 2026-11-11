@@ -388,8 +388,8 @@ def _write_card_summary(
         "",
         "## Identity",
         "",
-        f"| Field | Value |",
-        f"|-------|-------|",
+        "| Field | Value |",
+        "|-------|-------|",
         f"| Fixture | `{fixture_disp}` |",
         f"| Fixture content SHA-256 | `{fixture_sha}` |",
         f"| Split | `split.json` (eval n={n_eval}) |",
@@ -727,9 +727,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(f"Wrote {summary_path}")
 
-    ref_length = out_root / "REFERENCE_baselines-length.json"
-    ref_events = out_root / "REFERENCE_baselines-events.json"
-    ref_model = out_root / "REFERENCE_model-fixture.json"
+    # References are the committed ones, wherever this run writes its report
+    # (the quick-start scripts write to the git-ignored reports/reproduce/).
+    ref_length = REPORT_ROOT / "REFERENCE_baselines-length.json"
+    ref_events = REPORT_ROOT / "REFERENCE_baselines-events.json"
+    ref_model = REPORT_ROOT / "REFERENCE_model-fixture.json"
     failures: list[str] = []
     # ε check only against committed refs for the frozen public card fixture.
     if args.check_eps:
@@ -783,12 +785,16 @@ def main(argv: list[str] | None = None) -> int:
     if allow_publish_fixture_card and (
         args.write_references or (not args.skip_run and not args.check_eps)
     ):
-        for agg, path in ((length_agg, ref_length), (events_agg, ref_events)):
+        # written next to this run's report (the committed ones only when the
+        # run writes to the default report root)
+        for agg, name in ((length_agg, ref_length.name), (events_agg, ref_events.name)):
+            path = out_root / name
             path.write_text(json.dumps(agg, indent=2) + "\n", encoding="utf-8")
             print(f"Wrote {path}")
         if model_agg is not None:
-            ref_model.write_text(json.dumps(model_agg, indent=2) + "\n", encoding="utf-8")
-            print(f"Wrote {ref_model}")
+            path = out_root / ref_model.name
+            path.write_text(json.dumps(model_agg, indent=2) + "\n", encoding="utf-8")
+            print(f"Wrote {path}")
 
     la = length_agg["metrics_mean_std"]["auroc"]["mean"]
     ea = events_agg["metrics_mean_std"]["auroc"]["mean"]

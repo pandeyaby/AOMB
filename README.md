@@ -115,12 +115,17 @@ uv run python demo_anomaly.py                    # train briefly, score normal v
 ```bash
 ./scripts/product_mac_smoke.sh     # check that MPS training works (no keys needed)
 
+# with an API key (the SDK isn't a default dependency, hence --with anthropic):
 export AOMB_ANTHROPIC_API_KEYS=sk-ant-...
-caffeinate -i uv run python agent_loop.py >> logs/agent_loop.log 2>&1 &
+caffeinate -i uv run --with anthropic python agent_loop.py >> logs/agent_loop.log 2>&1 &
+# or, without a key, on your Claude Code login (the `claude` CLI):
+# caffeinate -i uv run python agent_loop.py >> logs/agent_loop.log 2>&1 &
 
 # next morning
 uv run python morning_report.py --plot
 ```
+
+By default the loop keeps changes that lower `val_bpb`; with no earlier measured run in the same lane, it first measures the unmodified `train.py` and uses that as the bar. The run that improved real detection optimised injected-fault AUROC instead, in an isolated worktree: `DATASET=hdfs|bgl ./scripts/agent_inject_experiment.sh prepare | baseline | start | evaluate | restore` ([write-up](docs/real-data/agent-inject-run.md)).
 
 ---
 
@@ -269,10 +274,10 @@ program.md           research brief given to the agent
 morning_report.py    overnight summary + progress plot
 demo_anomaly.py      train briefly, then score normal vs anomalous sessions
 score_session.py     score a telemetry dump (used by scripts/byo_score.sh)
-corpus/ingest/       dataset fetchers + adapters (CRISP, Tale of Errors, OTLP, BYO)
-eval/                ranking card, scoring CLI, DIPTYCH emitters
+corpus/ingest/       dataset fetchers + adapters (CRISP, Tale of Errors, LogHub HDFS/BGL, RCAEval, OTLP, BYO)
+eval/                labelled evals + baselines (in_domain), injected-fault objective, ranking card, scoring CLI, DIPTYCH emitters
 lab/                 Docker fault-injection lab for labeled evaluation
-scripts/             one-command entry points (demo, verify, Mac smoke, Tale pipeline)
+scripts/             one-command entry points (demo, verify, Mac smoke, lab reproduction, agent experiments, Tale pipeline)
 docs/                design notes, baselines, and reproducibility docs
 tests/               pytest suite (run: uv run pytest)
 ```

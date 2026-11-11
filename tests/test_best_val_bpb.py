@@ -230,7 +230,7 @@ class TestAgentLoopWiresHelper(unittest.TestCase):
     def test_get_best_val_bpb_uses_isolation(self):
         import agent_loop
 
-        fake_log = "\n".join([_SYNTHETIC, _CRISP_A, _CRISP_B, _TALE])
+        fake_log = "\n".join(s + " [bpb=ce]" for s in [_SYNTHETIC, _CRISP_A, _CRISP_B, _TALE])
         with mock.patch.dict(
             "os.environ", {"AOMB_CORPUS": "crisp"}, clear=False
         ):
@@ -243,6 +243,24 @@ class TestAgentLoopWiresHelper(unittest.TestCase):
                 ):
                     best = agent_loop.get_best_val_bpb()
         self.assertAlmostEqual(best, 0.4309, places=4)
+
+    def test_get_best_val_bpb_ignores_focal_weighted_history(self):
+        import agent_loop
+
+        # untagged subjects predate the 2026-10-08 evaluate_bpb fix
+        fake_log = "\n".join([_SYNTHETIC, _CRISP_A, _CRISP_B, _TALE])
+        with mock.patch.dict("os.environ", {"AOMB_CORPUS": "crisp", "AOMB_BEST_VAL_BPB": ""}, clear=False):
+            with mock.patch.object(agent_loop, "git", return_value=fake_log):
+                best = agent_loop.get_best_val_bpb()
+        self.assertTrue(math.isinf(best))
+
+    def test_get_best_val_bpb_ignores_the_tale_card(self):
+        import agent_loop
+
+        with mock.patch.dict("os.environ", {"AOMB_CORPUS": "tale", "AOMB_BEST_VAL_BPB": ""}, clear=False):
+            with mock.patch.object(agent_loop, "git", return_value=""):
+                best = agent_loop.get_best_val_bpb()
+        self.assertTrue(math.isinf(best))
 
     def test_get_best_val_bpb_override(self):
         import agent_loop

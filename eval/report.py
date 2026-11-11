@@ -95,8 +95,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         "## Identity",
         "",
-        f"| Field | Value |",
-        f"|-------|-------|",
+        "| Field | Value |",
+        "|-------|-------|",
         f"| Generated (UTC) | {report.get('generated_at')} |",
         f"| Seed | {report.get('seed')} |",
         f"| Score method | {report.get('score_method')} |",
@@ -110,8 +110,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         "## Metrics (this seed)",
         "",
-        f"| Metric | Value |",
-        f"|--------|-------|",
+        "| Metric | Value |",
+        "|--------|-------|",
         f"| AUROC | {_fmt(m.get('auroc'))} |",
         f"| PR-AUC | {_fmt(m.get('pr_auc'))} |",
     ]
@@ -126,8 +126,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         f"Draws: {rb.get('n_draws')} (seed={rb.get('seed')})",
         "",
-        f"| Metric | mean | std |",
-        f"|--------|------|-----|",
+        "| Metric | mean | std |",
+        "|--------|------|-----|",
     ]
     for name in ("auroc", "pr_auc"):
         block = rb.get(name) or {}

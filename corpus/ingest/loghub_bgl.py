@@ -64,7 +64,7 @@ def render(line: str) -> tuple[bool, str] | None:
     )
 
 
-def build(input_dir: Path, out: Path, window: int, n_train: int, n_eval: int, seed: int) -> dict:
+def build(input_dir: Path, out: Path, window: int, n_train: int, n_eval: int, seed: int, n_val: int = 0) -> dict:
     windows: list[tuple[bool, list[str]]] = []
     cur: list[str] = []
     alert = False
@@ -89,6 +89,11 @@ def build(input_dir: Path, out: Path, window: int, n_train: int, n_eval: int, se
                 break
     later = list(range(train_idx[-1] + 1, len(windows)))
     eval_idx = random.Random(seed).sample(later, min(n_eval, len(later)))
+    # normal windows after training and outside the eval sample, drawn with a
+    # separate RNG so adding a val set never changes the published eval set
+    taken = set(eval_idx)
+    pool = [i for i in later if i not in taken and not windows[i][0]]
+    val_idx = random.Random(seed + 1).sample(pool, min(n_val, len(pool))) if n_val > 0 else []
 
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w", encoding="utf-8") as f:
@@ -107,6 +112,11 @@ def build(input_dir: Path, out: Path, window: int, n_train: int, n_eval: int, se
                     )
                     + "\n"
                 )
+    if val_idx:
+        with out.with_suffix(".val.jsonl").open("w", encoding="utf-8") as f:
+            for i in val_idx:
+                f.write(json.dumps({"session_id": f"bgl:{i}", "label": "normal", "split": "val",
+                                    "group": "bgl", "text": "\n".join(windows[i][1])}) + "\n")
     meta = {
         "source": "LogHub BGL (CC BY 4.0) https://zenodo.org/records/8196385",
         "bgl_log_sha256": log_sha.hexdigest(),
@@ -117,6 +127,7 @@ def build(input_dir: Path, out: Path, window: int, n_train: int, n_eval: int, se
         "n_eval": len(eval_idx),
         "n_eval_incident": sum(windows[i][0] for i in eval_idx),
         "seed": seed,
+        "n_val_normal": len(val_idx),
     }
     out.with_suffix(".meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
     return meta
@@ -130,8 +141,14 @@ def main() -> int:
     p.add_argument("--n-train", type=int, default=5000)
     p.add_argument("--n-eval", type=int, default=10000)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument(
+        "--n-val",
+        type=int,
+        default=0,
+        help="Also write <out>.val.jsonl: normal windows disjoint from train and eval",
+    )
     a = p.parse_args()
-    meta = build(Path(a.input).expanduser(), Path(a.out).expanduser(), a.window, a.n_train, a.n_eval, a.seed)
+    meta = build(Path(a.input).expanduser(), Path(a.out).expanduser(), a.window, a.n_train, a.n_eval, a.seed, a.n_val)
     print(json.dumps(meta, indent=2))
     return 0
 
