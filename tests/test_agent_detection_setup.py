@@ -117,8 +117,13 @@ class TestInjectObjective(unittest.TestCase):
             self.assertFalse(agent_loop.is_improvement(0.32, 0.31))
 
     def test_best_inject_from_env_then_git_subjects(self):
-        with mock.patch.dict(os.environ, {"AOMB_BEST_INJECT_AUROC": "0.61"}):
+        with mock.patch.dict(os.environ, {"AOMB_BEST_INJECT_AUROC": "0.61"}), \
+                mock.patch.object(agent_loop, "git", return_value=""):
             self.assertEqual(agent_loop.get_best_inject_auroc(), 0.61)
+        # a restarted run keeps the bar its kept changes set
+        with mock.patch.dict(os.environ, {"AOMB_BEST_INJECT_AUROC": "0.54"}), \
+                mock.patch.object(agent_loop, "git", return_value="[inject_auroc=0.5707] [Δ=+0.03] x"):
+            self.assertEqual(agent_loop.get_best_inject_auroc(), 0.5707)
         env = {k: v for k, v in os.environ.items() if k != "AOMB_BEST_INJECT_AUROC"}
         log = "[inject_auroc=0.6400] [Δ=+0.0200] [val_bpb=0.31] [change: x]\n[val_bpb=0.30] old\n[inject_auroc=0.6200] y"
         with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(agent_loop, "git", return_value=log):

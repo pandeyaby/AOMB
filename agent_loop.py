@@ -241,15 +241,21 @@ def parse_inject_auroc(output: str) -> float | None:
 
 
 def get_best_inject_auroc() -> float:
-    """Highest injected-fault AUROC so far: ``AOMB_BEST_INJECT_AUROC``, else git subjects, else -inf."""
+    """Highest injected-fault AUROC so far: the larger of ``AOMB_BEST_INJECT_AUROC``
+    (the measured base model) and any kept commit's score, else -inf.
+
+    Taking the larger means a restarted run keeps the bar its kept changes set,
+    instead of dropping back to the base model's score.
+    """
+    vals = []
     raw = os.getenv("AOMB_BEST_INJECT_AUROC", "").strip()
     if raw:
-        return float(raw)
+        vals.append(float(raw))
     try:
         subjects = git("log", "--format=%s", "-200").splitlines()
     except Exception:
         subjects = []
-    vals = [float(m.group(1)) for sub in subjects for m in [_INJECT_SUBJECT_RE.search(sub)] if m]
+    vals += [float(m.group(1)) for sub in subjects for m in [_INJECT_SUBJECT_RE.search(sub)] if m]
     return max(vals) if vals else float("-inf")
 
 
