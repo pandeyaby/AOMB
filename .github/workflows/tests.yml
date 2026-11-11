@@ -17,7 +17,7 @@ jobs:
   pytest:
     # prepare.py (the fixed measuring stick) refuses to import without macOS + MPS,
     # so the suite runs on Apple Silicon.
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
